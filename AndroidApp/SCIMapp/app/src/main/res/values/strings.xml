@@ -1,0 +1,622 @@
+<resources>
+    <string name="app_name">SITE</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">LOGIN</string>
+    <string name="action_log_in">Log in</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_proceed">Proceed</string>
+    <string name="action_log_out">Log Out</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="welcome_text">Welcome,</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="inbox_menu_1">Menu 1</string>
+    <string name="inbox_menu_2">Menu 2</string>
+    <string name="title_activity_inbox">Runs</string>
+    <string name="title_activity_task_detail">Run</string>
+    <string name="title_all">All</string>
+    <string name="title_safety">Safety</string>
+    <string name="title_rails">Rails</string>
+    <string name="title_tiles">Tiles</string>
+    <string name="title_spikes">Spikes</string>
+    <string name="title_jointBar">Joint Bar</string>
+    <string name="title_switch">Switch</string>
+    <string name="title_activity_report_add">Report</string>
+    <string name="title_activity_report_inbox">Reports</string>
+    <string name="title_activity_report_detail">Reports</string>
+    <string name="title_activity_defect_code">Defect Code(s)</string>
+    <string name="title_activity_popup">Popup</string>
+    <string name="title_new_report_btn_edit">Update</string>
+    <string name="title_new_report_btn_save">Save</string>
+    <string name="title_activity_report_view">View Only</string>
+    <string name="empty_location_value">0.0</string>
+    <string name="welcome_txt">Welcome Back</string>
+    <string name="err_internet_not_available">Server unreachable, check internet connection!</string>
+    <string name="title_activity_issues">Issues Activity</string>
+    <string name="tab_text_1">Inspect</string>
+    <string name="tab_text_2">Report</string>
+    <string name="tab_text_3">Info</string>
+    <string name="tab_text_4">Maintain</string>
+    <string name="tab_text_4_scim">Forms</string>
+    <string name="action_settings">Settings</string>
+    <string name="section_format">Hello World from section: %1$d</string>
+    <string name="login_version_title">Version:</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Form</string>
+    <string name="title_activity_rpt_time_and_gps">Time And Gps Report</string>
+    <string name="description_placeholder">Please add description…</string>
+    <string name="description_title">Description:</string>
+    <string name="pictures_after_fix_title">Photos After Fix</string>
+    <string name="pictures_title">Photos</string>
+    <string name="voice_notes_title">Notes</string>
+    <string name="title_activity_asset_maps">Asset Map</string>
+    <string name="work_plan">INSPECTION</string>
+    <string name="task_status">Run Status</string>
+    <string name="reported">Reported</string>
+    <string name="time_elapsed">Time Elapsed</string>
+    <string name="stop">STOP</string>
+    <string name="stop_new_theme">Stop</string>
+    <string name="select_work_plan">SELECT INSPECTION RUN</string>
+    <string name="inspections">Inspection</string>
+    <string name="sync">JOB SAFETY BRIEFING</string>
+    <string name="reports">REPORTS</string>
+    <string name="inspection">Inspection:</string>
+    <string name="task_dashboard">TASK Dashboard</string>
+    <string name="task_started">Started At</string>
+    <string name="issues">Issues</string>
+    <string name="images">Images</string>
+    <string name="start">START</string>
+    <string name="start_new_theme">Start</string>
+    <string name="long_press_to_activate">Please long press to activate</string>
+    <string name="enable_location">Please enable location to continue</string>
+    <string name="task_closed">Run Closed!</string>
+    <string name="view_running_task">View Active Run</string>
+    <string name="view">View</string>
+    <string name="time_total">Time Total</string>
+    <string name="sync_service_running">Sync Service Already Running ...</string>
+    <string name="network_unavailable">Network unavailable!</string>
+    <string name="long_press_to_continue">Please long press option to continue</string>
+    <string name="confirmation">Confirmation!</string>
+    <string name="want_to_stop_inspection">Do you really want to stop Inspection?</string>
+    <string name="status">Status</string>
+    <string name="please_wait">Please Wait!</string>
+    <string name="waiting_for_sync_service">Waiting for sync service</string>
+    <string name="no_last_inspection">No active inspection!</string>
+    <string name="work_plan_starting">Inspection Starting, Please wait…</string>
+    <string name="inspection_started">Inspection Started</string>
+    <string name="unable_to_start_inspection">Unable to Start Inspection</string>
+    <string name="complete_all_tasks">Please complete all runs to close session</string>
+    <string name="unable_to_find_work_plan">Unable to find Inspection</string>
+    <string name="finishing_inspection">Please wait! Finishing Inspection</string>
+    <string name="inspection_closed">Inspection Closed successfully</string>
+    <string name="enable_gps">Please enable GPS, Try again</string>
+    <string name="want_to_log_out">Do you really want to Log Out?</string>
+    <string name="log_out_first_server_info">Please LogOut first, to access settings !</string>
+    <string name="language_setting">Language</string>
+    <string name="lang_dialog_title">Language</string>
+    <string name="lang_dialog_message">Please select language</string>
+    <string name="want_to_select_asset">Do you really want to select ?</string>
+    <string name="want_to_start_task">Do you really want to Start Run?</string>
+    <string name="want_to_start_task_title">Start Run?</string>
+    <string name="want_to_end_task_title">End Run?</string>
+    <string name="want_to_end_task">Do you really want to end run?</string>
+    <string name="press_add_button">* Please press (+) button to add</string>
+    <string name="assets">ASSETS:</string>
+    <string name="instructions">INSTRUCTIONS</string>
+    <string name="task">Run</string>
+    <string name="asset_type">Asset Type</string>
+    <string name="track_segment">Asset</string>
+    <string name="no_def_code">No defect code available !</string>
+    <string name="title_activity_select_asset">Select Asset</string>
+    <string name="title_activity_server_info">Settings</string>
+    <string name="title_activity_monitoring">Monitoring</string>
+    <string name="title_activity_task_dashboard">Task Dashboard</string>
+    <string name="your_location">Your Location</string>
+    <string name="select_asset">Select Asset</string>
+    <string name="marked_on_site">Fixed on site?</string>
+    <string name="priority">Priority</string>
+    <string name="check_list">Check List</string>
+    <string name="def_codes">Defects / Deficiencies</string>
+    <string name="track_defects">Track Defects!</string>
+    <string name="select_priority">Please select priority</string>
+    <string name="select_description">Please enter description</string>
+    <string name="hold_to_record">Hold to record!</string>
+    <string name="report_time_and_gps">Time and GPS Report</string>
+    <string name="report_time_and_gps_map">Time and GPS Map Report</string>
+    <string name="report_loading">Loading Report</string>
+    <string name="report_time_and_gps_detail">Report will show your all day time sheet along with GPS coordinates</string>
+    <string name="report_time_and_gps_map_detail">Report will show your all day time sheet on map</string>
+    <string name="started">Started</string>
+    <string name="issue">Issue</string>
+    <string name="completed">Completed</string>
+    <string name="day_closed">Day Closed</string>
+    <string name="closed">Closed</string>
+    <string name="date">Date</string>
+    <string name="want_to_start_work_plan">Do you really want to start</string>
+    <string name="last_execution">Last Execution</string>
+    <string name="days_ago">day(s) ago</string>
+    <string name="next_inspection">Next Inspection</string>
+    <string name="server">Server:</string>
+    <string name="port">Port</string>
+    <string name="add">ADD</string>
+    <string name="global_settins">Global Settings</string>
+    <string name="clear_all_data">Clear All Data</string>
+    <string name="gps_log_text">GPS Logging</string>
+    <string name="clear">Clear</string>
+    <string name="cleared_all_data">Successfully Cleared all data!</string>
+    <string name="err_invalid_server_info">Invalid Server Information !</string>
+    <string name="want_to_use_this_server">Do you want to use this Server ?</string>
+    <string name="successfully_activated">Successfully Activated</string>
+    <string name="err_edit_server_config">Unable to Edit the active config !</string>
+    <string name="err_unable_remove_active_server">Unable to Remove the active config !</string>
+    <string name="want_to_remove_server">Do you really want to remove this Server Info?\"</string>
+    <string name="successfully_updated">Updated Successfully</string>
+    <string name="performed">Performed?</string>
+    <string name="yes_no">Yes/No</string>
+    <string name="text_linear_assets">Linear Assets</string>
+    <string name="text_fixed_assets">Fixed Assets</string>
+    <string name="title_activity_safety_briefing">SafetyBriefingActivity</string>
+    <string name="safety_briefing_tab_text_1">BRIEFING</string>
+    <string name="safety_briefing_tab_text_2">WORKERS</string>
+    <string name="safety_briefing_tab_text_3">COMMENTS</string>
+    <string name="activity_title_worker_add">ADD WORKER</string>
+
+    <string name="activity_date_time">Date and Time</string>
+    <string name="activity_work_location">Briefing Location</string>
+    <string name="activity_description">Description of Work Assignment</string>
+    <string name="activity_qpe">Qualified Protection Employee (QPE) in charge of providing on-track protection</string>
+    <string name="activity_qualification_card">Confirm Current Qualifications (Date on Qualification Card)</string>
+    <string name="activity_roadway_protection">On what Line and track(s) will the Roadway Worker protection be required?</string>
+    <string name="activity_Authorized_Speed">Track Maximum Authorized Speed (MAS)</string>
+    <string name="activity_form_Protection">What form of Protection will be used?</string>
+    <string name="activity_ITD_QPE">If using Individual Train Detection (ITD), you must be a QPE. What time has the Train Dispatcher been notified of your intention to use ITD as protection</string>
+    <string name="activity_Foul_time">If requesting Foul Time, the "Employee Record of Foul Time Authority" form must be used in accordance with Operating Rule RDR 504</string>
+    <string name="activity_TAW">If using Train Approach Warning for protection (TAW), how many Watchpersons/Advanced Watchpersons are required?</string>
+    <string name="activity_TAW_HotSpot">If using Train Approach Warning for protection (TAW), is the location considered a "HotSpot"?</string>
+    <string name="activity_ITD_TAW">If using ITD or TAW, has the Speed Distance Table (RDR/OTS 508) been reviewed for required cleaning distances to apply the 15-second rule?</string>
+    <string name="activity_WORK_zone">if establishing a Work zone for protection, has the Braking Chart (RDR/OTS 231) been reviewed for proper sign placement?</string>
+    <string name="activity_OOS_protection">If the track is taken OOS for protection, have either Barricades or Portable Train Stops been erected at the limits at all required locations?</string>
+    <string name="activity_establishing_protection">When establishing protection, have all entry points (turnouts, crossings, interlockings) been considered and properly protected?</string>
+    <string name="activity_protection_directions">Has protection been established in all directions?</string>
+    <string name="activity_work_groups_involved">Are other work groups involved?</string>
+    <string name="activity_Roadway_Workers">Discuss where Roadway Workers will clear</string>
+    <string name="activity_watchpersons_equipment">Do all watchpersons have the proper equipment</string>
+    <string name="activity_Valid_Qualification">Have all workers been checked for Valid Qualification Cards and PPE?</string>
+    <string name="activity_Radio_Checks">Were Radio Checks performed on all radios?</string>
+    <string name="activity_equipment_operators">If working around equipment the following must be discussed with the operators</string>
+    <string name="activity_questions">Does anyone have any questions or concerns?</string>
+    <string name="activity_title_safety_briefing">ON TRACK BRIEFING</string>
+
+    <string name="briefing_date">Click here to select date and time!</string>
+    <string name="briefing_date_title">Date</string>
+    <string name="briefing_time">Time</string>
+    <string name="briefing_edit_multiline">edit-multiline</string>
+    <string name="briefing_edit_text">edit-text</string>
+    <string name="briefing_itd">ITD</string>
+    <string name="briefing_foul_time">Foul Time</string>
+    <string name="briefing_taws">TAW</string>
+    <string name="briefing_work_zone">Work Zone</string>
+    <string name="briefing_oos">OOS</string>
+    <string name="briefing_foul_time_forms">Do you have Foul Time Forms?</string>
+    <string name="briefing_yes">Yes</string>
+    <string name="briefing_no">No</string>
+    <string name="briefing_train_dispatcher">What time has the Train Dispatcher been notified of your intention to use TAW as protection?</string>
+    <string name="briefing_advanced_watchpersons">If Yes, have you considered the requirement for additional advanced watchpersons?</string>
+    <string name="briefing_required_distance">What is the required distance?</string>
+    <string name="briefing_any_direction">Remember - Any Time, Any Direction!</string>
+    <string name="briefing_foul_explain">If No, explain</string>
+    <string name="briefing_employee_in_charge">If yes, the Employee-in-Charge (EIC) of the additional group(s) must be briefed and added to Part 2 of the form "W"</string>
+    <string name="briefing_whistle_test">Remember, a whistle test MUST be done after the watchmen are in place!</string>
+    <string name="briefing_dangers_of_equipment">Dangers of Equipment</string>
+    <string name="briefing_spacing">Spacing</string>
+    <string name="briefing_speeds">Speeds</string>
+    <string name="briefing_weather_conditions">Weather Conditions</string>
+    <string name="briefing_addressed">If yes, have they been addressed to everyone\'s satisfaction?</string>
+    <string name="title_activity_end_point">Select a Server</string>
+    <string name="server_address_hint">Server Address</string>
+    <string name="display_name_hint">Display Name</string>
+    <string name="dialog_wait_title">Please wait...</string>
+    <string name="briefing_feet">Feet.</string>
+    <string name="replace_action">Replace with your own action</string>
+    <string name="msg_timps_running_server">SITE not running on this server</string>
+    <string name="msg_server_unreach">Server Unreachable!</string>
+    <string name="internet_unavail">Internet unavailable!</string>
+    <string name="btn_ok">OK</string>
+    <string name="select_text">SELECT</string>
+    <string name="server_settings">Server Settings</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_test">TEST</string>
+    <string name="toast_display">Display name is required!</string>
+    <string name="toast_server_name">Server name is required!</string>
+    <string name="toast_server_port">Server port is required!</string>
+    <string name="toast_server_exist">Server already exist!</string>
+    <string name="toast_internet_unavail">Internet unavailable!</string>
+    <string name="toast_server_working">Server Working!</string>
+    <string name="toast_timps_no_run">SITE not running on this server</string>
+    <string name="toast_server_unreach">Server Unreachable!</string>
+    <string name="toast_server_connect">Server Connected!</string>
+    <string name="msg_offline_mode_confirmation">Server is unreachable !\nDo you want to continue in offline mode?</string>
+    <string name="msg_offline_mode_server_not_running">SITE not running on this server!</string>
+    <string name="msg_offline_mode_internet_unavailable">Internet unavailable !\nDo you want to continue in offline mode?</string>
+    <string name="continue_txt">CONTINUE</string>
+    <string name="offline_confirmation">Do you want to continue in Offline mode?</string>
+    <string name="dialog_server_info">Server Info</string>
+    <string name="asset_available">No Asset available to proceed!</string>
+    <string name="select_template">Please select a template</string>
+    <string name="download_voice_note">Downloading voice note, Please wait!</string>
+    <string name="record">Record</string>
+    <string name="msg_start_recording">Start Recording</string>
+    <string name="msg_stop_recording">Stop Recording</string>
+    <string name="toast_start_milepost">Start Milepost is not within the range</string>
+    <string name="toast_end_milepost">Please enter the end Milepost</string>
+    <string name="toast_range_milepost">End Milepost is not within the range</string>
+    <string name="toast_start_mile_post">Please enter the start Milepost</string>
+    <string name="msg_delete_voice_confirmation">Do you really want to delete this Voice Note?</string>
+    <string name="workplan_selection_title">SELECT WORK PLAN</string>
+    <string name="string_type">Type:</string>
+    <string name="temporary_fix">Temporary Fix</string>
+    <string name="permanent_fix">Permanent Fix</string>
+    <string name="string_location">Location</string>
+    <string name="location_start">Start</string>
+    <string name="location_end">End</string>
+    <string name="button_save">Save</string>
+    <string name="btn_back">Back</string>
+    <string name="msg_milepost">Milepost</string>
+    <string name="task_not_started_status">Not Started</string>
+    <string name="task_finished_status">Finished</string>
+    <string name="task_inprogress_status">In Progress</string>
+    <string name="dashboard_task_count">Run Count:</string>
+    <!--xxxxxxxxxxxxxxxxxxxx GPS Strings xxxxxxxxxxxxxxxxxxxx-->
+
+    <string name="launch_activity">Launch activity</string>
+    <string name="location_unknown">Location unknown</string>
+    <string name="location_updates_label">Location Updates</string>
+
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core
+        functionality.</string>
+    <string name="settings">Settings</string>
+    <string name="request_location_updates">Request location updates</string>
+    <string name="remove_location_updates">Remove location updates</string>
+
+    <string name="location_updated">Location Updated: %1$s</string>
+    <!--xxxxxxxxxxxxxxxxxxxx END xxxxxxxxxxxxxxx-->
+    <string name="msg_action">Action</string>
+    <string name="toast_signature_removed">Signature removed!</string>
+    <string name="toast_add_acct">Please add the ACCT #</string>
+    <string name="toast_worker_name">Please add the Worker Name</string>
+    <string name="toast_worker_signature">Please take the Worker\'s Signature</string>
+    <string name="text_briefing">Briefing !</string>
+    <string name="toast_worker_acct">Worker with Acct# (</string>
+    <string name="toast_already_exist">) already exist!</string>
+    <string name="message_rmover_worker">Do you want to remove worker ?</string>
+    <string name="text_signature">Signature !</string>
+    <string name="title_warning">Warning!</string>
+    <string name="message_save_changes">Do you want to save changes ?</string>
+    <string name="briefing_form_select_time">Please Select Time</string>
+    <string name="briefing_name_title">NAME</string>
+    <string name="briefing_signature_title">SIGNATURE</string>
+    <string name="briefing_retake_btn_title">Retake</string>
+    <string name="briefing_delete_btn_title">Delete</string>
+    <string name="briefing_by_phone_title">BY PHONE?</string>
+    <string name="briefing_save_btn_title">Save</string>
+    <string name="briefing_edit_btn_title">Edit</string>
+    <string name="briefing_review_comments_title">Review Comments</string>
+    <string name="toast_msg_press_again_to_clear">Press again to clear</string>
+    <string name="issue_confirmation_msg">Are you sure you want to discard the changes ?</string>
+    <string name="map_mode_title">Map Mode</string>
+    <string name="asset_selection_msg">Please long press to select asset</string>
+    <string name="change_btn_title">Change</string>
+    <string name="title_please_wait">Please Wait!</string>
+    <string name="message_processing_image">Processing Image. . .</string>
+    <string name="incorrect_user_info_error">Incorrect User Info</string>
+    <string name="fixed">Fixed ?</string>
+    <string name="text_cancel">Cancel</string>
+    <string name="live_location">Live Location</string>
+    <string name="getting_location_please_wait">Getting location. Please wait...!</string>
+    <string name="run_status">Inspection Status</string>
+    <string name="inspection_in_progress">Inspection in Progress</string>
+    <string name="out_of">out of</string>
+    <string name="time_recorded">Time Recorded</string>
+    <string name="actions">Actions</string>
+    <string name="select_run">Select Run</string>
+    <string name="briefing">Briefing</string>
+    <string name="today">Today</string>
+    <string name="time">Time</string>
+    <string name="elapsed">Elapsed</string>
+    <string name="track_inspection_maintenance_and_planning_system">Signal, Inspection, Testing Efficiency</string>
+    <string name="please_also_check">Please also check</string>
+    <string name="please_press_button_to_add">* Please press (+) button to add</string>
+    <string name="tag_resume">Resume</string>
+    <string name="msg_app_resumed">App resumed</string>
+    <string name="toast_location_added">Location Added</string>
+    <string name="toast_unable_get_location">Unable to get Location</string>
+    <string name="task_details">Run Details</string>
+    <string name="notes">Notes:</string>
+    <string name="tasks">Runs</string>
+    <string name="fixed_on_site">Fixed</string>
+    <string name="loading_inspections_msg">Loading inspections</string>
+    <string name="end_at">End At</string>
+    <string name="dismiss_dialog_btn">Dismiss</string>
+    <string name="cluster_asset_type">Asset Type:</string>
+    <string name="location_dialogue_heading">Location:</string>
+    <string name="single_parent_error_msg">Please create a new issue for separate parent category</string>
+    <string name="milepost_required_msg">Please enter the Milepost to continue</string>
+    <string name="issue_title">Title</string>
+    <string name="issue_title_placeholder">Please add Title</string>
+    <string name="remedial_action_title">Remedial Action</string>
+    <string name="information_title">Information:</string>
+    <string name="information_field_placeholder">Information</string>
+    <string name="require_mp_title">Please enter your Start Milepost before starting inspection.</string>
+    <string name="start_mp_title">Start MP:</string>
+    <string name="traverse_track_selection_title">Please select the Traverse track</string>
+    <string name="traversed_by_title">Traversed By:</string>
+    <string name="traverse_by_walking">Walking</string>
+    <string name="traverse_by_driving">Hi-Rail</string>
+    <string name="track_inspected_title">Is complete track inspected?</string>
+    <string name="completed_till_msg">Completed till</string>
+    <string name="forms_sample">Sample Form</string>
+    <string name="forms">Forms</string>
+    <string name="error_update">Unable to update</string>
+    <string name="info_table">Information Tables</string>
+    <string name="no_inspection_started">Inspection</string>
+    <string name="inspection_closed_status">Inspection Closed</string>
+    <string name="large_text">
+        "Material is the metaphor.\n\n"
+
+        "A material metaphor is the unifying theory of a rationalized space and a system of motion."
+        "The material is grounded in tactile reality, inspired by the study of paper and ink, yet "
+        "technologically advanced and open to imagination and magic.\n"
+        "Surfaces and edges of the material provide visual cues that are grounded in reality. The "
+        "use of familiar tactile attributes helps users quickly understand affordances. Yet the "
+        "flexibility of the material creates new affordances that supercede those in the physical "
+        "world, without breaking the rules of physics.\n"
+        "The fundamentals of light, surface, and movement are key to conveying how objects move, "
+        "interact, and exist in space and in relation to each other. Realistic lighting shows "
+        "seams, divides space, and indicates moving parts.\n\n"
+
+        "Bold, graphic, intentional.\n\n"
+
+        "The foundational elements of print based design typography, grids, space, scale, color, "
+        "and use of imagery guide visual treatments. These elements do far more than please the "
+        "eye. They create hierarchy, meaning, and focus. Deliberate color choices, edge to edge "
+        "imagery, large scale typography, and intentional white space create a bold and graphic "
+        "interface that immerse the user in the experience.\n"
+        "An emphasis on user actions makes core functionality immediately apparent and provides "
+        "waypoints for the user.\n\n"
+
+        "Motion provides meaning.\n\n"
+
+        "Motion respects and reinforces the user as the prime mover. Primary user actions are "
+        "inflection points that initiate motion, transforming the whole design.\n"
+        "All action takes place in a single environment. Objects are presented to the user without "
+        "breaking the continuity of experience even as they transform and reorganize.\n"
+        "Motion is meaningful and appropriate, serving to focus attention and maintain continuity. "
+        "Feedback is subtle yet clear. Transitions are efﬁcient yet coherent.\n\n"
+
+        "3D world.\n\n"
+
+        "The material environment is a 3D space, which means all objects have x, y, and z "
+        "dimensions. The z-axis is perpendicularly aligned to the plane of the display, with the "
+        "positive z-axis extending towards the viewer. Every sheet of material occupies a single "
+        "position along the z-axis and has a standard 1dp thickness.\n"
+        "On the web, the z-axis is used for layering and not for perspective. The 3D world is "
+        "emulated by manipulating the y-axis.\n\n"
+
+        "Light and shadow.\n\n"
+
+        "Within the material environment, virtual lights illuminate the scene. Key lights create "
+        "directional shadows, while ambient light creates soft shadows from all angles.\n"
+        "Shadows in the material environment are cast by these two light sources. In Android "
+        "development, shadows occur when light sources are blocked by sheets of material at "
+        "various positions along the z-axis. On the web, shadows are depicted by manipulating the "
+        "y-axis only. The following example shows the card with a height of 6dp.\n\n"
+
+        "Resting elevation.\n\n"
+
+        "All material objects, regardless of size, have a resting elevation, or default elevation "
+        "that does not change. If an object changes elevation, it should return to its resting "
+        "elevation as soon as possible.\n\n"
+
+        "Component elevations.\n\n"
+
+        "The resting elevation for a component type is consistent across apps (e.g., FAB elevation "
+        "does not vary from 6dp in one app to 16dp in another app).\n"
+        "Components may have different resting elevations across platforms, depending on the depth "
+        "of the environment (e.g., TV has a greater depth than mobile or desktop).\n\n"
+
+        "Responsive elevation and dynamic elevation offsets.\n\n"
+
+        "Some component types have responsive elevation, meaning they change elevation in response "
+        "to user input (e.g., normal, focused, and pressed) or system events. These elevation "
+        "changes are consistently implemented using dynamic elevation offsets.\n"
+        "Dynamic elevation offsets are the goal elevation that a component moves towards, relative "
+        "to the component’s resting state. They ensure that elevation changes are consistent "
+        "across actions and component types. For example, all components that lift on press have "
+        "the same elevation change relative to their resting elevation.\n"
+        "Once the input event is completed or cancelled, the component will return to its resting "
+        "elevation.\n\n"
+
+        "Avoiding elevation interference.\n\n"
+
+        "Components with responsive elevations may encounter other components as they move between "
+        "their resting elevations and dynamic elevation offsets. Because material cannot pass "
+        "through other material, components avoid interfering with one another any number of ways, "
+        "whether on a per component basis or using the entire app layout.\n"
+        "On a component level, components can move or be removed before they cause interference. "
+        "For example, a floating action button (FAB) can disappear or move off screen before a "
+        "user picks up a card, or it can move if a snackbar appears.\n"
+        "On the layout level, design your app layout to minimize opportunities for interference. "
+        "For example, position the FAB to one side of stream of a cards so the FAB won’t interfere "
+        "when a user tries to pick up one of cards.\n\n"
+    </string>
+    <string name="rail_selection">Rail Side</string>
+    <string name="inspection_type_1">Required Inspection</string>
+    <string name="inspection_type_2">Weather Related</string>
+    <string name="inspection_type_3">Special Inspection</string>
+    <string name="defects_title">Defects</string>
+    <string name="speech_prompt">Say something&#8230;</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="btn_done">Done</string>
+    <string name="run_not_started_confirmation">You haven\'t started a Run yet! \nDo you really want to Stop Inspection without Run?</string>
+    <string name="select_remedial_action">Please select remedial action</string>
+    <string name="linear_assets_title">Linear Assets</string>
+    <string name="fixed_assets_title">Fixed Assets</string>
+    <string name="issue_list_title">Defects / Deficiencies</string>
+    <string name="tables_btn">Tables</string>
+    <string name="deficiency_checkbox">Deficiency</string>
+    <string name="rule_213_9_b_title">Rule 213.9(b)</string>
+    <string name="apply_rule_213_9_b_checkbox">Apply Rule 213.9 (b)</string>
+    <string name="voice_to_text_title">Voice to Text</string>
+    <string name="weather_condition_req_msg">Please enter weather condition to continue</string>
+    <string name="start_title">Start</string>
+    <string name="mp_req_msg_1">\"Please enter your Start \"</string>
+    <string name="mp_req_msg_2">\" before starting inspection.\"</string>
+    <string name="start_mp_msg_title">Start MP:</string>
+    <string name="start_mp_req_for_inspection_msg">Please enter your Start MP before starting inspection.</string>
+    <string name="req_title_msg">Please enter Title</string>
+    <string name="issue_type_req_msg">Please select either Defect or Deficiency</string>
+    <string name="weather_condition_title">Report weather conditions:</string>
+    <string name="inspection_type_title">Inspection Type</string>
+    <string name="normally_schedule_entry">Normally Schedule</string>
+    <string name="weather_related_entry">Weather Related</string>
+    <string name="special_inspection_entry">Special Inspection</string>
+    <string name="select_temperature_title">Select Temperature:</string>
+    <string name="issue_type_msg">You can either create Defect or Deficiency at a time!</string>
+    <string name="getting_location_msg">Trying to get accurate location. Please try in a moment.</string>
+    <string name="gps_location_unavailable_msg">GPS Location unavailable !</string>
+    <string name="record_activate_msg">Press to start recording</string>
+    <string name="speak_to_text_tooltip">Press and speak</string>
+    <string name="insufficient_voice_duration_msg">Insufficient recording duration!</string>
+    <string name="active_title">Active</string>
+    <string name="delete_image_msg">Do you really want to delete image?</string>
+    <string name="assets_ahead">Assets ahead:</string>
+    <string name="assets_behind">Assets behind:</string>
+    <string name="selected_asset_title">Selected</string>
+    <string name="required_inspections">Required Inspections</string>
+    <string name="no_form_available">No Form Available</string>
+    <string name="activity_pdf_title">Info</string>
+    <string name="deficiency_title">Deficiencies</string>
+    <string name="report_web_title">Report</string>
+    <string name="view_reports">View Reports</string>
+    <string name="asset_info">Asset Info</string>
+    <string name="no_inspection_assigned">No inspection assigned</string>
+    <string name="switch_inspection">Switch Inspection</string>
+    <string name="deficiency_text">Deficiency</string>
+    <string name="defect_text">Defect</string>
+    <string name="loading_text">Loading…</string>
+    <string name="start_marker_req">Please enter start value</string>
+    <string name="end_marker_req">Please enter end value</string>
+    <string name="single_selection_defect">Only one selection allowed at a time!</string>
+    <string name="title_activity_wplan">WplanActivity</string>
+    <string name="logout_msg">Server unreachable! Please try again</string>
+    <string name="status_plan_in_progress_adapter"><![CDATA[<b> Status: </b>In Progress]]></string>
+    <string name="status_plan_active_adapter"><![CDATA[<b> Status: </b>Active]]></string>
+    <string name="started_at_title">Started At: </string>
+    <string name="inspection_in_progress_toast">Inspection already in progress!</string>
+    <string name="switching_inspection_msg_part_1">Active Plan: </string>
+    <string name="switching_inspection_msg_part_2">Switch To: </string>
+    <string name="switching_inspection_msg_part_3">Do you really want to switch inspection ?</string>
+    <string name="switching_inspection_msg2_part_1">Switch To: </string>
+    <string name="switching_inspection_msg2_part_2">Do you really want to switch inspection ?</string>
+    <string name="inspection_in_progress_msg_part_1">Inspection </string>
+    <string name="inspection_in_progress_msg_part_2"> is currently in progress.</string>
+    <string name="previous_inspection_msg"> inspection ?</string>
+    <string name="title_activity_session_dashboard">Sessions</string>
+    <string name="session_title">Sessions</string>
+    <string name="downloading_file">Downloading File </string>
+    <string name="all_fields_req_msg">All fields are required !</string>
+    <string name="exp_end_not_in_range_msg">Expected end milepost is not within range</string>
+    <string name="session_started_msg">Session Started</string>
+    <string name="exp_end_title">Exp. End </string>
+    <string name="end_mp_req_msg">End MP is required !</string>
+    <string name="end_mp_not_in_range_msg">End milepost is not within range</string>
+    <string name="exp_end_mp_req_msg">Please enter expected end Milepost to continue</string>
+    <string name="start_tile_title">Start</string>
+    <string name="exp_end_tile_title">Exp. End</string>
+    <string name="stop_btn_title">Pause</string>
+    <string name="inspection_title">Inspection: </string>
+    <string name="session_status_title">Session Status</string>
+    <string name="start_btn_title">Start</string>
+    <string name="session_starting_title">Session Starting</string>
+    <string name="start_mp_dialog_title">Start MP:\u0020 </string>
+    <string name="expected_end_dialog_title">Expected End: \u0020</string>
+    <string name="start_session_list_row_title">START</string>
+    <string name="end_session_list_row_title">END</string>
+    <string name="end_mp_dialog_title">End MP: </string>
+    <string name="exp_end_dialog_title">Exp. End: </string>
+    <string name="start_at_dialog_title">Started At: \u0020</string>
+    <string name="session_complete_title">Session Complete</string>
+    <string name="trackForms">Track Forms</string>
+    <string name="due_date_in_days">Due date in day(s)</string>
+    <string name="report_template_sessions_title">Sessions Report</string>
+    <string name="report_template_session_detail">Report will show the current plan\'s completion</string>
+    <string name="offline">OFFLINE</string>
+    <string name="offline_curr_user_data">Only showing current user data</string>
+    <string name="title_latitude">Latitude</string>
+    <string name="title_longitude">Longitude</string>
+    <string name="session_sharing_msg">" \u0020 user(s) is/are working on or have already completed this inspection.\n Click here to view the details"</string>
+    <string name="asset_location_update_confirmation_msg">Do you want to save changes ?</string>
+    <string name="title_adjusted">Adjusted</string>
+    <string name="activity_update_asset_location">Update Location</string>
+    <string name="view_run_tests">View Tests</string>
+    <string name="color_coding_upcoming">Upcoming</string>
+    <string name="color_coding_due">Due</string>
+    <string name="color_coding_expiring">Expiring</string>
+    <string name="select_run_test">Select Run/Test</string>
+    <string name="due_in_text">Due in \u0020</string>
+    <string name="expiring_in_text">Expiring in \u0020</string>
+    <string name="title_activity_maintenance_map">Map</string>
+    <string name="maintenance_title">Maintenance</string>
+    <string name="mp_end">MP End</string>
+    <string name="mp_start">MP Start</string>
+    <string name="map">Map</string>
+    <string name="maintenance_type">Maintenance Type</string>
+    <string name="mr_number">MR Number</string>
+    <string name="line_name">Line Name</string>
+    <string name="mr">MR #</string>
+    <string name="mr_type">MR Type</string>
+    <string name="description">Description</string>
+    <string name="maintenance_exec_title">Execution</string>
+    <string name="require_start_mp">Please enter the start milepost</string>
+    <string name="require_end_mp">Please enter the end milepost</string>
+    <string name="require_info">Please enter the information</string>
+    <string name="title_activity_change_password">Update Password</string>
+    <!--Image picker strings-->
+    <string name="lbl_set_profile_photo">Set profile image</string>
+    <string name="lbl_take_camera_picture">Take a picture</string>
+    <string name="lbl_choose_from_gallery">Choose from gallery</string>
+    <string name="toast_image_intent_null">Image picker option is missing!</string>
+    <string name="dialog_permission_title">Grant Permissions</string>
+    <string name="dialog_permission_message">This app needs permission to use this feature. You can grant them in app settings.</string>
+    <string name="go_to_settings">GOTO SETTINGS</string>
+    <string name="back_to_ndashboard">Back to\nDashboard</string>
+    <string name="name">Name</string>
+    <string name="password">Password</string>
+    <string name="mobile">Mobile</string>
+    <string name="phone">Phone</string>
+    <string name="email">Email</string>
+    <string name="signature">Signature</string>
+    <string name="old_password">Old Password</string>
+    <string name="_6_or_more_characters">6 or more characters</string>
+    <string name="new_password">New Password</string>
+    <string name="confirm_new_password">Confirm new password</string>
+    <string name="please_connect_server">Please connect with the server!</string>
+    <string name="old_password_failed">Old password is required</string>
+    <string name="new_password_failed">New password is required</string>
+    <string name="confirm_password_failed">Confirm new password is required</string>
+    <string name="more_characters_req">Please enter 6 or more characters</string>
+    <string name="password_do_not_match">Passwords do not match!</string>
+    <string name="password_updated">Password updated successfully!</string>
+    <string name="Old_password_not_correct">Old Password is not correct!</string>
+    <string name="update_failed">Update Failed</string>
+    <string name="account_info">Account Info</string>
+
+</resources>

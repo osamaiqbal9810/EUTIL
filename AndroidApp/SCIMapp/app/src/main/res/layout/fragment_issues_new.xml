@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="5dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:weightSum="2"
+            android:orientation="horizontal"
+            android:baselineAligned="false">
+            <LinearLayout
+                android:id="@+id/infoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight=".3"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/taskTitleTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="10dp"
+                    android:fontFamily="@font/cabin"
+                    android:text="Inspection Unit 204"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/taskDescTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="5dp"
+                    android:fontFamily="@font/cabin"
+                    android:layout_below="@id/taskTitleTxt"
+                    android:paddingLeft="10dp"
+                    android:text="Milepost 10, 11"
+                    android:textSize="14sp" />
+
+                <View
+                    android:id="@+id/divider"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/taskDescTxt"
+                    android:background="@android:color/darker_gray" />
+
+                <TextView
+                    android:id="@+id/taskNotesTxt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:fontFamily="@font/cabin"
+                    android:text="@string/please_also_check" />
+
+                <!--<View
+                    android:id="@+id/divider2"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/taskNotesTxt"
+                    android:background="@color/divider_hint" />-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/tvAddIssueHelp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="10dp"
+                        android:paddingLeft="10dp"
+                        android:paddingStart="10dp"
+                        android:paddingRight="2dp"
+                        android:paddingEnd="10dp"
+                        android:fontFamily="@font/cabin"
+                        android:layout_below="@id/divider2"
+                        android:text="@string/please_press_button_to_add"
+                        android:textColor="@color/divider_hint"
+                        android:layout_weight="1"
+                        />
+
+                    <!-- <Button
+                         android:id="@+id/btnInfoTables"
+                         android:layout_width="wrap_content"
+                         android:layout_height="50dp"
+                         android:text="Tables" />-->
+
+
+                </LinearLayout>
+
+                <!--<View
+                    android:id="@+id/divider4"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/tvAddIssueHelp"
+                    android:background="@color/divider_hint" />-->
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:layout_weight="1.7">
+                <TextView
+                    android:id="@+id/tv_map_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center_horizontal"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="12sp"
+                    android:text="@string/map_mode_title"
+                    android:drawableTop="@drawable/map_mode_selector"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_linear_asset_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:id="@+id/rl_location_title"
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
+
+                <ImageView
+                    android:id="@+id/iv_linear_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_web_asset_gray_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/linear_assets_title"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_linear_title"
+                    android:fontFamily="@font/cabin"
+                    android:textColor="@color/title_text" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_linear_asset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:weightSum="3"
+                android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_linear_asset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.35"
+                        android:fontFamily="@font/cabin"
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:gravity="center_horizontal"
+                        android:textSize="10sp"
+                        android:drawableBottom="@drawable/ic_baseline_radio_button_unchecked_24"
+                        android:text="@string/active_title"/>
+                  <Spinner
+                    android:id="@+id/sp_linear_asset"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="5dp"
+                      android:spinnerMode="dropdown"
+                    android:layout_weight=".3"/>
+                <ImageButton
+                    android:id="@+id/ib_linear_asset"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1.35"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_button_selector"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_fixed_asset_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
+
+                <ImageView
+                    android:id="@+id/iv_fixed_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_web_asset_gray_24dp" />
+
+                <TextView
+                    android:id="@+id/textView3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/fixed_assets_title"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_fixed_title"
+                    android:fontFamily="@font/cabin"
+                    android:textColor="@color/title_text" />
+
+                <ImageView
+                    android:id="@+id/fixAssetLocationEdit"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/edit_location_btn_selector"
+                    android:drawableTint="@android:color/black"
+                    />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_fixed_asset"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:weightSum="3"
+                android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_fixed_asset"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.35"
+                        android:fontFamily="@font/cabin"
+                        android:textSize="10sp"
+                        android:layout_gravity="center_horizontal|center_vertical"
+                        android:gravity="center_horizontal"
+                        android:drawableBottom="@drawable/ic_baseline_radio_button_unchecked_24"
+                        android:text="@string/active_title"/>
+                 <Spinner
+                    android:id="@+id/sp_fixed_asset"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                     android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight=".3"/>
+                <ImageButton
+                    android:id="@+id/ib_fixed_asset"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_button_selector"
+                    android:layout_weight="1.35"
+                   />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_switch_insp_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="35dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
+
+                <ImageView
+                    android:id="@+id/iv_switch_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_baseline_search_24" />
+
+                <TextView
+                    android:id="@+id/textView4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="@string/switch_inspection"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_switch_title"
+                    android:fontFamily="@font/cabin"
+                    android:textColor="@color/title_text" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_switch_insp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:weightSum="3"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_switch_insp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1.35"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="10sp"
+                    android:layout_gravity="center_horizontal|center_vertical"
+                    android:gravity="center_horizontal"
+                    android:drawableBottom="@drawable/ic_baseline_radio_button_unchecked_24"
+                    android:text="@string/active_title"/>
+                <Spinner
+                    android:id="@+id/sp_switch_insp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight=".3"/>
+                <ImageButton
+                    android:id="@+id/ib_switch_insp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/add_button_selector"
+                    android:layout_weight="1.35"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:visibility="visible"
+            android:background="@color/title_background">
+
+            <ImageView
+                android:id="@+id/iv_issues_title"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_baseline_list_alt_24" />
+
+            <TextView
+                android:id="@+id/tv_def_list_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="@string/issue_list_title"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_issues_title"
+                android:fontFamily="@font/cabin"
+                android:textColor="@color/title_text" />
+            <ImageButton
+                android:id="@+id/ib_defects_list_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_baseline_unfold_more_24"
+                android:layout_alignParentEnd="true"
+                android:padding="4dp"
+                android:layout_marginRight="10dp"
+                android:background="@color/btn_transparent_background"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
+
+
+
+        <!--<TextView
+            android:id="@+id/section_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin" />-->
+
+
+        <!--<android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/taskDetailsToolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+        </android.support.design.widget.AppBarLayout>-->
+
+
+
+        <!--<LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filter" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Asset Type: " />
+
+                <Spinner
+                    android:id="@+id/assetTypeSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </Spinner>
+
+            </LinearLayout>
+
+        </LinearLayout>-->
+
+        <!-- <TextView
+             android:id="@+id/message"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/title_rails" />-->
+
+        <!--<ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/infoLayout"
+            >-->
+        <ListView
+            android:id="@+id/reportsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+        <!--</ScrollView>-->
+    </LinearLayout>
+    <!--<View
+        android:id="@+id/dividerEnd"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/divider_hint" />-->
+    <!--TODO: investigate margin bottom-->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddIssue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="20dp"
+        app:srcCompat="@drawable/ic_add_white_24dp"
+        android:layout_alignParentEnd="true" />
+</RelativeLayout>

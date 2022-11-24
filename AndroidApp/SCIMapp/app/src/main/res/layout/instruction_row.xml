@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/issue_row_background"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/tv_gi_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cabin"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:text="GI name" />
+
+    <TextView
+        android:id="@+id/tv_gi_action"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:background="@color/issue_row_background"
+        android:drawableEnd="@drawable/ic_baseline_arrow_forward_24"
+        android:drawableRight="@drawable/ic_baseline_arrow_forward_24"
+        android:text="" />
+
+</RelativeLayout>

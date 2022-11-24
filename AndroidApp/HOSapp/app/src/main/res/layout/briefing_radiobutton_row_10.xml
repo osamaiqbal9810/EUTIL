@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+ <TextView
+    android:id="@+id/textView_row_10"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/briefing_foul_time_forms" />
+
+<RadioGroup
+	android:id="@+id/rg_row_10"
+	style="@style/RadioGroupStyle">
+	
+	<RadioButton
+    android:id="@+id/radio_button_yes_10"
+		style="@style/RadioButtonStyle"
+    android:text="@string/briefing_yes" />
+	
+	<RadioButton
+    android:id="@+id/radio_button_no_10"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/briefing_no" />
+	
+	</RadioGroup>
+ 
+</LinearLayout>

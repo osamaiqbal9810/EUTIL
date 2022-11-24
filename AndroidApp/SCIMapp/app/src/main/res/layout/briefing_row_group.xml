@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/tv_briefing_id"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:background="@drawable/circle"
+        android:textColor="@color/credentials_white"
+        android:gravity="center"
+        android:fontFamily="@font/cabin"
+        android:layout_marginBottom="4dp"
+        android:textSize="10sp"
+        android:text="D"/>
+
+    <TextView
+        android:id="@+id/tv_briefing_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingEnd="12dp"
+        android:paddingRight="12dp"
+        android:textColor="@color/title_black"
+        android:fontFamily="@font/cabin"
+        android:paddingLeft="9dp"
+        android:textSize="14dp"
+        android:text="Sample textasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdsadas"/>
+</LinearLayout>

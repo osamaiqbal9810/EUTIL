@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".safetyBriefing.WorkerFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <ExpandableListView
+        android:id="@+id/elv_safety_workers"
+        android:paddingBottom="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="@color/camera_back_color"
+        android:layout_alignParentBottom="true">
+        <ImageButton
+            android:id="@+id/ib_worker_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_add_white_24dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true">
+
+        </ImageButton>
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -26,7 +26,7 @@ let all = {
   assetDocuments: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/assetDocuments"),
   giTestForms: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/giTestForms"),
   // Server port
-  port: process.env.PORT || 4001,
+  port: process.env.PORT || 4010,
 
   // Server IP
   ip: process.env.IP || "11.11.11.52",

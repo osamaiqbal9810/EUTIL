@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".safetyBriefing.CommentsFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="REVIEW COMMENTS"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:counterEnabled="true"
+            app:counterMaxLength="120">
+
+            <EditText
+                android:id="@+id/et_comments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="8"
+                android:minLines="5"
+                android:gravity="top|start"
+                android:maxLines="10"
+                android:scrollbars="vertical"
+                android:inputType="textMultiLine"
+                android:maxLength="120" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+        <!--<EditText
+            android:id="@+id/et_comments"
+            android:inputType="textMultiLine"
+        android:lines="8"
+        android:minLines="6"
+        android:gravity="top|start"
+        android:maxLines="10"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:scrollbars="vertical"
+        />-->
+    </LinearLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <TextView
+            android:id="@+id/tv_sign_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Signature"/>
+        <ImageView
+            android:id="@+id/iv_comment_signature_display"
+            android:layout_width="match_parent"
+            android:layout_height="90dp"
+            android:layout_below="@id/tv_sign_title"/>
+        <ImageButton
+            android:id="@+id/ib_comment_add_signature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_comment_signature_display"
+            android:src="@drawable/ic_add_white_24dp"/>
+        <RelativeLayout
+            android:id="@+id/rl_actions"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_below="@id/ib_comment_add_signature"
+            android:background="@drawable/border_top"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+            <Button
+                android:id="@+id/ib_comment_signature_retake"
+                style="@android:style/Widget.DeviceDefault.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dip"
+                android:drawableStart="@android:drawable/ic_menu_edit"
+                android:drawableLeft="@android:drawable/ic_menu_edit"
+                android:gravity="start|center_vertical"
+                android:text="Edit"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textStyle="bold" />
+
+            <Button
+                android:id="@+id/ib_comment_signature_delete"
+                style="@android:style/Widget.DeviceDefault.Button.Borderless"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dip"
+                android:layout_toEndOf="@id/ib_comment_signature_retake"
+                android:layout_toRightOf="@id/ib_comment_signature_retake"
+                android:drawableStart="@android:drawable/ic_menu_delete"
+                android:drawableLeft="@android:drawable/ic_menu_delete"
+                android:gravity="start|center_vertical"
+                android:text="Delete"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textStyle="bold" />
+
+            <!--<ImageButton
+                android:id="@+id/ib_comment_signature_retake"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <ImageButton
+                android:id="@+id/ib_comment_signature_delete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/ib_comment_signature_retake"
+                android:layout_toEndOf="@id/ib_comment_signature_retake"/>-->
+        </RelativeLayout>
+        <View
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:id="@+id/view1"
+            android:layout_below="@id/rl_actions"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:background="#c0c0c0"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/bt_save_comments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Save Comments"/>
+    </RelativeLayout>
+    <!-- TODO: Update blank fragment layout -->
+
+
+</LinearLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_main_group"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:padding="8dp">
+    <TextView
+        android:id="@+id/tv_main_id"
+        android:layout_width="38dp"
+        android:layout_height="38dp"
+        android:background="@drawable/circle"
+        android:textColor="@color/credentials_white"
+        android:gravity="center"
+        android:layout_marginBottom="4dp"
+        android:textSize="9sp"
+        android:text="122.222"/>
+
+    <TextView
+        android:id="@+id/textViewGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="9dp"
+        android:paddingLeft="9dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="5dp"
+        android:paddingRight="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:paddingBottom="8dp"
+        android:text="Sample text"
+        android:textColor="@color/title_black"
+        android:textSize="14sp" />
+
+</LinearLayout>

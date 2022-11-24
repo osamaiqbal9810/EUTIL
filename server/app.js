@@ -180,7 +180,7 @@ let testScheduleObserverService = new TestScheduleObserverService();
 testScheduleObserverService.initialize();
 ServiceLocator.register("TestScheduleObserverService", testScheduleObserverService);
 
-let mongoURL = "mongodb://localhost:27017/"; // default mongo db url
+let mongoURL = "mongodb+srv://osamaiqbal:Powersoft19@eutilitycluster.obaziv6.mongodb.net/?retryWrites=true&w=majority"; // default mongo db url
 let mongoURLSource = "default",
   databaseNameSource = "default";
 
@@ -197,21 +197,21 @@ if (process.env.DB_NAME) {
 }
 
 // if customer data file contains information, it would override other sources
-let customerData = versionCompatibility.loadCustomerDataFile();
-if (customerData && (customerData.DB_NAME || customerData.DB_URL || customerData.DB_PORT)) {
-  if (customerData.DB_URL && customerData.DB_PORT) {
-    mongoURL = "mongodb://" + customerData.DB_URL + ":" + customerData.DB_PORT + "/";
-    mongoURLSource = "customer data file";
-  }
+// let customerData = versionCompatibility.loadCustomerDataFile();
+// if (customerData && (customerData.DB_NAME || customerData.DB_URL || customerData.DB_PORT)) {
+//   if (customerData.DB_URL && customerData.DB_PORT) {
+//     mongoURL = "mongodb://" + customerData.DB_URL + ":" + customerData.DB_PORT + "/";
+//     mongoURLSource = "customer data file";
+//   }
 
-  if (customerData.DB_NAME) {
-    mongoURL = mongoURL + customerData.DB_NAME;
-    databaseNameSource = "customer data file";
-  }
+//   if (customerData.DB_NAME) {
+//     mongoURL = mongoURL + customerData.DB_NAME;
+//     databaseNameSource = "customer data file";
+//   }
 
-  config.mongo.uri = mongoURL;
-}
-
+//   config.mongo.uri = mongoURL;
+// }
+config.mongo.uri = mongoURL;
 let infoBreakdown = config.mongo.uri.split("/");
 console.log("Database URL Source:", mongoURLSource);
 console.log("Database Name Source:", databaseNameSource);

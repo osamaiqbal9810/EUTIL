@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:weightSum="1"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="5dp"
+    android:layout_marginStart="20dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="@dimen/dp10"
+    android:paddingBottom="1dp"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="@dimen/dp5">
+
+    <View android:background="@drawable/circle_gray"
+        android:id="@+id/viewLocColor"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="1dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="1dp"
+        android:layout_marginStart="5dp" />
+
+    <TextView
+        android:id="@+id/tvLocTxt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:fontFamily="@font/cabin"
+        android:paddingStart="3dp"
+        android:paddingLeft="2dp"
+        android:textColor="@color/title_text"
+        android:textSize="14sp"
+        tools:ignore="RtlSymmetry"
+        android:layout_marginEnd="3dp"
+        android:layout_marginRight="3dp"
+        />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_selected"
+        android:layout_width="match_parent"
+        android:layout_marginStart="7dp"
+        android:layout_height="2dp"
+        android:visibility="invisible"
+        android:layout_marginTop="@dimen/dp5"
+        android:background="#FFFFFF"
+        android:orientation="horizontal"
+        android:layout_marginLeft="7dp">
+    </LinearLayout>
+
+</LinearLayout>

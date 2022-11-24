@@ -1,0 +1,1334 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TaskDashboardActivity">
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/relativeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/task_menu_title_tdb"
+                        android:layout_width="260dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/task_dashboard"
+                        android:textColor="@color/credentials_white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvTitle_tdb33"
+                        android:layout_width="260dp"
+                        android:layout_height="wrap_content"
+                        android:text="Inspection Unit 204"
+                        android:textColor="@color/credentials_white"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/userInfoView_tdb"
+                    layout="@layout/content_user_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_location_title"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+
+                android:background="@color/title_background"
+                android:visibility="visible"
+                app:layout_constraintTop_toBottomOf="@id/relativeLayout">
+
+                <ImageView
+                    android:id="@+id/iv_location_title"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_gps_fixed_gray_24dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toEndOf="@id/iv_location_title"
+                    android:layout_toRightOf="@id/iv_location_title"
+                    android:fontFamily="@font/cabin"
+                    android:text="@string/live_location"
+                    android:textColor="@color/title_text"
+                    android:textSize="@dimen/tile_font_size_title"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_live_location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/rl_location_title"
+                tools:layout_editor_absoluteX="8dp"
+                tools:layout_editor_absoluteY="343dp">
+
+                <ImageView
+                    android:id="@+id/imgGPSIcon_tdb"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp" />
+
+                <TextView
+                    android:id="@+id/tvCurrLocationText_tdb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/cabin"
+                    android:text="-"
+                    android:textColor="@color/title_text"
+                    android:textSize="12dp" />
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_task_details_title"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:background="@color/title_background"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@id/ll_live_location">
+
+                <ImageView
+                    android:id="@+id/iv_task_details_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_task_status" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toEndOf="@id/iv_task_details_title"
+                    android:layout_toRightOf="@id/iv_task_details_title"
+                    android:fontFamily="@font/cabin"
+                    android:text="@string/task_details"
+                    android:textColor="@color/title_text" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_title_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toBottomOf="@id/ll_live_location">
+
+                <RelativeLayout
+                    android:id="@+id/rl_task_details"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/tile_background"
+                    android:padding="@dimen/tile_padding">
+
+                    <LinearLayout
+                        android:id="@+id/ll_inspection_details"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/tile_right_left"
+                        android:layout_marginRight="@dimen/tile_right_left"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="30dp"
+                            android:layout_marginLeft="30dp"
+                            android:src="@drawable/ic_task_status" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:fontFamily="@font/cabin"
+                            android:text="@string/task_details"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_title"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/v_divider_inspection"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/divider_height"
+                        android:layout_below="@id/ll_inspection_details"
+                        android:background="@color/tile_divider" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/v_divider_inspection"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tvTitle_tdb"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/tile_top_bottom_task_dashboard"
+                            android:layout_marginBottom="@dimen/tile_top_bottom_task_dashboard"
+                            android:fontFamily="@font/cabin"
+                            android:gravity="center"
+                            android:text="3rd Rail"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_details" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/tile_top_bottom"
+                            android:layout_marginRight="@dimen/tile_top_bottom"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/cabin"
+                                android:text="@string/description_title"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvDesc_tdb"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/tile_right_left"
+                                android:layout_marginRight="@dimen/tile_right_left"
+                                android:fontFamily="@font/cabin"
+                                android:text=" ---" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/tile_top_bottom"
+                            android:layout_marginTop="@dimen/tile_top_bottom"
+                            android:layout_marginRight="@dimen/tile_top_bottom"
+                            android:layout_marginBottom="@dimen/tile_top_bottom"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/cabin"
+                                android:text="@string/notes"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvNotes_tdb"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/tile_right_left"
+                                android:layout_marginRight="@dimen/tile_right_left"
+                                android:fontFamily="@font/cabin"
+                                android:text=" ---" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                </RelativeLayout>
+                <!--<RelativeLayout
+                android:layout_weight="1"
+                android:id="@+id/rl_task_desc"
+                android:layout_marginTop="10dp"
+                android:padding="@dimen/tile_padding"
+                android:background="@color/tile_background"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:id="@+id/ll_task_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/tile_right_left"
+                    android:layout_marginLeft="@dimen/tile_right_left"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginStart="30dp"
+                        android:layout_gravity="center"
+                        android:src="@drawable/ic_inspection_summary_title"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/cabin"
+                        android:textSize="@dimen/tile_font_size_title"
+                        android:textStyle="bold"
+                        android:textColor="@color/title_text"
+                        android:text="Descriptio"/>
+                </LinearLayout>
+                <View
+                    android:id="@+id/v_divider_task_desc"
+                    android:layout_below="@id/ll_task_desc"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height"
+                    android:background="@color/tile_divider" />
+
+                <TextView
+                    android:id="@+id/tvDesc_tdb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/v_divider_task_desc"
+                    android:gravity="center"
+                    android:layout_marginTop="@dimen/tile_top_bottom"
+                    android:layout_marginBottom="@dimen/tile_top_bottom"
+                    android:text="Description"
+                    android:fontFamily="@font/cabin"
+                    android:textColor="@color/title_text"
+                    android:textSize="@dimen/tile_font_size_details"/>
+            </RelativeLayout>-->
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_task_status_title"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/title_background"
+                android:visibility="visible"
+                app:layout_constraintTop_toBottomOf="@id/ll_title_desc">
+
+                <ImageView
+                    android:id="@+id/iv_task_status_title"
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="30dp"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_run_status_title" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toEndOf="@id/iv_task_status_title"
+                    android:layout_toRightOf="@id/iv_task_status_title"
+                    android:fontFamily="@font/cabin"
+                    android:text="@string/task_status"
+                    android:textColor="@color/title_text"
+                    android:textSize="@dimen/tile_font_size_title"
+                    android:textStyle="bold" />
+                <LinearLayout
+                    android:id="@+id/ll_finished_task"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginEnd="30dp"
+                    android:gravity="center"
+
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_task_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:textColor="@color/color_db_stop"
+                        android:textSize="@dimen/tile_font_size_title"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/cabin"
+                        android:text="@string/task_finished_status"/>
+                    <ImageView
+                        android:id="@+id/iv_finished"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:drawableTint="@android:color/black"
+                        android:src="@drawable/ic_baseline_visibility_off_24"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_BtnSS_tdb"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:background="@color/color_stop_background">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/imgBtnSS_tdb"
+                            android:layout_width="13dp"
+                            android:layout_height="13dp" />
+
+                        <TextView
+                            android:id="@+id/tvBtnSS_tdb"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="2dp"
+                            android:text="@string/stop_new_theme"
+                            android:textAllCaps="false"
+                            android:textColor="@color/credentials_white"
+                            android:textSize="10sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_task_start"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:background="@color/tile_background"
+                android:padding="@dimen/tile_padding"
+                app:layout_constraintTop_toBottomOf="@id/rl_task_status_title">
+
+                <LinearLayout
+                    android:id="@+id/ll_task_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/tile_right_left"
+                    android:layout_marginRight="@dimen/tile_right_left"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginLeft="30dp"
+                        android:src="@drawable/ic_play_arrow_gray_24dp" />
+
+                    <TextView
+                        android:id="@+id/tv_deText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:fontFamily="@font/cabin"
+                        android:text="@string/task_started"
+                        android:textColor="@color/title_text"
+                        android:textSize="@dimen/tile_font_size_title"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/v_divider_task_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height"
+                    android:layout_below="@id/ll_task_start"
+                    android:background="@color/tile_divider" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/v_divider_task_start"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/tile_top_bottom_task_dashboard"
+                        android:layout_marginBottom="@dimen/tile_top_bottom_task_dashboard"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_time_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:gravity="center"
+                            android:text="@string/time"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvTaskTime_tdb"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/tile_right_left"
+                            android:layout_marginRight="@dimen/tile_right_left"
+                            android:fontFamily="@font/cabin"
+                            android:text="--:-- --"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_details" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/tile_top_bottom"
+                        android:layout_marginRight="@dimen/tile_top_bottom"
+                        android:layout_marginBottom="@dimen/tile_top_bottom_task_dashboard"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_location_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:gravity="center"
+                            android:text="At"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvSLocationDesc_tdb"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/tile_right_left"
+                            android:layout_marginRight="@dimen/tile_right_left"
+                            android:fontFamily="@font/cabin"
+                            android:text="--"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_details" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_title_issues_images"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                app:layout_constraintTop_toBottomOf="@id/rl_task_start">
+
+                <RelativeLayout
+                    android:id="@+id/rl_task_issues"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/tile_background"
+                    android:padding="@dimen/tile_padding">
+
+                    <LinearLayout
+                        android:id="@+id/ll_task_issues"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/tile_right_left"
+                        android:layout_marginRight="@dimen/tile_right_left"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="30dp"
+                            android:layout_marginLeft="30dp"
+                            android:src="@drawable/ic_error_outline_gray_24dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:fontFamily="@font/cabin"
+                            android:text="@string/issues"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_title"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/v_divider_task_issues"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/divider_height"
+                        android:layout_below="@id/ll_task_issues"
+                        android:background="@color/tile_divider" />
+
+                    <TextView
+                        android:id="@+id/tvIssueCount_tdb"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/v_divider_task_issues"
+                        android:layout_marginTop="@dimen/tile_top_bottom"
+                        android:layout_marginBottom="@dimen/tile_top_bottom"
+                        android:fontFamily="@font/cabin"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="@color/title_text"
+                        android:textSize="@dimen/tile_font_size_details" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/rl_task_images"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="1"
+                    android:background="@color/tile_background"
+                    android:padding="@dimen/tile_padding">
+
+                    <LinearLayout
+                        android:id="@+id/ll_task_images"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/tile_right_left"
+                        android:layout_marginRight="@dimen/tile_right_left"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="30dp"
+                            android:layout_marginLeft="30dp"
+                            android:src="@drawable/ic_photo_library_gray_24dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:fontFamily="@font/cabin"
+                            android:text="@string/images"
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_title"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/v_divider_task_images"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/divider_height"
+                        android:layout_below="@id/ll_task_images"
+                        android:background="@color/tile_divider" />
+
+                    <TextView
+                        android:id="@+id/tvImageCount_tdb"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/v_divider_task_images"
+                        android:layout_marginTop="@dimen/tile_top_bottom"
+                        android:layout_marginBottom="@dimen/tile_top_bottom"
+                        android:fontFamily="@font/cabin"
+                        android:gravity="center"
+                        android:text="0"
+                        android:textColor="@color/title_text"
+                        android:textSize="@dimen/tile_font_size_details" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_task_end"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:background="@color/tile_background"
+                android:padding="@dimen/tile_padding"
+                app:layout_constraintTop_toBottomOf="@id/ll_title_issues_images">
+
+                <LinearLayout
+                    android:id="@+id/ll_task_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/tile_right_left"
+                    android:layout_marginRight="@dimen/tile_right_left"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/imgClockIcon_tdb"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="30dp"
+                        android:layout_marginLeft="30dp"
+                        android:src="@drawable/ic_time_recorded" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginLeft="10dp"
+                        android:fontFamily="@font/cabin"
+                        android:text="@string/time_elapsed"
+                        android:textColor="@color/title_text"
+                        android:textSize="@dimen/tile_font_size_title"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/v_divider_task_end"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/divider_height"
+                    android:layout_below="@id/ll_task_end"
+                    android:background="@color/tile_divider" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/v_divider_task_end"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/v_divider_task_start"
+                        android:layout_marginTop="@dimen/tile_top_bottom_task_dashboard"
+                        android:layout_marginBottom="@dimen/tile_top_bottom_task_dashboard"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_time_end_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:gravity="center"
+                            android:text="@string/time"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvElapsed_tdb"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:paddingLeft="20dp"
+                            android:text="3h"
+                            android:textColor="@color/title_text"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvElapsed1_tdb"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:paddingLeft="10dp"
+                            android:text="10 m"
+                            android:textColor="@color/title_text"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/tile_top_bottom"
+                        android:layout_marginRight="@dimen/tile_top_bottom"
+                        android:layout_marginBottom="@dimen/tile_top_bottom_task_dashboard"
+                        android:gravity="center"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_location_end_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/cabin"
+                            android:gravity="center"
+                            android:text="@string/end_at"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvELocationDesc_tdb"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/tile_right_left"
+                            android:layout_marginRight="@dimen/tile_right_left"
+                            android:fontFamily="@font/cabin"
+                            android:text="--"
+
+                            android:textColor="@color/title_text"
+                            android:textSize="@dimen/tile_font_size_details" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/llFinishedStatus_tdb"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="right"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:text="@string/task_finished_status"
+                    android:textAllCaps="true"
+                    android:textColor="@color/credentials_white"
+                    android:textSize="16dp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvTaskDate_tdb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right"
+                    android:text="Jan, 18, 2019"
+                    android:textColor="@color/credentials_white"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tvTimeElapsedLabel_tdb"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight=".5"
+                    android:gravity="bottom"
+                    android:text="@string/time_elapsed"
+                    android:textColor="@color/credentials_white"
+                    android:textSize="12sp"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/llTileElapsed_tdb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/llTileElapsedSmall_tdb"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+            <!-- <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="0dp"
+             android:layout_marginBottom="8dp"
+             android:orientation="vertical"
+             app:layout_constraintBottom_toBottomOf="parent"
+             app:layout_constraintTop_toBottomOf="@+id/rl_task_end">
+
+             <TextView
+                 android:id="@+id/tvDesc_tdb"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_margin="5dp"
+                 android:gravity="left"
+                 android:text="Description"
+                 android:textColor="@color/credentials_white"
+                 android:textSize="@dimen/text_size_large" />
+
+             <TextView
+                 android:id="@+id/tvNotes_tdb"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="5dp"
+                 android:layout_marginBottom="10dp"
+                 android:paddingLeft="5dp"
+                 android:paddingRight="5dp"
+                 android:text="Task Notes"
+                 android:textColor="@color/credentials_white" />
+
+
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="80dp"
+                 android:layout_marginLeft="@dimen/db_item_margin_l"
+                 android:layout_marginTop="@dimen/db_item_margin_t"
+                 android:layout_marginRight="@dimen/db_item_margin_r"
+                 android:layout_marginBottom="@dimen/db_item_margin_b"
+                 android:background="@color/color_db_blue_light"
+                 android:orientation="horizontal">
+
+                 <LinearLayout
+                     android:layout_width="80dp"
+                     android:layout_height="80dp"
+                     android:background="@color/report_button"
+                     android:orientation="horizontal"
+                     android:padding="10dp">
+
+                     <ImageView
+                         android:id="@+id/imageDBoard"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_weight="1"
+                         app:srcCompat="@drawable/calander" />
+                 </LinearLayout>
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent"
+                     android:orientation="vertical"
+                     android:padding="5dp"
+                     android:weightSum="2">
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="horizontal">
+
+                         <TextView
+                             android:id="@+id/tv_deText"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:gravity="bottom"
+                             android:text="@string/task_started"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="12sp" />
+
+                         <TextView
+                             android:id="@+id/tvTaskDate_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:gravity="right"
+                             android:text="Jan, 18, 2019"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="12sp" />
+                     </LinearLayout>
+
+                     <TextView
+                         android:id="@+id/tvTaskTime_tdb"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:gravity="center_vertical"
+                         android:paddingLeft="30dp"
+                         android:text="&#45;&#45;:&#45;&#45; &#45;&#45;"
+                         android:textColor="@color/credentials_white"
+                         android:textSize="22sp"
+                         android:textStyle="bold" />
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:orientation="horizontal"
+                         tools:layout_editor_absoluteX="8dp"
+                         tools:layout_editor_absoluteY="343dp">
+
+                         <ImageView
+                             android:layout_width="20dp"
+                             android:layout_height="20dp"
+                             app:srcCompat="@drawable/ic_location_on_white_24dp" />
+
+                         <TextView
+                             android:id="@+id/tvSLocationDesc_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="14dp"
+                             android:layout_marginLeft="5dp"
+                             android:layout_weight="1"
+                             android:text="-"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="12dp" />
+
+                     </LinearLayout>
+
+                 </LinearLayout>
+
+
+             </LinearLayout>
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginLeft="@dimen/db_item_margin_l"
+                 android:layout_marginTop="@dimen/db_item_margin_t"
+                 android:layout_marginRight="@dimen/db_item_margin_r"
+                 android:layout_marginBottom="@dimen/db_item_margin_b"
+
+                 android:orientation="horizontal">
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="80dp"
+                     android:layout_weight="1"
+                     android:background="@color/start_button"
+                     android:orientation="horizontal">
+
+                     <LinearLayout
+                         android:layout_width="80dp"
+                         android:layout_height="80dp"
+                         android:background="@color/color_db_green_dark"
+                         android:orientation="horizontal"
+                         android:padding="10dp">
+
+                         <ImageView
+                             android:id="@+id/imgTileTask_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"
+                             android:layout_weight="1"
+                             app:srcCompat="@drawable/issueboard" />
+                     </LinearLayout>
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_weight="1"
+                         android:orientation="vertical"
+                         android:padding="5dp"
+                         android:weightSum="2">
+
+                         <TextView
+                             android:id="@+id/tv_tile_ir_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight=".5"
+                             android:text="@string/issues"
+                             android:textColor="@color/credentials_white" />
+
+                         <TextView
+                             android:id="@+id/tvIssueCount_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:gravity="center_vertical"
+                             android:paddingLeft="30dp"
+                             android:text="0"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="23sp"
+                             android:textStyle="bold" />
+
+                     </LinearLayout>
+
+                 </LinearLayout>
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="80dp"
+                     android:layout_marginLeft="@dimen/db_item_margin_l"
+                     android:layout_weight="1"
+                     android:background="@color/color_start_button_light"
+                     android:orientation="horizontal">
+
+                     <LinearLayout
+                         android:layout_width="80dp"
+                         android:layout_height="80dp"
+                         android:background="@color/color_db_green_dark"
+                         android:orientation="horizontal"
+                         android:padding="10dp">
+
+                         <ImageView
+                             android:id="@+id/imgTileIssue"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"
+                             android:layout_weight="1"
+                             app:srcCompat="@drawable/ic_camera_white_24dp" />
+                     </LinearLayout>
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:orientation="vertical"
+                         android:padding="5dp"
+                         android:weightSum="2">
+
+                         <TextView
+                             android:id="@+id/tv_ibt_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight=".5"
+                             android:text="@string/images"
+                             android:textColor="@color/credentials_white" />
+
+                         <TextView
+                             android:id="@+id/tvImageCount_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:gravity="center_vertical"
+                             android:paddingLeft="30dp"
+                             android:text="0"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="23sp"
+                             android:textStyle="bold" />
+
+                     </LinearLayout>
+
+                 </LinearLayout>
+
+
+             </LinearLayout>
+
+             <LinearLayout
+                 android:id="@+id/llTileElapsed_tdb"
+                 android:layout_width="match_parent"
+                 android:layout_height="80dp"
+                 android:layout_marginLeft="@dimen/db_item_margin_l"
+                 android:layout_marginTop="@dimen/db_item_margin_t"
+                 android:layout_marginRight="@dimen/db_item_margin_r"
+                 android:layout_marginBottom="@dimen/db_item_margin_b"
+                 android:background="@color/color_organge_light"
+
+                 android:orientation="horizontal">
+
+                 <LinearLayout
+                     android:id="@+id/llTileElapsedSmall_tdb"
+                     android:layout_width="80dp"
+                     android:layout_height="80dp"
+                     android:background="@color/color_db_orange_dark"
+                     android:orientation="horizontal"
+                     android:padding="10dp">
+
+                     <ImageView
+                         android:id="@+id/imageDBoardTe_tdb"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_weight="1"
+                         app:srcCompat="@drawable/clock" />
+                 </LinearLayout>
+
+                 <LinearLayout
+                     android:layout_width="0dp"
+                     android:layout_height="match_parent"
+                     android:layout_weight="1"
+                     android:orientation="vertical"
+                     android:padding="5dp"
+                     android:weightSum="3">
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="horizontal">
+
+                         <TextView
+                             android:id="@+id/tvTimeElapsedLabel_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="wrap_content"
+                             android:layout_weight=".5"
+                             android:gravity="bottom"
+                             android:text="@string/time_elapsed"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="12sp" />
+
+                     </LinearLayout>
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:orientation="horizontal">
+
+                         <TextView
+                             android:id="@+id/tvElapsed_tdb"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="0"
+                             android:gravity="center_vertical"
+                             android:paddingLeft="20dp"
+                             android:text="3h"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="22sp"
+                             android:textStyle="bold" />
+
+                         <TextView
+                             android:id="@+id/tvElapsed1_tdb"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="0"
+                             android:gravity="center_vertical"
+                             android:paddingLeft="10dp"
+                             android:text="10 m"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="16sp"
+                             android:textStyle="bold" />
+                         <ImageView
+                             android:id="@+id/imgClockIcon_tdb"
+                             android:layout_width="20dp"
+                             android:layout_height="20dp"
+                             android:layout_marginLeft="5dp"
+                             app:srcCompat="@drawable/clock"/>
+                         <LinearLayout
+                             android:id="@+id/llFinishedStatus_tdb"
+                             android:orientation="horizontal"
+                             android:layout_width="0dp"
+                             android:layout_height="wrap_content"
+                             android:layout_weight="1"
+                             android:visibility="gone"
+                             android:gravity="right">
+                             <TextView
+                                 android:layout_width="wrap_content"
+                                 android:layout_height="wrap_content"
+                                 android:text="@string/task_finished_status"
+                                 android:textAllCaps="true"
+                                 android:textSize="16dp"
+                                 android:textStyle="bold"
+                                 android:textColor="@color/credentials_white"
+                                 android:layout_gravity="right"/>
+
+                         </LinearLayout>
+
+
+                     </LinearLayout>
+
+                     <LinearLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:gravity="center"
+                         android:orientation="horizontal"
+                         tools:layout_editor_absoluteX="8dp"
+                         tools:layout_editor_absoluteY="343dp">
+
+                         <ImageView
+                             android:layout_width="20dp"
+                             android:layout_height="20dp"
+                             app:srcCompat="@drawable/ic_location_on_white_24dp" />
+
+                         <TextView
+                             android:id="@+id/tvELocationDesc_tdb"
+                             android:layout_width="match_parent"
+                             android:layout_height="14dp"
+                             android:layout_marginLeft="5dp"
+                             android:layout_weight="1"
+                             android:text="-"
+                             android:textColor="@color/credentials_white"
+                             android:textSize="12dp" />
+
+                     </LinearLayout>
+
+
+                 </LinearLayout>
+
+                 &lt;!&ndash;<LinearLayout
+                     android:id="@+id/ll_BtnSS_tdb"
+                     android:layout_width="80dp"
+                     android:layout_height="80dp"
+
+                     android:background="@color/color_stop_background">
+
+                     <LinearLayout
+
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+
+                         android:gravity="center"
+                         android:orientation="vertical">
+
+                         <ImageView
+                             android:id="@+id/imgBtnSS_tdb"
+                             android:layout_width="40dp"
+                             android:layout_height="40dp"
+                             />
+
+                         <TextView
+                             android:id="@+id/tvBtnSS_tdb"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_marginTop="5dp"
+                             android:text="@string/stop"
+                             android:textColor="@color/credentials_white" />
+                     </LinearLayout>
+                 </LinearLayout>&ndash;&gt;
+
+
+             </LinearLayout>
+
+             <Button
+                 android:id="@+id/btnView_tdb"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginTop="10dp"
+                 android:background="@color/color_button_enabled"
+                 android:text="VIEW"
+                 android:textColor="@color/credentials_white" />
+         </LinearLayout>-->
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:layout_marginStart="0dp"
+        android:background="?android:attr/windowBackground"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:id="@+id/linearLayout4"
+        android:layout_marginBottom="2dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <Button
+            android:id="@+id/btnView_tdb"
+            style="?android:attr/borderlessButtonStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="0dp"
+            android:drawableTop="@drawable/ic_input_gray_24dp"
+            android:drawablePadding="3dp"
+            android:drawableTint="@android:color/black"
+            android:fontFamily="@font/cabin"
+            android:text="@string/view"
+            android:textAllCaps="false"
+            android:textColor="@color/title_text" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

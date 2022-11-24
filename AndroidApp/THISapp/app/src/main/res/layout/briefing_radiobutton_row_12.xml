@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp">
+ 
+
+<RadioGroup
+	android:id="@+id/rg_row_12_a"
+	style="@style/RadioGroupStyle">
+	
+	<RadioButton
+    android:id="@+id/radioButton_yes_12a"
+		style="@style/RadioButtonStyle"
+		android:fontFamily="@font/cabin"
+    android:text="@string/briefing_yes" />
+	
+	<RadioButton
+    android:id="@+id/radioButton_no_12a"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+		android:fontFamily="@font/cabin"
+    android:text="@string/briefing_no" />
+	
+	</RadioGroup>
+	
+	<TextView
+    android:id="@+id/textView_row_12"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+		android:padding="10dp"
+		android:gravity="center"
+		android:fontFamily="@font/cabin"
+    android:text="@string/briefing_advanced_watchpersons" />
+	
+	<RadioGroup
+		android:id="@+id/rg_row_12_b"
+		style="@style/RadioGroupStyle">
+	
+	<RadioButton
+    android:id="@+id/radioButton_yes_12b"
+		style="@style/RadioButtonStyle"
+		android:fontFamily="@font/cabin"
+    android:text="@string/briefing_yes" />
+	
+	<RadioButton
+    android:id="@+id/radioButton_no_12b"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+		android:fontFamily="@font/cabin"
+    android:text="@string/briefing_no" />
+	
+	</RadioGroup>
+ 
+</LinearLayout>

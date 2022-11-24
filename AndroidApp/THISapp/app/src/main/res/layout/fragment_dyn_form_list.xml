@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/rl_show_report"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="9dp"
+            android:text="@string/view_reports"
+            android:fontFamily="@font/cabin"
+            android:layout_marginStart="10dp" />
+        <Button
+            android:id="@+id/btn_show_report"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_margin="5dp"
+            android:background="@color/btn_color_primary"
+            android:textColor="@color/credentials_white"
+            android:text="@string/view"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="10dp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/btn_show_report"
+            android:background="@color/divider_hint" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/layoutInfo_fdfl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="9dp"
+            android:text="@string/info_table"
+            android:fontFamily="@font/cabin"
+            android:layout_marginStart="10dp" />
+        <Button
+            android:id="@+id/btnInfoTables_fdfl"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="15dp"
+            android:layout_margin="5dp"
+            android:background="@color/btn_color_primary"
+            android:textColor="@color/credentials_white"
+            android:text="@string/tables_btn"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="10dp" />
+        <View
+            android:id="@+id/LastDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/btnInfoTables_fdfl"
+            android:background="@color/divider_hint" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutNoForm_fdfl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="@string/no_form_available"
+            android:textSize="24sp"/>
+    </LinearLayout>
+    <ListView
+        android:id="@+id/lvFormList_idfl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="5dp"
+        tools:listitem="@layout/item_dyn_form_list" />
+</LinearLayout>
