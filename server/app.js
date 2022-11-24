@@ -217,7 +217,7 @@ console.log("Database URL Source:", mongoURLSource);
 console.log("Database Name Source:", databaseNameSource);
 console.log("Database name:", infoBreakdown[infoBreakdown.length - 1]);
 
-mongoose.connect(config.mongo.uri, { useNewUrlParser: true, useFindAndModify: false }, async (e) => {
+mongoose.connect(config.mongo.uri, { useNewUrlParser: true, useFindAndModify: false,useUnifiedTopology: true  }, async (e) => {
   if (!e) {
     console.log("Database Connected!");
     startupLogger.info("Database Connected!");
