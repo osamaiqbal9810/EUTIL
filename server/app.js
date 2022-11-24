@@ -222,14 +222,14 @@ mongoose.connect(config.mongo.uri, { useNewUrlParser: true, useFindAndModify: fa
     console.log("Database Connected!");
     startupLogger.info("Database Connected!");
 
-    let isDatabaseValid = await versionCompatibility.validateDatabase();
-    if (!isDatabaseValid) {
-      console.log("Database validation error. Cannot continue.");
-      startupLogger.error("Database validation error. Aborting...");
-      process.exit();
-    } else {
-      console.log("Database validation successful:");
-    }
+    // let isDatabaseValid = await versionCompatibility.validateDatabase();
+    // if (!isDatabaseValid) {
+    //   console.log("Database validation error. Cannot continue.");
+    //   startupLogger.error("Database validation error. Aborting...");
+    //   process.exit();
+    // } else {
+    //   console.log("Database validation successful:");
+    // }
   } else {
     console.log("Error connecting database");
     console.log(e);
@@ -349,17 +349,17 @@ if (migrations) {
  * Run Alerts cronJobs
  */
 // let alertService = ServiceLocator.resolve('AlertService');
-alertService.startAlertsMonitoring();
+// alertService.startAlertsMonitoring();
 
 /**
  * CronJob for notification service
  */
 
-schedule.scheduleJob("NotificationCronJob", "*/1 * * * *", async (fireDate) => {
-  // Cron job logic for notification service.
-  // console.log("Cron job of notification service called: " + fireDate);
-  notificationService.sendNewNotifications();
-});
+// schedule.scheduleJob("NotificationCronJob", "*/1 * * * *", async (fireDate) => {
+//   // Cron job logic for notification service.
+//   // console.log("Cron job of notification service called: " + fireDate);
+//   notificationService.sendNewNotifications();
+// });
 
 // For testing recaluculateMethod uncomment this
 // alertService.recalculateAlertMonitoringByModelId('5f86ffcf81d9305668f2015a");
