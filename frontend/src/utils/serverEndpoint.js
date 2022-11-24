@@ -1,6 +1,6 @@
 export function getServerEndpoint() {
 
-  return "https:" + '//' + getServerEndpointNoProtocol();
+  return window.location.protocol + '//' + getServerEndpointNoProtocol();
 
 }
 
