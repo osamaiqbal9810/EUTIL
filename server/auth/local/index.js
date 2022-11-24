@@ -19,6 +19,7 @@ let loginUser = async function(req, res, next) {
   //console.log(tenantId);
   //let user= await User.findOne({tenantId:'ps19'}).populate({path:'userGroup',populate :{path: 'permissions'}}).exec();
   User.findOne({ tenantId: tenantId, email: req.body.user.email }, function(err, result) {
+    console.log(result); 
     if (err) return res.send({ "Error on the server.": err });
     if (!result) {
       res.status(403);
