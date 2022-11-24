@@ -1,0 +1,52 @@
+.dashboard-summary {
+  padding: 15px;
+  width: 100%;
+}
+.summary-element {
+  display: inline-block;
+  margin: 0px 5px;
+  width: 100%;
+  max-height: 90px;
+  overflow: hidden;
+}
+.summary-icon {
+  display: inline-block;
+  padding: 10px;
+  vertical-align: inherit;
+  color: #fff;
+  margin-bottom: -99999px;
+  padding-bottom: 99999px;
+  width: 20%;
+}
+.summary-text {
+  display: inline-block;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  width: 80%;
+}
+.summary-text .summary-value {
+  font-family: Arial;
+  font-size: 40px;
+  letter-spacing: 1.25px;
+  text-align: left;
+
+  color: rgb(255, 255, 255);
+}
+.summary-text .summary-label {
+  font-size: 14px;
+  color: rgb(255, 255, 255);
+  letter-spacing: 1.25px;
+  float: left;
+  margin-top: -5px;
+  position: relative;
+}
+.summary-text .summary-tag {
+  position: absolute;
+  top: 4px;
+  right: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  border-radius: 3px;
+  padding: 0 5px;
+}

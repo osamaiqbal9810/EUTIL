@@ -1,0 +1,44 @@
+.text-box-slanted {
+  -webkit-transform: rotate(-73deg);
+  -ms-transform: rotate(-73deg);
+  transform: rotate(-90deg);
+  margin: 32px 0 0 -4px;
+  width: 178%;
+}
+.text-slanted {
+  text-align: left;
+  /* -webkit-transform: rotate(-73deg); */
+  -ms-transform: rotate(-73deg);
+  /* transform: rotate(-73deg); */
+  height: 40px;
+  /* margin-bottom:20px; */
+  transform: rotate(20deg);
+}
+.text-slanted:before {
+  content: "";
+  background: black;
+  height: 1px;
+  width: 128%;
+  position: absolute;
+  top: -2px;
+  left: -15px;
+}
+.text-slanted.three:after {
+  content: "";
+  background: black;
+  height: 1px;
+  width: 128%;
+  position: absolute;
+  bottom: 2px;
+  left: -2px;
+}
+.background-golden {
+  background-color: #fff1c4;
+  -webkit-print-color-adjust: exact;
+}
+.border-wrapper.row {
+  border: 1px solid black;
+  /* border-right: 1px solid black;
+  border-left: 1px solid black; */
+  margin: 0;
+}

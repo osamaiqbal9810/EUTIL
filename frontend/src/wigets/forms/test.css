@@ -1,0 +1,9 @@
+.retro .DayPickerInput {
+  width: 70%;
+
+  color: rgb(26, 26, 26);
+}
+.retro .commonform input:not([type="checkbox"]),
+.retro .rt-th.rt-resizable-header .rt-resizable-header-content {
+  color: rgb(26, 26, 26) !important;
+}

@@ -1,0 +1,290 @@
+.App {
+  background: #e3e9ef;
+  background: rgba(227, 233, 239, 1);
+}
+
+.App-logo {
+  width: 70px;
+  height: 70px;
+  align-content: flex-end;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.zIndex-99999 {
+  z-index: 99999;
+}
+
+.App-login {
+  background: #ffffff;
+  background: rgba(255, 255, 255, 1);
+  width: 359px;
+  height: 463px;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-74%, -50%);
+  -webkit-transform: translate(-74%, -50%);
+  -moz-transform: translate(-74%, -50%);
+  -ms-transform: translate(-74%, -50%);
+  -o-transform: translate(-74%, -50%);
+  padding: 20px;
+}
+@media only screen and (max-width: 760px) {
+  .App-login {
+    transform: translate(-55%, -50%);
+    -webkit-transform: translate(-55%, -50%);
+    -moz-transform: translate(-55%, -50%);
+    -ms-transform: translate(-55%, -50%);
+    -o-transform: translate(-55%, -50%);
+  }
+  .App-login {
+    width: 100% !important;
+    height: 345px !important;
+  }
+  .App-login #txtEmail,
+  .App-login #txtPassword {
+    width: 100% !important;
+  }
+}
+.App-container {
+  height: 100%;
+
+  display: flex;
+  align-content: flex-start;
+}
+.CustomAvatar-person {
+  padding-right: 12px;
+}
+.CustomAvatar-person img {
+  border-radius: 30px;
+  margin-top: 5px;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.linkStyleTable {
+  color: inherit;
+  text-decoration: none;
+}
+
+.linkStyleTable:hover {
+  color: inherit;
+  text-decoration: none;
+}
+.DayPickerInput {
+  padding: 0 !important;
+}
+.table {
+  font-size: 12px;
+}
+.DayPicker-NavBar span {
+  margin-top: -12px;
+}
+.inspection-manage {
+  max-height: 50vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+span.notification-date {
+  display: block;
+  text-align: left;
+  font-size: 12px;
+  letter-spacing: 1px;
+  color: rgb(64, 118, 179);
+  opacity: 0.8;
+}
+.alert-secondary span.notification-date {
+  color: #65676b;
+}
+ul.asset-list li:hover,
+ul.asset-list li.active {
+  background-color: rgb(64, 118, 179);
+}
+ul.asset-list {
+  padding: 0;
+}
+.alert-secondary,
+.alert-primary {
+  margin-bottom: 10px;
+  background-color: transparent;
+  border-color: transparent;
+  color: #65676b;
+  transition: 0.5s all ease-in-out;
+}
+.notification-bar .card-body {
+  background-color: aliceblue;
+}
+.alert-secondary:hover,
+.alert-primary:hover {
+  background-color: #f5f5f5;
+  border-color: #f5f5f5;
+  cursor: pointer;
+}
+
+.notification-bar .alert-secondary button.close span {
+  display: block;
+  top: 30px;
+  right: 10px;
+  cursor: pointer;
+  position: absolute;
+}
+.notification-bar button.close:focus {
+  outline: none;
+  border: none;
+}
+.alert-dismissible {
+  padding-right: 2rem;
+}
+.notification-bar .alert-secondary .media-icon {
+  display: none;
+}
+.notification-bar .media-icon {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  padding: 6px;
+  color: inherit;
+
+  color: rgb(64, 118, 179);
+  box-shadow: none;
+  border-radius: 50%;
+  width: 2px;
+  height: 2px;
+  margin: 25px 10px 0 0;
+  opacity: 1;
+}
+.notification-bar .alert-dismissible .close span {
+  display: none;
+}
+.notification-bar .media-image,
+.notification-bar .notification-text {
+  display: inline-block;
+}
+.notification-bar .media-image {
+  width: 16%;
+  vertical-align: top;
+}
+.notification-bar .notification-text {
+  width: 80%;
+  margin-left: 10px;
+}
+
+.close-button {
+  margin: 10px -10px 0 10px;
+}
+select#test {
+  width: 150px !important;
+}
+ul.asset-list li {
+  font-size: 12px;
+}
+.table-report table,
+.table-report .table-selection {
+  width: 100%;
+  margin-bottom: 30px;
+  table-layout: fixed;
+}
+@media only screen and (max-width: 1700px) {
+  .table-report.sud-nicman-report .table-bordered,
+  .table-report .table-bordered,
+  .table-report table,
+  .table-report .table.table-striped {
+    width: 1400px;
+  }
+  .table-report.sud-nicman-report,
+  .table-report {
+    overflow: auto !important;
+  }
+  div#mainContent .col-md-2 span {
+    transform: none !important;
+  }
+}
+div#mainContent {
+  margin-bottom: 30px;
+}
+.notification-bar {
+  -webkit-transition: all 0.3s ease-in-out;
+  -o-transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
+}
+.modal-cover {
+  position: fixed;
+  /* top: 70px; */
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  opacity: 0.2;
+  z-index: 10000;
+  background-color: #000000;
+  transition: all 0.3s ease-in-out;
+}
+.inspection-manage .asset-type-select {
+  border: 1px solid rgb(221, 221, 221);
+  position: relative;
+  display: block;
+  overflow: hidden;
+  width: 48vw;
+  height: auto;
+  padding: 0 0 0 10px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+.inspection-manage .styled-chk-box input[type="checkbox"] + label {
+  left: 10px;
+  color: rgb(26, 26, 26);
+  font-size: 12px;
+  font-family: Arial;
+  letter-spacing: 0.3px;
+}
+.commonform.alerts .checkbox {
+  width: 100%;
+  display: block;
+  float: left;
+  clear: both;
+  margin-bottom: 20px;
+}
+.commonform.alerts .checkbox label {
+  color: black;
+  vertical-align: middle;
+}
+.commonform.alerts .alert-box {
+  background: #fff;
+  margin-bottom: 10px;
+  padding: 15px;
+  border-radius: 5px;
+}
+.commonform.alerts .alert-box .alert-media {
+  width: 25px;
+  float: left;
+  vertical-align: sub;
+  margin-right: 15px;
+  padding-top: "2px";
+}
+div#mainContent .table-report {
+  margin-bottom: 10px;
+}
+#mainContent .table-report.disturbance-report span {
+  padding-left: 15px;
+  letter-spacing: 1px;
+  font-family: serif;
+  font-size: 17px;
+  vertical-align: middle;
+}

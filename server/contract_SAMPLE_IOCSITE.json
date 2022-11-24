@@ -1,0 +1,7 @@
+{
+    "customerName" : "Iron Ore Canada",
+    "applicationType" : "SITE",
+    "DB_URL": "localhost",
+    "DB_PORT" : "27017",
+    "DB_NAME" : "20201225-IOCSITE"
+}

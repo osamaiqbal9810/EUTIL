@@ -1,0 +1,97 @@
+.table-report table th {
+  text-align: center;
+}
+.table-report table td {
+  border: 1px solid black !important;
+  height: 40px;
+  text-align: center;
+}
+.table-report table td.switch-no-border {
+  border-right: none !important;
+  border-left: none !important;
+}
+.sud-nicman-report.table-report table th {
+  border: 1px solid black !important;
+}
+.table-report.switch-side-track table.table-selection tbody tr:nth-child(odd) {
+  background-color: #dee2e6;
+}
+.table-bordered.switch-side-track td,
+.table-bordered.switch-side-track th {
+  border-top: 2px solid #000 !important;
+  border-right: 2px solid #000 !important;
+  border-left: 2px solid #000 !important;
+  border-bottom: 2px solid #000;
+}
+.table-bordered.switch-side-track .main-heading th span {
+  display: block;
+  text-align: left;
+  font-size: 20px;
+  height: 80px;
+  font-weight: 700;
+}
+
+.table-bordered.monthly-switch-Report .main-heading th span {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  background-color: #d9d9d9;
+  -webkit-print-color-adjust: exact;
+}
+span.spacer {
+  width: 100%;
+  display: block;
+  height: 30px;
+}
+ul.menu-tabs li {
+  display: inline-block;
+  margin-right: 4px;
+  background-color: #fff;
+  padding: 8px 20px;
+  cursor: pointer;
+  border-bottom: 4px solid rgb(177, 177, 177);
+  min-width: 175px;
+  border-radius: 3px;
+  transition: 0.3s all ease-in-out;
+  font-family: Arial;
+  font-size: 12px;
+  letter-spacing: 0.35px;
+}
+/* ul.menu-tabs li:hover {
+  -webkit-box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
+  box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
+} */
+ul.menu-tabs li.active {
+  border-bottom: 4px solid rgb(64, 118, 179);
+  font-weight: bold;
+}
+ul.menu-tabs {
+  text-align: left;
+  margin-top: 31px;
+  padding: 0 0 0 15px;
+}
+.disturbance-report span {
+  display: inline-block;
+  border-bottom: 2px solid;
+  height: 28px;
+  margin: 0 5px;
+  font-style: italic;
+}
+.disturbance-report em {
+  width: 50px;
+  display: inline-block;
+}
+.blank_row {
+  height: 40px !important;
+}
+.blank_row th {
+  border: transparent;
+}
+.card .DayPickerInput input {
+  border-width: 2px;
+  width: 250px;
+}
+.table-bordered.monthly-switch-Report thead tr.main-heading th.span {
+  border: 1px solid #000;
+}

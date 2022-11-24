@@ -1,0 +1,5 @@
+{
+    "customerName" : "Iron Ore Canada",
+    "applicationType" : "TIMPS",
+    "ignoreDatabaseCompatibility": true    
+}

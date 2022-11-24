@@ -1,0 +1,10 @@
+.audioFile {
+  width: 240px !important;
+  height: 30px !important;
+}
+
+.audioFile .controlBar {
+  height: 28px !important;
+  background-color: #e9e9e9 !important;
+  border: 1px #999999 dotted !important;
+}

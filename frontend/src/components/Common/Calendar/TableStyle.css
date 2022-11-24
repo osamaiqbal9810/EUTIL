@@ -1,0 +1,137 @@
+table.table thead tr {
+  /* background: red;
+  -webkit-box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
+  border: none;
+  color: rgb(64, 118, 179);
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  background-color: rgb(227, 233, 239);
+  height: 20px; */
+}
+/* table.table thead tr th {
+  color: rgb(64, 118, 179) !important;
+  width: 14.28%;
+  font-size: 14px;
+} */
+table.table tbody tr {
+  height: 120px;
+  display: table-row;
+  overflow: hidden;
+}
+table.table tbody tr:first-child {
+  height: auto;
+}
+
+table.table tbody tr td {
+  color: #fff;
+  font-size: 12px;
+  font-family: Arial;
+  letter-spacing: 0.3px;
+  height: 120px;
+  overflow: hidden;
+  border: 2px solid rgb(221, 221, 221);
+  padding-right: 0;
+}
+table.table tbody tr td .table-date {
+  font-size: 16px;
+  font-weight: 700;
+  background-color: rgba(64, 118, 179,1) !important;
+}
+table.table tbody tr td .table-cell {
+  overflow: hidden;
+}
+table.table tbody tr td .date-detail {
+  overflow-y: scroll;
+  height: 90px;
+  padding-right: 10px;
+}
+table.table tbody tr td .detail-title {
+  border: 1px solid #000;
+  margin-bottom: 5px;
+  border-radius: 3px;
+}
+table.table tbody tr td .detail-title .detail-icon {
+  display: inline-block;
+  width: 15%;
+  vertical-align: top;
+  padding: 5px 10px 5px 2px;
+}
+table.table tbody tr td .detail-title .detail-text {
+  display: inline-block;
+  width: 85%;
+  padding: 5px 10px 5px 5px;
+  background: rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 100%;
+  margin-bottom: -5px;
+}
+table.table tbody tr td .detail-title .detail-text-full {
+  display: inline-block;
+  width: 85%;
+  padding: 5px 10px 5px 5px;
+  background: rgba(255, 255, 255, 0.3);
+  white-space: inharit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 100%;
+  margin-bottom: -5px;
+}
+table.popupTable tbody tr,
+table.popupTable tbody tr td {
+  height: auto;
+  color: rgb(64, 118, 179);
+}
+table.popupTable tbody tr td {
+  padding: 20px;
+  font-weight: 500;
+}
+table.popupTable tbody tr td:hover {
+  background: #ededed;
+  transform: all 0.2s ease-in-out;
+}
+.legend-bar {
+  display: inline-block;
+  text-align: center;
+  font-family: Arial;
+  font-size: 12px;
+  letter-spacing: 0.95px;
+  color: rgb(64, 118, 179);
+  vertical-align: text-top;
+  margin: 0 0px 0 0;
+  overflow: hidden;
+  height: 19px;
+  opacity: 0;
+  width: 0px;
+  -webkit-transition: width 0.3s, opacity 0.5s ease-in-out;
+  transition: width 0.3s, opacity 0.5s ease-in-out;
+}
+.legend-container {
+  padding: 0;
+  display: inline-block;
+}
+.legend-container.gis {
+  display: block;
+}
+.gis .legend-bar {
+  display: inline-block;
+  opacity: 1;
+  width: auto;
+  margin-right: 5px;
+  height: auto;
+}
+.legend-container:hover .legend-bar,
+.legend-container.open .legend-bar {
+  opacity: 1;
+  width: 80px;
+  margin: 0 10px 0 0;
+}
+.legend-container.gis:hover .legend-bar {
+  width: auto;
+  margin: 0 5px 0 0;
+}
+table.table.calender {
+  table-layout: fixed;
+}

@@ -1,0 +1,42 @@
+export const planningTableData = [
+	{
+		name: "Inspection Unit 1",
+		range: { start: "10", end: "20" },
+		issues: ["2", "1"],
+		plans: [],
+		asssigned: false,
+		distanceLength: "10",
+	},
+	{
+		name: "Inspection Unit 2",
+		range: { start: "20", end: "30" },
+		distanceLength: "10",
+		issues: [],
+		plans: [],
+		asssigned: true,
+	},
+	{
+		name: "Inspection Unit 3",
+		range: { start: "30", end: "40" },
+		distanceLength: "10",
+		issues: [],
+		plans: [],
+		asssigned: false,
+	},
+	{
+		name: "Inspection Unit 4",
+		range: { start: "40", end: "45" },
+		distanceLength: "5",
+		issues: [],
+		plans: ["2", "1", " 3"],
+		asssigned: true,
+	},
+	{
+		name: "Inspection Unit 5",
+		range: { start: "45", end: "60" },
+		distanceLength: "15",
+		issues: [],
+		plans: [],
+		asssigned: false,
+	},
+];

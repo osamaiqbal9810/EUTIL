@@ -1,0 +1,13 @@
+.dropDownItem:hover {
+	background-color: #37668b;
+	color: #fff;
+}
+
+.dropDownItem {
+	background-color: #37668b;
+	border-bottom: 2px solid rgb(86, 117, 141);
+	color: #fff;
+	background-color: #698ca8;
+	font-size: 14px;
+	cursor: pointer;
+}

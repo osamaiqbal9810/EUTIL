@@ -1,0 +1,178 @@
+export const workorderFields = {
+  title: {
+    element: "input",
+    value: "",
+    label: true,
+    labelText: "Name",
+    containerConfig: { col: 12 },
+    config: { name: "title", type: "text", placeholder: "Enter Name" },
+    validation: { required: true },
+    valid: false,
+    touched: false,
+    validationMessage: "",
+  },
+  workOrderNumber: {
+    element: "input",
+    value: "",
+    label: true,
+    labelText: "Capital Plan No",
+    containerConfig: { col: 12 },
+    config: { name: "workOrderNumber", type: "text", placeholder: "Not Assigned", disabled: true },
+    validation: { required: false },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+
+  status: {
+    element: "input",
+    value: "",
+    label: true,
+    labelText: "Status",
+    containerConfig: { col: 12 },
+    config: { name: "status", type: "text", placeholder: "New", disabled: true },
+    validation: { required: false },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  lineId: {
+    element: "select",
+    value: "normal",
+    label: true,
+    labelText: "Location",
+    containerConfig: { col: 12 },
+    config: {
+      name: "lineId",
+      type: "text",
+      options: [],
+    },
+    validation: {
+      required: true,
+    },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  priority: {
+    element: "select",
+    value: "normal",
+    label: true,
+    labelText: "Priority",
+    containerConfig: { col: 12 },
+    config: {
+      name: "priority",
+      type: "text",
+      placeholder: "Priority",
+      options: [
+        { val: "Low", text: "Low" },
+        { val: "Medium", text: "Medium" },
+        { val: "High", text: "High" },
+      ],
+    },
+    validation: {
+      required: true,
+    },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  description: {
+    element: "textarea",
+    value: "",
+    label: true,
+    labelText: "Description",
+    containerConfig: { col: 12 },
+    config: {
+      name: "description",
+      type: "text",
+      placeholder: "Enter Description",
+      style: { width: "100%" },
+    },
+    validation: {
+      required: false,
+    },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  dueDate: {
+    element: "date",
+    value: "",
+    label: true,
+    labelText: "Due Date",
+    containerConfig: { col: 12 },
+    config: {
+      name: "dueDate",
+      type: "text",
+      placeholder: "YYYY-M-D",
+    },
+    validation: {
+      required: false,
+    },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  assignedTo: {
+    element: "select",
+    value: "",
+    label: true,
+    labelText: "Assigned To",
+    containerConfig: { col: 12 },
+    config: {
+      name: "assignedTo",
+      type: "text",
+      placeholder: "Assigned to",
+      options: [],
+    },
+    validation: {
+      required: false,
+    },
+    valid: false,
+    touched: false,
+    validationMessage: "",
+  },
+};
+
+export const executionFields = {
+  executionDate: {
+    element: "date",
+    value: "",
+    label: true,
+    labelText: "Execution Date",
+    containerConfig: { col: 12 },
+    config: {
+      name: "executionDate",
+      type: "text",
+      placeholder: "Execution Date",
+    },
+    validation: {
+      required: true,
+    },
+    valid: false,
+    touched: false,
+    validationMessage: "",
+  },
+};
+
+export const closeFields = {
+  closedDate: {
+    element: "date",
+    value: "",
+    label: true,
+    labelText: "Close Date",
+    containerConfig: {},
+    config: {
+      name: "closedDate",
+      type: "text",
+      placeholder: "Close Date",
+    },
+    validation: {
+      required: true,
+    },
+    valid: false,
+    touched: false,
+    validationMessage: "",
+  },
+};

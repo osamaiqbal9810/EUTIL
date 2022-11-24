@@ -1,0 +1,15 @@
+{
+  "presets": ["env"],
+  "ignore": ["node_modules", "flatbuffer", "Protocol_generated", "Snapshot_generated", "production", "dist"],
+  "plugins": [
+    [
+      "transform-runtime",
+      {
+        "polyfill": false,
+        "regenerator": true
+      }
+    ],
+    "transform-object-rest-spread",
+    ["transform-class-properties", { "spec": true }]
+  ]
+ }
