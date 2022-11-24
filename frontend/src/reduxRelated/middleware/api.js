@@ -21,7 +21,9 @@ function callApi (endpoint, authenticated, config = {}) {
     config['mode'] = 'cors'
   }
   //  console.log( domainName+'api/'+ endpoint, config);
-
+console.log(domainName);
+console.log(endpoint);
+console.log(config);
   return fetch(domainName + 'api/' + endpoint, config)
     .then(status)
     .then(text)
