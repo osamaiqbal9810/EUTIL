@@ -16,6 +16,7 @@ function isAuthenticated(req, res, next) {
             return res.send({ message: "Failed to authenticate token." });
         }
         User.findOne({ _id: decoded.userId, tenantId: tenantId }, (err, user) => {
+            console.log(user)
             if (err) {
                 res.status(500);
                 return res.send("Problem retrieving User from Database!");
