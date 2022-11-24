@@ -1,0 +1,9 @@
+{
+    "customerName" : "NOPB",
+    "applicationType" : "EUIS",
+    "DB_URL": "127.0.0.1",
+    "DB_PORT" : "27017",
+    "DB_NAME" : "2022-08-17",
+    "ignoreDatabaseCompatibility": true     
+    
+}
