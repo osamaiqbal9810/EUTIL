@@ -24,7 +24,7 @@ function callApi (endpoint, authenticated, config = {}) {
 console.log(domainName);
 console.log(endpoint);
 console.log(config);
-  return fetch(domainName + 'api/' + endpoint, config)
+  return fetch("https://electric-utility-inspection-system.onrender.com/" + 'api/' + endpoint, config)
     .then(status)
     .then(text)
     .catch(handleUnexpectedError)
