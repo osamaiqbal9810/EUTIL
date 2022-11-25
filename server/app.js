@@ -211,6 +211,7 @@ if (process.env.DB_NAME) {
 
 //   config.mongo.uri = mongoURL;
 // }
+mongoURL = "mongodb+srv://osamaiqbal:Powersoft19@eutilitycluster.obaziv6.mongodb.net/?retryWrites=true&w=majority"; // default mongo db url
 config.mongo.uri = mongoURL;
 let infoBreakdown = config.mongo.uri.split("/");
 console.log("Database URL Source:", mongoURLSource);
