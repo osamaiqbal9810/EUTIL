@@ -13,12 +13,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DynFormList implements IConvertHelper {
     private static ArrayList<DynForm> formList;
-    private static HashMap<String, DynForm> formListMap;
+    public static HashMap<String, DynForm> formListMap;
 
     public static HashMap<String, DynForm> getFormListMap() {
         return formListMap;
@@ -30,6 +31,7 @@ public class DynFormList implements IConvertHelper {
         for(DynForm form:formList){
             if(form.getFormSettings()!=null){
                 fileList.addAll(form.getPdfFiles());
+                fileList.addAll(form.getFormPdfFiles());
             }
         }
         return fileList;
@@ -50,6 +52,62 @@ public class DynFormList implements IConvertHelper {
         return null;
 
     }
+    public static ArrayList<DynForm> getFormListForEquipment(String equipmentType){
+        ArrayList<DynForm> _formList=new ArrayList<>();
+        if(formList!=null) {
+            for (DynForm form : formList) {
+                if (form.isEquipmentTypeInList(equipmentType)) {
+                    try {
+                        //DynForm newForm = (DynForm) form.clone();
+                        //newForm.cloneFieldList(form.getFormControlList());
+                        //_formList.add((DynForm) newForm);
+                        _formList.add((DynForm) form);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return _formList;
+
+    }
+    public static ArrayList<DynForm> getFormListForBriefing(){
+        ArrayList<DynForm> _formList=new ArrayList<>();
+        if(formList!=null) {
+            for (DynForm form : formList) {
+                if (form.isBriefingForm()) {
+                    try {
+                        _formList.add((DynForm) form);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return _formList;
+
+    }
+    public static HashMap<String, ArrayList<DynForm>> getFormListForBriefingHM(){
+        HashMap<String, ArrayList<DynForm>> _formList = new HashMap<>();
+        if(formList!=null) {
+            for (DynForm form : formList) {
+                if (form.isBriefingForm()) {
+                    try {
+                        String key = form.getFormSettings().getViewGroup();
+                        ArrayList<DynForm> fm=_formList.get(key);
+                        if(fm==null){
+                            fm=new ArrayList<>();
+                        }
+                        fm.add(form);
+                        _formList.put(key, fm);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return _formList;
+    }
     public static ArrayList<DynForm> getFormList(String assetType){
         ArrayList<DynForm> _formList=new ArrayList<>();
         if(formList!=null) {
@@ -67,7 +125,26 @@ public class DynFormList implements IConvertHelper {
         }
         return _formList;
     }
-
+    public static  boolean isFormExists(String assetType, String formId){
+        if(formListMap!=null) {
+            if(formListMap.size() == 0){
+                loadFormList();
+            }
+            DynForm form=formListMap.get(formId);
+            if(form !=null){
+                if(!assetType.equals("") ){
+                    if(form.isAssetTypeInList(assetType)){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public static ArrayList<DynForm> getFormList(){
         return formList;
     }
@@ -156,6 +233,7 @@ public class DynFormList implements IConvertHelper {
     public static void loadFormList(){
         if(!ListMap.isInitialized()){
             ListMap.initializeAllLists(Globals.getDBContext());
+            Log.d("DynFormList", "ListMap initialize");
         }
         HashMap<String, String> items= ListMap.getListHashMap(ListMap.LIST_APP_FORMS);
         ArrayList<DynForm> _formList=new ArrayList<>();
@@ -164,7 +242,8 @@ public class DynFormList implements IConvertHelper {
 
             for(String key:items.keySet()){
                 String strItem=items.get(key);
-                if(strItem !=""){
+                assert strItem != null;
+                if(!strItem.equals("")){
                     try{
                         StaticListItem item=new StaticListItem(new JSONObject(strItem));
                         DynForm form =new DynForm(new JSONArray(item.getOptParam1()));

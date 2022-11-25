@@ -4,6 +4,11 @@ var ObjectId = require("mongodb").ObjectID;
 var turf = require("@turf/turf");
 import moment from "moment";
 import _ from "lodash";
+// import fs from 'fs'
+// let date = moment(new Date());
+// date = date.format("YYYY-MM-DD_hh-mm-ss")
+// let counter = 0;
+
 class AssetsTreeService {
   async resolveLocation(geoJsonCord, milePost, uom) {
     let _geoJsonCord = geoJsonCord.features ? geoJsonCord.features[0].geometry.coordinates : geoJsonCord.geometry.coordinates;
@@ -14,7 +19,130 @@ class AssetsTreeService {
     return [coordinates[1], coordinates[0]];
   }
 
+  makeTreeNode(assetsTree, nodeId, nodeObj, assetTypes, parentLoc) {
+    let assetType = assetTypes.get(nodeObj.assetType);
+    if (assetType) {
+      assetsTree[nodeObj._id] = {
+        properties: {
+          unitId: nodeObj.unitId,
+          assetType: assetType.assetType,
+          inspectable: assetType.inspectable,
+          plannable: assetType.plannable,
+          location: assetType.location,
+          menuFilter: assetType.menuFilter,
+          assetTypeClassify: assetType.assetTypeClassify,
+          displayName: assetType.displayName,
+        },
+      };
+      if (assetsTree && nodeId && assetType.location) {
+        assetsTree[nodeObj._id].properties.locationId = nodeId;
+        assetsTree[nodeObj._id].properties.locationName = assetsTree.properties.unitId;
+      } else if (parentLoc) {
+        assetsTree[nodeObj._id].properties = {...assetsTree[nodeObj._id].properties, ...parentLoc}
+      }
+    } else {
+      assetsTree[obj._id] = { properties: {} };
+      console.log(`AssetsTreeService.makeTreeNode.error: asset type ${nodeObj.assetType}, not found for asset: ${nodeObj.unitId}`);
+    }
+    return assetsTree;
+  }
+  addNodesR(nodeId, treeNode, parentGroupedAssets, assetTypes, parentLoc) {
+    let children = parentGroupedAssets[nodeId];
+    if (children && children.length) {
+      for (let child of children) {
+        let childTreeNode = this.makeTreeNode(treeNode, nodeId, child, assetTypes, parentLoc);
+        let nodeLoc = childTreeNode[child._id].properties.location ? {
+          locationId: child._id,
+          locationName: childTreeNode[child._id].properties.unitId
+        } : parentLoc;
+        this.addNodesR(child._id, childTreeNode[child._id], parentGroupedAssets, assetTypes, nodeLoc);
+      }
+    }
+  }
+  async addOrUpdateAssetTreeInDB(assetsTree) {
+    let check = await AssetsTreeModel.findOne({ tag: "AssetTree" }).exec();
+    if (!check) {
+      let obj = {};
+      obj.assetsTreeObj = assetsTree;
+      obj.tag = "AssetTree";
+      let newData = await AssetsTreeModel.create(obj);
+      newData.assetsTreeObj = assetsTree;
+      newData.markModified("assetsTreeObj");
+      return newData;
+      // await newData.save();
+    } else {
+      check.assetsTreeObj = assetsTree;
+      check.markModified("assetsTreeObj");
+      return check;
+      // await check.save();
+      //      console.log("updated existing", savedData);
+    }
+  }
+  async createHierarchyTreeV2() {
+    let startTime = moment();
+    let AssetsModel = ServiceLocator.resolve("AssetsModel");
+    let AssetsTypeModel = ServiceLocator.resolve("AssetTypesModel");
+    let assetTypes = (await AssetsTypeModel.find().exec()).map((t) => {
+      let obj = t.toObject();
+      obj.displayName = obj.displayName ? obj.displayName : obj.assetType;
+      return obj;
+    });
+    let assetTypesMap = new Map();
+    let assets = (await AssetsModel.find({ isRemoved: false }).exec()).map((a) => a.toObject());
+    let parentGroupedAssets = _.groupBy(assets, "parentAsset");
+    assetTypes.forEach((at) => {
+      assetTypesMap.set(at.assetType, at);
+    });
+
+    let rootNodeList = parentGroupedAssets["null"];
+    if (rootNodeList.length !== 1) {
+      // todo: log error because there must exactly be one root node
+      console.log(`Root node must be 1 instead of current:${rootNodeList.length}`);
+      if (rootNodeList.length === 0) {
+        console.log(`No root node. Cannot continue.`);
+        return;
+      }
+    }
+    let rootNode = rootNodeList[0];
+    let assetsTree = this.makeTreeNode({}, null, rootNode, assetTypesMap);
+    this.addNodesR(rootNode._id, assetsTree[rootNode._id], parentGroupedAssets, assetTypesMap, {
+      locationId: rootNode._id,
+      locationName: assetsTree[rootNode._id].properties.unitId
+    });
+
+    // console.log({assetsTree});
+    let timeNow = moment();
+    console.log("time taken in seconds : ", moment.duration(timeNow.diff(startTime)).asSeconds());
+    let tree = await this.addOrUpdateAssetTreeInDB(assetsTree);
+    return tree;
+  }
+
   async createHierarchyTree() {
+    let v1_tree = await this.createHierarchyTreeV1();
+    let v2_tree = await this.createHierarchyTreeV2();
+    if (!v1_tree && !v2_tree) {
+      // no update required
+    } else {
+      let result = {
+        matched: false,
+        v1: v1_tree.assetsTreeObj,
+        v2: v2_tree.assetsTreeObj,
+      };
+      if (JSON.stringify(v1_tree.assetsTreeObj) === JSON.stringify(v2_tree.assetsTreeObj)) {
+        result.matched = true;
+        // console.log("ASSETS TREE V1 and V2 MATCHED");
+      } else {
+        result.matched = false;
+        console.log("ASSETS TREE V1 and V2 MISMATCH");
+        // let name = `${date}_${++counter}.json`;
+        // console.log('file saved with name ' + name)
+        // fs.appendFileSync(name, JSON.stringify(result, null, 4));
+      }
+      let savedData = await v1_tree.save();
+    }
+  }
+
+  async createHierarchyTreeV1() {
     let AssetsModel;
     let AssetsTypeModel;
 
@@ -65,6 +193,7 @@ class AssetsTreeService {
       let timeNow = moment();
       console.log("time taken in seconds : ", moment.duration(timeNow.diff(startTime)).asSeconds());
       let check = await AssetsTreeModel.findOne({ tag: "AssetTree" }).exec();
+      let savedData = null;
       if (!check) {
         let obj = {};
 
@@ -74,18 +203,22 @@ class AssetsTreeService {
         let newData = await AssetsTreeModel.create(obj);
         newData.assetsTreeObj = assetsTree;
         newData.markModified("assetsTreeObj");
-        let savedData = await newData.save();
+        return newData;
+        // savedData = await newData.save();
       } else {
         check.assetsTreeObj = assetsTree;
         check.markModified("assetsTreeObj");
-        let savedData = await check.save();
+        // savedData = await check.save();
         //      console.log("updated existing", savedData);
+        return check;
       }
+      // return newData;
     }
     // convert the assets and their child array into map objects
     //} catch (err) {
     //  console.log("ERROR in createHierarchyTree: ", err);
     //}
+    return null;
   }
   async recursivelyFindAssetId(id, treeBranch, foundAssetInsideTree, found) {
     try {

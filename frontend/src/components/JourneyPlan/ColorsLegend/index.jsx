@@ -9,7 +9,7 @@ import { Icon } from "react-icons-kit";
 
 import { getStatusColor } from "../../../utils/statusColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 class ColorsLegend extends Component {
   constructor(props) {
@@ -44,7 +44,7 @@ class ColorsLegend extends Component {
       <div
         style={{
           padding: "0px 0px 0px 10px",
-          background: "#fff",
+          background: "var(--fifth)",
           margin: "0 10px 0",
           position: this.state.pinned ? "absolute" : "fixed",
           right: "20px",
@@ -54,7 +54,7 @@ class ColorsLegend extends Component {
           boxShadow: "3px 5px 6px 1px rgba(0,0,0,0.75)",
         }}
       >
-        {/* <h6 style={{ fontFamily: "Myriad Pro", fontSize: "18px", letterSpacing: "0.5px", color: "rgb(64, 118, 179)" }}>Legend:</h6> */}
+        {/* <h6 style={{ fontFamily: "Myriad Pro", fontSize: "18px", letterSpacing: "0.5px", color: "var(--first)" }}>Legend:</h6> */}
         {Object.keys(this.summaryDesc).map((items) => (
           <div key={items} className={this.state.pinned ? "legend-container" : "legend-container open"}>
             <span
@@ -68,7 +68,10 @@ class ColorsLegend extends Component {
                 borderRadius: "4px",
               }}
             ></span>
-            <label className="legend-bar" style={themeService({ default: {}, retro: { color: retroColors.second } })}>
+            <label
+              className="legend-bar"
+              style={themeService({ default: {}, retro: { color: retroColors.second }, electric: { color: electricColors.second } })}
+            >
               {this.summaryDesc[items]}
             </label>
           </div>
@@ -89,8 +92,9 @@ class ColorsLegend extends Component {
           <Icon
             size={20}
             style={themeService({
-              default: { color: "rgb(64, 118, 179)", fill: "rgb(64, 118, 179)" },
+              default: { color: "var(--first)", fill: "var(--first)" },
               retro: { color: retroColors.second, fill: retroColors.second },
+              electric: { color: electricColors.second, fill: electricColors.second },
             })}
             icon={this.state.pinned ? pinOutline : pin}
           />

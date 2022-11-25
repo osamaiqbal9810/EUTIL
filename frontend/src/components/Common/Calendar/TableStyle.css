@@ -3,14 +3,14 @@ table.table thead tr {
   -webkit-box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
   box-shadow: 0 2px 15px 0 rgba(0, 0, 0, 0.15);
   border: none;
-  color: rgb(64, 118, 179);
+  color: var(--first);
   font-size: 12px;
   letter-spacing: 0.3px;
-  background-color: rgb(227, 233, 239);
+  background-color: var(--eleventh);
   height: 20px; */
 }
 /* table.table thead tr th {
-  color: rgb(64, 118, 179) !important;
+  color: var(--first) !important;
   width: 14.28%;
   font-size: 14px;
 } */
@@ -24,7 +24,7 @@ table.table tbody tr:first-child {
 }
 
 table.table tbody tr td {
-  color: #fff;
+  color: var(--fifth);
   font-size: 12px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -36,7 +36,7 @@ table.table tbody tr td {
 table.table tbody tr td .table-date {
   font-size: 16px;
   font-weight: 700;
-  background-color: rgba(64, 118, 179,1) !important;
+  color: var(--first);
 }
 table.table tbody tr td .table-cell {
   overflow: hidden;
@@ -57,6 +57,16 @@ table.table tbody tr td .detail-title .detail-icon {
   vertical-align: top;
   padding: 5px 10px 5px 2px;
 }
+/* .electric table.table tbody tr td .detail-title .detail-icon {
+  display: inline-block !important;
+  width: 0%;
+}
+.electric table.table tbody tr td .detail-title .detail-icon i {
+  display: none !important;
+}
+.electric table.table tbody tr td .detail-title .detail-text {
+  width: 94% !important;
+} */
 table.table tbody tr td .detail-title .detail-text {
   display: inline-block;
   width: 85%;
@@ -82,7 +92,7 @@ table.table tbody tr td .detail-title .detail-text-full {
 table.popupTable tbody tr,
 table.popupTable tbody tr td {
   height: auto;
-  color: rgb(64, 118, 179);
+  color: var(--first);
 }
 table.popupTable tbody tr td {
   padding: 20px;
@@ -98,7 +108,7 @@ table.popupTable tbody tr td:hover {
   font-family: Arial;
   font-size: 12px;
   letter-spacing: 0.95px;
-  color: rgb(64, 118, 179);
+  color: var(--first);
   vertical-align: text-top;
   margin: 0 0px 0 0;
   overflow: hidden;
@@ -134,4 +144,5 @@ table.popupTable tbody tr td:hover {
 }
 table.table.calender {
   table-layout: fixed;
+  min-width: 800px;
 }

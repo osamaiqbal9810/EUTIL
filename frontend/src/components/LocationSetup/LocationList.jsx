@@ -6,7 +6,7 @@ import { plus } from "react-icons-kit/icomoon/plus";
 import SvgIcon from "react-icons-kit";
 import { themeService } from "../../theme/service/activeTheme.service";
 import AddNewInputField from "./AddNewInputField";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import CustomCheckbox from "../Common/CustomCheckbox";
 import { pencil } from "react-icons-kit/icomoon/pencil";
 import { cross } from "react-icons-kit/icomoon/cross";
@@ -166,7 +166,7 @@ const LocationTypeField = (props) => {
         <AddNewInputField
           handleAddNewLocation={props.handleEditField}
           handleSaveField={props.handleSaveEdit}
-          color={retroColors.second}
+          color={"var(--second)"}
           value={props.locationType.assetType}
         />
       )}
@@ -174,7 +174,7 @@ const LocationTypeField = (props) => {
   );
 };
 
-class AddNewField extends React.Component {
+export class AddNewField extends React.Component {
   state = {
     tooltip: false,
   };
@@ -207,7 +207,7 @@ class AddNewField extends React.Component {
   }
 }
 
-class EditField extends React.Component {
+export class EditField extends React.Component {
   state = {
     tooltip: false,
   };
@@ -236,7 +236,7 @@ class EditField extends React.Component {
     );
   }
 }
-class LocationField extends Component {
+export class LocationField extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -266,7 +266,7 @@ class LocationField extends Component {
     if (this.state.showInputField) {
       style.padding = "0px";
     } else {
-      style = { ...style, ...{ background: this.props.locAsset.selected ? retroColors.first : retroColors.fifth } };
+      style = { ...style, ...{ background: this.props.locAsset.selected ? "var(--first)" : "var(--fifth)" } };
     }
     return (
       <React.Fragment>
@@ -280,7 +280,7 @@ class LocationField extends Component {
             <EditField
               handleEditField={this.handleEditField}
               index={this.props.locAsset._id}
-              color={this.props.locAsset.selected ? retroColors.second : retroColors.first}
+              color={this.props.locAsset.selected ? "var(--second)" : "var(--first)"}
             />
             <span
               id={`check-${this.props.locAsset._id}`}
@@ -304,7 +304,7 @@ class LocationField extends Component {
                   style={{
                     ...themeService(locationListStyle.saveInputIcon),
                     ...{
-                      color: this.props.locAsset.selected ? retroColors.second : retroColors.first,
+                      color: this.props.locAsset.selected ? "var(--second)" : "var(--first)",
                       float: "right",
                       padding: "0px 7px",
                       height: "auto",

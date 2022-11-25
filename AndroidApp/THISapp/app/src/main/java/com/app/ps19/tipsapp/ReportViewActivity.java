@@ -376,7 +376,7 @@ public class ReportViewActivity extends AppCompatActivity {
         img_recycler_view.setAdapter(horizontalAdapter);
     }
     public void setVoiceAdapter(ArrayList<IssueVoice> attachments) {
-        voiceAdapter = new reportVoiceAdapter(this, attachments);
+        voiceAdapter = new reportVoiceAdapter(this, attachments, ReportViewActivity.this.getLocalClassName());
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvVoice.setLayoutManager(horizontalLayoutManager);
         rvVoice.setAdapter(voiceAdapter);

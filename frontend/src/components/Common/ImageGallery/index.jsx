@@ -9,7 +9,7 @@ import "./style.css";
 import { languageService } from "../../../Language/language.service";
 import { ButtonStyle, CommonModalStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
@@ -32,7 +32,7 @@ class ImageGallery extends Component {
         row: {
           fontSize: "12px",
           minHeight: "30px",
-          color: "rgba(64, 118, 179)",
+          color: "var(--first)",
           padding: "12px 10px 6px 12px",
           borderLeft: "1px solid #e3e9ef",
           borderRight: "1px solid #e3e9ef",
@@ -46,6 +46,19 @@ class ImageGallery extends Component {
           fontSize: "12px",
           minHeight: "30px",
           color: retroColors.second,
+          padding: "12px 10px 6px 12px",
+          borderLeft: "1px solid #e3e9ef",
+          borderRight: "1px solid #e3e9ef",
+          borderBottom: "1px solid #e3e9ef",
+          boxShadow: "inset 0 1px 1px rgba(0, 0, 0, 0.05)",
+          transitionDuration: "2s",
+        },
+      },
+      electric: {
+        row: {
+          fontSize: "12px",
+          minHeight: "30px",
+          color: electricColors.second,
           padding: "12px 10px 6px 12px",
           borderLeft: "1px solid #e3e9ef",
           borderRight: "1px solid #e3e9ef",
@@ -123,8 +136,8 @@ class ImageGallery extends Component {
     if (this.state.imgsList) {
       imgComp = this.state.imgsList.map((imgName, index) => {
         paths = this.props.customFolder
-          ? "http://" + getServerEndpoint() + this.props.customFolder + "/" + imgName
-          : "http://" + getServerEndpoint() + "thumbnails/" + imgName;
+          ? getServerEndpoint() + this.props.customFolder + "/" + imgName
+          : getServerEndpoint() + "thumbnails/" + imgName;
         //  console.log(paths)
         return (
           <div className="colsImgs" key={imgName}>
@@ -170,9 +183,9 @@ class ImageGallery extends Component {
                       <input
                         style={{
                           width: "0px",
-                          backgroundColor: "rgb(64, 118, 179)",
+                          backgroundColor: "var(--nine)",
                           border: "none",
-                          height: " 36px",
+                          height: " 40px",
                           // borderRight: "1px solid #ccc",
                         }}
                       />

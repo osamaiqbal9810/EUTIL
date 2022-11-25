@@ -1,34 +1,25 @@
 package com.app.ps19.scimapp;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -40,14 +31,16 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
-import com.app.ps19.scimapp.Shared.Utils;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
+import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.scimapp.classes.Geometry;
 import com.app.ps19.scimapp.classes.LatLong;
 import com.app.ps19.scimapp.classes.Units;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -62,10 +55,13 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMp;
 import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 
-public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, SharedPreferences.OnSharedPreferenceChangeListener {
+public class UnitCordsAdjActivity extends AppCompatActivity implements
+        OnMapReadyCallback,
+        OnLocationUpdatedListener {
     TextView titleText;
     TextView unitText;
     MapView mapView;
@@ -79,10 +75,11 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     Button btnAdjust;
     Geometry lastGeometry;
     boolean dirty = false;
-    private LocationManager locationManager;
+    // private LocationManager locationManager;
     private Location currentLocation;
-    private final int REQUEST_FINE_LOCATION = 1234;
+    // private final int REQUEST_FINE_LOCATION = 1234;
     private GoogleMap mMap;
+    private LocationSource.OnLocationChangedListener onLocationChangedListener;
     private ScrollView svMainContainer;
     private ImageView ivTransparent;
     private Location mLocation;
@@ -90,6 +87,7 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     Marker adjustedMarker;
     Location adjustedLocation;
     boolean isPrevAvailable = false;
+    boolean move2CurrentLocation = true;
 
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
@@ -100,6 +98,37 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     }
 
     @Override
+    public void onLocationUpdated(Location _mLocation) {
+
+        if (!LocationUpdatesService.canGetLocation() || _mLocation.getProvider().equals("None")) {
+            Utilities.showSettingsAlert(UnitCordsAdjActivity.this);
+        }
+        else {
+            if (onLocationChangedListener != null) {
+                onLocationChangedListener.onLocationChanged(_mLocation);
+            }
+
+            mLocation = _mLocation;
+            currentLocation = _mLocation;
+        }
+/*        if (mMap != null && move2CurrentLocation) {
+            move2CurrentLocation = false;
+            LatLng curLatLng = new LatLng(_mLocation.getLatitude(), _mLocation.getLongitude());
+            // mCurrLocationMarker.setPosition(curLatLng);
+            //if (mblnFollowCamera) {
+            float zoom = mMap.getCameraPosition().zoom;
+
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, zoom);
+            mMap.animateCamera(cameraUpdate);
+
+            //}
+            Log.i("Location:", "Location Updated");
+        }*/
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLocale(this);
@@ -108,17 +137,21 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        move2CurrentLocation = true;
         if (lastKnownLocation != null) {
             mLocation = lastKnownLocation;
         }
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
-        // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-            /*if (!checkPermissions()) {
-                requestPermissions();
-            }*/
-        }
+//        myReceiver = new MyReceiver();
+//        // Check that the user hasn't revoked permissions by going to Settings.
+//        if (Utils.requestingLocationUpdates(this)) {
+//            /*if (!checkPermissions()) {
+//                requestPermissions();
+//            }*/
+//        }
         //--------------------END-------------------
         svMainContainer = findViewById(R.id.sv_main_container);
         ivTransparent = findViewById(R.id.transparent_image);
@@ -171,27 +204,28 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         mapFragment.getMapAsync(this);
         updateFormValues();
 
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //LocationServices.getFusedLocationProviderClient(this);
-        // Create a criteria object to retrieve provider
-        Criteria criteria = new Criteria();
+//        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        //LocationServices.getFusedLocationProviderClient(this);
+//        // Create a criteria object to retrieve provider
+//        Criteria criteria = new Criteria();
+//
+//        // Get the name of the best provider
+//        String provider = locationManager.getBestProvider(criteria, true);
 
-        // Get the name of the best provider
-        String provider = locationManager.getBestProvider(criteria, true);
-
-        // Get Current Location
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
+//        // Get Current Location
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            //    ActivityCompat#requestPermissions
+//            // here to request the missing permissions, and then overriding
+//            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//            //                                          int[] grantResults)
+//            // to handle the case where the user grants the permission. See the documentation
+//            // for ActivityCompat#requestPermissions for more details.
+//            return;
+//        }
         lastGeometry = selectedUnit.getCoordinatesAdj();
-        currentLocation = locationManager.getLastKnownLocation(provider);
+
+        currentLocation = LocationUpdatesService.getLocation();
 
         //Workaround for map scrolling till yet
         ivTransparent.setOnTouchListener(new View.OnTouchListener() {
@@ -234,7 +268,10 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -246,23 +283,48 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         }
         mMap.setMyLocationEnabled(true);
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
+
+        googleMap.setLocationSource(new LocationSource() {
+
+            @Override
+            public void activate(OnLocationChangedListener listener) {
+                onLocationChangedListener = listener;
+
+            }
+
+            @Override
+            public void deactivate() {
+                onLocationChangedListener = null;
+            }
+        });
+
         //add location button click listener
         mMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener(){
             @Override
-            public boolean onMyLocationButtonClick()
-            {
-                if(adjustedMarker != null){
+            public boolean onMyLocationButtonClick() {
+
+                if (adjustedMarker != null) {
                     adjustedMarker.remove();
                 }
                 setClearBtnEnable();
-                adjustedMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Adjusted Location").icon(BitmapDescriptorFactory
-                        .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                adjustedMarker = mMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()))
+                        .title("Adjusted Location").icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
 
                 adjustedLocation = new Location(LocationManager.GPS_PROVIDER);
                 adjustedLocation.setLatitude(mLocation.getLatitude());
                 adjustedLocation.setLongitude(mLocation.getLongitude());
                 tvLat2.setText(String.valueOf(mLocation.getLatitude()));
                 tvLong2.setText(String.valueOf(mLocation.getLongitude()));
+
+                try {
+                    onLocationChangedListener.onLocationChanged(mLocation);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()), 50));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
                 setDirty(true);
                 return false;
             }
@@ -290,10 +352,15 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         /*mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Current Location")
                 .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(R.drawable.ic_person_white_24dp))));*/
         LatLng sydney = new LatLng(-33.852, 151.211);
-        LatLng asset = new LatLng(Double.parseDouble(selectedUnit.getCoordinates().get(0).getLat()), Double.parseDouble(selectedUnit.getCoordinates().get(0).getLon()));
-        googleMap.addMarker(new MarkerOptions()
-                .position(asset)
-                .title(selectedUnit.getAssetType()).snippet(selectedUnit.getDescription()));
+        LatLng asset = null;
+        try {
+            asset = new LatLng(Double.parseDouble(selectedUnit.getCoordinates().get(0).getLat()), Double.parseDouble(selectedUnit.getCoordinates().get(0).getLon()));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(asset)
+                    .title(selectedUnit.getAssetTypeDisplayName()).snippet(selectedUnit.getDescription()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(isPrevAvailable){
             if(adjustedMarker!=null){
                 adjustedMarker.remove();
@@ -352,7 +419,7 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         String lat2 = coordinatesAdj!=null ? coordinatesAdj.getCoordinates().size()>0?String.valueOf(coordinatesAdj.getCoordinates().get(0).latitude).equals("0.0")?"":String.valueOf(coordinatesAdj.getCoordinates().get(0).latitude) : "":"";
         String lng2 =coordinatesAdj!=null ? coordinatesAdj.getCoordinates().size()>0?String.valueOf(coordinatesAdj.getCoordinates().get(0).longitude).equals("0.0")?"":String.valueOf(coordinatesAdj.getCoordinates().get(0).longitude) : "":"";
 
-        tvMilepost.setText(selectedUnit.getStart());
+        tvMilepost.setText(getPrefixMp(selectedUnit.getStart()));
         tvLat1.setText(lat1);
         tvLong1.setText(lng1);
         tvLat2.setText(lat2);
@@ -368,40 +435,40 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
 
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        currentLocation = location;
-        locationManager.removeUpdates(this);
-    }
+//    @Override
+//    public void onLocationChanged(Location location) {
+//        currentLocation = location;
+//        locationManager.removeUpdates(this);
+//    }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
+//    @Override
+//    public void onStatusChanged(String provider, int status, Bundle extras) {
+//    }
+//
+//    @Override
+//    public void onProviderEnabled(String provider) {
+//    }
+//
+//    @Override
+//    public void onProviderDisabled(String provider) {
+//    }
 
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_FINE_LOCATION:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("gps", "Location permission granted");
-                    try {
-                        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                        locationManager.requestLocationUpdates("gps", 0, 0, this);
-                    } catch (SecurityException ex) {
-                        Log.d("gps", "Location permission did not work!");
-                    }
-                }
-                break;
-        }
-    }
+    //    @Override
+//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_FINE_LOCATION:
+//                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    Log.d("gps", "Location permission granted");
+//                    try {
+////                        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+////                        locationManager.requestLocationUpdates("gps", 0, 0, this);
+//                    } catch (SecurityException ex) {
+//                        Log.d("gps", "Location permission did not work!");
+//                    }
+//                }
+//                break;
+//        }
+//    }
     @Override
     public boolean onSupportNavigateUp() {
         if(isDirty()){
@@ -412,43 +479,43 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         return true;
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    }
-
-    /**
-     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location _mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (_mLocation != null) {
-                mLocation = _mLocation;
-                if (mMap != null) {
-                    if (mCurrLocationMarker != null) {
-                        LatLng curLatLng = new LatLng(_mLocation.getLatitude(), _mLocation.getLongitude());
-                        mCurrLocationMarker.setPosition(curLatLng);
-                        //if (mblnFollowCamera) {
-                        float zoom = mMap.getCameraPosition().zoom;
-
-                        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, zoom);
-                        mMap.animateCamera(cameraUpdate);
-
-                        //}
-                        Log.i("Location:", "Location Updated");
-                    }
-                }
-                   /* cLocation = mLocation;
-                    latitude = String.valueOf(mLocation.getLatitude());
-                    longitude = String.valueOf(mLocation.getLongitude());
-                    refreshLocation();
-                    Toast.makeText(MainActivity.this, Utils.getLocationText(mLocation),
-                            Toast.LENGTH_SHORT).show();*/
-            }
-        }
-    }
+    ////    @Override
+////    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+////
+////    }
+//
+//    /**
+//     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+//     */
+//    private class MyReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location _mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (_mLocation != null) {
+//                mLocation = _mLocation;
+//                if (mMap != null) {
+//                    if (mCurrLocationMarker != null) {
+//                        LatLng curLatLng = new LatLng(_mLocation.getLatitude(), _mLocation.getLongitude());
+//                        mCurrLocationMarker.setPosition(curLatLng);
+//                        //if (mblnFollowCamera) {
+//                            float zoom = mMap.getCameraPosition().zoom;
+//
+//                            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(curLatLng, zoom);
+//                            mMap.animateCamera(cameraUpdate);
+//
+//                        //}
+//                        Log.i("Location:", "Location Updated");
+//                    }
+//                }
+//                   /* cLocation = mLocation;
+//                    latitude = String.valueOf(mLocation.getLatitude());
+//                    longitude = String.valueOf(mLocation.getLongitude());
+//                    refreshLocation();
+//                    Toast.makeText(MainActivity.this, Utils.getLocationText(mLocation),
+//                            Toast.LENGTH_SHORT).show();*/
+//            }
+//        }
+//    }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
@@ -468,7 +535,9 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     public void onPause() {
         super.onPause();
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
             super.onPause();
         } catch (Exception e) {
             e.printStackTrace();
@@ -478,11 +547,13 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onStart() {
         super.onStart();
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
 
-        bindService(new Intent(UnitCordsAdjActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+//        bindService(new Intent(UnitCordsAdjActivity.this, LocationUpdatesService.class), mServiceConnection,
+//                Context.BIND_AUTO_CREATE);
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .registerOnSharedPreferenceChangeListener(this);
         // Restore the state of the buttons when the activity (re)launches.
         //setButtonsState(Utils.requestingLocationUpdates(this));
             /*if (!checkPermissions()) {
@@ -501,45 +572,46 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
     public void onResume() {
         super.onResume();
         try {
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+            //Listen to location Updates
+            LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+//            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+//                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if (mService != null) {
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
+    //    // Monitors the state of the connection to the service.
+//    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+//            mService = binder.getService();
+//            mBound = true;
+//            if (mService != null) {
+//                mService.requestLocationUpdates();
+//            }
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            mService = null;
+//            mBound = false;
+//        }
+//    };
     private static final String TAGa = "resPMain";
 
-    // Used in checking for runtime permissions.
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
-
-    // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
-
-    // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
+//    // Used in checking for runtime permissions.
+//    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+//
+//    // The BroadcastReceiver used to listen from broadcasts from the service.
+//    private MyReceiver myReceiver;
+//
+//    // A reference to the service used to get location updates.
+//    private LocationUpdatesService mService = null;
 
     // Tracks the bound state of the service.
-    private boolean mBound = false;
+    //  private boolean mBound = false;
     private Bitmap getMarkerBitmapFromView(@DrawableRes int resId) {
 
         View customMarkerView = ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.view_custom_marker, null);
@@ -572,13 +644,15 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
                 .setPositiveButton(getString(R.string.briefing_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (mBound) {
-                            // Unbind from the service. This signals to the service that this activity is no longer
-                            // in the foreground, and the service can respond by promoting itself to a foreground
-                            // service.
-                            unbindService(mServiceConnection);
-                            mBound = false;
-                        }
+                        //Remove Location Updates
+                        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//                        if (mBound) {
+//                            // Unbind from the service. This signals to the service that this activity is no longer
+//                            // in the foreground, and the service can respond by promoting itself to a foreground
+//                            // service.
+//                            unbindService(mServiceConnection);
+//                            mBound = false;
+//                        }
                         updateValues();
                         Globals.selectedJPlan.update();
                         finish();
@@ -605,4 +679,6 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements OnMapRead
         btnReset.setTextColor(Color.parseColor("#FFFFFF"));
         btnReset.setBackgroundColor(Color.parseColor("#c1272d"));
     }
+
+
 }

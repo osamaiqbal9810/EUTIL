@@ -13,7 +13,7 @@ import { statusStyle } from "../../JourneyPlan/JourneyPlanList/style";
 import { themeService } from "../../../theme/service/activeTheme.service";
 import { dateSort, generalSort } from "../../../utils/sortingMethods";
 import { maintenanceOptions, getMaintenanceOptionsValueToText } from "../../IssuesReports/IssuesList/IssuesList";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { checkmark } from "react-icons-kit/icomoon/checkmark";
 import SvgIcon, { Icon } from "react-icons-kit";
 class MaintenanceList extends Component {
@@ -95,7 +95,13 @@ class MaintenanceList extends Component {
                     <React.Fragment>
                       {editMaintenance && (
                         <div style={{ display: "inline-block" }}>
-                          <div style={themeService({ default: { color: basicColors }, retro: { color: retroColors.second } })}>
+                          <div
+                            style={themeService({
+                              default: { color: basicColors },
+                              retro: { color: retroColors.second },
+                              electric: { color: electricColors.second },
+                            })}
+                          >
                             <SvgIcon
                               size={15}
                               icon={checkmark}

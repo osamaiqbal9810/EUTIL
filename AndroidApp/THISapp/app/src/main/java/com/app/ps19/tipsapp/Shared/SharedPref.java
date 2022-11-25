@@ -3,7 +3,6 @@ package com.app.ps19.tipsapp.Shared;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-//import android.preference.PreferenceManager;
 
 public class SharedPref {
 
@@ -16,9 +15,13 @@ public class SharedPref {
         if(Globals.appName.equals(Globals.AppName.SCIM)){
             PREFS_NAME = "SCIM_PREF";
             PREFS_KEY = "SCIM_SERVER_INFO";
+
         } else if (Globals.appName.equals(Globals.AppName.TIMPS)){
             PREFS_NAME = "TIPS_PREF";
             PREFS_KEY = "TIPS_SERVER_INFO";
+        } else if (Globals.appName.equals(Globals.AppName.EUIS)){
+            PREFS_NAME = "EUIS_PREF";
+            PREFS_KEY = "EUIS_SERVER_INFO";
         }
         this.context = context;
     }
@@ -57,6 +60,15 @@ public class SharedPref {
         value = settings.getBoolean(key, false);
         return value;
     }
+    public Boolean getBoolean(String key, boolean def) {
+        SharedPreferences settings;
+        boolean value;
+
+        //settings = PreferenceManager.getDefaultSharedPreferences(context);
+        settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        value = settings.getBoolean(key, def);
+        return value;
+    }
 
     public String getString(String key) {
         SharedPreferences settings;
@@ -65,6 +77,15 @@ public class SharedPref {
         //settings = PreferenceManager.getDefaultSharedPreferences(context);
         settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         text = settings.getString(key, "");
+        return text;
+    }
+    public String getString(String key, String def) {
+        SharedPreferences settings;
+        String text;
+
+        //settings = PreferenceManager.getDefaultSharedPreferences(context);
+        settings = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        text = settings.getString(key, def);
         return text;
     }
 

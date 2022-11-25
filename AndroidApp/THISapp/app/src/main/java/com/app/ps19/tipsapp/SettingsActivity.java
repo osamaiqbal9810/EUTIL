@@ -90,6 +90,8 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
     Switch swOldService;
     RelativeLayout rlSwitchInspection;
     Switch swSwitchInspection;
+    RelativeLayout rlAudibleAlert;
+    Switch swAudibleAlert;
 
 
     ProgressDialog progressDialog;
@@ -129,6 +131,8 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
         swOldService = (Switch) findViewById(R.id.sw_old_service);
         rlSwitchInspection = (RelativeLayout) findViewById(R.id.rl_switch_inspection);
         swSwitchInspection = (Switch) findViewById(R.id.sw_switch_inspection);
+        rlAudibleAlert = (RelativeLayout) findViewById(R.id.rl_audible_alert);
+        swAudibleAlert = (Switch) findViewById(R.id.sw_audible_alert);
 
         //swGpsLog = (Switch) findViewById(R.id.gps_logging_switch);
         //btActivate = (Button) findViewById(R.id.btnActivateServer);
@@ -212,6 +216,14 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
                 Globals.isShowSwitchInspection = isChecked;
             }
         });
+        swAudibleAlert.setChecked(Globals.isAudibleNotificationAllowed);
+        swAudibleAlert.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                // do something, the isChecked will be
+                // true if the switch is in the On position
+                Globals.isAudibleNotificationAllowed = isChecked;
+            }
+        });
 
         tvGlobalsSettings.setOnTouchListener(new View.OnTouchListener() {
             Handler handler = new Handler();
@@ -268,6 +280,7 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
                                         rlSingleDefectCode.setVisibility(View.VISIBLE);
                                         rlOldService.setVisibility(View.VISIBLE);
                                         rlSwitchInspection.setVisibility(View.VISIBLE);
+                                        rlAudibleAlert.setVisibility(View.VISIBLE);
                                     } else {
                                         Toast.makeText(SettingsActivity.this, "Invalid pin code", Toast.LENGTH_SHORT).show();
                                     }
@@ -357,14 +370,17 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
                         .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int whichButton) {
                                 DBHandler db = Globals.db;//new DBHandler(Globals.getDBContext());
-                                db.clearAllData();
-                                //db.close();
-                                Toast.makeText(SettingsActivity.this, getString(R.string.cleared_all_data), Toast.LENGTH_SHORT).show();
-                                Intent i = getBaseContext().getPackageManager().
-                                        getLaunchIntentForPackage(getBaseContext().getPackageName());
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(i);
+                                if(db.clearAllData()){
+                                    //db.close();
+                                    Toast.makeText(SettingsActivity.this, getString(R.string.cleared_all_data), Toast.LENGTH_SHORT).show();
+                                    Intent i = getBaseContext().getPackageManager().
+                                            getLaunchIntentForPackage(getBaseContext().getPackageName());
+                                    i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                    startActivity(i);
+                                } else {
+                                    Toast.makeText(SettingsActivity.this, "Please try again!", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         })
                         .setNegativeButton(R.string.btn_cancel, null).show();
@@ -472,6 +488,7 @@ public class SettingsActivity extends AppCompatActivity implements OnItemClick, 
         rlSingleDefectCode.setVisibility(View.GONE);
         rlIssueUpdate.setVisibility(View.GONE);
         rlSwitchInspection.setVisibility(View.GONE);
+        rlAudibleAlert.setVisibility(View.GONE);
     }
 
     @Override

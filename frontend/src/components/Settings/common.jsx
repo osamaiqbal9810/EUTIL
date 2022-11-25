@@ -1,13 +1,13 @@
 import React, { Component } from "react";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { settingStyles } from "./style/settingStyle";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 
-export const Heading = props => {
+export const Heading = (props) => {
   return <div style={themeService(settingStyles.heading(props.heading))}>{props.children}</div>;
 };
 
-export const MainPageHeading = props => {
+export const MainPageHeading = (props) => {
   return (
     <div style={themeService(settingStyles.heading(props.heading))}>
       <Heading {...props}>{props.children}</Heading>
@@ -15,8 +15,14 @@ export const MainPageHeading = props => {
   );
 };
 
-export const Seperator = props => {
+export const Seperator = (props) => {
   return (
-    <div style={themeService({ default: { border: "1px solid " + "#d1d1d1" }, retro: { border: "1px solid " + retroColors.fourth } })} />
+    <div
+      style={themeService({
+        default: { border: "1px solid " + "#d1d1d1" },
+        retro: { border: "1px solid " + retroColors.fourth },
+        electric: { border: "1px solid " + electricColors.fourth },
+      })}
+    />
   );
 };

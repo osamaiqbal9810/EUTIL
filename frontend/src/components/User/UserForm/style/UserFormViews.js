@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const userAvtarStyle = {
     AvatarStyle: {
         default: {  //backgroundColor: "#FFFFFF",
@@ -20,6 +20,23 @@ export const userAvtarStyle = {
         },
         retro: {  //backgroundColor: "#FFFFFF",
             fillColor: retroColors.first,
+            border: 'none',
+            //borderColor: "#A7A7A7",
+            //borderColor: 'rgba(167,167,167,1.00)',
+            //borderWidth: '0px',
+            width: '100px',
+            height: '100px',
+            borderRadius: '5px',
+            MozBorderRadius: '5px',
+            WebkitBorderRadius: '5px',
+            display: 'block',
+            position: 'relative',
+            marginLeft: '30px',
+            marginTop: '30px',
+            marginBottom: '30px'
+        },
+        electric: {  //backgroundColor: "#FFFFFF",
+            fillColor: electricColors.first,
             border: 'none',
             //borderColor: "#A7A7A7",
             //borderColor: 'rgba(167,167,167,1.00)',

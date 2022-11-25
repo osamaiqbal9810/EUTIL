@@ -6,7 +6,7 @@ export const lineStyle = { display: "inline-block", paddingRight: "12px" };
 export const menuStyle = { marginTop: "7px", display: "inline-block" };
 export const backImage = getImageOf("TopBarViewBackground");
 export const headerStyle = {
-  background: " rgba(64, 118, 179)",
+  background: "var(--first)",
   backgroundImage: "url(" + backImage + ")",
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
@@ -30,7 +30,7 @@ export const ddElementStyle = {
   backgroundColor: "rgb(255, 255, 255)",
   borderBottom: "1px solid rgb(227, 233, 239)",
   textAlign: "left",
-  color: "rgb(64, 118, 179)",
+  color: "var(--first)",
   fontWeight: "normal",
   fontFamily: "Arial",
   fontSize: "13px",
@@ -39,7 +39,7 @@ export const ddElementStyle = {
   fontWeight: "bold",
   cursor: "pointer",
   ":hover": {
-    backgroundColor: "rgb(64, 118, 179)",
+    backgroundColor: "var(--first)",
     color: "rgb(255, 255, 255)",
   },
 };

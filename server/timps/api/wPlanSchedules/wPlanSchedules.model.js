@@ -12,6 +12,7 @@ let wPlanSchedules = new Schema({
   templateId: String,
   toRecalculate: { type: Boolean, default: false },
   dateRange: Object,
+  inspection_type:String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

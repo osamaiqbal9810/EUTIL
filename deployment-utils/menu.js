@@ -107,7 +107,8 @@ module.exports = async function displayMenu(menu, submenu=false)
                 }
                 else if(answer===menu.length)
                 {
-                  exit=true;
+                  exit = true;
+                  process.exit(0);
                 }
            }
     }

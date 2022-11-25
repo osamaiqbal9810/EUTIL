@@ -21,10 +21,15 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.app.ps19.tipsapp.DashboardActivity;
+import com.app.ps19.tipsapp.InboxActivity;
 import com.app.ps19.tipsapp.R;
+import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.classes.JourneyPlan;
 import com.app.ps19.tipsapp.classes.JourneyPlanOpt;
 import com.app.ps19.tipsapp.classes.User;
+import com.app.ps19.tipsapp.inspection.InspectionActivity;
+import com.app.ps19.tipsapp.issueAdapter;
 import com.app.ps19.tipsapp.wpAdapter1;
 import com.app.ps19.tipsapp.wplan.dummy.DummyContent;
 
@@ -32,12 +37,21 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
+import static android.view.View.GONE;
 import static com.app.ps19.tipsapp.Shared.Globals.WORK_PLAN_FINISHED_STATUS;
+import static com.app.ps19.tipsapp.Shared.Globals.activeSession;
+import static com.app.ps19.tipsapp.Shared.Globals.dayStarted;
 import static com.app.ps19.tipsapp.Shared.Globals.inbox;
+import static com.app.ps19.tipsapp.Shared.Globals.isMaintainer;
+import static com.app.ps19.tipsapp.Shared.Globals.saveCurrentJP;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedDUnit;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
+import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
 
 /**
  * A fragment representing a list of Items.
@@ -120,21 +134,22 @@ public class plansFragment extends Fragment {
                     String title= journeyPlans.get(position).getTitle();
                     final String code= journeyPlans.get(position).getCode();
                     String branchInfoString = getString(R.string.switching_inspection_msg2_part_1)+ " "+  "<b><i>"+ title + "</i></b>"+ "<br>" + getString(R.string.switching_inspection_msg2_part_2);
-                    new AlertDialog.Builder(getActivity())
+                    new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
                             .setTitle(getString(R.string.confirmation))
                             .setMessage(Html.fromHtml(branchInfoString))
                             .setIcon(android.R.drawable.ic_dialog_alert)
                             .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int whichButton) {
 
-                                    Intent returnIntent = new Intent();
+                                    /*Intent returnIntent = new Intent();
                                     returnIntent.putExtra("Selection", "Yes");
                                     returnIntent.putExtra("Position", position);
                                     returnIntent.putExtra("Mode", "Switch");
                                     returnIntent.putExtra("code",code);
                                     getActivity().setResult(RESULT_OK, returnIntent);
                                     selectedUnit = null;
-                                    getActivity().finish();
+                                    getActivity().finish();*/
+                                    initData(code);
                                 }
                             })
                             .setNegativeButton(R.string.btn_cancel, null).show();
@@ -149,8 +164,9 @@ public class plansFragment extends Fragment {
                         jIdToMatch = selectedJPlan.getId();
                     }
                     if(jId.equals(jIdToMatch)){
-                        String alreadyInProgressMsg = getString(R.string.inspection_in_progress_toast);
-                        Toast.makeText(getContext(), alreadyInProgressMsg, Toast.LENGTH_SHORT).show();
+                        launchActivity();
+                        /*String alreadyInProgressMsg = getString(R.string.inspection_in_progress_toast);
+                        Toast.makeText(getContext(), alreadyInProgressMsg, Toast.LENGTH_SHORT).show();*/
                     } else {
 
 
@@ -167,14 +183,15 @@ public class plansFragment extends Fragment {
                                 .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int whichButton) {
 
-                                        Intent returnIntent = new Intent();
+                                        /*Intent returnIntent = new Intent();
                                         returnIntent.putExtra("Selection", "Yes");
                                         returnIntent.putExtra("Position", position);
                                         returnIntent.putExtra("Mode", "Switch");
                                         returnIntent.putExtra("code",code);
                                         getActivity().setResult(RESULT_OK, returnIntent);
                                         selectedUnit = null;
-                                        getActivity().finish();
+                                        getActivity().finish();*/
+                                        initData(code);
                                     }
                                 })
                                 .setNegativeButton(R.string.btn_cancel, null).show();
@@ -187,5 +204,36 @@ public class plansFragment extends Fragment {
     }
     public void refreshFragment(){
 
+    }
+    private void initData(String jpCode){
+        saveCurrentJP(jpCode);
+        setSelectedTask(null);
+        selectedUnit = null;
+        selectedDUnit = null;
+        selectedJPlan = inbox.getCurrentJourneyPlan();
+        dayStarted = true;
+        Globals.safetyBriefing = null;
+        Globals.listViews = new HashMap<Integer, View>();
+        launchActivity();
+    }
+    private void launchActivity(){
+        try {
+            if (Globals.selectedJPlan != null && Globals.selectedJPlan.getTaskList()!=null) {
+                if (Globals.selectedJPlan.getTaskList().size() == 1) {
+                    setSelectedTask(selectedJPlan.getTaskList().get(0));
+                    activeSession = null;
+                    selectedJPlan.setActiveSession();
+                    //Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
+
+                    Intent intent = new Intent(getActivity(), InspectionActivity.class);
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(getActivity(), InboxActivity.class);
+                    startActivity(intent);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

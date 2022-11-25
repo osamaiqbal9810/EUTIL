@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:background="@color/issue_row_background"
+    android:orientation="horizontal">
+
+    <!--  ListRow Left sied Thumbnail image -->
+
+    <!--
+            android:layout_alignTop="@+id/reportThumbnail"
+            android:layout_toRightOf="@+id/reportThumbnail"-->
+    <LinearLayout
+        android:id="@+id/reportThumbnailLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_bottom"
+        android:layout_alignParentLeft="true"
+        android:layout_marginRight="5dip">
+
+        <ImageView
+            android:id="@+id/list_image"
+            android:layout_width="90dp"
+            android:layout_height="80dp"
+            android:scaleType="fitXY"
+            android:padding="5dp"
+            android:src="@drawable/no_image" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/reportTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="3dp"
+                    android:text="Need Repairsadfasdfasasdfasdfsadf qweqe"
+                    android:textColor="#040404"
+                    android:typeface="sans"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="16sp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tv_issue_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="1dp"
+                    android:text="Issue Description testing kjsdlkfajslfkdj sal jaslkdjsalk djlsa lkjalkdjad"
+                    android:textColor="#040404"
+                    android:typeface="sans"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="14sp"
+                    android:textStyle="normal"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:paddingStart="3dp"
+                    android:paddingEnd="1dp" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/tv_issue_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Defect"
+                    android:padding="2dp"
+                    android:gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_baseline_notifications_24"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="12sp"
+                    android:drawableStart="@drawable/ic_baseline_notifications_24" />
+                <TextView
+                    android:id="@+id/tv_issue_rule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:gravity="center_vertical"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="12sp"/>
+                <TextView
+                    android:id="@+id/tv_issue_notes_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="0"
+                    android:gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_baseline_mic_off_24"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="12sp"
+                    android:drawableStart="@drawable/ic_baseline_mic_off_24" />
+                <TextView
+                    android:id="@+id/tv_issue_photos_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:text="0"
+                    android:gravity="center_vertical"
+                    android:drawableLeft="@drawable/ic_photo_library_gray_24dp"
+                    android:fontFamily="@font/cabin"
+                    android:textSize="12sp"
+                    android:drawableStart="@drawable/ic_photo_library_gray_24dp" />
+            </LinearLayout>
+
+
+
+            <!--<LinearLayout
+                android:id="@+id/arrowLayout"
+                android:layout_width="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_gravity="end"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:id="@+id/imageView8"
+                    android:layout_width="wrap_content"
+                    android:layout_height="23dp"
+                    android:layout_gravity="end"
+                    app:srcCompat="@drawable/arrow" />
+            </LinearLayout>-->
+
+           <!-- <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/arrowLayout"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/priorityImg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        app:srcCompat="@drawable/pin" />
+
+                    <TextView
+                        android:id="@+id/priorityTxt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:text="Medium"
+                        android:fontFamily="@font/cabin"
+                        android:paddingStart="1dp"
+                        android:paddingLeft="1dp"
+                        android:typeface="sans"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/imageView10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="1dp"
+                        android:layout_gravity="bottom"
+                        app:srcCompat="@drawable/ic_pin_drop_black_24dp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/reportLatTxt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="36.778259"
+                            android:maxLength="10"
+                            android:fontFamily="@font/cabin"
+                            android:typeface="normal"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/reportLongTxt"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:maxLength="10"
+                            android:text="-119.41493"
+                            android:typeface="normal"
+                            android:fontFamily="@font/cabin"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="2dp"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/markedImg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:srcCompat="@drawable/flag" />
+
+                    <TextView
+                        android:id="@+id/markedTxt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="bottom"
+                        android:text="@string/fixed"
+                        android:paddingLeft="3dp"
+                        android:paddingStart="3dp"
+                        android:typeface="sans"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>-->
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Title Of Song-->
+    <!--<TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/reportThumbnail"
+        android:layout_toRightOf="@+id/reportThumbnail"
+        android:text="Rihanna Love the way lie"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15dip"
+        android:textStyle="bold"/>
+
+    &lt;!&ndash; Artist Name &ndash;&gt;
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:textColor="#343434"
+        android:textSize="10dip"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/reportThumbnail"
+        android:text="Just gona stand there and ..." />
+
+    &lt;!&ndash; Rightend Duration &ndash;&gt;
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/title"
+        android:gravity="right"
+        android:text="5:45"
+        android:layout_marginRight="5dip"
+        android:textSize="10dip"
+        android:textColor="#10bcc9"
+        android:textStyle="bold"/>
+
+    &lt;!&ndash; Rightend Arrow &ndash;&gt;
+    <ImageView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:srcCompat="@drawable/ic_chevron_right_black_24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>-->
+
+</RelativeLayout>

@@ -43,16 +43,11 @@
 .table-report.electric-utility table tr.new-block {
   border-top: 2px solid #000;
 }
-.table-report.electric-utility table tbody tr td:first-child {border-left: 2px solid #000 !important;}
 .table-report.electric-utility table tbody,
 .table-report.electric-utility table thead {
   border-left: 2px solid #000;
   border-bottom: 2px solid #000;
   border-top: 2px solid #000;
-  
-}
-.table-report.electric-utility table tr:last-child td {
-  border-bottom: 2px solid #000 !important;
 }
 /*****************************************************************************level-4*/
 .table-report.electric-utility.level-4 table td,
@@ -95,7 +90,7 @@
 }
 /*************************************************************Inspection Summary-reports*/
 .table-report.electric-utility.inspection.summary table thead th {
-  background-color: #fff;
+  background-color: var(--fifth);
 }
 .table-report.electric-utility.inspection.summary table tbody tr:nth-child(even) {
   background-color: #ccffcc;
@@ -104,7 +99,6 @@
 .table-report.electric-utility.facility-insp-form table thead tr th.no-borders {
   border-right: none !important;
   border-left: none !important;
-  border-bottom: 2px solid #000;
 }
 .table-report.electric-utility.facility-insp-form table thead tr th.no-borders span.tilted-title {
   /* border-top: 2px solid #000; */
@@ -129,8 +123,8 @@
   display: inline-block;
   position: relative;
   vertical-align: baseline;
+  text-align: right;
   width: 100%;
-  margin-top: 45px;
 }
 .table-report.electric-utility.facility-insp-form table thead tr th.no-borders.border-bottom-none {
   border-bottom: none !important;

@@ -2,7 +2,7 @@ import React from "react";
 import { Col, Card, CardText, CardBody } from "reactstrap";
 import PropTypes from "prop-types";
 
-export const CardTypeOne = props => {
+export const CardTypeOne = (props) => {
   const { topRightStyle } = props;
   const { centerNumberStyle } = props;
   return (
@@ -49,10 +49,10 @@ CardTypeOne.defaultProps = {
   textStyle: {
     fontSamily: "Arial",
     fontSize: "12px",
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     letterSpacing: "1.25px",
     float: "left",
     marginTop: "-5px",
   },
-  numberColor: "rgba(64, 118, 179)",
+  numberColor: "var(--first)",
 };

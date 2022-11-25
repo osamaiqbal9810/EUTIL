@@ -6,7 +6,7 @@ import { plus } from "react-icons-kit/icomoon/plus";
 import SvgIcon from "react-icons-kit";
 import { themeService } from "../../../../theme/service/activeTheme.service";
 import { Tooltip } from "reactstrap";
-import { retroColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 export default class FreqArea extends Component {
   render() {
     let rowsOfFreqs = this.props.inspectionFrequencies.map((freqObject, index) => {

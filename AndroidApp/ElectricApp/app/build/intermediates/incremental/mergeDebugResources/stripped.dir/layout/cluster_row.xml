@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp">
+    <TextView
+        android:id="@+id/tv_cluster_asset_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
+        android:text="Asset Name"/>
+    <LinearLayout
+        android:id="@+id/ll_cluster_asset_type"
+        android:layout_below="@id/tv_cluster_asset_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/cluster_asset_type"/>
+        <TextView
+            android:id="@+id/tv_cluster_asset_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Loading asset..."/>
+    </LinearLayout>
+    <!--<LinearLayout
+        android:id="@+id/ll_cluster_asset_address"
+        android:layout_below="@id/ll_cluster_asset_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:text="@string/location_dialogue_heading"/>
+        <TextView
+            android:id="@+id/tv_cluster_asset_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=" Loading address..."/>
+    </LinearLayout>-->
+
+
+</RelativeLayout>

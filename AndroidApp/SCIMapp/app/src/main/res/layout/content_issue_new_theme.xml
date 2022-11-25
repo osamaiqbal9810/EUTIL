@@ -42,6 +42,7 @@
 
             </LinearLayout>
             <RelativeLayout
+                android:id="@+id/rl_location_info_title"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:visibility="visible"
@@ -68,6 +69,7 @@
                     android:textColor="@color/title_text" />
             </RelativeLayout>
             <LinearLayout
+                android:id="@+id/ll_location_info_main_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -84,26 +86,46 @@
                     android:layout_height="wrap_content"
                     android:weightSum="2"
                     android:orientation="horizontal">
+
                     <LinearLayout
                         android:id="@+id/ll_mp_start"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:orientation="vertical"
                         android:layout_weight="1"
+                        android:orientation="vertical"
                         android:padding="10dp">
+
                         <TextView
                             android:id="@+id/tv_title_mp_start"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/cabin"
-                            android:text="@string/location_start"/>
-                        <EditText
-                            android:id="@+id/et_mp_start"
-                            android:inputType="numberDecimal|numberSigned"
+                            android:text="@string/location_start" />
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:fontFamily="@font/cabin"
-                            android:layout_height="wrap_content"/>
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_startmp_prefix"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:textStyle="bold"
+                                android:fontFamily="@font/cabin"
+                                android:text="" />
+
+                            <EditText
+                                android:id="@+id/et_mp_start"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/cabin"
+                                android:inputType="numberDecimal|numberSigned" />
+                        </LinearLayout>
+
                     </LinearLayout>
+
                     <LinearLayout
                         android:id="@+id/ll_mp_end"
                         android:layout_width="wrap_content"
@@ -117,12 +139,26 @@
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/cabin"
                             android:text="@string/location_end"/>
-                        <EditText
-                            android:id="@+id/et_mp_end"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/cabin"
-                            android:inputType="numberDecimal|numberSigned"/>
+                            android:orientation="horizontal">
+                            <TextView
+                                android:id="@+id/tv_endmp_prefix"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="center_vertical"
+                                android:fontFamily="@font/cabin"
+                                android:textStyle="bold"
+                                android:text=""/>
+                            <EditText
+                                android:id="@+id/et_mp_end"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/cabin"
+                                android:inputType="numberDecimal|numberSigned"/>
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </LinearLayout>
@@ -542,7 +578,7 @@
                 android:orientation="vertical"
                 android:padding="@dimen/report_add_padding">
 
-                 <com.google.android.material.textfield.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:counterEnabled="true">
@@ -1243,76 +1279,76 @@
 
             <RelativeLayout
                 android:id="@+id/rl_action_type_title"
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:visibility="visible"
-            android:background="@color/title_background">
-
-            <ImageView
-                android:id="@+id/iv_action_type_title"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="30dp"
-                android:drawableTint="@android:color/black"
-                android:src="@drawable/ic_new_releases_gray_24dp" />
-
-            <TextView
-                android:id="@+id/tv_actions_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="Type Of Action"
-                android:layout_marginLeft="10dp"
-                android:layout_toRightOf="@id/iv_action_type_title"
-                android:fontFamily="@font/cabin"
-                android:textColor="@color/title_text" />
-        </RelativeLayout>
-        <LinearLayout
-            android:id="@+id/ll_action_type"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
-            <RadioGroup
-                android:id="@+id/rg_actions_type"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="45dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
 
-                <RadioButton
-                    android:id="@+id/rb_action_class1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/cabin"
-                    android:text="Restricted to Class# 3" />
+                <ImageView
+                    android:id="@+id/iv_action_type_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_new_releases_gray_24dp" />
 
-                <RadioButton
-                    android:id="@+id/rb_action_class2"
+                <TextView
+                    android:id="@+id/tv_actions_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:text="Type Of Action"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_action_type_title"
                     android:fontFamily="@font/cabin"
-                    android:text="Restricted to Class# 2" />
-                <RadioButton
-                    android:id="@+id/rb_action_class3"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/cabin"
-                    android:text="Restricted to Class# 1" />
-                <RadioButton
-                    android:id="@+id/rb_action_oos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/cabin"
-                    android:text="Out Of Service" />
-                <RadioButton
-                    android:id="@+id/rb_action_ir"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:fontFamily="@font/cabin"
-                    android:text="Immediate Repairs" />
-            </RadioGroup>
-        </LinearLayout>
+                    android:textColor="@color/title_text" />
+            </RelativeLayout>
+            <LinearLayout
+                android:id="@+id/ll_action_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp">
+                <RadioGroup
+                    android:id="@+id/rg_actions_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <RadioButton
+                        android:id="@+id/rb_action_class1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:text="Restricted to Class# 3" />
+
+                    <RadioButton
+                        android:id="@+id/rb_action_class2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:text="Restricted to Class# 2" />
+                    <RadioButton
+                        android:id="@+id/rb_action_class3"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:text="Restricted to Class# 1" />
+                    <RadioButton
+                        android:id="@+id/rb_action_oos"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:text="Out Of Service" />
+                    <RadioButton
+                        android:id="@+id/rb_action_ir"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:text="Immediate Repairs" />
+                </RadioGroup>
+            </LinearLayout>
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"

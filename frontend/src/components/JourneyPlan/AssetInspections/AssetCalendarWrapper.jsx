@@ -51,7 +51,6 @@ class AssetCalendarWrapper extends Component {
     return (
       <Col md="12">
         <Calendar
-          getDateControls={this.props.getDateControls}
           getCurrentDate={this.getCurrentDate}
           data={this.state.cal_data}
           dataDateProperty={"date"}

@@ -51,27 +51,33 @@ public class MaintenanceMapActivity extends FragmentActivity implements OnMapRea
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        try {
-            // Adding start location
-            if(!startLoc.equals("")){
-                String[] startLocs = startLoc.split(",");
-                LatLng startLatLng = new LatLng(Double.parseDouble(startLocs[0]), Double.parseDouble(startLocs[1]));
-                mMap.addMarker(new MarkerOptions().position(startLatLng).title("Start Location"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                try {
+                    // Adding start location
+                    if(!startLoc.equals("")){
+                        String[] startLocs = startLoc.split(",");
+                        LatLng startLatLng = new LatLng(Double.parseDouble(startLocs[0]), Double.parseDouble(startLocs[1]));
+                        mMap.addMarker(new MarkerOptions().position(startLatLng).title("Start Location"));
+                        mMap.moveCamera(CameraUpdateFactory.newLatLng(startLatLng));
+                    }
+                    if(!endLoc.equals("")){
+                        String[] endLocs = endLoc.split(",");
+                        LatLng endLatLng = new LatLng(Double.parseDouble(endLocs[0]), Double.parseDouble(endLocs[1]));
+                        mMap.addMarker(new MarkerOptions().position(endLatLng).title("End Location"));
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(endLatLng);
+                        LatLngBounds bounds = builder.build();
+                        int padding = 50; // offset from edges of the map in pixels
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        mMap.moveCamera(cu);
+                    }
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                }
             }
-            if(!endLoc.equals("")){
-                String[] endLocs = endLoc.split(",");
-                LatLng endLatLng = new LatLng(Double.parseDouble(endLocs[0]), Double.parseDouble(endLocs[1]));
-                mMap.addMarker(new MarkerOptions().position(endLatLng).title("End Location"));
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(endLatLng);
-                LatLngBounds bounds = builder.build();
-                int padding = 50; // offset from edges of the map in pixels
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                mMap.moveCamera(cu);
-            }
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        }
+        });
+
     }
 }

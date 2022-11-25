@@ -42,11 +42,12 @@ let MaintenanceSchema = new Schema({
   class: String,
   executions: Array,
   issueId: String, // if maintenance created from issue.
+  issue: Object,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });
 
-MaintenanceSchema.pre("save", function(next) {
+MaintenanceSchema.pre("save", function (next) {
   let now = new Date();
   if (this) {
     this.updatedAt = now;
@@ -56,7 +57,7 @@ MaintenanceSchema.pre("save", function(next) {
   }
   next();
 });
-MaintenanceSchema.pre("update", function(next) {
+MaintenanceSchema.pre("update", function (next) {
   this.update = { $set: { updatedAt: Date.now() } };
   next();
 });

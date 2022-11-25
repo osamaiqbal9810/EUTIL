@@ -46,7 +46,7 @@ class AllFilters extends Component {
                 locationFilter={this.props.locationFilter}
               /> */}
             </div>
-            {/* <div style={{ display: "inline-block", color: "rgba(64, 118, 179)" }}> |</div> */}
+            {/* <div style={{ display: "inline-block", color: "var(--first)" }}> |</div> */}
             <div style={{ display: "inline-block" }}>
               <AssetTypeFilter
                 assetType={this.props.assetType}

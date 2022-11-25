@@ -115,7 +115,7 @@ class TrackLineSelect extends Component {
 
   componentDidMount() {
     this.state.image.setAttribute("crossOrigin", "anonymous");
-    this.state.image.src = "http://" + getServerEndpoint() + "applicationresources/" + this.props.backgroundImage;
+    this.state.image.src = getServerEndpoint() + "applicationresources/" + this.props.backgroundImage;
     //  console.log(this.state.image.src)
 
     this.state.image.onload = () => {

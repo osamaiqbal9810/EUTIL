@@ -3,7 +3,7 @@ import SvgIcon from "react-icons-kit";
 import { Tooltip } from "reactstrap";
 import { languageService } from "../../../Language/language.service";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class ViewChangerComponent extends Component {
   constructor(props) {
     super(props);
@@ -26,12 +26,12 @@ class ViewChangerComponent extends Component {
     return (
       <div style={{ paddingRight: "15px" }}>
         {this.props.LIST_VIEW_SELECTION.map((item, index) => {
-          let color = "#fff";
+          let color = "var(--fifth)";
           let backgroundColor = "rgb(196, 212, 228)";
           let boxShadow = "0 0 0 2px rgb(196, 212, 228)";
           if (item.title === this.props.listViewDataToShow) {
-            color = "rgb(64, 118, 179)";
-            backgroundColor = "#fff";
+            color = "var(--first)";
+            backgroundColor = "var(--fifth)";
             boxShadow = "0 0 0 2px rgb(255, 255, 255)";
           }
 
@@ -47,7 +47,7 @@ class ViewChangerComponent extends Component {
                   style={themeService({
                     default: {
                       color: color,
-                      //color: "#fff",
+                      //color: "var(--fifth)",
                       border: "2px solid ",
                       padding: "3px 6px",
                       backgroundColor: backgroundColor,
@@ -57,7 +57,16 @@ class ViewChangerComponent extends Component {
                     },
                     retro: {
                       //color: retroColors.fouth,
-                      //color: "#fff",
+                      //color: "var(--fifth)",
+                      border: "0px solid ",
+                      padding: "3px 6px",
+                      backgroundColor: "transparent",
+                      borderRadius: "0",
+                      transform: "all .2s ease-in-out",
+                    },
+                    electric: {
+                      //color: electricColors.fouth,
+                      //color: "var(--fifth)",
                       border: "0px solid ",
                       padding: "3px 6px",
                       backgroundColor: "transparent",
@@ -67,7 +76,11 @@ class ViewChangerComponent extends Component {
                   })}
                   onClick={() => (this.props.handleListViewSelection ? this.props.handleListViewSelection(item.title) : null)}
                 >
-                  <SvgIcon icon={item.icon} size={themeService({ default: "18px", retro: "30px" })} style={{ display: "block" }} />
+                  <SvgIcon
+                    icon={item.icon}
+                    size={themeService({ default: "18px", retro: "30px", electric: "30px" })}
+                    style={{ display: "block" }}
+                  />
                 </div>
               </div>
 

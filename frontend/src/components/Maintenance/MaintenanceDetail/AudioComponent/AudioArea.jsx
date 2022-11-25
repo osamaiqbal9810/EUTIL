@@ -8,7 +8,7 @@ class AudioArea extends Component {
   render() {
     let audioComps = this.props.audio
       ? this.props.audio.map(voice => {
-          let path = "http://" + getServerEndpoint() + "audio/" + voice.voiceName;
+          let path = getServerEndpoint() + "audio/" + voice.voiceName;
           return <AudioStyledComponent key={voice.voiceName} voice={voice.voiceName} paths={path} />;
         })
       : null;

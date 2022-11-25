@@ -8,4 +8,5 @@ module.exports = {
       { listName: "appForms", code: "suivimargingi335", compare: "opt1" },
     ]);
   },
+  attributes:{applicationType: "SITE", customer: "Iron Ore Canada"},
 };

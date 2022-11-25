@@ -10,7 +10,7 @@ class SelectedAssetWithTests extends Component {
             fontSize: "14px",
             fontWeight: 600,
             cursor: "pointer",
-            borderBottom: "2px solid rgba(64, 118, 179)",
+            borderBottom: "2px solid var(--first)",
           }}
           onClick={this.props.selectedAsset.title ? this.props.openModal : ""}
         >
@@ -48,14 +48,30 @@ const AssetTestsArea = (props) => {
           style={{
             display: "inline-block",
             fontSize: "14px",
-            padding: "8px 8px 4px 10px ",
-            borderBottom: "2px solid rgba(64, 118, 179)",
+            padding: "8px 8px 4px 0px ",
+            borderBottom: "2px solid var(--first)",
+            cursor: "pointer",
           }}
           onClick={(e) => {
             props.handleSelectTest(assetTest, props.multi);
           }}
+          className={assetTest.showTestExecs ? "pill active" : "pill"}
         >
-          {index > 0 && <span style={{ color: "rgba(64, 118, 179)", fontWeight: "600" }}>&#92;</span>} {assetTest.title}
+          {index > 0 && (
+            <span
+              style={{
+                color: "var(--first)",
+                fontWeight: "600",
+                marginRight: "10px",
+                fontSize: "40px",
+                lineHeight: "0",
+                verticalAlign: "middle",
+              }}
+            >
+              &#92;
+            </span>
+          )}{" "}
+          {assetTest.title}
         </div>
       );
     });

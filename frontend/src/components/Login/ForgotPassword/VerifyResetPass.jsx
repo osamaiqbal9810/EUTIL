@@ -75,7 +75,7 @@ VerifyResetPass.defaultProps = {
   loginButtonStyle: {
     width: "100%",
     height: "40px",
-    backgroundColor: "rgba(64, 118, 179)",
+    backgroundColor: "var(--first)",
     border: "none",
     borderRadius: "2px",
     cursor: "pointer",
@@ -86,7 +86,7 @@ VerifyResetPass.defaultProps = {
   },
 
   formContainerStyle: {
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "12px",
     fontWeight: 600,
   },

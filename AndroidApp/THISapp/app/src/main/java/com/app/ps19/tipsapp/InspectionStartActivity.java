@@ -48,13 +48,18 @@ import java.util.Arrays;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.app.ps19.tipsapp.Shared.Globals.getLocPrefix;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
 import static com.app.ps19.tipsapp.Shared.Globals.initialInspection;
 import static com.app.ps19.tipsapp.Shared.Globals.initialRun;
 import static com.app.ps19.tipsapp.Shared.Globals.isInspectionTypeReq;
 import static com.app.ps19.tipsapp.Shared.Globals.isMpReq;
+import static com.app.ps19.tipsapp.Shared.Globals.isPrimaryAssetOnTop;
+import static com.app.ps19.tipsapp.Shared.Globals.isShowAllSideTracks;
 import static com.app.ps19.tipsapp.Shared.Globals.isShowTraverseCheckbox;
 import static com.app.ps19.tipsapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.tipsapp.Shared.Globals.isWConditionReq;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedObserveOpt;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedTraverseBy;
 import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
 import static com.app.ps19.tipsapp.Shared.Globals.showNearByAssets;
@@ -95,6 +100,10 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
     CheckBox cbObserve;
     LinearLayout llMpInput;
     LinearLayout llSessionTitle;
+    Units allSideTracksUnit;
+    LinearLayout llTraverseBy;
+    Spinner spWeather;
+    int otherFieldIndex;
 
 
     @Override
@@ -145,6 +154,8 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         spTraverseTracks = (Spinner) findViewById(R.id.sp_traverse_track);
         spObserveTracks = (Spinner) findViewById(R.id.sp_observe_track);
         Spinner spTemperature = (Spinner) findViewById(R.id.sp_temperature);
+        spWeather = findViewById(R.id.sp_weather);
+        llTraverseBy = findViewById(R.id.ll_traverse_by);
         selectFirstVisibleRadioButton(rgType);
         if (!selectedTraverseBy.equals("")) {
             selectDefaultTraverseBy(rgType, Globals.selectedTraverseBy);
@@ -168,6 +179,9 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         //Copying tracks to other arrays
         observeTracks = new ArrayList<>(allTracks);
         traverseTracks = new ArrayList<>(allTracks);
+
+        //Adding All side tracks option if allowed
+        addAllSideTrack();
         //etSelectedAsset.setEnabled(false);
         if(initialRun.isYardInspection()){
             etStartMp.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -209,13 +223,16 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         }
         //tvStartTitle.setText(startTitle);
         tvLineName.setText(lineName);
-        tvLineStart.setText(initialRun.getMpStart());
-        tvLineEnd.setText(initialRun.getMpEnd());
+        tvLineStart.setText(getPrefixMp(initialRun.getMpStart()));
+        tvLineEnd.setText(getPrefixMp(initialRun.getMpEnd()));
         tvStartMsg.setText(startMsg);
         spTraverseTracks.setSelection(0, false);
         spObserveTracks.setSelection(0, false);
+        spWeather.setSelection(0,false);
+        // Setting traverse track selected as by default
+        setPrimaryTrackAsTraverse();
         if(allTracks.size()>0){
-            String lMsg = allTracks.get(0).getDescription() + getString(R.string.from_part1) + allTracks.get(0).getStart()+ getString(R.string.to_part2) + allTracks.get(0).getEnd();
+            String lMsg = allTracks.get(0).getDescription() + getString(R.string.from_part1) + getPrefixMp(allTracks.get(0).getStart())+ getString(R.string.to_part2) + getPrefixMp(allTracks.get(0).getEnd());
             tvObserveTrackLimit.setText(lMsg);
             tvTraverseTrackLimit.setText(lMsg);
         }
@@ -241,7 +258,7 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 initialRun.setTraverseTrack(traverseTracks.get(position).getUnitId());
-                String lMsg = traverseTracks.get(position).getDescription() + getString(R.string.from_part1) + traverseTracks.get(position).getStart()+ getString(R.string.to_part2) + traverseTracks.get(position).getEnd();
+                String lMsg = traverseTracks.get(position).getDescription() + getString(R.string.from_part1) + getPrefixMp(traverseTracks.get(position).getStart())+ getString(R.string.to_part2) + getPrefixMp(traverseTracks.get(position).getEnd());
                 tvTraverseTrackLimit.setText(lMsg);
                 //removeAndUpdateTrackList(traverseTracks.get(position), "observe");
                 //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
@@ -254,11 +271,37 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         spObserveTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                initialRun.setObserveTrack(observeTracks.get(position).getUnitId());
-                String lMsg = observeTracks.get(position).getDescription() + getString(R.string.from_part1) + observeTracks.get(position).getStart()+ getString(R.string.to_part2) + observeTracks.get(position).getEnd();
-                tvObserveTrackLimit.setText(lMsg);
+                String unitId = observeTracks.get(position).getUnitId();
+                if(unitId.equals("0")){
+                    initialRun.setObserveTrack("");
+                    String lMsg = "";
+                    tvObserveTrackLimit.setText(lMsg);
+                } else {
+                    initialRun.setObserveTrack(observeTracks.get(position).getUnitId());
+                    String lMsg = observeTracks.get(position).getDescription() + getString(R.string.from_part1) + getPrefixMp(observeTracks.get(position).getStart())+ getString(R.string.to_part2) + getPrefixMp(observeTracks.get(position).getEnd());
+                    tvObserveTrackLimit.setText(lMsg);
+                }
+
                 //removeAndUpdateTrackList(observeTracks.get(position), "traverse");
                 //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        etWeatherConditions.setEnabled(false);
+        String[] weatherValues = getResources().getStringArray(R.array.weather_values);
+        otherFieldIndex = Arrays.asList(weatherValues).indexOf("Other");
+        spWeather.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == otherFieldIndex) {
+                    etWeatherConditions.setEnabled(true);
+                    etWeatherConditions.requestFocus();
+                } else {
+                    etWeatherConditions.setEnabled(false);
+                }
             }
 
             @Override
@@ -273,8 +316,10 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         //etStartMp.setHint(Globals.initialInspection.getMpStart());
         if (Globals.isTraverseReq) {
             llTraverseTrack.setVisibility(VISIBLE);
+            llTraverseBy.setVisibility(VISIBLE);
         } else {
             llTraverseTrack.setVisibility(GONE);
+            llTraverseBy.setVisibility(GONE);
         }
         if (isMpReq) {
             llRequireMp.setVisibility(VISIBLE);
@@ -324,22 +369,35 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
             cbTraverse.setEnabled(false);
         }
         if(initialRun.isYardInspection()){
-            llRequireMp.setVisibility(GONE);
-            llMpInput.setVisibility(GONE);
+            //llRequireMp.setVisibility(GONE);
+            //llMpInput.setVisibility(GONE);
             llSessionTitle.setVisibility(GONE);
             //llMpValue.setVisibility(GONE);
             //llExpEndMp.setVisibility(GONE);
             //llNearByAssets.setVisibility(View.GONE);
             etStartMp.setText(initialRun.getMpStart());
             etExpEndMp.setText(initialRun.getMpEnd());
+            etStartMp.setEnabled(false);
+            etExpEndMp.setEnabled(false);
             llTraverseTrack.setVisibility(GONE);
             try {
                 LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            etWeatherConditions.requestFocus();
+        } else {
+            etStartMp.requestFocus();
         }
         tvInspMemebersMsg.setVisibility(GONE);
+        etExpEndMp.setText(initialRun.getMpEnd());
+        if(selectedObserveOpt.equals("N/A")){
+            spObserveTracks.setEnabled(false);
+            cbObserve.setChecked(true);
+        } else if (selectedObserveOpt.equals("All side tracks")) {
+            setAllSideTracksByDefault();
+        }
+
         etStartMp.addTextChangedListener(new TextWatcher() {
 
             @Override
@@ -417,9 +475,11 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
             @Override
             public void onClick(View view) {
                 if (Globals.isWConditionReq && Globals.isWConditionMustReq) {
-                    if (etWeatherConditions.getText().toString().equals("")) {
-                        Toast.makeText(context, R.string.weather_condition_req_msg, Toast.LENGTH_SHORT).show();
-                        return;
+                    if(spWeather.getSelectedItemPosition() == otherFieldIndex){
+                        if (etWeatherConditions.getText().toString().equals("")) {
+                            Toast.makeText(context, R.string.weather_condition_req_msg, Toast.LENGTH_SHORT).show();
+                            return;
+                        }
                     }
                 }
                 if(traverseTracks.size() == 0){
@@ -479,7 +539,11 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
                             initialRun.setTraverseBy(_traverseByTag);
                         }
                         if (isWConditionReq) {
-                            initialRun.setWeatherConditions(etWeatherConditions.getText().toString());
+                            if(spWeather.getSelectedItemPosition() == otherFieldIndex){
+                                initialRun.setWeatherConditions(etWeatherConditions.getText().toString());
+                            } else {
+                                initialRun.setWeatherConditions(spWeather.getSelectedItem().toString());
+                            }
                         }
                         if (isInspectionTypeReq) {
                             int genid = rgInspectionType.getCheckedRadioButtonId();
@@ -547,7 +611,11 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
                         initialRun.setTraverseBy(_traverseByTag);
                     }
                     if (isWConditionReq) {
-                        initialRun.setWeatherConditions(etWeatherConditions.getText().toString());
+                        if(spWeather.getSelectedItemPosition() == otherFieldIndex){
+                            initialRun.setWeatherConditions(etWeatherConditions.getText().toString());
+                        } else {
+                            initialRun.setWeatherConditions(spWeather.getSelectedItem().toString());
+                        }
                     }
                     if (isInspectionTypeReq) {
                         int genid = rgInspectionType.getCheckedRadioButtonId();
@@ -593,6 +661,36 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
                 showConfirmationDialog();
             }
         });
+    }
+
+    private void setAllSideTracksByDefault() {
+        if(isShowAllSideTracks){
+            for(Units unit: observeTracks){
+                if(unit.getUnitId().equals("0")){
+                    spObserveTracks.setSelection(observeTracks.indexOf(unit));
+                    tvObserveTrackLimit.setText("");
+                    break;
+                }
+            }
+        }
+    }
+
+    private void addAllSideTrack() {
+        if(observeTracks.size()>0){
+            if(isShowAllSideTracks){
+                allSideTracksUnit = new Units();
+                allSideTracksUnit = observeTracks.get(0).makeClone();
+                allSideTracksUnit.setParentId("0");
+                allSideTracksUnit.setTrackId("0");
+                allSideTracksUnit.setUnitId("0");
+                allSideTracksUnit.setDescription("All Side Tracks");
+                allSideTracksUnit.setStart(initialRun.getMpStart());
+                allSideTracksUnit.setEnd(initialRun.getMpEnd());
+                allSideTracksUnit.getAttributes().setPrimary(false);
+                observeTracks.add(0, allSideTracksUnit);
+
+            }
+        }
     }
 
     @Override
@@ -801,8 +899,12 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
     private ArrayList<Units> getTracks(){
         ArrayList<Units> units = new ArrayList<>();
         for (Units _track : initialRun.getWholeUnitList()) {
-            if (_track.getAssetType().equals("track")) {
-                units.add(_track);
+            // Now using isLinear() instead of "track"
+            if(_track.isLinear()){
+            //if (_track.getAssetType().equals("track") || _track.getAssetType().equals("Side Track")) {
+                if(!_track.getAssetTypeObj().isMarkerMilepost()){
+                    units.add(_track);
+                }
             }
         }
         return units;
@@ -830,16 +932,20 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
         //Copying tracks to other arrays
         observeTracks = new ArrayList<>(allTracks);
         traverseTracks = new ArrayList<>(allTracks);
+        //adding all side tracks option is allowed
+        addAllSideTrack();
 
         traverseAdapter =
                 new ArrayAdapter<>(context, android.R.layout.simple_spinner_dropdown_item, traverseTracks);
         traverseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spTraverseTracks.setAdapter(traverseAdapter);
+        setPrimaryTrackAsTraverse();
 
         observeAdapter =
                 new ArrayAdapter<Units>(context, android.R.layout.simple_spinner_dropdown_item, observeTracks);
         observeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spObserveTracks.setAdapter(observeAdapter);
+
         if(allTracks.size() == 0){
             spTraverseTracks.setEnabled(false);
             tvTraverseTrackLimit.setText("");
@@ -864,6 +970,12 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
                 spObserveTracks.setEnabled(true);
             }
         }
+        if(selectedObserveOpt.equals("All side tracks")){
+            setAllSideTracksByDefault();
+        } else if(selectedObserveOpt.equals("N/A")) {
+            spObserveTracks.setEnabled(false);
+            cbObserve.setChecked(true);
+        }
     }
 
     @Override
@@ -882,5 +994,19 @@ public class InspectionStartActivity extends AppCompatActivity implements OnLoca
             lastLocation = location;
         }
 
+    }
+    private void setPrimaryTrackAsTraverse(){
+        if(isPrimaryAssetOnTop){
+            for(Units unit: traverseTracks){
+                if(unit.getAttributes().isPrimary()){
+                    spTraverseTracks.setSelection(traverseTracks.indexOf(unit));
+                    break;
+                }
+            }
+        }
+    }
+    @Override
+    public void onBackPressed() {
+        showConfirmationDialog();
     }
 }

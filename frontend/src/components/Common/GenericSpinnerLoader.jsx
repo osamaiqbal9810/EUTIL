@@ -4,7 +4,7 @@ import PropagateLoader from "react-spinners/PropagateLoader";
 import _ from "lodash";
 import { sidebarWidth, topBarHeight } from "components/Common/Variables/CommonVariables";
 import { themeService } from "../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 // Can be a string as well. Need to ensure each key-value pair ends with ;
 
 class Loader extends React.Component {
@@ -67,7 +67,7 @@ class Loader extends React.Component {
             >
               <PropagateLoader
                 loading={this.state.loading}
-                color={themeService({ default: basicColors.first, retro: retroColors.first })}
+                color={themeService({ default: basicColors.first, retro: retroColors.first, electric: electricColors.first })}
                 sizeUnit={"px"}
                 size={10}
               />

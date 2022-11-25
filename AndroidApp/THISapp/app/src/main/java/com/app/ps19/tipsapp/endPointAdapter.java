@@ -5,6 +5,10 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
+
+import com.app.ps19.tipsapp.Shared.DBHandler;
+import com.app.ps19.tipsapp.Shared.ListMap;
+import com.app.ps19.tipsapp.classes.version.VersionInfo;
 import com.google.android.material.snackbar.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +29,10 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_CUSTOM_SERVER;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SELECTED_PORT;
@@ -34,7 +40,9 @@ import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SELECTED_SERVER;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SELECTED_SERVER_DISPLAY_NAME;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SERVER;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_STRING_DIVIDER;
-import static com.app.ps19.tipsapp.Shared.Globals.getPingAddress;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionInfo;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionUrl;
+import static com.app.ps19.tipsapp.Shared.Globals.setVersionInfo;
 import static com.app.ps19.tipsapp.Shared.Utilities.isNetworkAvailable;
 
 class endPointAdapter extends ArrayAdapter<String> {
@@ -165,8 +173,26 @@ class endPointAdapter extends ArrayAdapter<String> {
             String[] info = serverString.split(PREFS_STRING_DIVIDER);
             // Parse response data
             JSONArray jaUser = new JSONArray();
+            String versionData;
+            versionData = JsonWebService.getJSON(getVersionUrl(info[1], info[2], "https"), 5000);
+            if(versionData != null){
+                pref.putString(info[1], "https");
+            } else {
+                versionData = JsonWebService.getJSON(getVersionUrl(info[1], info[2], "http"), 5000);
+                if(versionData != null){
+                    pref.putString(info[1], "http");
+                }
+            }
+            if(versionData!=null){
+                try {
+                    VersionInfo version = new VersionInfo(new JSONObject(versionData));
+                    setVersionInfo(version);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
             //String url = "http://" + info[1] + ":"+ info[2] + "/api/List/JourneyPlan/pull";
-            String userString = JsonWebService.getJSON(getPingAddress(info[1], info[2]), 5000);
+            /*String userString = JsonWebService.getJSON(getPingAddress(info[1], info[2]), 5000);
             try {
                 if (userString != null) {
                     jaUser = new JSONArray(userString);
@@ -174,7 +200,7 @@ class endPointAdapter extends ArrayAdapter<String> {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-            }
+            }*/
 
             return null;
         }
@@ -185,22 +211,66 @@ class endPointAdapter extends ArrayAdapter<String> {
                 progressDialog.dismiss();
 
             if (Globals.lastWsReturnCode == 200 || Globals.lastWsReturnCode == 201) {
-                if (user != null) {
-                    if (!user.getRemoved()) {
+
+                if(getVersionInfo()!=null){
+                    if(!getVersionInfo().getVersion().isBypassVersionCheck()
+                            && getVersionInfo().getVersion().getMobileAppVer()!=null
+                            && !getVersionInfo().getVersion().getMobileAppVer().equals("null")){
+                        boolean isServerVerCorrect = true;
+
+                        float fromServer = 0;
+                        try {
+                            fromServer = Float.parseFloat(getVersionInfo().getVersion().getMobileAppVer());
+                        } catch (NumberFormatException e) {
+                            e.printStackTrace();
+                            isServerVerCorrect = false;
+                        }
+                        float currentVer = Float.parseFloat(BuildConfig.VERSION_NAME);
+
+                        if (!isServerVerCorrect) {
+                            Toast.makeText(context, "Your App version is not properly configured at server\n Please update and try again!", Toast.LENGTH_LONG).show();
+                        } else if (currentVer >= fromServer) {
+                            dialog.dismiss();
+                            updateServer();
+                        } else {
+                            Toast.makeText(context, "Your App version is incompatible with this server\n Please update!", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
                         dialog.dismiss();
                         updateServer();
                     }
                 }
+                /*if (user != null) {
+                    if (!user.getRemoved()) {
+                        dialog.dismiss();
+                        updateServer();
+                    }
+                }*/
             } else if (Globals.lastWsReturnCode == 401) {
-                dialog.dismiss();
-                updateServer();
+
+                if(getVersionInfo()!=null){
+                    if(!getVersionInfo().getVersion().isBypassVersionCheck()
+                            && getVersionInfo().getVersion().getMobileAppVer()!=null
+                            && !getVersionInfo().getVersion().getMobileAppVer().equals("null")){
+                        float fromServer = Float.parseFloat(getVersionInfo().getVersion().getMobileAppVer());
+                        float currentVer = Float.parseFloat(BuildConfig.VERSION_NAME);
+
+                        if(currentVer>=fromServer){
+                            dialog.dismiss();
+                            updateServer();
+                        } else {
+                            Toast.makeText(context, "Your App version is incompatible with this server\n Please update!", Toast.LENGTH_LONG).show();
+                        }
+                    } else {
+                        dialog.dismiss();
+                        updateServer();
+                    }
+                }
             } else if (Globals.lastWsReturnCode == 404) {
                 Toast.makeText(context, context.getString(R.string.msg_timps_running_server), Toast.LENGTH_LONG).show();
             } else if (Globals.lastWsReturnCode == 0) {
                 Toast.makeText(context, context.getString(R.string.msg_server_unreach), Toast.LENGTH_LONG).show();
             }
-
-            super.onPostExecute(result);
         }
     }
 
@@ -213,8 +283,12 @@ class endPointAdapter extends ArrayAdapter<String> {
         pref.putString(PREFS_KEY_SELECTED_PORT, server[2]);
         pref.putBool(PREFS_KEY_CUSTOM_SERVER, true);
         Globals.setDomain();
-        Toast.makeText(context, context.getString(R.string.successfully_activated), Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Activated \n"+ "Contract: "+ getVersionInfo().getDisplayData().getDisplayName() + "\n"+"Application: "+getVersionInfo().getVersion().getApplicationType(), Toast.LENGTH_LONG).show();
+        //Toast.makeText(context, context.getString(R.string.successfully_activated), Toast.LENGTH_SHORT).show();
         notifyDataSetChanged();
+        DBHandler db = Globals.db;
+        ListMap.clear();
+        db.clearAllData();
       /*  // Clearing all data before switching server
         DBHandler db = new DBHandler(Globals.getDBContext());
         db.clearAllData();

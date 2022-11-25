@@ -9,14 +9,14 @@ import { processFromFields } from "../../utils/helpers";
 import { languageService } from "../../Language/language.service";
 import moment from "moment";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 class WorkOrderClose extends React.Component {
   state = {
     planFields: _.cloneDeep(closeFields),
   };
 
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = (newState) => this.setState({ ...newState });
 
   submitForm = () => {
     this.setState({
@@ -44,7 +44,7 @@ class WorkOrderClose extends React.Component {
         <Modal
           isOpen={this.props.modal}
           toggle={this.props.toggle}
-          contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+          contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
         >
           <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
             {languageService("Select Close Date For Work Order")}
@@ -84,7 +84,7 @@ export default WorkOrderClose;
 let commonStyle = themeService({
   default: {
     display: "inline-block",
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
 
     fontSize: "14px",
     paddingBottom: "0.5em",
@@ -92,6 +92,13 @@ let commonStyle = themeService({
   retro: {
     display: "inline-block",
     color: retroColors.second,
+
+    fontSize: "14px",
+    paddingBottom: "0.5em",
+  },
+  electric: {
+    display: "inline-block",
+    color: electricColors.second,
 
     fontSize: "14px",
     paddingBottom: "0.5em",

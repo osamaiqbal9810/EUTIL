@@ -12,8 +12,8 @@ export default class AppAccessService {
       { name: "SYSTEM_ACCESS_ASSETTYPE_BRIDGE", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_BRIDGE" },
     ];
     this.systemUserGroups = [
-      { group_id: "manager", name: "Management", permissions: [], isAdmin: false, level: 1, category: "Role" },
-      { group_id: "supervisor", name: "Track Manager", permissions: [], isAdmin: false, level: 2, category: "Role" },
+     // { group_id: "manager", name: "Management", permissions: [], isAdmin: false, level: 1, category: "Role" },
+      // { group_id: "supervisor", name: "Track Manager", permissions: [], isAdmin: false, level: 2, category: "Role" },
       { group_id: "inspector", name: "Inspection Team", permissions: [], isAdmin: false, level: 3, category: "Role" },
       {
         group_id: "trackSwitch",

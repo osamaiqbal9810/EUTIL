@@ -1,17 +1,14 @@
 package com.app.ps19.scimapp.classes;
 
 import android.content.Context;
-import android.graphics.Color;
 
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.IConvertHelper;
 import com.app.ps19.scimapp.Shared.Utilities;
-import com.google.gson.JsonObject;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,6 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 public class JourneyPlanOpt implements IConvertHelper {
+
     public String getCode() {
         if(getId()!=null && !getId().equals("")){
             return this.id;
@@ -98,9 +96,7 @@ public class JourneyPlanOpt implements IConvertHelper {
         return workplanTemplateId;
     }
 
-    public void setWorkplanTemplateId(String workplanTemplateId) {
-        this.workplanTemplateId = workplanTemplateId;
-    }
+    public void setWorkplanTemplateId(String workplanTemplateId) { this.workplanTemplateId = workplanTemplateId; }
 
     public Context getContext() {
         return context;
@@ -138,9 +134,17 @@ public class JourneyPlanOpt implements IConvertHelper {
         this.nextDueDate = nextDueDate;
     }
 
+    public String getArea() {
+        return area;
+    }
+    public void setArea(String area) {
+        this.area = area;
+    }
+
     public String getNextDueDate() {
         return nextDueDate;
     }
+
     public Date getNextDueDateToDate() {
         if(nextDueDate.equals("")){
             return null;
@@ -166,6 +170,7 @@ public class JourneyPlanOpt implements IConvertHelper {
     private String type = "";
     private String status = "";
     private String title;
+    private String area = "";
     private String workplanTemplateId="";
     private String privateKey="";
     private String nextDueDate="";
@@ -173,12 +178,17 @@ public class JourneyPlanOpt implements IConvertHelper {
     private JourneyPlan journeyPlan;
     private Completion completion;
     private ArrayList<UnitsOpt> unitList;
+    private HashMap<String, UnitsOpt> unitListHashMap;
     private boolean loadCompletion=false;
     private boolean loadUnitList=false;
-    private int color= Color.parseColor("darkgray");
+    private int color= Globals.COLOR_TEST_NOT_ACTIVE;
     private String lastInspection="";
     private int sortOrder=100;
     private boolean loadAllUnits=false;
+
+    public HashMap<String, UnitsOpt> getUnitListHashMap() {
+        return unitListHashMap;
+    }
 
     public void setLoadAllUnits(boolean loadAllUnits) {
         this.loadAllUnits = loadAllUnits;
@@ -223,6 +233,7 @@ public class JourneyPlanOpt implements IConvertHelper {
     public JourneyPlanOpt(JSONObject jo){
         parseJsonObject(jo);
     }
+
     public JourneyPlanOpt(JSONObject jo,boolean loadCompletion){
         this.loadCompletion=loadCompletion;
         parseJsonObject(jo);
@@ -266,6 +277,7 @@ public class JourneyPlanOpt implements IConvertHelper {
         setPrivateKey(jsonObject.optString("privateKey",""));
         setNextDueDate(jsonObject.optString("nextDueDate",""));
         setLastInspection(jsonObject.optString("lastInspection",""));
+
         if(isLoadCompletion()) {
             JSONObject joCompletion = jsonObject.optJSONObject("completion");
             if(joCompletion!=null){
@@ -273,18 +285,27 @@ public class JourneyPlanOpt implements IConvertHelper {
             }
         }
         if(isLoadUnitList()){
-            JSONArray jaTask=jsonObject.optJSONArray("tasks");
+            JSONArray jaTask = jsonObject.optJSONArray("tasks");
             if(jaTask !=null){
                 JSONObject joTask=jaTask.optJSONObject(0);
                 if(joTask!=null){
                     JSONArray jaUnitList=joTask.optJSONArray("units");
+
                     ArrayList<UnitsOpt> _unitList=new ArrayList<>();
                     if(jaUnitList !=null){
                         int jpColor=Globals.COLOR_TEST_NOT_ACTIVE;
                         int jpSortOrder=this.sortOrder;
                         for(int i=0;i<jaUnitList.length();i++){
                             UnitsOpt unitsOpt=new UnitsOpt(jaUnitList.optJSONObject(i));
+                            if( i == 0){
 
+                                AssetType assetType =  Globals.assetTypes.get(unitsOpt.getAssetType());
+                                if(assetType != null) {
+                                    if (assetType.isLocation() && assetType.isPlanable()) {
+                                        setArea(unitsOpt.getUnitLocation());
+                                    }
+                                }
+                            }
                             if(unitsOpt.getTestList().size()>0){
                                 _unitList.add(unitsOpt);
                                 if (unitsOpt.getColor() == Globals.COLOR_TEST_ACTIVE || unitsOpt.getColor()==Globals.COLOR_TEST_EXPIRING) {
@@ -312,6 +333,11 @@ public class JourneyPlanOpt implements IConvertHelper {
                             return o1.getSortOrder()-o2.getSortOrder();
                         }
                     });
+                    HashMap<String, UnitsOpt> _unitListHashMap=new HashMap<>();
+                    for(UnitsOpt u:_unitList){
+                        _unitListHashMap.put(u.getUnitId(),u);
+                    }
+                    this.unitListHashMap=_unitListHashMap;
                     this.unitList=_unitList;
                 }
             }
@@ -322,5 +348,8 @@ public class JourneyPlanOpt implements IConvertHelper {
     @Override
     public JSONObject getJsonObject() {
         return null;
+    }
+    public UnitsOpt getUnitOptById(String unitId){
+        return this.unitListHashMap.get(unitId);
     }
 }

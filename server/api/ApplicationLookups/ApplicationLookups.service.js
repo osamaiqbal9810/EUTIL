@@ -209,7 +209,7 @@ class ApplicationLookupsService {
 
         await listField.save();
         if (listField.listName == "appForms" && listField.opt2 && listField.opt2.config) {
-          AssetTestsService.linkAssetTest(listField, beforeUpdate._doc);
+          AssetTestsService.linkAssetTest(listField, beforeUpdate._doc, body.assetsList);
         }
         return { status: 200, value: listField };
       }

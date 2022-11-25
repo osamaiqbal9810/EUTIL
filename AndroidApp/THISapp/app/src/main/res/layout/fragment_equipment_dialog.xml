@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="10dp">
+   <ScrollView
+       android:id="@+id/sv_attributes"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       >
+   <!--<LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical">-->
+
+   <androidx.recyclerview.widget.RecyclerView
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       tools:listitem="@layout/item_equipment_attributes"
+      android:id="@+id/recycler_attributeList"/>
+
+   <!--</LinearLayout>-->
+   </ScrollView>
+   <Button
+       android:id="@+id/btnDone"
+       android:layout_width="match_parent"
+       android:layout_height="50dp"
+       android:layout_alignParentBottom="true"
+       android:textAllCaps="false"
+       android:background="@color/btn_color_primary"
+       android:padding="5dp"
+       android:fontFamily="@font/cabin"
+       android:textColor="@color/credentials_white"
+       android:textSize="17sp"
+       android:text="Done"/>
+</RelativeLayout>

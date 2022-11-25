@@ -262,7 +262,7 @@ class TrackAssetList extends Component {
         Header: () => (
           <div>
             {languageService("Length (milepost)")}
-            
+
           </div>
         ),
         id: "length",
@@ -315,13 +315,13 @@ class TrackAssetList extends Component {
   }
   render() {
     let columns = [...this.columns];
-    /*  return (  <div>  
-      <ReactTable  
-          data={this.props.tableData}  
-          columns={columns}  
-          defaultPageSize = {2}  
-          pageSizeOptions = {[2,4, 6]}  
-       />  
+    /*  return (  <div>
+      <ReactTable
+          data={this.props.tableData}
+          columns={columns}
+          defaultPageSize = {2}
+          pageSizeOptions = {[2,4, 6]}
+       />
    </div>        ); */
     return (
       <ThisTable
@@ -555,9 +555,7 @@ class WizardPage extends Component {
         this.showToastError("Track Number Already exists");
         return;
       }
- */ if (
-        trackName === ""
-      ) {
+ */ if (trackName === "") {
         this.showToastError(languageService("Please enter track name"));
         return;
       }
@@ -796,9 +794,7 @@ class AssetBuilder extends Component {
     //console.log(props.parentAsset);
     /*     this.updateFrom = this.updateFrom.bind(this);
     this.handleFileChange = this.handleFileChange.bind(this);
-  */ this.validateGeoJson = this.validateGeoJson.bind(
-      this,
-    );
+  */ this.validateGeoJson = this.validateGeoJson.bind(this);
     this.showToastError = this.showToastError.bind(this);
 
     this.getMinOrMax = this.getMinOrMax.bind(this);
@@ -878,7 +874,7 @@ class AssetBuilder extends Component {
       mainNode[locations[0]._id]=treeNode;
       let trackList=[];
       filterTreeByProperties(mainNode,{assetType:'track'},trackList);
-      let tracks=this.findAssetsWithAssetList(this.props.assets.assetsList,trackList); 
+      let tracks=this.findAssetsWithAssetList(this.props.assets.assetsList,trackList);
       this.trackList=tracks;
       let primaryTrack = tracks.filter((t)=>(t.attributes.primaryTrack==true));
       console.log(primaryTrack);
@@ -1226,7 +1222,7 @@ class AssetBuilder extends Component {
 
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
         isOpen={this.props.modal}
         toggle={this.props.toggle}
         style={{ maxWidth: "98vw" }}

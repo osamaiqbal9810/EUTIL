@@ -11,6 +11,8 @@ import android.graphics.Typeface;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +33,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.app.ps19.tipsapp.BuildConfig;
+import com.app.ps19.tipsapp.DashboardActivity;
 import com.app.ps19.tipsapp.InboxActivity;
 import com.app.ps19.tipsapp.InspectionStartActivity;
 import com.app.ps19.tipsapp.R;
@@ -52,8 +57,12 @@ import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
 import com.app.ps19.tipsapp.inspection.InspectionActivity;
 import com.app.ps19.tipsapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.tipsapp.location.LocationUpdatesService;
+import com.app.ps19.tipsapp.safetyBriefing.MultiSelectionActivity;
+import com.app.ps19.tipsapp.safetyBriefing.SafetyBriefingActivity;
 import com.app.ps19.tipsapp.wplan.ui.main.SectionsPagerAdapter;
+import com.google.gson.JsonArray;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,6 +74,8 @@ import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static com.app.ps19.tipsapp.Shared.Globals.MESSAGE_STATUS_READY_TO_POST;
 import static com.app.ps19.tipsapp.Shared.Globals.SESSION_STARTED;
@@ -74,18 +85,23 @@ import static com.app.ps19.tipsapp.Shared.Globals.WORK_PLAN_IN_PROGRESS_STATUS;
 import static com.app.ps19.tipsapp.Shared.Globals.WPLAN_TEMPLATE_LIST_NAME;
 import static com.app.ps19.tipsapp.Shared.Globals.activeSession;
 import static com.app.ps19.tipsapp.Shared.Globals.appName;
+import static com.app.ps19.tipsapp.Shared.Globals.changeItemList;
 import static com.app.ps19.tipsapp.Shared.Globals.dayStarted;
 import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Globals.inbox;
 import static com.app.ps19.tipsapp.Shared.Globals.initialInspection;
 import static com.app.ps19.tipsapp.Shared.Globals.initialRun;
+import static com.app.ps19.tipsapp.Shared.Globals.isBriefingShown;
 import static com.app.ps19.tipsapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.tipsapp.Shared.Globals.isDayProcessRunning;
 import static com.app.ps19.tipsapp.Shared.Globals.isInspectionTypeReq;
+import static com.app.ps19.tipsapp.Shared.Globals.isJourneyPlanValid;
 import static com.app.ps19.tipsapp.Shared.Globals.isMaintainer;
 import static com.app.ps19.tipsapp.Shared.Globals.isMpReq;
+import static com.app.ps19.tipsapp.Shared.Globals.isShowBriefingOnStart;
 import static com.app.ps19.tipsapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.tipsapp.Shared.Globals.isUseDefaultAsset;
+import static com.app.ps19.tipsapp.Shared.Globals.isUseDynSafetyBriefing;
 import static com.app.ps19.tipsapp.Shared.Globals.isWConditionReq;
 import static com.app.ps19.tipsapp.Shared.Globals.loadDayStatus;
 import static com.app.ps19.tipsapp.Shared.Globals.loadInbox;
@@ -94,10 +110,12 @@ import static com.app.ps19.tipsapp.Shared.Globals.saveCurrentJP;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedDUnit;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
+import static com.app.ps19.tipsapp.Shared.Globals.setLocationPrefix;
 import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Globals.showNearByAssets;
 import static com.app.ps19.tipsapp.Shared.Globals.userEmail;
 import static com.app.ps19.tipsapp.Shared.Globals.userUID;
+import static com.app.ps19.tipsapp.Shared.Utilities.getScreenHeight;
 
 public class WplanActivity extends AppCompatActivity implements
         Observer ,
@@ -106,7 +124,7 @@ public class WplanActivity extends AppCompatActivity implements
         OnLocationUpdatedListener {
     SectionsPagerAdapter sectionsPagerAdapter;
     ArrayList< Template> templateList=new ArrayList<>();
-    ArrayList<JourneyPlanOpt> wpTemplateList=inbox.loadWokPlanTemplateListEx();
+    ArrayList<JourneyPlanOpt> wpTemplateList= new ArrayList<>();
     ExpandableListView expandableListView;
     // TODO: Rename and change types of parameters
     private String areaType;
@@ -119,10 +137,12 @@ public class WplanActivity extends AppCompatActivity implements
 
     View viewLocationColor;
     TextView tvUnitLocation;
-     ParentLevel itemsAdapter;
+    ParentLevel itemsAdapter;
     ArrayList<JourneyPlanOpt> journeyPlansInProgress;
     // Used for start inspection activity
     private static final int START_INSPECTION_REQUEST_CODE = 10;
+    // Used for inspection activity
+    private static final int INSPECTION_ACTIVITY_REQUEST_CODE = 50;
     ProgressDialog dialog =null;
     String longitude="", latitude ="";
     String location="";
@@ -134,6 +154,14 @@ public class WplanActivity extends AppCompatActivity implements
         ObservableObject.getInstance().deleteObserver(this);
         LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
         super.onStop();
+    }
+    public float getDensity(Context context){
+        float scale = context.getResources().getDisplayMetrics().density;
+        return scale;
+    }
+    public int convertPixtoDip(int pixel){
+        float scale = getDensity(WplanActivity.this);
+        return (int)((pixel - 0.5f)/scale);
     }
 
     @Override
@@ -147,12 +175,25 @@ public class WplanActivity extends AppCompatActivity implements
         viewColorNA = findViewById(R.id.colorNA);
         viewColorA = findViewById(R.id.colorA);
         viewColorExp = findViewById(R.id.colorExp);
+        dialog = new ProgressDialog(WplanActivity.this);
+        horizontal_recycler_view = (RecyclerView) findViewById(R.id.rvLocations);
         //sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
 
         //ViewPager viewPager = findViewById(R.id.view_pager);
         //viewPager.setAdapter(sectionsPagerAdapter);
-        ObservableObject.getInstance().addObserver(this);
 
+        ObservableObject.getInstance().addObserver(this);
+        final SwipeRefreshLayout pullToRefresh = findViewById(R.id.pullToRefresh);
+        pullToRefresh.setDistanceToTriggerSync(convertPixtoDip(getScreenHeight(WplanActivity.this)/2));
+        pullToRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //refresh();
+                inbox.loadWokPlanTemplateListEx();
+                loadScreenData();
+                pullToRefresh.setRefreshing(false);
+            }
+        });
         //TabLayout tabs = findViewById(R.id.tabs);
         //tabs.setupWithViewPager(viewPager);
         /*tabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -192,74 +233,136 @@ public class WplanActivity extends AppCompatActivity implements
         //Test fragment code
 
         areaType = "ALL";
-        wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
 
-        if (wpTemplateList.size() == 0) {
-            wpTemplateList = inbox.loadWokPlanTemplateListEx();
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                WplanActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        showDialog("Loading inspections", "Please wait!");
+                    }});
 
-        journeyPlansInProgress = inbox.getInProgressJourneyPlans();
-        ArrayList<Test> testList = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            testList.add(new Test(("G00" + i), (i % 2 == 0) ?  Globals.COLOR_TEST_NOT_ACTIVE :  Globals.COLOR_TEST_ACTIVE, (i % 2 == 0) ? "Due in 2 days" : "Exipre in x Days"));
-        }
+                //wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
+                if (wpTemplateList.size() == 0) {
+                    wpTemplateList = inbox.loadWokPlanTemplateListEx();
+                }
+                journeyPlansInProgress = inbox.getInProgressJourneyPlans();
 
-        Template template1 = new Template("Template 1",  Globals.COLOR_TEST_NOT_ACTIVE);
-        Template template2 = new Template("Template 2",  Globals.COLOR_TEST_ACTIVE);
-        Template template3 = new Template("Template 3",  Globals.COLOR_TEST_NOT_ACTIVE);
-        ArrayList<Unit> unitList = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            unitList.add(new Unit("Unit " + (i + 1), Globals.COLOR_TEST_NOT_ACTIVE));
-            unitList.get(i).testList.add(testList.get(0));
-            unitList.get(i).testList.add(testList.get(1));
-            unitList.get(i).testList.add(testList.get(3));
-        }
-        ArrayList<Unit> unitList1 = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            unitList1.add(new Unit("Unit " + (i + 4),  Globals.COLOR_TEST_NOT_ACTIVE));
-        }
-        ArrayList<Unit> unitList2 = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            unitList2.add(new Unit("Unit " + (i + 7),  Globals.COLOR_TEST_NOT_ACTIVE));
+                ArrayList<Test> testList = new ArrayList<>();
+                for (int i = 0; i < 10; i++) {
+                    testList.add(new Test(("G00" + i), (i % 2 == 0) ?  Globals.COLOR_TEST_NOT_ACTIVE :  Globals.COLOR_TEST_ACTIVE, (i % 2 == 0) ? "Due in 2 days" : "Exipre in x Days"));
+                }
 
-        }
+                Template template1 = new Template("Template 1",  Globals.COLOR_TEST_NOT_ACTIVE);
+                Template template2 = new Template("Template 2",  Globals.COLOR_TEST_ACTIVE);
+                Template template3 = new Template("Template 3",  Globals.COLOR_TEST_NOT_ACTIVE);
+                ArrayList<Unit> unitList = new ArrayList<>();
+                for (int i = 0; i < 3; i++) {
+                    unitList.add(new Unit("Unit " + (i + 1), Globals.COLOR_TEST_NOT_ACTIVE));
+                    unitList.get(i).testList.add(testList.get(0));
+                    unitList.get(i).testList.add(testList.get(1));
+                    unitList.get(i).testList.add(testList.get(3));
+                }
+                ArrayList<Unit> unitList1 = new ArrayList<>();
+                for (int i = 0; i < 3; i++) {
+                    unitList1.add(new Unit("Unit " + (i + 4),  Globals.COLOR_TEST_NOT_ACTIVE));
+                }
+                ArrayList<Unit> unitList2 = new ArrayList<>();
+                for (int i = 0; i < 3; i++) {
+                    unitList2.add(new Unit("Unit " + (i + 7),  Globals.COLOR_TEST_NOT_ACTIVE));
 
-        template1.unitList = unitList;
-        template2.unitList = unitList1;
-        template3.unitList = unitList2;
-        templateList.add(template1);
-        templateList.add(template2);
-        templateList.add(template3);
+                }
+
+                template1.unitList = unitList;
+                template2.unitList = unitList1;
+                template3.unitList = unitList2;
+                templateList.add(template1);
+                templateList.add(template2);
+                templateList.add(template3);
 
 
 //        viewLocationColor=view.findViewById(R.id.v_location_color);
 //        tvUnitLocation = view.findViewById(R.id.tv_Unit_Loc);
-        dialog = new ProgressDialog(WplanActivity.this);
-        RefreshWithLastLocation();
-        refreshColorLegend();
-        SearchView search;
-        SearchManager searchManager = (SearchManager) WplanActivity.this.getSystemService(Context.SEARCH_SERVICE);
-        search = (SearchView) findViewById(R.id.search_ftt);
-        search.setSearchableInfo(searchManager.getSearchableInfo(WplanActivity.this.getComponentName()));
-        search.setIconifiedByDefault(false);
-        search.setOnQueryTextListener(this);
-        search.setOnCloseListener(this);
+                SearchView search;
+                SearchManager searchManager = (SearchManager) WplanActivity.this.getSystemService(Context.SEARCH_SERVICE);
+                search = (SearchView) findViewById(R.id.search_ftt);
 
 
-        //expandableListView.setAdapter(new ParentLevel(templateList));
-        //Collections.reverse(wpTemplateList);
-        // for(int i=0;i<wpTemplateList.get(0).getUnitList().size();i++){
-        // wpTemplateList.get(0).getUnitList().get(i).setTestList(getMockData());
-        // }
-        //wpTemplateList.get(0).getUnitList().get(0).setTestList(getMockData());
+                //expandableListView.setAdapter(new ParentLevel(templateList));
+                //Collections.reverse(wpTemplateList);
+                // for(int i=0;i<wpTemplateList.get(0).getUnitList().size();i++){
+                // wpTemplateList.get(0).getUnitList().get(i).setTestList(getMockData());
+                // }
+                //wpTemplateList.get(0).getUnitList().get(0).setTestList(getMockData());
 
-        itemsAdapter = new ParentLevel(wpTemplateList);
-        expandableListView.setAdapter(itemsAdapter);
+                itemsAdapter = new ParentLevel(wpTemplateList);
 
-        horizontalAdapter = new JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
-        horizontal_recycler_view = (RecyclerView) findViewById(R.id.rvLocations);
-        horizontal_recycler_view.setAdapter(horizontalAdapter);
+                horizontalAdapter = new JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
+
+
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        RefreshWithLastLocation();
+                        refreshColorLegend();
+                        search.setSearchableInfo(searchManager.getSearchableInfo(WplanActivity.this.getComponentName()));
+                        search.setIconifiedByDefault(false);
+                        search.setOnQueryTextListener(WplanActivity.this);
+                        search.setOnCloseListener(WplanActivity.this);
+                        expandableListView.setAdapter(itemsAdapter);
+                        horizontal_recycler_view.setAdapter(horizontalAdapter);
+                        if(wpTemplateList.size()>26){
+                            Log.d("List","Size increased");
+                        }
+                        //loadScreenData();
+                        hideDialog();
+                    }
+                });
+            }}).start();
+
+        //wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
         //End
+    }
+    private void loadScreenData(){
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Handler handler=new Handler(Looper.getMainLooper());
+        executor.execute(new Runnable() {
+            @Override
+            public void run() {
+                if(WplanActivity.this.expandableListView!=null) {
+                    try {
+                        if(wpTemplateList==null ||inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType)==null){
+                            inbox.loadWokPlanTemplateListEx();
+                        }
+                        //wpTemplateList.clear();
+                        wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
+                        Log.d("WplanActivity","Count:"+wpTemplateList.size());
+                        if(wpTemplateList.size()>0){
+                            Log.d("WplanActivity","Units:"+ (wpTemplateList.get(0).getUnitList()!=null?wpTemplateList.get(0).getUnitList().size():"Null"));
+                        }
+                        WplanActivity.this.itemsAdapter = new  ParentLevel(WplanActivity.this.wpTemplateList);
+                        //WplanActivity.this.expandableListView.setAdapter(WplanActivity.this.itemsAdapter);
+
+                        horizontalAdapter=new  JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
+                        //horizontal_recycler_view.setAdapter(horizontalAdapter);
+
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                //UI Thread work here
+                                horizontal_recycler_view.setAdapter(horizontalAdapter);
+                                WplanActivity.this.expandableListView.setAdapter(WplanActivity.this.itemsAdapter);
+                                WplanActivity.this.itemsAdapter.notifyDataSetChanged();
+                                refreshColorLegend();
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
     }
     private TemplateTestFragment getTemplateTestFragment(){
         FragmentManager fm= getSupportFragmentManager();
@@ -308,6 +411,10 @@ public class WplanActivity extends AppCompatActivity implements
                                 switch (key){
                                     case Globals.APPLICATION_LOOKUP_LIST_NAME:
                                     case WPLAN_TEMPLATE_LIST_NAME:
+                                        JSONArray jsonArray=changeItemList.get(key);
+                                        if(jsonArray.length()==1 && jsonArray.optString(0,"-1").equals("-1")){
+                                            break;
+                                        }
                                         TemplateTestFragment fragment=getTemplateTestFragment();
                                         RunsFragment runFragment = getRunsFragment();
                                         plansFragment planFrag = getPlansFragment();
@@ -472,10 +579,14 @@ public class WplanActivity extends AppCompatActivity implements
             final int jpColor = inbox.getJPLocationOpts().
                     getJPLocationColor(this.areaList.get(position));
 
-            if(!this.areaList.get(position).equals("ALL")) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    locColor.setBackgroundTintList(ColorStateList.valueOf(jpColor));
+            try {
+                if(!this.areaList.get(position).equals("ALL")) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        locColor.setBackgroundTintList(ColorStateList.valueOf(jpColor));
+                    }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
             if (position == selectedAreaFilterPostion) {
@@ -546,7 +657,7 @@ public class WplanActivity extends AppCompatActivity implements
         public View getChildView(int groupPosition, int childPosition,
                                  boolean isLastChild, View convertView, ViewGroup parent)
         {
-             CustExpListview SecondLevelexplv = new  CustExpListview( WplanActivity.this);
+            CustExpListview SecondLevelexplv = new  CustExpListview( WplanActivity.this);
             ArrayList< Unit> unitList=(ArrayList< Unit>) getChild(groupPosition,childPosition);
             SecondLevelexplv.setAdapter(new  SecondLevelAdapter(unitList));
             //SecondLevelexplv.setGroupIndicator(null);
@@ -633,7 +744,7 @@ public class WplanActivity extends AppCompatActivity implements
             imgStartPlan.setOnClickListener(view1 -> {
                 for(JourneyPlanOpt plan: journeyPlansInProgress){
                     if(plan.getWorkplanTemplateId().equals(template.getId())){
-                        if(selectedJPlan == null){
+                        if(selectedJPlan == null|| selectedJPlan.getWorkplanTemplateId().equals("")){
                             String title= plan.getTitle();
                             final String code= plan.getCode();
                             String branchInfoString = getString(R.string.switching_inspection_msg2_part_1)+ " "+  "<b><i>"+ title + "</i></b>"+ "<br>" + getString(R.string.switching_inspection_msg2_part_2);
@@ -687,8 +798,8 @@ public class WplanActivity extends AppCompatActivity implements
                         break;
                     }
                 }
-                if(selectedJPlan != null){
-                    prevInspection = getString(R.string.inspection_in_progress_msg_part_1) + " " +"<b><i>" + selectedJPlan.getTitle() +"</i></b>"+" " + getString(R.string.inspection_in_progress_msg_part_2) + "\n";
+                if(selectedJPlan != null && !selectedJPlan.getWorkplanTemplateId().equals("")){
+                    prevInspection = getString(R.string.inspection_in_progress_msg_part_1) + " " +"<b><i>" + selectedJPlan.getTitle() +"</i></b>"+" " + getString(R.string.inspection_in_progress_msg_part_2) + "<br>";
                 }
                 if(isInProgress){
                     branchInfoString = prevInspection + getString(R.string.switching_inspection_msg2_part_2)+" \n" +
@@ -862,7 +973,7 @@ public class WplanActivity extends AppCompatActivity implements
             }
             UnitsOpt unit=(UnitsOpt) getGroup(groupPosition);
             TextView textView=tv.findViewById(R.id.tvSecond);
-            String desc=unit.getDescription() + " ["+unit.getAssetType()+"]";
+            String desc=unit.getDescription() + " ["+unit.getAssetTypeDisplayName()+"]";
             textView.setText(desc);
             View view=tv.findViewById(R.id.viewSecond);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -922,16 +1033,24 @@ public class WplanActivity extends AppCompatActivity implements
 
     public void refresh(){
         if(this.expandableListView!=null) {
-            inbox.loadWokPlanTemplateListEx();
+            try {
+                inbox.loadWokPlanTemplateListEx();
 
-            wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
-            this.itemsAdapter = new  ParentLevel(this.wpTemplateList);
-            this.expandableListView.setAdapter(this.itemsAdapter);
+                wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
+                Log.d("WplanActivity","Count:"+wpTemplateList.size());
+                if(wpTemplateList.size()>0){
+                    Log.d("WplanActivity","Units:"+ (wpTemplateList.get(0).getUnitList()!=null?wpTemplateList.get(0).getUnitList().size():"Null"));
+                }
+                this.itemsAdapter = new  ParentLevel(this.wpTemplateList);
+                this.expandableListView.setAdapter(this.itemsAdapter);
 
-            horizontalAdapter=new  JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
+                horizontalAdapter=new  JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
 
-            horizontal_recycler_view.setAdapter(horizontalAdapter);
-            refreshColorLegend();
+                horizontal_recycler_view.setAdapter(horizontalAdapter);
+                refreshColorLegend();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -955,6 +1074,13 @@ public class WplanActivity extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == INSPECTION_ACTIVITY_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                journeyPlansInProgress = inbox.getInProgressJourneyPlans();
+                loadScreenData();
+                //refresh();
+            }
+        }
         if (requestCode == START_INSPECTION_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
 
@@ -1018,7 +1144,13 @@ public class WplanActivity extends AppCompatActivity implements
             }
             if(isMpReq||isTraverseReq||isWConditionReq||isInspectionTypeReq||showNearByAssets) {
                 initialInspection = jPlan;
-                Intent intent = new Intent( WplanActivity.this, InspectionStartActivity.class);
+                // Surrounding by try catch for handling possible crash due to location asset unavailability
+                try {
+                    setLocationPrefix(initialInspection.getTaskList().get(0).getLocationAsset().getUnitId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Intent intent = new Intent(WplanActivity.this, InspectionStartActivity.class);
                 startActivityForResult(intent, START_INSPECTION_REQUEST_CODE);
             } else {
                 new Thread(new Runnable() {
@@ -1050,6 +1182,13 @@ public class WplanActivity extends AppCompatActivity implements
 
         }
         */
+        isBriefingShown = false;
+        WplanActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
+            }
+        });
         DBHandler db= Globals.db;
         boolean isServerAvailable=Globals.isServerAvailable();
         Globals.setOfflineMode(!isServerAvailable);
@@ -1077,12 +1216,7 @@ public class WplanActivity extends AppCompatActivity implements
         final String strJPlanTitle=journeyPlan.getTitle();
         StaticListItem item = new StaticListItem(Globals.orgCode, listName
                 , journeyPlan.getPrivateKey(), "", joWorkPlan.toString(), "");
-         WplanActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
-            }
-        });
+
         isDayProcessRunning=true;
         ArrayList<StaticListItem> _items =new ArrayList<>();
         _items.add(item);
@@ -1098,17 +1232,17 @@ public class WplanActivity extends AppCompatActivity implements
                 sleep(500);
                 if(Globals.dayStarted){
                     makeDocumentsAvailable();
-                     WplanActivity.this.runOnUiThread(new Runnable() {
+                    WplanActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            hideDialog();
+                            //hideDialog();
                             Toast.makeText( WplanActivity.this,getResources().getString(R.string.inspection_started),Toast.LENGTH_SHORT).show();
                         }
                     });
 
                 }else{
 
-                     WplanActivity.this.runOnUiThread(new Runnable() {
+                    WplanActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             hideDialog();
@@ -1131,13 +1265,7 @@ public class WplanActivity extends AppCompatActivity implements
 
         }
 
-         WplanActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                hideDialog();
-            }
-        });
-        isDayProcessRunning=false;
+
         // Check if require to start task
         if(journeyPlan.getTaskList().size() == 1 && isBypassTaskView){
             if(initialRun == null){
@@ -1145,6 +1273,13 @@ public class WplanActivity extends AppCompatActivity implements
             }
             startRun(expEnd);
         }
+        isDayProcessRunning=false;
+       /* WplanActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                hideDialog();
+            }
+        });*/
     }
     void showDialog(String title,String message){
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1152,6 +1287,7 @@ public class WplanActivity extends AppCompatActivity implements
         dialog.setMessage(message);
         dialog.setIndeterminate(true);
         dialog.setCanceledOnTouchOutside(false);
+        dialog.setCancelable(false);
         dialog.show();
     }
     void hideDialog(){
@@ -1194,7 +1330,17 @@ public class WplanActivity extends AppCompatActivity implements
                     task.setLocationUnit(initialRun.getLocationUnit());
                     task.setTemperatureUnit(initialRun.getTemperatureUnit());
                     task.setTraverseTrack(initialRun.getTraverseTrack());
-                    task.setObserveTrack(initialRun.getObserveTrack());
+                    //Setting app version
+                    try {
+                        task.setAppVersion(BuildConfig.VERSION_NAME);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if(initialRun.getObserveTrack().equals("0")){
+                        task.setObserveTrack("");
+                    } else {
+                        task.setObserveTrack(initialRun.getObserveTrack());
+                    }
                     task.setTemperature(initialRun.getTemperature());
                     task.setYardInspection(initialRun.isYardInspection());
 
@@ -1204,7 +1350,13 @@ public class WplanActivity extends AppCompatActivity implements
                     session.setStartTime(now.toString());
                     session.setStart(initialRun.getUserStartMp());
                     session.setTraverseTrack(initialRun.getTraverseTrack());
-                    session.setObserveTrack(initialRun.getObserveTrack());
+                    if(initialRun.getObserveTrack().equals("0")){
+                        session.setObserveTrack("");
+                        session.setAllSideTracks(true);
+                    } else {
+                        session.setObserveTrack(initialRun.getObserveTrack());
+                        session.setAllSideTracks(false);
+                    }
                     if(appName.equals(Globals.AppName.SCIM)){
                         session.setStart(task.getMpStart());
                         task.setUserStartMp(task.getMpStart());
@@ -1231,8 +1383,15 @@ public class WplanActivity extends AppCompatActivity implements
         Globals.selectedTask.setStartTime(now.toString());
         Globals.isTaskStarted = true;
         Globals.selectedTask.setStartLocation(latitude + "," + longitude);*/
+            //TODO: null check at selectedTask
+            for(Units unit: getSelectedTask().getWholeUnitList()){
+                if(unit.getUnitId().equals(activeSession.getTraverseTrack())){
+                    unit.setFreeze(true);
+                    break;
+                }
+            }
 
-            if(getSelectedTask() == null){
+            /*if(getSelectedTask() == null){
                 setSelectedTask(selectedJPlan.getTaskList().get(0));
             }
             if(Globals.selectedUnit == null){
@@ -1245,12 +1404,9 @@ public class WplanActivity extends AppCompatActivity implements
                                 Globals.selectedUnit = unit;
                             }
                         }
-                    }else {
-
                     }
-
                 }
-            }
+            }*/
             //Intent intent = new Intent(TaskDashboardActivity.this, IssuesActivity.class);//Intent intent = new Intent(TaskActivity.this, TaskDetailActivity.class);
             if(selectedJPlan.getWorkplanTemplateId().equals("")){
                 Log.i("WPLAN ID ", "ID is empty");
@@ -1263,6 +1419,7 @@ public class WplanActivity extends AppCompatActivity implements
             //selectedTask = null;
             initialRun = null;
             initialInspection = null;
+            setLocationPrefix(getSelectedTask().getLocationAsset().getUnitId());
             launchActivity();
         }
 
@@ -1276,7 +1433,7 @@ public class WplanActivity extends AppCompatActivity implements
             if(!Utilities.isDocumentExists(fileName)) {
                 if(dialog!=null){
                     final String fileName1=fileName;
-                     WplanActivity.this.runOnUiThread(new Runnable() {
+                    WplanActivity.this.runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             if(dialog.isShowing()){
@@ -1303,6 +1460,16 @@ public class WplanActivity extends AppCompatActivity implements
         selectedUnit = null;
         selectedDUnit = null;
         selectedJPlan = inbox.getCurrentJourneyPlan();
+        try {
+            if(selectedJPlan.getIntervals().getSessions().size() == 0){
+                if(isJourneyPlanValid(WplanActivity.this, selectedJPlan.getId())){
+                    Log.e("Corrupted JP:", "Journey Plan unable to load due to session unavailable");
+                    selectedJPlan = inbox.loadJourneyPlan(WplanActivity.this, selectedJPlan.getId());
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         dayStarted = true;
         Globals.safetyBriefing = null;
         Globals.listViews = new HashMap<Integer, View>();
@@ -1329,11 +1496,24 @@ public class WplanActivity extends AppCompatActivity implements
                     setSelectedTask(selectedJPlan.getTaskList().get(0));
                     activeSession = null;
                     selectedJPlan.setActiveSession();
+                    setLocationPrefix(selectedJPlan.getTaskList().get(0).getLocationAsset().getUnitId());
+                    //hideDialog();
                     //Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
-
-                    Intent intent = new Intent( WplanActivity.this, InspectionActivity.class);
-                    startActivity(intent);
+                    if(isShowBriefingOnStart && !isBriefingShown){
+                        Intent briefingActivity = new Intent();
+                        if(isUseDynSafetyBriefing){
+                            briefingActivity = new Intent(WplanActivity.this, MultiSelectionActivity.class);
+                        } else {
+                            briefingActivity = new Intent(WplanActivity.this, SafetyBriefingActivity.class);
+                        }
+                        isBriefingShown = true;
+                        startActivity(briefingActivity);
+                    } else {
+                        Intent intent = new Intent( WplanActivity.this, InspectionActivity.class);
+                        startActivity(intent);
+                    }
                 } else {
+                    hideDialog();
                     Intent intent = new Intent( WplanActivity.this, InboxActivity.class);
                     startActivity(intent);
                 }
@@ -1354,15 +1534,30 @@ public class WplanActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName(), this);
-        journeyPlansInProgress = inbox.getInProgressJourneyPlans();
-        refresh();
+        try {
+            hideDialog();
+            LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName(), this);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    journeyPlansInProgress = inbox.getInProgressJourneyPlans();
+                    //refresh();
+                    loadScreenData();
+                }}).start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     protected void onPause(){
         super.onPause();
-        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+        try {
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     // End
 }

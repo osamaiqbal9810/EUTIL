@@ -20,14 +20,14 @@ class TrackUnitsTable extends Component {
         id: "row",
         maxWidth: 50,
         filterable: false,
-        Cell: row => {
+        Cell: (row) => {
           return <div style={{ textAlign: "center" }}>{row.index + 1}</div>;
         },
       },
       {
         Header: "Asset",
         id: "name",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.assetType} </div>;
         },
         minWidth: 150,
@@ -35,7 +35,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Asset Id",
         id: "assetId",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.unitId} </div>;
         },
         minWidth: 150,
@@ -43,7 +43,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Start (milepost)",
         id: "start",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.start} </div>;
         },
         minWidth: 100,
@@ -51,7 +51,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "End (milepost)",
         id: "end",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.end} </div>;
         },
         minWidth: 100,
@@ -59,7 +59,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Length (milepost)",
         id: "length",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.assetLength} </div>;
         },
         minWidth: 100,
@@ -67,7 +67,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Past Issue",
         id: "pastIssue",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.pastIssue} </div>;
         },
         minWidth: 100,
@@ -75,7 +75,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Last Inspected",
         id: "lastDateInspected",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.lastInspection} </div>;
         },
         minWidth: 120,
@@ -83,7 +83,7 @@ class TrackUnitsTable extends Component {
       {
         Header: "Next Inspection",
         id: "nextDateInspected",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.nextInspection} </div>;
         },
         minWidth: 120,
@@ -115,18 +115,18 @@ class TrackUnitsTable extends Component {
       {
         Header: "Actions",
         id: "actions",
-        accessor: d => {
+        accessor: (d) => {
           return (
             <div>
               <ButtonActionsTable
-                handleClick={e => {
+                handleClick={(e) => {
                   this.props.handleEditClick("Edit", d);
                 }}
                 margin="0px 10px 0px 0px"
                 buttonText={"Edit"}
               />
               <ButtonActionsTable
-                handleClick={e => {
+                handleClick={(e) => {
                   this.props.handleDeleteClick(d);
                 }}
                 margin="0px 10px 0px 0px"
@@ -156,13 +156,13 @@ class TrackUnitsTable extends Component {
       <Col md="12">
         <div
           style={{
-            background: "#fff",
+            background: "var(--fifth)",
             padding: "0px 0px 8px 15px",
             fontSize: "18px",
             letterSpacing: "0.95px",
             fontFamily: "Arial",
             textAlign: "left",
-            color: "rgba(64, 118, 179)",
+            color: "var(--first)",
             marginBottom: "10px",
           }}
         >

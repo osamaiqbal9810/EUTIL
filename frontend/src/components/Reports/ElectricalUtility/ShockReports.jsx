@@ -54,7 +54,7 @@ class ShockReports extends Component {
     // });
     return (
       <React.Fragment>
-        <div className="table-report electric-utility shock-reports">
+        <div className="table-report electric-utility shock-reports" id="mainContent">
           <Row>
             <Col md={12}>
               <Row>

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Table } from "reactstrap";
 import moment from "moment";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { truncateNumber } from "../../../utils/utils";
 class LinearDistance extends Component {
   calculateXAxis() {
@@ -52,16 +52,16 @@ class LinearDistance extends Component {
         }
         return (
           <tr style={{ height: "25px" }} key={yLabel}>
-            <th style={{ background: retroColors.fourth, minWidth: "150px" }}>{moment(yLabel).format("LL")}</th>
+            <th style={{ background: "var(--fourth)", minWidth: "150px" }}>{moment(yLabel).format("LL")}</th>
             {td}
           </tr>
         );
       });
     return (
-      <Table style={{ background: "#fff", marginBottom: "0px" }}>
+      <Table style={{ background: "var(--fifth)", marginBottom: "0px" }}>
         <thead>{/* <tr style={themeService(calenderCellStyle.dayRow)}>{this.dayNamesHeaderComp}</tr> */}</thead>
         <tbody>
-          <tr style={{ height: "35px", background: retroColors.fourth }} key={this.props.dataSet && this.props.dataSet.headingLabel}>
+          <tr style={{ height: "35px", background: "var(--fourth)" }} key={this.props.dataSet && this.props.dataSet.headingLabel}>
             <th style={{ width: "150px" }}>{this.props.dataSet && this.props.dataSet.headingLabel}</th>
             {this.calculateXAxis()}
           </tr>

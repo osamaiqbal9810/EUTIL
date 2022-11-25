@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
-import com.app.ps19.scimapp.Shared.TemplatePlanCompletionView;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
+import com.app.ps19.scimapp.Shared.Utilities;
 import com.app.ps19.scimapp.classes.Session;
 import com.app.ps19.scimapp.classes.Task;
 import com.app.ps19.scimapp.classes.Units;
@@ -19,14 +20,19 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,12 +43,11 @@ import static com.app.ps19.scimapp.Shared.Globals.SESSION_STARTED;
 import static com.app.ps19.scimapp.Shared.Globals.SESSION_STOPPED;
 import static com.app.ps19.scimapp.Shared.Globals.dayStarted;
 import static com.app.ps19.scimapp.Shared.Globals.getBlinkAnimation;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.scimapp.Shared.Globals.selectedPostSign;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
-import static com.app.ps19.scimapp.Shared.Utilities.canGetLocation;
 import static com.app.ps19.scimapp.Shared.Utilities.elapsedCalculator;
 import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
 
@@ -76,6 +81,14 @@ public class SessionDashboard extends AppCompatActivity {
     boolean isListExpanded;
     RelativeLayout rlSessionTitle;
     LinearLayout llSessionDetailContainer;
+    // Traverse and Observe track code
+    Spinner spTracks;
+    Spinner spObserveTracks;
+    ArrayList<Units> traverseTracks = new ArrayList<>();
+    ArrayList<Units> observeTracks = new ArrayList<>();
+    ArrayAdapter<Units> traverseAdapter;
+    ArrayAdapter<Units> observeAdapter;
+    ArrayList<Units> allTracks = new ArrayList<>();
 
 
     @Override
@@ -126,10 +139,10 @@ public class SessionDashboard extends AppCompatActivity {
         tvEndSessionDateTime.setText("--:--");
         tvStartSessionDateTime.setText("--:--");
         try {
-            if(selectedTask == null){
+            if(getSelectedTask() == null){
                 activeTask = selectedJPlan.getTaskList().get(0);
             } else {
-                activeTask = selectedTask;
+                activeTask = getSelectedTask();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -148,7 +161,6 @@ public class SessionDashboard extends AppCompatActivity {
         rangeMsg = getLineName() + "<br> " + "<b>" + prefix + " " + "</b> " + activeTask.getMpStart() + " to " + "<b>" + prefix + " " + "</b> " + activeTask.getMpEnd();
         // Setting default value to list state
         isListExpanded = false;
-
         if(sessions != null){
             if(sessions.size()!= 0){
                 for(Session session: sessions){
@@ -239,8 +251,11 @@ public class SessionDashboard extends AppCompatActivity {
                                     @Override
                                     public void run() {
                                         if(secCounter % 10 == 0){
-                                            if(canGetLocation(SessionDashboard.this)) {
+                                            if(LocationUpdatesService.canGetLocation()) {
                                                 //tryLocation();
+                                            }
+                                            else{
+                                                Utilities.showSettingsAlert(SessionDashboard.this);
                                             }
                                         }
                                         if (blnClockIcon) {
@@ -281,6 +296,55 @@ public class SessionDashboard extends AppCompatActivity {
         final EditText etStartMp = (EditText) viewInflated.findViewById(R.id.et_start_session_mp);
         final EditText etExpEndMp = (EditText) viewInflated.findViewById(R.id.et_session_exp_end_mp);
         final TextView tvRangeMsg = (TextView) viewInflated.findViewById(R.id.tv_session_start_dialog_range_msg);
+        //Traverse and Observe track code
+        spTracks = (Spinner) viewInflated.findViewById(R.id.sp_traverse_track);
+        spObserveTracks = (Spinner) viewInflated.findViewById(R.id.sp_observe_track);
+        allTracks = getTracks();
+        //Copying tracks to other arrays
+        observeTracks = new ArrayList<>(allTracks);
+        traverseTracks = new ArrayList<>(allTracks);
+        traverseAdapter =
+                new ArrayAdapter<>(SessionDashboard.this, android.R.layout.simple_spinner_dropdown_item, traverseTracks);
+        traverseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTracks.setAdapter(traverseAdapter);
+        //removing the traverse track from observe track list
+        observeTracks.remove(spTracks.getSelectedItem());
+        if(observeTracks.size()>0){
+            observeAdapter =
+                    new ArrayAdapter<Units>(SessionDashboard.this, android.R.layout.simple_spinner_dropdown_item, observeTracks);
+            observeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spObserveTracks.setAdapter(observeAdapter);
+        }
+
+        if(traverseTracks.size() == 0){
+            spTracks.setEnabled(false);
+        }
+        spTracks.setSelection(0, false);
+        spObserveTracks.setSelection(0, false);
+        spTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                activeTask.setTraverseTrack(traverseTracks.get(position).getUnitId());
+                removeAndUpdateTrackList(traverseTracks.get(position), "observe");
+                //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        spObserveTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                activeTask.setTraverseTrack(traverseTracks.get(position).getUnitId());
+                removeAndUpdateTrackList(observeTracks.get(position), "traverse");
+                //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
         final Date startDate = new Date();
         tvRangeMsg.setText(Html.fromHtml(rangeMsg));
         builder.setView(viewInflated);
@@ -337,7 +401,7 @@ public class SessionDashboard extends AppCompatActivity {
             }
         });
     }
-    private void showEndMpDialog(final Context context){
+    private void showEndMpDialog(final Context context){/*
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         //builder.setTitle("Title");
         View viewInflated = LayoutInflater.from(context).inflate(R.layout.session_end_dialog, (ViewGroup) findViewById(android.R.id.content).getRootView(), false);
@@ -415,8 +479,125 @@ public class SessionDashboard extends AppCompatActivity {
                         }
                     }
                 }
-            }});
+            }});*/
     }
+    /*private void showSwitchingSessionDialog(final Context context){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setCancelable(false);
+        View viewInflated = LayoutInflater.from(context).inflate(R.layout.session_switching_dialog, (ViewGroup) findViewById(android.R.id.content).getRootView(), false);
+
+        final EditText etStartMp = (EditText) viewInflated.findViewById(R.id.et_start_session_mp);
+        final EditText etExpEndMp = (EditText) viewInflated.findViewById(R.id.et_session_exp_end_mp);
+        final TextView tvRangeMsg = (TextView) viewInflated.findViewById(R.id.tv_session_start_dialog_range_msg);
+        TextView tvSessionStartedAt = (TextView) viewInflated.findViewById(R.id.tv_running_session_started_at);
+        TextView tvSessionExpEnd = (TextView) viewInflated.findViewById(R.id.tv_running_session_exp_end);
+        TextView tvSessionTraverseTrack = (TextView) viewInflated.findViewById(R.id.tv_running_session_traverse_track);
+        TextView tvSessionObserveTrack = (TextView) viewInflated.findViewById(R.id.tv_running_session_observe_track);
+        //Traverse and Observe track code
+        spTracks = (Spinner) viewInflated.findViewById(R.id.sp_traverse_track);
+        spObserveTracks = (Spinner) viewInflated.findViewById(R.id.sp_observe_track);
+        allTracks = getTracks();
+        //Copying tracks to other arrays
+        observeTracks = new ArrayList<>(allTracks);
+        traverseTracks = new ArrayList<>(allTracks);
+        traverseAdapter =
+                new ArrayAdapter<>(SessionDashboard.this, android.R.layout.simple_spinner_dropdown_item, traverseTracks);
+        traverseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spTracks.setAdapter(traverseAdapter);
+        //removing the traverse track from observe track list
+        observeTracks.remove(spTracks.getSelectedItem());
+        if(observeTracks.size()>0){
+            observeAdapter =
+                    new ArrayAdapter<Units>(SessionDashboard.this, android.R.layout.simple_spinner_dropdown_item, observeTracks);
+            observeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spObserveTracks.setAdapter(observeAdapter);
+        }
+
+        if(traverseTracks.size() == 0){
+            spTracks.setEnabled(false);
+        }
+        spTracks.setSelection(0, false);
+        spObserveTracks.setSelection(0, false);
+        spTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                activeTask.setTraverseTrack(traverseTracks.get(position).getUnitId());
+                removeAndUpdateTrackList(traverseTracks.get(position), "observe");
+                //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        spObserveTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                activeTask.setTraverseTrack(traverseTracks.get(position).getUnitId());
+                removeAndUpdateTrackList(observeTracks.get(position), "traverse");
+                //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+        final Date startDate = new Date();
+        tvRangeMsg.setText(Html.fromHtml(rangeMsg));
+        builder.setView(viewInflated);
+
+        builder.setPositiveButton(getResources().getText(R.string.btn_ok), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                String startMp = etStartMp.getText().toString();
+                String expEndMp = etExpEndMp.getText().toString();
+                if(startMp.equals("")||expEndMp.equals("")){
+                    Toast.makeText(context, getResources().getString(R.string.all_fields_req_msg), Toast.LENGTH_SHORT).show();
+                    return;
+                } else
+                if (!isInRange(Double.parseDouble(selectedJPlan.getTaskList().get(0).getMpStart()), Double.parseDouble(selectedJPlan.getTaskList().get(0).getMpEnd()), Double.parseDouble(etStartMp.getText().toString()))) {
+                    Toast.makeText(context, getResources().getText(R.string.toast_start_milepost), Toast.LENGTH_LONG).show();
+                    return;
+                } else
+                if (!isInRange(Double.parseDouble(selectedJPlan.getTaskList().get(0).getMpStart()), Double.parseDouble(selectedJPlan.getTaskList().get(0).getMpEnd()), Double.parseDouble(etExpEndMp.getText().toString()))) {
+                    Toast.makeText(context, getResources().getText(R.string.exp_end_not_in_range_msg), Toast.LENGTH_LONG).show();
+                    return;
+                } else{
+                    UUID uuid = UUID.randomUUID();
+                    Session session = new Session();
+                    session.setStart(etStartMp.getText().toString());
+                    session.setStartTime(startDate.toString());
+                    session.setEnd(etExpEndMp.getText().toString());
+                    session.setExpEnd(etExpEndMp.getText().toString());
+                    session.setStartLocation(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
+                    session.setStatus(SESSION_STARTED);
+                    session.setId(uuid.toString());
+                    setCurrentSession(session);
+                    Toast.makeText(context, getResources().getText(R.string.session_started_msg), Toast.LENGTH_LONG).show();
+                    selectedJPlan.getIntervals().getSessions().add(session);
+                    selectedJPlan.update();
+                    dialog.dismiss();
+                }
+            }
+        });
+    }*/
     private void setCurrentSession(Session session){
         activeSession = session;
         tvStartSessionDateTime.setVisibility(View.VISIBLE);
@@ -488,5 +669,51 @@ public class SessionDashboard extends AppCompatActivity {
         ibExpandSessions.setImageResource(R.drawable.ic_baseline_unfold_more_24);
         llSessionDetailContainer.setVisibility(View.VISIBLE);
         rlSessionTitle.setVisibility(View.VISIBLE);
+    }
+    private void removeAndUpdateTrackList(Units track, String type){
+        if(type.equals("traverse")){
+            traverseTracks = new ArrayList<>(allTracks);
+            traverseTracks.remove(track);
+            if(traverseTracks.size()>0){
+                spTracks.setEnabled(true);
+                traverseAdapter.clear(); //remove all data;
+                traverseAdapter.addAll(traverseTracks);
+                traverseAdapter.notifyDataSetChanged();
+               /* ArrayAdapter<Units> traverseAdapter =
+                        new ArrayAdapter<Units>(context, android.R.layout.simple_spinner_dropdown_item, traverseTracks);
+                traverseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spTracks.setAdapter(traverseAdapter);*/
+            } else {
+                spTracks.setEnabled(false);
+            }
+
+
+        } else if(type.equals("observe")){
+            observeTracks = new ArrayList<>(allTracks);
+            observeTracks.remove(track);
+            if(observeTracks.size()>0){
+                spObserveTracks.setEnabled(true);
+                observeAdapter.clear(); //remove all data;
+                observeAdapter.addAll(observeTracks);
+                observeAdapter.notifyDataSetChanged();
+
+              /*  ArrayAdapter<Units> observeAdapter =
+                        new ArrayAdapter<Units>(context, android.R.layout.simple_spinner_dropdown_item, observeTracks);
+                observeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spObserveTracks.setAdapter(observeAdapter);*/
+            } else {
+                spObserveTracks.setEnabled(false);
+            }
+
+        }
+    }
+    private ArrayList<Units> getTracks(){
+        ArrayList<Units> units = new ArrayList<>();
+        for (Units _track : activeTask.getWholeUnitList()) {
+            if (_track.getAssetType().equals("track")) {
+                units.add(_track);
+            }
+        }
+        return units;
     }
 }

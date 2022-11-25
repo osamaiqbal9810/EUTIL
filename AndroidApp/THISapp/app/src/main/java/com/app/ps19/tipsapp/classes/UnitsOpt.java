@@ -2,8 +2,11 @@ package com.app.ps19.tipsapp.classes;
 
 import android.content.Context;
 
+import com.app.ps19.tipsapp.Shared.DBHandler;
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
+import com.app.ps19.tipsapp.classes.ativ.ATIVDefect;
+import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
 import com.app.ps19.tipsapp.classes.dynforms.defaultvalues.DynFormListDv;
 
 import org.json.JSONArray;
@@ -12,6 +15,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 
 public class UnitsOpt implements IConvertHelper {
 
@@ -24,8 +28,18 @@ public class UnitsOpt implements IConvertHelper {
     private AssetType assetTypeObj;
     private int color= Globals.COLOR_TEST_NOT_ACTIVE;
     private DynFormListDv defaultFormValues;
-
+    private JSONObject joFormData;
     private String unitLocation = "";
+
+    public ArrayList<ATIVDefect> getaDefects() {
+        return aDefects;
+    }
+
+    public void setaDefects(ArrayList<ATIVDefect> aDefects) {
+        this.aDefects = aDefects;
+    }
+
+    private ArrayList<ATIVDefect> aDefects;
 
     public DynFormListDv getDefaultFormValues() {
         return defaultFormValues;
@@ -116,12 +130,52 @@ public class UnitsOpt implements IConvertHelper {
     public String getAssetType() {
         return assetType;
     }
-
+    public String getAssetTypeDisplayName(){
+        if(assetTypeObj!=null){
+            return assetTypeObj.getDisplayName().equals("")?assetType:assetTypeObj.getDisplayName();
+        }
+        return assetType;
+    }
     public void setAssetType(String assetType) {
         this.assetType = assetType;
+        loadFormTemplate();
+    }
+    private void loadFormTemplate(){
+        joFormData=new JSONObject();
+
+        DBHandler db=Globals.db;//new DBHandler(Globals.getDBContext());
+        if(this.assetType != null){
+            HashMap<String, String> assetTypeHM= db.getLookupListObj(Globals.CATEGORY_LIST_NAME,this.assetType);
+            //db.close();
+            AssetType aType = Globals.assetTypes.get(this.assetType);
+            if(aType == null){
+                aType = new AssetType(new JSONObject());
+            }
+            this.assetTypeObj = aType;
+            if(assetTypeHM.size()==1){
+                String strOpt1=assetTypeHM.get(assetTypeHM.keySet().toArray()[0]);
+                if(!strOpt1.equals("")){
+                    try {
+                        JSONObject joOptparam1 = new JSONObject(strOpt1);
+                    /*
+                    String optParam1=joOptparam1.optString("opt1","");
+                    JSONObject joOpt1=null;
+                    if(optParam1.equals("")){
+                        joOpt1=new JSONObject();
+                    }else{
+                        joOpt1=new JSONObject(optParam1);
+                    }*/
+                        //this.joFormData = joOptparam1;//joOptparam1.getJSONObject("opt1");
+                        this.assetTypeClassify=joOptparam1.optString("assetTypeClassify","");
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+
 
     }
-
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
 
@@ -149,7 +203,9 @@ public class UnitsOpt implements IConvertHelper {
                         }
                     }
                  //   if(test.getDescription() != "null") {
-                        _testList.add(test);
+                        if(DynFormList.isFormExists(assetType,test.getTestCode())){
+                            _testList.add(test);
+                        }
                //     }
                 }
                 setColor(color);
@@ -179,6 +235,18 @@ public class UnitsOpt implements IConvertHelper {
                 }
 
                 this.defectsList = _defectsList;
+            }
+            JSONArray jaADefects = jsonObject.optJSONArray("ativ_defects");
+
+            if (jaADefects != null) {
+                ArrayList<ATIVDefect> _aDefectsList = new ArrayList<>();
+
+                for (int i = 0; i < jaADefects.length(); i++) {
+                    ATIVDefect defect = new ATIVDefect(jaADefects.optJSONObject(i));
+                    _aDefectsList.add(defect);
+                }
+
+                setaDefects(_aDefectsList);
             }
 
 

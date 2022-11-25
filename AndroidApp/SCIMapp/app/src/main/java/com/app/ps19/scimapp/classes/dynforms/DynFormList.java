@@ -18,7 +18,7 @@ import java.util.HashMap;
 
 public class DynFormList implements IConvertHelper {
     private static ArrayList<DynForm> formList;
-    private static HashMap<String, DynForm> formListMap;
+    public static HashMap<String, DynForm> formListMap;
 
     public static HashMap<String, DynForm> getFormListMap() {
         return formListMap;
@@ -52,7 +52,7 @@ public class DynFormList implements IConvertHelper {
     }
     public static ArrayList<DynForm> getFormList(String assetType){
         ArrayList<DynForm> _formList=new ArrayList<>();
-        if(formList !=null) {
+        if(formList!=null) {
             for (DynForm form : formList) {
                 if (form.isAssetTypeInList(assetType)) {
                     try {
@@ -67,7 +67,26 @@ public class DynFormList implements IConvertHelper {
         }
         return _formList;
     }
-
+    public static  boolean isFormExists(String assetType, String formId){
+        if(formListMap!=null) {
+            if(formListMap.size() == 0){
+                loadFormList();
+            }
+            DynForm form=formListMap.get(formId);
+            if(form !=null){
+                if(!assetType.equals("") ){
+                    if(form.isAssetTypeInList(assetType)){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }else{
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     public static ArrayList<DynForm> getFormList(){
         return formList;
     }
@@ -156,6 +175,7 @@ public class DynFormList implements IConvertHelper {
     public static void loadFormList(){
         if(!ListMap.isInitialized()){
             ListMap.initializeAllLists(Globals.getDBContext());
+            Log.d("DynFormList", "ListMap initialize");
         }
         HashMap<String, String> items= ListMap.getListHashMap(ListMap.LIST_APP_FORMS);
         ArrayList<DynForm> _formList=new ArrayList<>();
@@ -164,7 +184,8 @@ public class DynFormList implements IConvertHelper {
 
             for(String key:items.keySet()){
                 String strItem=items.get(key);
-                if(strItem !=""){
+                assert strItem != null;
+                if(!strItem.equals("")){
                     try{
                         StaticListItem item=new StaticListItem(new JSONObject(strItem));
                         DynForm form =new DynForm(new JSONArray(item.getOptParam1()));

@@ -1,6 +1,6 @@
 import testSchedulesModel from "../../../timps/api/testSchedules/testSchedules.model";
-import { scimAppForms } from "../configurations/applicationlookupslist";
 import _ from "lodash";
+import { scimAppForms } from "../configurations/appForms/SITE_AppForms";
 module.exports = {
   async up() {
     console.log("Update database: update GI305-B12 , GI305-B24 Description");
@@ -18,4 +18,5 @@ module.exports = {
     }
     if (countOfUpdate) console.log("Updated " + countOfUpdate + " test forms description succesfully");
   },
+  attributes: { applicationType: "SITE", customer: "Iron Ore Canada" },
 };

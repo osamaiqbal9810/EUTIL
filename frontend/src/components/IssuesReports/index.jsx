@@ -64,6 +64,7 @@ class IssuesReports extends Component {
       ...this.issuesFilter,
       createWorkOrderModal: false,
       modalMode: "add",
+      multiIssueToMaintenance: [],
     };
 
     this.stateRetentionApplied = false;
@@ -137,11 +138,36 @@ class IssuesReports extends Component {
     this.getRangeAddToday = this.getRangeAddToday.bind(this);
     this.handleUpdateIssue = this.handleUpdateIssue.bind(this);
     this.addIssueToCapitalPlan = this.addIssueToCapitalPlan.bind(this);
+    this.updateMultiAssignMaintenance = this.updateMultiAssignMaintenance.bind(this);
+  }
+  async updateMultiAssignMaintenance() {
+    let { issuesData } = this.state;
+    let issuesObjs = [];
+    for (let index of this.state.multiIssueToMaintenance) {
+      let issueObj = {
+        _id: issuesData[index].uniqueGuid,
+        issuesReport: {
+          _id: issuesData[index].uniqueGuid,
+          issue: _.cloneDeep(issuesData[index]),
+          action: "serverChanges",
+          maintenanceAssign: true,
+        },
+      };
+      issuesObjs.push(issueObj);
+    }
+    const response = await this.props.updateIssuesReport(issuesObjs, "multiIssues");
+    if (response.type === "ISSUESREPORT_UPDATE_SUCCESS") {
+      let dateRange = this.FixedDateRanges[this.state.dateFilterName];
+      this.getRangeDataFromServer(dateRange);
+    }
+    this.setState({
+      multiIssueToMaintenance: [],
+    });
   }
   async handleUpdateIssue(issueId, field, action) {
     let { issuesData } = this.state;
     const findIndex = this.state.issuesData.findIndex((i) => i.uniqueGuid === issueId);
-
+    let multiIssueMaintenance = [...this.state.multiIssueToMaintenance];
     if (findIndex !== -1) {
       if (action === "savePriority") {
         let issueObj = {
@@ -184,12 +210,20 @@ class IssuesReports extends Component {
             let dateRange = this.FixedDateRanges[this.state.dateFilterName];
             this.getRangeDataFromServer(dateRange);
           }
+          this.setState({ multiIssueToMaintenance: [] });
         }
       } else if (action === "updateMaintenanceRole") {
         issuesData[findIndex].maintenanceAction = "maintenanceMode";
         if (issuesData[findIndex].serverObject) issuesData[findIndex].serverObject[field.name] = field.value;
         else issuesData[findIndex].serverObject = { [field.name]: field.value };
-        this.setState({ issuesData: _.cloneDeep(issuesData) });
+        if (field.value !== "CapitalPlan") {
+          multiIssueMaintenance.push(findIndex);
+        } else {
+          _.remove(multiIssueMaintenance, (index) => {
+            return findIndex === index;
+          });
+        }
+        this.setState({ issuesData: _.cloneDeep(issuesData), multiIssueToMaintenance: multiIssueMaintenance });
       }
     }
   }
@@ -207,6 +241,7 @@ class IssuesReports extends Component {
     this.fetchIssueReports();
     this.props.getAssetType();
     this.props.getApplicationlookupss(["maintenanceTypes"]);
+    this.props.getApplicationlookups("config/disableRule213");
   }
 
   fetchIssueReports() {
@@ -330,6 +365,14 @@ class IssuesReports extends Component {
       this.props.applicationlookupsActionType === "APPLICATIONLOOKUPSS_READ_SUCCESS"
     ) {
       this.setApplicationLists(this.props.applicationlookupss);
+    }
+    if (
+      prevProps.applicationlookupsActionType !== this.props.applicationlookupsActionType &&
+      this.props.applicationlookupsActionType === "APPLICATIONLOOKUPS_READ_SUCCESS"
+    ) {
+      this.setState({
+        disableRule213Config: this.props.applicationlookups && this.props.applicationlookups[0] && this.props.applicationlookups[0].opt2,
+      });
     }
   }
   calculateIssuesData(issueFromServer, assetChildren, activeSummary, statusFilter) {
@@ -569,7 +612,7 @@ class IssuesReports extends Component {
       };
       this.handleUpdateFilterState({ rangeState: null, dateFilterName: "All" });
     }
-    this.setState({ ...stateToUpdate });
+    this.setState({ ...stateToUpdate, multiIssueToMaintenance: [] });
   }
   calculateFilterDateText(range) {
     let filterDateText = "";
@@ -587,7 +630,12 @@ class IssuesReports extends Component {
     else this.summaryDesc.sixth = issueTemplate.pending.detailLabel;
 
     let resultCal = this.calculateIssuesData(this.props.issuesReports, this.state.assetChildren, this.state.activeSummary, statusFilter);
-    this.setState({ issuesData: resultCal.listData, summaryValue: resultCal.sumVal, statusFilter: statusFilter });
+    this.setState({
+      issuesData: resultCal.listData,
+      summaryValue: resultCal.sumVal,
+      statusFilter: statusFilter,
+      multiIssueToMaintenance: [],
+    });
     this.handleUpdateFilterState({ statusFilter: statusFilter });
   }
   handleWorkorderModel = (createWorkOrderModal, issueToCreateMR, fromModel) => {
@@ -628,6 +676,7 @@ class IssuesReports extends Component {
       rangeState: dateRange,
       filterDateText: filterDateText,
       dateFilterName: "Date",
+      multiIssueToMaintenance: [],
     });
   }
 
@@ -814,6 +863,9 @@ class IssuesReports extends Component {
             rowStyleMap={this.rowColorMap}
             handleUpdateIssue={this.handleUpdateIssue}
             history={this.props.history}
+            multiIssueToMaintenance={this.state.multiIssueToMaintenance}
+            updateMultiAssignMaintenance={this.updateMultiAssignMaintenance}
+            disableRule213Config={this.state.disableRule213Config}
           />
         </div>
       </Col>
@@ -825,6 +877,7 @@ const getJourneyPlans = curdActions.getJourneyPlans;
 const updateJourneyPlan = curdActions.updateJourneyPlan;
 const getAssetType = curdActions.getAssetType;
 const getApplicationlookupss = curdActions.getApplicationlookupss;
+const getApplicationlookups = curdActions.getApplicationlookups;
 const getWorkorders = curdActions.getWorkorders;
 let actionOptions = {
   create: true,
@@ -837,6 +890,7 @@ let actionOptions = {
     updateJourneyPlan,
     getAssetType,
     getApplicationlookupss,
+    getApplicationlookups,
     updateFilterState,
     getWorkorders,
   },
@@ -854,7 +908,7 @@ let variableList = {
   assetTypeReducer: {
     assetTypes: [],
   },
-  applicationlookupsReducer: { applicationlookupss: [] },
+  applicationlookupsReducer: { applicationlookupss: [], applicationlookups: [] },
   filterStateReducer: {
     issuesFilter: null,
   },

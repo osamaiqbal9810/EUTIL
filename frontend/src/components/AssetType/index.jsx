@@ -7,7 +7,8 @@ import { ButtonCirclePlus } from "./../../components/Common/Buttons";
 import { Tooltip } from "reactstrap";
 import { languageService } from "../../Language/language.service";
 import { FORM_SUBMIT_TYPES, MODAL_TYPES } from "../../utils/globals";
-
+import { themeService } from "../../theme/service/activeTheme.service";
+import { basicColors, retroColor, electricColor } from "../../style/basic/basicColors";
 import AssetTypeList from "./List";
 import AddAssetType from "./Add";
 
@@ -157,7 +158,7 @@ class AssetType extends Component {
                 fontFamily: "Myriad Pro",
                 fontSize: "24px",
                 letterSpacing: "0.5px",
-                color: " rgba(64, 118, 179)",
+                color: "var(--first)", //"var(--first)",
               }}
             >
               Asset Types
@@ -184,7 +185,7 @@ class AssetType extends Component {
                   activeBorder="3px solid #e3e2ef "
                   iconStyle={{
                     color: "#c4d4e4",
-                    background: "#fff",
+                    background: "var(--fifth)",
                     borderRadius: "50%",
                     border: "3px solid ",
                   }}

@@ -7,11 +7,11 @@ import { locationListStyle } from "../../../LocationSetup/LocationListStyle";
 import SvgIcon from "react-icons-kit";
 import { cross } from "react-icons-kit/icomoon/cross";
 export const freqObj = {
-  freq: 1,
-  timeFrame: "Week",
+  freq: 5,
+  timeFrame: "Year",
   timeFrameNumber: 1,
   recurNumber: 1,
-  recurTimeFrame: "Week",
+  recurTimeFrame: "Year",
   maxInterval: 0,
   minDays: 0,
 };

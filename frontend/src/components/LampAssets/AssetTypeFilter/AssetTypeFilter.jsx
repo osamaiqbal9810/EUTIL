@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Radium from "radium";
 import { languageService } from "Language/language.service.js";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 class AssetTypeFilter extends Component {
   constructor(props) {
@@ -31,11 +31,11 @@ class AssetTypeFilter extends Component {
       <div
         style={styles.assetTypeStyle}
         key={this.props.assetType.assetType}
-        onClick={e => {
+        onClick={(e) => {
           this.handleFilterClick(this.props.assetType);
         }}
       >
-        {languageService(this.props.assetType.assetType)}
+        {languageService(this.props.assetType.displayName ? this.props.assetType.displayName : this.props.assetType.assetType)}
       </div>
     );
   }
@@ -55,6 +55,7 @@ let getStyles = (props, state) => {
     default: basicColors.first,
 
     retro: retroColors.second,
+    electric: electricColors.second,
   });
 
   if (props.filterState) {
@@ -77,10 +78,10 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: themeService({ default: "rgba(64, 118, 179)", retro: retroColors.second }),
-    borderBottom: "1px solid rgba(64, 118, 179)",
-    borderLeft: "1px solid rgba(64, 118, 179)",
-    borderRight: "1px solid rgba(64, 118, 179)",
+    color: themeService({ default: "var(--first)", retro: retroColors.second }),
+    borderBottom: "1px solid var(--first)",
+    borderLeft: "1px solid var(--first)",
+    borderRight: "1px solid var(--first)",
   };
 
   // BORDERS

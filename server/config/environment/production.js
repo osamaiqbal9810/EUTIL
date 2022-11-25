@@ -13,7 +13,7 @@ module.exports = {
 		// uri: 'mongodb://sa:welcome@ds021289.mlab.com:21289/railgroup-dev'
 		 uri: "mongodb://localhost:27017/test"
 	},
-  seedDB: false,
+  seedDB: true,
   defaultData: {
     tenant: {
       id: "ps19",

@@ -8,7 +8,7 @@ import noImage from "./../../../images/noImage.png";
 import _ from "lodash";
 import { FORM_MODES } from "../../../utils/globals";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 class MaintenanceImageArea extends Component {
   constructor(props) {
@@ -50,7 +50,7 @@ class MaintenanceImageArea extends Component {
             <div style={{ display: "inline-block", width: "30%", margin: "0 3% 0 0", cursor: "pointer" }} key={imageName + index}>
               <ImageMainComp
                 imageName={imageName}
-                borderStyle={"1px solid rgba(64, 118, 179)"}
+                borderStyle={"1px solid var(--first)"}
                 width={"100%"}
                 onClick={() => {
                   this.onClick(index);
@@ -83,8 +83,9 @@ class MaintenanceImageArea extends Component {
           <Col md={2} style={{ padding: "0px" }}>
             <div
               style={themeService({
-                default: { padding: "25px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)" },
+                default: { padding: "25px 0px", margin: "auto", width: "50%", color: "var(--first)" },
                 retro: { padding: "25px 0px", margin: "auto", width: "50%", color: retroColors.second },
+                electric: { padding: "25px 0px", margin: "auto", width: "50%", color: electricColors.second },
               })}
             >
               {/* <div className="upload-btn-wrapper">
@@ -107,7 +108,7 @@ export default MaintenanceImageArea;
 
 class ImageMainComp extends Component {
   render() {
-    let path = "http://" + getServerEndpoint() + "applicationresources/" + this.props.imageName;
+    let path = getServerEndpoint() + "applicationresources/" + this.props.imageName;
     if (!this.props.imageName) {
       path = noImage;
     }
@@ -116,7 +117,11 @@ class ImageMainComp extends Component {
         <img
           style={{
             width: "inherit",
-            border: themeService({ default: { ...(this.props.borderStyle ? this.props.borderStyle : "3px solid rgba(64, 118, 179)") }, retro: {} }),
+            border: themeService({
+              default: { ...(this.props.borderStyle ? this.props.borderStyle : "3px solid var(--first)") },
+              retro: {},
+              electric: {},
+            }),
             borderRadius: "5px",
           }}
           src={path}

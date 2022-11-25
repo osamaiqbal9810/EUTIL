@@ -20,15 +20,23 @@ class AssetTaskList extends React.Component {
       return (
         <li key={item._id} style={themeService(GITestStyle.assetListStyle)}>
           {
-            <span
-              style={{ width: "90%", display: "inline-block" }}
-              onClick={(e) => {
-                permissionCheck("ASSET", "update") && this.props.handleEditClick(item);
-              }}
-            >
-              {config ? config.name + " ( " + item.description + " )" : item.description}
-              {permissionCheck("ASSET", "update") && <SvgIcon icon={pencil} size={20} style={{ float: "right" }} />}
-            </span>
+            <React.Fragment>
+              <span
+                style={{ width: "90%", display: "inline-block" }}
+                onClick={(e) => {
+                  permissionCheck("ASSET", "update") && this.props.handleEditClick(item);
+                }}
+              >
+                {config ? config.name + " ( " + item.description + " )" : item.description}
+              </span>
+              <span
+                onClick={(e) => {
+                  permissionCheck("ASSET", "update") && this.props.handleEditClick(item);
+                }}
+              >
+                {permissionCheck("ASSET", "update") && <SvgIcon icon={pencil} size={20} style={{ marginLeft: "10px" }} />}
+              </span>
+            </React.Fragment>
           }
           {permissionCheck("ASSET", "delete") && (
             <span style={themeService(GITestStyle.iconPlus)}>

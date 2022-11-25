@@ -137,8 +137,12 @@ public class StartInspectionActivity extends AppCompatActivity {
         String startMsg;
         final ArrayList<Units> tracks = new ArrayList<>();
         for (Units _track : initialRun.getWholeUnitList()) {
-            if (_track.getAssetType().equals("track")) {
+            //Now adding all linear assets instead of "track"
+            //if (_track.getAssetType().equals("track")) {
+            if(_track.isLinear()){
+                if(!_track.getAssetTypeObj().isMarkerMilepost()){
                 tracks.add(_track);
+                }
             }
         }
         assetsAhead = new ArrayList<>();

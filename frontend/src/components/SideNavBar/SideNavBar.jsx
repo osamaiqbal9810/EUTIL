@@ -2,7 +2,7 @@ import React from "react";
 import { logout } from "react-icons-kit/iconic/logout";
 import { speedometer } from "react-icons-kit/ionicons/speedometer";
 import { gear } from "react-icons-kit/fa/gear";
-import { navBarItemsTimps, navBarItemsSITE } from "./timps.Nav";
+import { navBarItemsTimps, navBarItemsSITE, navBarItemseUtility } from "./timps.Nav";
 import { NavTimpsWraper } from "./lamp.Nav";
 import { NavElement, NavImg, NavData, CustomNav } from "components/Common/Forms/formsMiscItems.jsx";
 import { withRouter } from "react-router-dom";
@@ -32,7 +32,7 @@ class SideNavBar extends React.Component {
       },
       {
         navId: "Setup",
-        navIndex: 8,
+        navIndex: 9,
         navIcon: gear,
         navText: "Setup",
         permissionCheckFirstArg: "SETUP",
@@ -40,7 +40,7 @@ class SideNavBar extends React.Component {
         permissionCheck: true,
       },
     ];
-    let itemsToAdd = this.props.applicationType==="TIMPS" ? navBarItemsTimps : this.props.applicationType==="SITE" ? navBarItemsSITE : [];
+    let itemsToAdd = navItemsDecider(this.props.applicationType);
     this.navBarItems = [...this.navBarItems, ...NavTimpsWraper, ...itemsToAdd].sort(function (a, b) {
       return a.navIndex - b.navIndex;
     });
@@ -57,8 +57,8 @@ class SideNavBar extends React.Component {
   render() {
     //console.log(theme);
     //console.log(SideNavBarStyle.sideNav[theme]);
-    let timpsSignalApp = !!(this.props.applicationType==='SITE');
-
+    let timpsSignalApp = !!(this.props.applicationType === "SITE");
+    let electricapp = this.props.applicationType === "EUtility";
     return (
       <React.Fragment>
         <div
@@ -70,11 +70,8 @@ class SideNavBar extends React.Component {
             left: this.props.sideNavDispaly,
           }}
         >
-          <div style={themeService({ default: { display: "none" }, retro: { textAlign: "center" } })}>
-            {/* {!timpsSignalApp && (
-              <img src={TIMPS_Logo} style={{ width: "145px", position: "absolute", top: "0", left: "14px", zIndex: "-1" }} />
-            )} */}
-            {/* <img src={timpsSignalApp ? SCIMS : TIMPS_Logo} style={{ width: "145px", top: "0", left: "14px" }}/> */}
+          <div style={themeService({ default: { display: "none" }, retro: { textAlign: "center" }, electric: { textAlign: "center" } })}>
+            {!electricapp && <img src={timpsSignalApp ? SCIMS : TIMPS_Logo} style={{ width: "145px", top: "0", left: "14px" }} />}
           </div>
           {
             <CustomNav>
@@ -98,3 +95,13 @@ class SideNavBar extends React.Component {
 }
 
 export default withRouter(SideNavBar);
+
+function navItemsDecider(appType) {
+  return navItemsTypes[appType] ? navItemsTypes[appType] : [];
+}
+
+const navItemsTypes = {
+  TIMPS: navBarItemsTimps,
+  SITE: navBarItemsSITE,
+  EUtility: navBarItemseUtility,
+};

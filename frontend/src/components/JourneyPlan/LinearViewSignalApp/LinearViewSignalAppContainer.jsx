@@ -8,7 +8,7 @@ import SvgIcon from "react-icons-kit";
 import { caretUp } from "react-icons-kit/fa/caretUp";
 import { caretDown } from "react-icons-kit/fa/caretDown";
 import _ from "lodash";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class LinearViewSignalAppContainer extends Component {
   constructor(props) {
     super(props);
@@ -45,7 +45,7 @@ class LinearViewSignalAppContainer extends Component {
     yAxisItemsArg.map((item, index) => {
       yAxis.push({
         comp: (
-          <div key={item.name} onClick={e => this.handleStatusClick(item)}>
+          <div key={item.name} onClick={(e) => this.handleStatusClick(item)}>
             {item.name}
             <span>
               <SvgIcon icon={item.expand ? caretUp : caretDown} />
@@ -61,7 +61,7 @@ class LinearViewSignalAppContainer extends Component {
           let list = [];
           recurDefectCode(AType.defectCodesObj.details, list);
 
-          list.forEach(item => {
+          list.forEach((item) => {
             yAxis.push({
               comp: <div key={item.code}> {item.code + " " + item.title}</div>,
               item: item,
@@ -97,22 +97,22 @@ class LinearViewSignalAppContainer extends Component {
     let data = [];
     let linearDataByAssetType = [];
     let uniqueUnits = {};
-    yAxis.map(y => {
+    yAxis.map((y) => {
       data.push([]);
     });
     this.props.linearData &&
-      this.props.linearData.forEach(dat => {
+      this.props.linearData.forEach((dat) => {
         dat &&
           dat.tasks &&
-          dat.tasks.forEach(task => {
+          dat.tasks.forEach((task) => {
             if (task.units) {
               task.issues &&
-                task.issues.forEach(issue => {
+                task.issues.forEach((issue) => {
                   let uIndex = _.findIndex(task.units, { id: issue.unit.id });
                   if (uIndex > -1 && issue.defectCodes.length > 0) {
                     !task.units[uIndex].defectCodes && (task.units[uIndex].defectCodes = []);
 
-                    issue.defectCodes.forEach(dc => {
+                    issue.defectCodes.forEach((dc) => {
                       if (dc) {
                         task.units[uIndex].defectCodes.push(dc);
                         task.units[uIndex].status = 1;
@@ -120,7 +120,7 @@ class LinearViewSignalAppContainer extends Component {
                     });
                   }
                 });
-              task.units.forEach(unit => {
+              task.units.forEach((unit) => {
                 if (!uniqueUnits[unit.id]) {
                   let unitObj = _.find(yAxisItemsArg, { match: unit.assetType });
                   unitObj && linearDataByAssetType.push({ ...unit, taskId: task.taskId, planId: dat._id, icon: unitObj.icon });
@@ -141,7 +141,7 @@ class LinearViewSignalAppContainer extends Component {
             }
           });
       });
-    linearDataByAssetType.forEach(unit => {
+    linearDataByAssetType.forEach((unit) => {
       let start = parseFloat(unit[this.props.config.startField]);
       // we assume its a fixed asset so no end is used
       //let end = parseFloat(unit[this.props.config.endField]);
@@ -166,7 +166,7 @@ class LinearViewSignalAppContainer extends Component {
           if (yAx.item && yAx.item.title && unitToUpdate && unitToUpdate.assetType == yAx.assetType) {
             let newUnitCopy = _.cloneDeep(unitToUpdate);
             newUnitCopy.status = 0;
-            let dcCheck = _.find(newUnitCopy.defectCodes, dc => {
+            let dcCheck = _.find(newUnitCopy.defectCodes, (dc) => {
               return dc == yAx.item.code;
             });
             if (dcCheck) newUnitCopy.status = 1;
@@ -201,24 +201,12 @@ LinearViewSignalAppContainer.defaultProps = {
 let sampleDataSet = {
   yAxis: [
     moment().startOf("isoWeek"),
-    moment()
-      .startOf("isoWeek")
-      .add(1, "days"),
-    moment()
-      .startOf("isoWeek")
-      .add(2, "days"),
-    moment()
-      .startOf("isoWeek")
-      .add(3, "days"),
-    moment()
-      .startOf("isoWeek")
-      .add(4, "days"),
-    moment()
-      .startOf("isoWeek")
-      .add(5, "days"),
-    moment()
-      .startOf("isoWeek")
-      .add(6, "days"),
+    moment().startOf("isoWeek").add(1, "days"),
+    moment().startOf("isoWeek").add(2, "days"),
+    moment().startOf("isoWeek").add(3, "days"),
+    moment().startOf("isoWeek").add(4, "days"),
+    moment().startOf("isoWeek").add(5, "days"),
+    moment().startOf("isoWeek").add(6, "days"),
   ],
   data: [
     [1, 1, 1, 0.5],
@@ -247,7 +235,7 @@ let yAxisItems = [
 
 function recurDefectCode(details, arrayToPush) {
   if (details && details.length > 0) {
-    details.forEach(detail => {
+    details.forEach((detail) => {
       if (!detail.details) {
         arrayToPush.push(detail);
       } else {

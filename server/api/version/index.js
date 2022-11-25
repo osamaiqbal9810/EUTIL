@@ -13,5 +13,6 @@ let rateLimit = require('express-rate-limit');
 //var  permitTypes =require('../../config/permissions').default;
 const rateLimiter = rateLimit({windowMs: 1000, max: 1}); // only 1 call per second allowed for this open (not requiring authentication) api to prevent unwanted bombarment.
 router.get('/', rateLimiter,  controller.show);
+router.get('/:id', rateLimiter,  controller.reload);
 
 module.exports = router;

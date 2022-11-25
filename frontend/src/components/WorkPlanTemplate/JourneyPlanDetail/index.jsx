@@ -30,7 +30,7 @@ import { languageService } from "../../../Language/language.service";
 import { themeService } from "../../../theme/service/activeTheme.service";
 import { commonSummaryStyle } from "../../Common/Summary/styles/CommonSummaryStyle";
 import { commonStyles } from "../../../theme/commonStyles";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import permissionCheck from "../../../utils/permissionCheck";
 
 class WorkPlanDetailComponent extends Component {
@@ -406,34 +406,45 @@ export default JourneyPlanDetailContainer;
 let planStyle = {
   JourneyPlanInfoContainer: {
     default: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "0px 30px  0px 30px",
       padding: "15px",
       textAlign: "left",
-      color: " rgba(64, 118, 179)",
+      color: "var(--first)",
       fontSize: "12px",
       minHeight: "150px",
     },
     retro: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "0px 30px  0px 30px",
       padding: "15px",
       textAlign: "left",
-      color: " rgba(64, 118, 179)",
+      color: "var(--first)",
+      fontSize: "12px",
+      minHeight: "150px",
+    },
+    electric: {
+      background: "var(--fifth)",
+      boxShadow: "3px 3px 5px #cfcfcf",
+      margin: "0px 30px  0px 30px",
+      padding: "15px",
+      textAlign: "left",
+      color: "var(--first)",
       fontSize: "12px",
       minHeight: "150px",
     },
   },
   fieldHeading: {
     default: {
-      color: "rgba(64, 118, 179)",
+      color: "rgb(94, 141, 143)",
       fontWeight: "600",
       fontSize: "14px",
       paddingBottom: "1em",
     },
     retro: { color: retroColors.second, fontWeight: "600", fontSize: "14px", paddingBottom: "1em" },
+    electric: { color: electricColors.second, fontWeight: "600", fontSize: "14px", paddingBottom: "1em" },
   },
   fieldText: {
     default: {
@@ -447,6 +458,15 @@ let planStyle = {
     },
     retro: {
       color: retroColors.second,
+      width: "fit-content",
+      minWidth: "100px",
+      border: "1px solid #f1f1f1",
+      boxShadow: "rgb(238, 238, 238) 1px 1px 1px",
+      padding: "10px",
+      borderRadius: "5px",
+    },
+    electric: {
+      color: electricColors.second,
       width: "fit-content",
       minWidth: "100px",
       border: "1px solid #f1f1f1",

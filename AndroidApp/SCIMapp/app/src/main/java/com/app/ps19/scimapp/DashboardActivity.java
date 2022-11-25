@@ -5,34 +5,18 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.location.Location;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -42,35 +26,51 @@ import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.app.ps19.scimapp.Shared.DBHandler;
 import com.app.ps19.scimapp.Shared.DataSyncProcessEx;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.ListMap;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
 import com.app.ps19.scimapp.Shared.ObservableObject;
 import com.app.ps19.scimapp.Shared.Res;
-import com.app.ps19.scimapp.Shared.StartInspectionActivity;
 import com.app.ps19.scimapp.Shared.StartInspectionFragment;
 import com.app.ps19.scimapp.Shared.StaticListItem;
 import com.app.ps19.scimapp.Shared.StopInspectionFragment;
 import com.app.ps19.scimapp.Shared.Utilities;
-import com.app.ps19.scimapp.Shared.Utils;
 import com.app.ps19.scimapp.classes.Inbox;
 import com.app.ps19.scimapp.classes.JourneyPlan;
+import com.app.ps19.scimapp.classes.JourneyPlanOpt;
+import com.app.ps19.scimapp.classes.Report;
 import com.app.ps19.scimapp.classes.Session;
 import com.app.ps19.scimapp.classes.Task;
 import com.app.ps19.scimapp.classes.Units;
 import com.app.ps19.scimapp.classes.User;
 import com.app.ps19.scimapp.classes.dynforms.DynFormList;
+import com.app.ps19.scimapp.classes.hos.Hos;
+import com.app.ps19.scimapp.inspection.InspectionActivity;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.safetyBriefing.SafetyBriefingActivity;
 import com.app.ps19.scimapp.wplan.WplanActivity;
+import com.mikhaellopez.circularimageview.CircularImageView;
+import com.app.ps19.scimapp.hos.HosActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,6 +78,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +89,7 @@ import java.util.TimeZone;
 import java.util.UUID;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static com.app.ps19.scimapp.Shared.Globals.MESSAGE_STATUS_READY_TO_POST;
 import static com.app.ps19.scimapp.Shared.Globals.SESSION_STARTED;
 import static com.app.ps19.scimapp.Shared.Globals.SESSION_STOPPED;
@@ -95,19 +97,25 @@ import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.WORK_PLAN_FINISHED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.WORK_PLAN_IN_PROGRESS_STATUS;
+import static com.app.ps19.scimapp.Shared.Globals.activeSession;
+import static com.app.ps19.scimapp.Shared.Globals.app;
 import static com.app.ps19.scimapp.Shared.Globals.appName;
 import static com.app.ps19.scimapp.Shared.Globals.blnFreshLogin;
 import static com.app.ps19.scimapp.Shared.Globals.blnFreshLoginWaitForData;
 import static com.app.ps19.scimapp.Shared.Globals.dayStarted;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.inbox;
 import static com.app.ps19.scimapp.Shared.Globals.initialInspection;
 import static com.app.ps19.scimapp.Shared.Globals.initialRun;
+import static com.app.ps19.scimapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.scimapp.Shared.Globals.isDataPopulated;
 import static com.app.ps19.scimapp.Shared.Globals.isDayProcessRunning;
+import static com.app.ps19.scimapp.Shared.Globals.isDisplayHosOnDashboard;
 import static com.app.ps19.scimapp.Shared.Globals.isInspectionTypeReq;
+import static com.app.ps19.scimapp.Shared.Globals.isInternetAvailable;
 import static com.app.ps19.scimapp.Shared.Globals.isMaintainer;
+import static com.app.ps19.scimapp.Shared.Globals.isMaintenanceFromDashboard;
 import static com.app.ps19.scimapp.Shared.Globals.isMpReq;
-import static com.app.ps19.scimapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.scimapp.Shared.Globals.isShowSession;
 import static com.app.ps19.scimapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.scimapp.Shared.Globals.isUseDefaultAsset;
@@ -117,14 +125,16 @@ import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.loadDayStatus;
 import static com.app.ps19.scimapp.Shared.Globals.loadInbox;
 import static com.app.ps19.scimapp.Shared.Globals.mainActivity;
+import static com.app.ps19.scimapp.Shared.Globals.maintenanceList;
 import static com.app.ps19.scimapp.Shared.Globals.offlineMode;
 import static com.app.ps19.scimapp.Shared.Globals.orgCode;
 import static com.app.ps19.scimapp.Shared.Globals.saveCurrentJP;
 import static com.app.ps19.scimapp.Shared.Globals.selectedDUnit;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setLocationPrefix;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.showNearByAssets;
 import static com.app.ps19.scimapp.Shared.Globals.startOfDayTime;
 import static com.app.ps19.scimapp.Shared.Globals.userEmail;
@@ -132,12 +142,14 @@ import static com.app.ps19.scimapp.Shared.Globals.userUID;
 import static com.app.ps19.scimapp.Shared.Globals.webPullRequest;
 import static com.app.ps19.scimapp.Shared.Globals.webUploadMessageLists;
 import static com.app.ps19.scimapp.Shared.StopInspectionFragment.STOP_INSPECTION_RETURN_MSG_FOR_DASHBOARD;
-import static com.app.ps19.scimapp.Shared.Utilities.canGetLocation;
-import static com.app.ps19.scimapp.Shared.Utilities.showSettingsAlert;
+import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
 
-public class DashboardActivity extends AppCompatActivity implements Observer,
-        SharedPreferences.OnSharedPreferenceChangeListener,
-        StopInspectionFragment.StopDialogListener {
+//import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+
+public class DashboardActivity extends AppCompatActivity implements
+        Observer,
+        StopInspectionFragment.StopDialogListener,
+        OnLocationUpdatedListener {
     // Updated GPS location service code
     // Start
     private static final String TAG = "resPMain";
@@ -151,180 +163,30 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     // Used for work plan activity
     private static final int WORK_PLAN_REQUEST_CODE = 1;
 
-    // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+    // Used for inspection activity
+    private static final int INSPECTION_ACTIVITY_REQUEST_CODE = 50;
 
-    // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
 
-    // Tracks the bound state of the service.
-    private boolean mBound = false;
-
-    // UI elements.
-    private Button mRequestLocationUpdatesButton;
-    private Button mRemoveLocationUpdatesButton;
-
-    // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    }
-
-    /**
-     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (mLocation != null) {
-                cLocation = mLocation;
-                latitude = String.valueOf(mLocation.getLatitude());
-                longitude = String.valueOf(mLocation.getLongitude());
-                refreshLocation();
-                /*Toast.makeText(DashboardActivity.this, Utils.getLocationText(mLocation),
-                        Toast.LENGTH_SHORT).show();*/
-            }
-        }
-    }
-    /**
-     * Returns the current state of the permissions needed.
-     */
-    private boolean checkPermissions() {
-        return  PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            /*Snackbar.make(
-                    findViewById(R.layout.activity_main),
-                    R.string.permission_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Request permission
-                            ActivityCompat.requestPermissions(DashboardActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
-                        }
-                    })
-                    .show();*/
-        } else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    /*@Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        Log.i(TAG, "onRequestPermissionResult");
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.length <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
-                Log.i(TAG, "User interaction was cancelled.");
-            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted.
-                mService.requestLocationUpdates();
-            } else {
-                // Permission denied.
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
-                *//*Snackbar.make(
-                        this,
-                        "Permission Denied",
-                        Snackbar.LENGTH_INDEFINITE)
-                        .setAction(R.string.settings, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // Build intent that displays the App settings screen.
-                                Intent intent = new Intent();
-                                intent.setAction(
-                                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                Uri uri = Uri.fromParts("package",
-                                        BuildConfig.APPLICATION_ID, null);
-                                intent.setData(uri);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                            }
-                        })
-                        .show();*//*
-            }
-        }
-    }*/
     @Override
     protected void onStop() {
         ObservableObject.getInstance().deleteObserver(this);
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
+        LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
         super.onStop();
     }
     @Override
     public void onDestroy() {
         super.onDestroy();
-        threadScreenUpdate.interrupt();
-        try{
+        if(threadScreenUpdate!=null){
+            threadScreenUpdate.interrupt();
+            threadScreenUpdate = null;
+        }
+
+        /*try{
             threadScreenUpdate.join();
         }catch (Exception e){
 
-        }
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        if(mService!=null){
-            mService.removeLocationUpdates();
-        }
-        //gps.stopUsingGPS();
-
-        //Intent myService = new Intent(DashboardActivity.this, GPSService.class);
-        //stopService(myService);
+        }*/
+        LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -332,13 +194,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             case KeyEvent.KEYCODE_BACK:
                 // do something here
                 //gps.unbindService();
-                if (mBound) {
-                    // Unbind from the service. This signals to the service that this activity is no longer
-                    // in the foreground, and the service can respond by promoting itself to a foreground
-                    // service.
-                    unbindService(mServiceConnection);
-                    mBound = false;
-                }
+                LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
                 finish();
                 return true;
         }
@@ -347,41 +203,37 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     @Override
     public void onPause() {
         super.onPause();
-        try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
-        } catch (Exception e) {
-            e.printStackTrace();
+        LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
+        if(threadScreenUpdate!=null){
+            threadScreenUpdate.interrupt();
+            threadScreenUpdate = null;
         }
     }
     @Override
     public void onStart() {
         super.onStart();
-        /*if(gps== null){
-            gps = new GPSTrackerEx(DashboardActivity.this);
-        }*/
-        bindService(new Intent(DashboardActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
-        // Restore the state of the buttons when the activity (re)launches.
-        //setButtonsState(Utils.requestingLocationUpdates(this));
-        if (!checkPermissions()) {
-            requestPermissions();
-        } else {
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
-        // Bind to the service. If the service is in foreground mode, this signals to the service
-        // that since this activity is in the foreground, the service can exit foreground mode.
-
     }
     @Override
     public void onResume(){
         super.onResume();
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //Enabling button(s)
+        btnRun.setEnabled(true);
+        btnSelectRun.setEnabled(true);
+
         try {
-            if(!Globals.dayStarted){
-                //    progressDialog.show();
+            if(isInternetAvailable(DashboardActivity.this)){
+                //TODO: restrict to SITE and EUIS
+                Hos.load(null);
+            }
+            if(Globals.dayStarted){
+                if(selectedJPlan!=null){
+                    if(selectedJPlan.getTaskList().get(0).getReportList().size()>0){
+                        showDefectsList();
+                    } else {
+                        llIssuesContainer.setVisibility(GONE);
+                    }
+                }
             }
             if(blnFreshLogin){
                 progressDialog.show();
@@ -393,16 +245,21 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             //sleep(5000);
             refreshSwitchboard();
             refreshDashboard();
+            LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
             /*if(gps== null){
                 gps = new GPSTrackerEx(DashboardActivity.this);
             }*/
-            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+//            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+//                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
             refreshLocation();
             if(cLocation == null){
                 cLocation = lastKnownLocation;
             }
             Globals.setUserInfoView(DashboardActivity.this, userImage, userNameView);
+            initThreadScreenUpdate();
+           /* if(threadScreenUpdate!=null){
+                threadScreenUpdate.join();
+            }*/
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -436,7 +293,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     Button btnRun;
     Button reportBtn;
     ImageView syncStatusIcon;
-    ImageView userImage;
+    CircularImageView userImage;
     //GPSTrackerEx gps;
     String location="";
     Location cLocation;
@@ -474,6 +331,15 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     ImageView tvSessions;
     TextView tvSessionTitle;
     ImageView ivUpdatePassword;
+    LinearLayout ll_updateData;
+    RecyclerView reportList;
+    issueAdapter rAdapter;
+    ImageButton ibExpandList;
+    boolean isListExpanded;
+    LinearLayout llIssuesContainer;
+    TextView tvInspStatusTxt;
+    TextView tvIssueCountTitle;
+    RelativeLayout rlTimeRecorded;
 
     @Override public Resources getResources() {
         if (res == null) {
@@ -487,35 +353,40 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         super.onCreate(savedInstanceState);
         Globals.checkLanguage(this);
         setLocale(this);
-        //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
-        // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-            if (!checkPermissions()) {
-                requestPermissions();
-            }
-        }
-        //--------------------END-------------------
+
         setContentView(R.layout.main_dashboard);
         rlUserInfo = (RelativeLayout) findViewById(R.id.layout_user);
         currentDate = (TextView) findViewById(R.id.sodDateTxt);
         elapsedTxtView = (TextView) findViewById(R.id.elapsedTxt);
         reportedTxtView = (TextView) findViewById(R.id.reportedIssuesTxt);
         inspTxtView = (TextView) findViewById(R.id.inspTxt);
-        userImage = (ImageView) rlUserInfo.findViewById(R.id.userImgView);
+        userImage = (CircularImageView) rlUserInfo.findViewById(R.id.userImgView);
         userNameView = (TextView) rlUserInfo.findViewById(R.id.userNameTxt);
-        ivUpdatePassword = (ImageView) rlUserInfo.findViewById(R.id.iv_update_password);
+        ll_updateData = (LinearLayout) rlUserInfo.findViewById(R.id.ll_updateData);
         elapsedTxtView.setText("0h 0m");
         reportedTxtView.setText("3");
         inspTxtView.setText("5");
+        tvInspStatusTxt = findViewById(R.id.tv_insp_status_txt);
+        tvIssueCountTitle = findViewById(R.id.tv_reported_title);
         ivLogo = (ImageView) rlUserInfo.findViewById(R.id.iv_logo);
+        rlTimeRecorded = findViewById(R.id.rl_time_progress);
         ObservableObject.getInstance().addObserver(this);
         syncStatusIcon = (ImageView) findViewById(R.id.syncStatusIcon);
         Globals.setUserInfoView(DashboardActivity.this, userImage, userNameView);
-        try {
-            ListMap.initializeAllLists(this);
-        } catch (Exception e) {
-            e.printStackTrace();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //ListMap.initializeAllLists(DashboardActivity.this);
+                    DynFormList.loadFormList();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        if(isInternetAvailable(DashboardActivity.this)){
+            Hos.load(null);
         }
         rlUserInfo.setBackgroundColor(res.getColor(R.color.action_bar_background));
         dialog=new ProgressDialog(this); // this = YourActivity
@@ -544,6 +415,10 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         tvInspStatus = (TextView) findViewById(R.id.tv_inspection_status);
         tvSessions = (ImageView) findViewById(R.id.iv_view_sessions);
         tvSessionTitle = (TextView) findViewById(R.id.tv_session_title);
+        reportList = findViewById(R.id.reportsList);
+        ibExpandList = findViewById(R.id.ib_defects_list_expand);
+        llIssuesContainer = findViewById(R.id.ll_issues_container);
+        isListExpanded = true;
 
         SpannableString sessionTitle1 = new SpannableString("Sessions");
         sessionTitle1.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.title_background)), 0, sessionTitle1.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -552,19 +427,43 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         tvSessionTitle.setText(R.string.session_title);
 
         if(selectedJPlan == null){
-            selectedTask = null;
+            setSelectedTask(null);
         }
 
         tvDayText.setMovementMethod(new ScrollingMovementMethod());
         //-----------------------------------------------------------
         refreshDashboard();
+        //Hos.load();
         btnSelectRun = (Button) findViewById(R.id.startBtn);
         btnBriefing = (Button) findViewById(R.id.syncBtn);
         btnRun = (Button) findViewById(R.id.planBtn);
         reportBtn = (Button) findViewById(R.id.reportsBtn);
+        llIssuesContainer.setVisibility(GONE);
         if(isMaintainer){
             btnRun.setText(R.string.maintenance_title);
+            rlTimeRecorded.setVisibility(View.INVISIBLE);
         }
+
+        if(appName.equals(Globals.AppName.SCIM) && isDisplayHosOnDashboard){
+            reportBtn.setText("HOS");
+        }
+        if(selectedJPlan!=null){
+            if(!isMaintainer){
+                showDefectsList();
+            } else {
+                llIssuesContainer.setVisibility(GONE);
+            }
+        }
+        ibExpandList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isListExpanded) {
+                    collapseList();
+                } else {
+                    expandList();
+                }
+            }
+        });
         //For testing
         //getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);
         //int theme = R.style.Theme_Design_Light_NoActionBar;
@@ -587,16 +486,20 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         sessionTitle.setSpan(new UnderlineSpan(), 0, sessionTitle.length(), 0);
         //tvSessions.setText(sessionTitle);
 
+        //Hiding session button as it's no longer usable
+        tvSessions.setVisibility(GONE);
+
         tvSessions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DashboardActivity.this, SessionDashboard.class);
                 startActivity(intent);
             }});
-        ivUpdatePassword.setOnClickListener(new View.OnClickListener() {
+        ll_updateData.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DashboardActivity.this, ProfileActivity.class);
+                //Intent intent = new Intent(DashboardActivity.this, HosActivity.class);
                 startActivity(intent);
             }});
 
@@ -605,79 +508,6 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         /*if(gps == null){
             gps = new GPSTrackerEx(DashboardActivity.this);
         }*/
-        if(threadScreenUpdate ==null){
-            threadScreenUpdate=new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            secCounter++;
-                            if(secCounter>=60){
-                                secCounter=1;
-                            }
-                            if(dayStarted && selectedJPlan!=null) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(secCounter % 10 == 0){
-                                            if(canGetLocation(DashboardActivity.this)) {
-                                                tryLocation();
-                                            }
-                                        }
-                                        if (blnClockIcon) {
-                                            blnClockIcon = false;
-                                            imgClockIcon.setVisibility(View.INVISIBLE);
-                                        }else{
-                                            blnClockIcon = true;
-                                            imgClockIcon.setVisibility(View.VISIBLE);
-                                        }
-                                        if(blnGpsIcon){
-                                            imgGpsIcon.setVisibility(View.INVISIBLE);
-                                            blnGpsIcon=false;
-
-                                        }else{
-                                            imgGpsIcon.setVisibility(View.VISIBLE);
-                                            blnGpsIcon=true;
-                                        }
-
-                                    }
-                                });
-                            }else{
-                                if(!blnGpsIcon){
-                                    DashboardActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(blnGpsIcon){
-                                                imgGpsIcon.setVisibility(View.INVISIBLE);
-                                                blnGpsIcon=false;
-
-                                            }else{
-                                                imgGpsIcon.setVisibility(View.VISIBLE);
-                                                blnGpsIcon=true;
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                            if(secCounter==30 && !isDayProcessRunning) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        refreshDashboard();
-                                        refreshSwitchboard();
-                                    }
-                                });
-                            }
-                            Thread.sleep(1000);
-                        }
-
-                    }catch(InterruptedException e){
-                        //e.printStackTrace();
-                    }
-                }
-            });
-            threadScreenUpdate.start();
-        }
         /*
         sessionBtn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -724,18 +554,23 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 Intent intent = new Intent( DashboardActivity.this, WorkPlanActivity.class);
                 startActivityForResult(intent, WORK_PLAN_REQUEST_CODE);
                 */
+                if(isMaintainer){
+                    return;
+                }
                 if(dayStarted){
                     Intent intent = new Intent( DashboardActivity.this, WplanActivity.class);
                     //Intent intent = new Intent( DashboardActivity.this, WorkPlanActivity.class);
+                    btnSelectRun.setEnabled(false);
                     startActivityForResult(intent, WORK_PLAN_REQUEST_CODE);
                     //Close WorkPlan
                     //Toast.makeText(DashboardActivity.this,"CLOSE Work Plan",Toast.LENGTH_SHORT).show();
                 }else{
                     blnShowLocationAlert=true;
-                    tryLocation();
+                    refreshLocation();
                     blnShowLocationAlert=false;
-                    if(!canGetLocation(DashboardActivity.this)){
+                    if(!LocationUpdatesService.canGetLocation()){
                         Toast.makeText(DashboardActivity.this,GPS_UNAVAILABLE_MSG,Toast.LENGTH_SHORT).show();
+                        Utilities.showSettingsAlert(DashboardActivity.this);
                         return ;
                     }
                     //tryLocation();
@@ -766,6 +601,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     });*/
                     Intent intent = new Intent( DashboardActivity.this, WplanActivity.class);
                     //Intent intent = new Intent( DashboardActivity.this, WorkPlanActivity.class);
+                    btnSelectRun.setEnabled(false);
                     startActivityForResult(intent, WORK_PLAN_REQUEST_CODE);
                     // selectBox.show(getFragmentManager(),"SELECT WORK PLAN");
 
@@ -774,12 +610,20 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
 
             }
         });
-        tryLocation();
+        refreshLocation();
         btnBriefing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Globals.dayStarted){
-                    Intent intent = new Intent(DashboardActivity.this, SafetyBriefingActivity.class);
+                if(Globals.dayStarted && selectedJPlan!=null&&!selectedJPlan.getWorkplanTemplateId().equals("")){
+                    Intent intent;
+                    //if(BuildConfig.DEBUG){
+                    //   intent = new Intent(DashboardActivity.this, DebugActivity.class);
+                    // }
+                    // } else {
+                    intent = new Intent(DashboardActivity.this, SafetyBriefingActivity.class);
+                    // }
+
+                    // Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
                     // Intent intent =new Intent(DashboardActivity.this,ScribbleNotesActivity.class);
                     Bundle b=new Bundle();
                     b.putString("filename","");
@@ -795,10 +639,26 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 //}
             }
         });
+        tvDayText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Globals.dayStarted) {
+                    if(selectedJPlan!=null&&!selectedJPlan.getWorkplanTemplateId().equals("")){
+                        setSelectedTask(selectedJPlan.getTaskList().get(0));
+                        activeSession = null;
+                        selectedJPlan.setActiveSession();
+                        Intent intent = new Intent(DashboardActivity.this, InspectionActivity.class);
+                        btnRun.setEnabled(false);
+                        startActivityForResult(intent, INSPECTION_ACTIVITY_REQUEST_CODE);
+                    }
+                }
+
+            }});
         btnRun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try{
+                    //Garbage code
                     String json1="{\"title\": \"Welcome\",\"issues\":[{\"name\":\"Issue 1\",\"status\":\"closed\"}]}";
                     String json2="{\"issues\":[{},{\"name\":\"Issue 2\",\"status\":\"open\"}]}";
                     String json11="{\"title\":\"Sample 1\",\"status\":2, \"Object1\":{\"Field1\": \"Sample 1\",\"Field2\":\"Sample 2\"},\"ary\":[{\"name\":\"a1\",\"status\":0}]}";
@@ -811,12 +671,40 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     //jo=Utilities.mergeObject(jo,jo1);
                     jo=Utilities.addObject(new JSONObject(json11),new JSONObject(json12));
                     Log.i("Sample",jo.toString());
+                    //Garbage code ended
+
+                    //In case of new Maintenance change
+                    if(isMaintenanceFromDashboard){
+                        if(maintenanceList.getMaintenanceList().size()>0){
+                            if(selectedJPlan == null && getActiveMPlan() == null){
+                                JourneyPlan journeyPlan = inbox.loadJourneyPlanTemplate(DashboardActivity.this, "-1");
+                                startMaintenancePlan(journeyPlan.getId());
+                            } else {
+                                // launch activity
+                                launchMaintenanceActivity();
+                            }
+                        } else {
+                            Toast.makeText(DashboardActivity.this, "No maintenance available!", Toast.LENGTH_SHORT).show();
+                        }
+                        return;
+                    }
+
                     if (Globals.dayStarted) {
                         if (Globals.selectedJPlan != null && Globals.selectedJPlan.getTaskList()!=null) {
                             if (Globals.selectedJPlan.getTaskList().size() == 1) {
-                                Globals.selectedTask = selectedJPlan.getTaskList().get(0);
-                                Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
-                                startActivity(intent);
+                                setSelectedTask(selectedJPlan.getTaskList().get(0));
+                                activeSession = null;
+                                selectedJPlan.setActiveSession();
+                                //Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
+                                if(isMaintainer){
+                                    Intent intent = new Intent(DashboardActivity.this, MaintenanceActivity.class);
+                                    btnRun.setEnabled(false);
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(DashboardActivity.this, InspectionActivity.class);
+                                    btnRun.setEnabled(false);
+                                    startActivityForResult(intent, INSPECTION_ACTIVITY_REQUEST_CODE);
+                                }
                             } else {
                                 Intent intent = new Intent(DashboardActivity.this, InboxActivity.class);
                                 startActivity(intent);
@@ -828,14 +716,25 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 }
             }
         });
+        if(appName.equals(Globals.AppName.EUIS)){
+            btnRun.setVisibility(GONE);
+        }
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(isMaintainer){
-                    Toast.makeText(DashboardActivity.this, "Permission denied!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DashboardActivity.this, getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
                 } else {
-                    if (Globals.dayStarted) {
-                        Intent intent = new Intent(DashboardActivity.this, ReportInboxActivity.class);
+                    Intent intent;
+                    if(appName.equals(Globals.AppName.SCIM) && isDisplayHosOnDashboard){
+                        if(isInternetAvailable(DashboardActivity.this)){
+                            intent = new Intent(DashboardActivity.this, HosActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(DashboardActivity.this, "Server unreachable!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        intent = new Intent(DashboardActivity.this, ReportInboxActivity.class);
                         startActivity(intent);
                     }
                 }
@@ -854,10 +753,11 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             public boolean onLongClick(View view) {
                 if(dayStarted){
                     blnShowLocationAlert=true;
-                    tryLocation();
+                    refreshLocation();
                     blnShowLocationAlert=false;
-                    if(!canGetLocation(DashboardActivity.this)){
+                    if(!LocationUpdatesService.canGetLocation()){
                         Toast.makeText(DashboardActivity.this,GPS_UNAVAILABLE_MSG,Toast.LENGTH_SHORT).show();
+                        Utilities.showSettingsAlert(DashboardActivity.this);
                         return true;
                     }
                     new AlertDialog.Builder(DashboardActivity.this)
@@ -871,10 +771,10 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                                         public void run() {*/
                                     try {
                                         if(isBypassTaskView && selectedJPlan.getTaskList().size()==1){
-                                            if(selectedTask == null){
-                                                selectedTask = selectedJPlan.getTaskList().get(0);
+                                            if(getSelectedTask() == null){
+                                                setSelectedTask(selectedJPlan.getTaskList().get(0));
                                             }
-                                            if(selectedTask.getStartTime().equals("")){
+                                            if(getSelectedTask().getStartTime().equals("")){
 
                                                 new AlertDialog.Builder(DashboardActivity.this)
                                                         .setTitle(getResources().getText(R.string.confirmation))
@@ -911,6 +811,26 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                             })
                             .setNegativeButton(R.string.btn_cancel, null).show();
 
+                } else {
+                    if(isMaintainer){
+                        //TODO: Going to implement execution of maintenance
+                        new AlertDialog.Builder(DashboardActivity.this)
+                                .setTitle(getResources().getText(R.string.confirmation))
+                                .setMessage(R.string.start_maintenance_notify)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int whichButton) {
+                                        try {
+                                            ArrayList<JourneyPlanOpt> wpTemplateList=inbox.loadWokPlanTemplateListEx();
+                                            wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation("ALL");
+                                            startMaintenancePlan(wpTemplateList.get(0).getCode());
+                                        } catch (Resources.NotFoundException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                })
+                                .setNegativeButton(R.string.btn_cancel, null).show();
+                    }
                 }
                 return true;
             }
@@ -986,7 +906,11 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                             }
 
                             if(!lastError.equals("")){
-                                Toast.makeText(DashboardActivity.this, lastError, Toast.LENGTH_SHORT).show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(DashboardActivity.this, lastError, Toast.LENGTH_SHORT).show();
+                                    }});
                             }
                             loadDayStatus(mainActivity);
                             runOnUiThread(new Runnable() {
@@ -1012,6 +936,24 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
 
         };
 
+        if(selectedJPlan!=null){
+            try {
+                setLocationPrefix(selectedJPlan.getTaskList().get(0).getLocationAsset().getUnitId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private void expandList() {
+        isListExpanded = true;
+        ibExpandList.setImageResource(R.drawable.ic_baseline_unfold_more_24);
+        reportList.setVisibility(VISIBLE);
+    }
+
+    private void collapseList() {
+        isListExpanded = false;
+        ibExpandList.setImageResource(R.drawable.ic_baseline_unfold_less_24);
+        reportList.setVisibility(GONE);
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
@@ -1020,6 +962,13 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             Log.d("debug", "started"); // Insert a breakpoint at this line!!
         }*/
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == INSPECTION_ACTIVITY_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                refreshSOD();
+                refreshDashboard();
+                refreshSwitchboard();
+            }
+        }
         if (requestCode == WORK_PLAN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 String selection = data.getStringExtra("Selection");
@@ -1029,17 +978,23 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     final String jpCode = data.getStringExtra("code");
                     if(mode.equals("New")){
                         selectedJPlan = null;
-                        selectedTask = null;
+                        setSelectedTask(null);
                         selectedUnit = null;
                         selectedDUnit = null;
                         if (!jpCode.equals("")) {
                             JourneyPlan journeyPlan = inbox.loadJourneyPlanTemplate(DashboardActivity.this, jpCode);
                             //journeyPlan.setUserStartMp(startMp);
                             startSessionProcess(journeyPlan);
+                            //Repopulating issue list
+                            if(!isMaintainer){
+                                showDefectsList();
+                            } else {
+                                llIssuesContainer.setVisibility(GONE);
+                            }
                         }
                     } else if(mode.equals("Switch")){
                         saveCurrentJP(jpCode);
-                        selectedTask = null;
+                        setSelectedTask(null);
                         selectedUnit = null;
                         selectedDUnit = null;
                         selectedJPlan = inbox.getCurrentJourneyPlan();
@@ -1048,6 +1003,15 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                         Globals.listViews = new HashMap<Integer, View>();
                         refreshDashboard();
                         refreshSwitchboard();
+                        //Repopulating issue list
+                        if(selectedJPlan!=null){
+                            if(!isMaintainer){
+                                showDefectsList();
+                            } else {
+                                llIssuesContainer.setVisibility(GONE);
+                            }
+
+                        }
                     }
 
                 }
@@ -1092,119 +1056,156 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             }
 
         }
+        if(selectedJPlan!=null && selectedJPlan.getWorkplanTemplateId().equals("") && !isMaintainer){
 
-        String strElapsedHours="00 h";
-        String strElapsedMins="00 m";
-        String strSessionTotal="0";
-        String strTaskCurrent="0";
-        String strIssueCount="0";
-        String strDayYear="0000";
-        String strDayText="";
-        String strWorkPlanName="";
-        if (jp != null) {
-            startOfDayTime = jp.getStartDateTime();
-        }
+        } else {
+
+            String strElapsedHours="00 h";
+            String strElapsedMins="00 m";
+            String strSessionTotal="0";
+            String strTaskCurrent="0";
+            String strIssueCount="0";
+            String strDayYear="0000";
+            String strDayText="";
+            String strWorkPlanName="";
+            if (jp != null) {
+                startOfDayTime = jp.getStartDateTime();
+            }
 
 
-        try {
-            if (Globals.dayStarted) {
-                if (!Globals.startOfDayTime.equals("")) {
-                    Date startDate = FULL_DATE_FORMAT.parse(Globals.startOfDayTime);
-                    Date currSOD =new Date();
-                    Date currDate = new Date();
-                    if(!Globals.SOD.equals("")){
-                        currSOD=Utilities.ConvertToDateTime(Globals.SOD);
-                    }
-                    if (startDate != null) {
-                        TimeZone tz = TimeZone.getDefault();
-                        Date now = new Date();
-                        int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
-                        offsetFromUtc=0;
-                        long different = currDate.getTime() - (startDate.getTime() + offsetFromUtc);
-                        long secondsInMilli = 1000;
-                        long minutesInMilli = secondsInMilli * 60;
-                        long hoursInMilli = minutesInMilli * 60;
-                        long daysInMilli = hoursInMilli * 24;
-
-                        long elapsedDays = different / daysInMilli;
-                        different = different % daysInMilli;
-
-                        long elapsedHours = different / hoursInMilli;
-                        different = different % hoursInMilli;
-
-                        long elapsedMinutes = different / minutesInMilli;
-                        different = different % minutesInMilli;
-
-                        //long elapsedSeconds = different / secondsInMilli;
-                        strElapsedHours= (elapsedDays>0 )? (elapsedDays + "d "):"";
-                        strElapsedHours += String.valueOf(elapsedHours) + "h";
-                        strElapsedMins = String.valueOf(elapsedMinutes) + "m";
-                        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-                        SimpleDateFormat sdfDayText = new SimpleDateFormat("EEE, MMM d, yyyy");
-                        strDayYear = sdfYear.format(currDate);
-                        //strDayText = sdfDayText.format(currDate);
-                        strDayText = sdfDayText.format(currSOD);
-                    }
-                    // Task Count
-                    if (jp != null) {
-                        if(isShowSession && !jp.getTaskList().get(0).isYardInspection() && !isMaintainer){
-                            tvSessions.setVisibility(View.VISIBLE);
-                        } else {
-                            tvSessions.setVisibility(View.INVISIBLE);
+            try {
+                if (Globals.dayStarted) {
+                    if (!Globals.startOfDayTime.equals("")) {
+                        Date startDate = FULL_DATE_FORMAT.parse(Globals.startOfDayTime);
+                        Date currSOD =new Date();
+                        Date currDate = new Date();
+                        if(!Globals.SOD.equals("")){
+                            currSOD=Utilities.ConvertToDateTime(Globals.SOD);
                         }
-                        strWorkPlanName=jp.getTitle();
+                        if (startDate != null) {
+                            TimeZone tz = TimeZone.getDefault();
+                            Date now = new Date();
+                            int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
+                            offsetFromUtc=0;
+                            long different = currDate.getTime() - (startDate.getTime() + offsetFromUtc);
+                            long secondsInMilli = 1000;
+                            long minutesInMilli = secondsInMilli * 60;
+                            long hoursInMilli = minutesInMilli * 60;
+                            long daysInMilli = hoursInMilli * 24;
+
+                            long elapsedDays = different / daysInMilli;
+                            different = different % daysInMilli;
+
+                            long elapsedHours = different / hoursInMilli;
+                            different = different % hoursInMilli;
+
+                            long elapsedMinutes = different / minutesInMilli;
+                            different = different % minutesInMilli;
+
+                            //long elapsedSeconds = different / secondsInMilli;
+                            strElapsedHours= (elapsedDays>0 )? (elapsedDays + "d "):"";
+                            strElapsedHours += String.valueOf(elapsedHours) + "h";
+                            strElapsedMins = String.valueOf(elapsedMinutes) + "m";
+                            SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
+                            SimpleDateFormat sdfDayText = new SimpleDateFormat("EEE, MMM d, yyyy");
+                            strDayYear = sdfYear.format(currDate);
+                            //strDayText = sdfDayText.format(currDate);
+                            strDayText = sdfDayText.format(currSOD);
+                        }
+                        // Task Count
+                        if (jp != null) {
+                            if(isShowSession && !jp.getTaskList().get(0).isYardInspection() && !isMaintainer){
+                                // tvSessions.setVisibility(VISIBLE);
+                            } else {
+                                tvSessions.setVisibility(View.INVISIBLE);
+                            }
+                            strWorkPlanName=jp.getTitle();
+                            strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
+                            if (jp.getTaskList() != null) {
+                                //strTaskTotal = String.valueOf(jp.getTaskList().size());
+                                strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
+                                strIssueCount = String.valueOf(jp.getIssueCount());
+
+                            }
+                            if(jp.getEndDateTime().equals("")){
+                                // Task In-Progress
+                                imgBtnSS.setBackgroundResource(R.drawable.stop_btn);
+                                tvInspStatus.setText(getResources().getText(R.string.inspection_in_progress));
+                                llBtnSS.setVisibility(VISIBLE);
+                                llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_stop));
+                                llFinishedStatus.setVisibility(GONE);
+                                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                                tvSSBtnText.setText(getResources().getText(R.string.stop_new_theme));
+                                tvIssueCountTitle.setText(getResources().getText(R.string.reported));
+                                tvInspStatusTxt.setText(getResources().getString(R.string.run_status));
+                                if(isMaintainer || jp.getWorkplanTemplateId().equals("")){
+                                    tvInspStatus.setText(R.string.maintenance_in_progress);
+                                    llBtnSS.setVisibility(GONE);
+                                    strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
+                                    tvIssueCountTitle.setText(R.string.work_orders_title);
+                                    tvInspStatusTxt.setText(R.string.maintenance_status);
+                                }
+                            }
+
+                        }
+
+                    }
+                }else{
+                    //No WorkPlan started
+
+                    if (jp != null) {
                         strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
                         if (jp.getTaskList() != null) {
+                            tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
                             //strTaskTotal = String.valueOf(jp.getTaskList().size());
                             strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
                             strIssueCount = String.valueOf(jp.getIssueCount());
-                        }
-                        if(jp.getEndDateTime().equals("")){
-                            // Task In-Progress
-                            imgBtnSS.setBackgroundResource(R.drawable.stop_btn);
-                            tvInspStatus.setText(getResources().getText(R.string.inspection_in_progress));
-                            llBtnSS.setVisibility(View.VISIBLE);
-                            llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_stop));
-                            llFinishedStatus.setVisibility(GONE);
-                            llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                            llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                            tvSSBtnText.setText(getResources().getText(R.string.stop_new_theme));
+                            strWorkPlanName=jp.getTitle();
+                            ArrayList<String> elapseArray=jp.getElapsedTime();
+                            strElapsedHours=formatElapsedTimeHours(elapseArray);
+                            strElapsedMins = formatElapsedTimeMins(elapseArray);
+                            if(!jp.getEndDateTime().equals(""))
+                            {
+                                //Task Closed
+                                tvInspStatus.setText(getResources().getText(R.string.inspection_closed_status));
+                                llBtnSS.setVisibility(View.GONE);
+                                //llFinishedStatus.setVisibility(View.VISIBLE);
+                                imgClockIcon.setVisibility(View.INVISIBLE);
+                                tvElapsedLabel.setText(getResources().getString(R.string.time_total));
+                                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                                tvSessions.setVisibility(View.INVISIBLE);
+
+                            }
+
                         }
 
+                    } else {
+                        tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
+                        llBtnSS.setVisibility(View.GONE);
+                        llFinishedStatus.setVisibility(View.GONE);
+                        imgClockIcon.setVisibility(View.INVISIBLE);
+                        tvElapsedLabel.setText(getResources().getString(R.string.time_total));
+                        llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                        llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                        strWorkPlanName = getResources().getString(R.string.no_last_inspection);
+                        tvSessions.setVisibility(View.INVISIBLE);
+                        llIssuesContainer.setVisibility(GONE);
+                        if(isMaintainer){
+                            tvInspStatus.setText(getResources().getText(R.string.maintenance_title));
+                            //llBtnSS.setVisibility(VISIBLE);
+                            //imgBtnSS.setBackgroundResource(R.drawable.play_btn);
+                            //tvSSBtnText.setText(getResources().getText(R.string.start));
+                            //tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
+                            llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
+                            strWorkPlanName = getString(R.string.no_active_maintenance);
+                            tvInspStatusTxt.setText(R.string.maintenance_status);
+                        }
                     }
 
                 }
-            }else{
-                //No WorkPlan started
-
-                if (jp != null) {
-                    strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
-                    if (jp.getTaskList() != null) {
-                        tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
-                        //strTaskTotal = String.valueOf(jp.getTaskList().size());
-                        strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
-                        strIssueCount = String.valueOf(jp.getIssueCount());
-                        strWorkPlanName=jp.getTitle();
-                        ArrayList<String> elapseArray=jp.getElapsedTime();
-                        strElapsedHours=formatElapsedTimeHours(elapseArray);
-                        strElapsedMins = formatElapsedTimeMins(elapseArray);
-                        if(!jp.getEndDateTime().equals(""))
-                        {
-                            //Task Closed
-                            tvInspStatus.setText(getResources().getText(R.string.inspection_closed_status));
-                            llBtnSS.setVisibility(View.GONE);
-                            //llFinishedStatus.setVisibility(View.VISIBLE);
-                            imgClockIcon.setVisibility(View.INVISIBLE);
-                            tvElapsedLabel.setText(getResources().getString(R.string.time_total));
-                            llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                            llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                            tvSessions.setVisibility(View.INVISIBLE);
-
-                        }
-
-                    }
-
-                } else {
+                if(jp == null){
                     tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
                     llBtnSS.setVisibility(View.GONE);
                     llFinishedStatus.setVisibility(View.GONE);
@@ -1213,35 +1214,49 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
                     llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
                     strWorkPlanName = getResources().getString(R.string.no_last_inspection);
-                    tvSessions.setVisibility(View.INVISIBLE);
+                    llIssuesContainer.setVisibility(GONE);
+                    if(isMaintainer){
+                        tvInspStatus.setText(getResources().getText(R.string.maintenance_title));
+                        //llBtnSS.setVisibility(VISIBLE);
+                        //imgBtnSS.setBackgroundResource(R.drawable.play_btn);
+                        //tvSSBtnText.setText(getResources().getText(R.string.start));
+                        //tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
+                        //llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
+                        strWorkPlanName = getString(R.string.no_active_maintenance);
+                        strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
+                        tvIssueCountTitle.setText(R.string.work_orders_title);
+                        tvInspStatusTxt.setText(R.string.maintenance_status);
+                    }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
+            tvTimeElapsedHours.setText(strElapsedHours);
+            tvTimeElapsedMins.setText(strElapsedMins);
+            tvTaskTotal.setText(strSessionTotal);
+            tvTaskCurrent.setText(strTaskCurrent);
+            tvIssueCount.setText(strIssueCount);
+            tvDayYear.setText(strDayText);
+
+            SpannableString sTitle = new SpannableString(strWorkPlanName);
+            sTitle.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.btn_color_primary)), 0, sTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sTitle.setSpan(new UnderlineSpan(), 0, sTitle.length(), 0);
+            tvDayText.setText(sTitle);
+            if(isMaintainer){
+                tvDayText.setText("Maintenance Work");
             }
-            if(jp == null){
-                tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
-                llBtnSS.setVisibility(View.GONE);
-                llFinishedStatus.setVisibility(View.GONE);
-                imgClockIcon.setVisibility(View.INVISIBLE);
-                tvElapsedLabel.setText(getResources().getString(R.string.time_total));
-                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                strWorkPlanName = getResources().getString(R.string.no_last_inspection);
-            }
-        }catch (Exception e){
-            e.printStackTrace();
         }
 
-        tvTimeElapsedHours.setText(strElapsedHours);
-        tvTimeElapsedMins.setText(strElapsedMins);
-        tvTaskTotal.setText(strSessionTotal);
-        tvTaskCurrent.setText(strTaskCurrent);
-        tvIssueCount.setText(strIssueCount);
-        tvDayYear.setText(strDayText);
-        tvDayText.setText(strWorkPlanName);
 
     }
     private void refreshSwitchboard(){
-        if (Globals.dayStarted) {
+        if(selectedJPlan!=null&&selectedJPlan.getWorkplanTemplateId().equals("") && !isMaintainer){
+            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+        } else {
+            //enabling report button as per requested by client
+            reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+            if (Globals.dayStarted) {
 //            sessionBtn.setText("DAY END");
 //            sessionBtn.setBackgroundColor(getResources().getColor(R.color.end_task_button));
 /*
@@ -1249,27 +1264,64 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             syncBtn.setBackgroundColor(getResources().getColor(R.color.sync_button_light));
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_light));
 */
-            //sessionBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                //sessionBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }
+                if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                }
 
-        } else {
-            if(Globals.currDayLocked){
-                //              sessionBtn.setText("DAY CLOSED");
-            }else{
-                //             sessionBtn.setText("DAY START");
+            } else {
+                if(Globals.currDayLocked){
+                    //              sessionBtn.setText("DAY CLOSED");
+                }else{
+                    //             sessionBtn.setText("DAY START");
+                }
+                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(!isMaintenanceFromDashboard){
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                } else {
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                }
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                //reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }
+                if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                    if(isDisplayHosOnDashboard){
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                    } else {
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                    }
+                }
+
             }
-            btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-        }
-        if(selectedJPlan == null){
-            btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+            if(selectedJPlan == null){
+                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(!isMaintenanceFromDashboard){
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                } else {
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                }
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                //reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                    if(isDisplayHosOnDashboard){
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                    } else {
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                    }
+                }
+            }
         }
     }
 
@@ -1348,7 +1400,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     public void openSession(){
         String dayToStart="";
 
-        if(!Globals.isInternetAvailable(DashboardActivity.this)){
+        if(!isInternetAvailable(DashboardActivity.this)){
             //Toast.makeText(DashboardActivity.this,"Network Unavailable!",Toast.LENGTH_SHORT).show();
             showToastOnUiThread(getResources().getString(R.string.network_unavailable));
             return ;
@@ -1465,7 +1517,12 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
+                if(journeyPlan.getWorkplanTemplateId().equals("")){
+                    showDialog("Loading maintenances",getResources().getString(R.string.please_wait) );
+                } else {
+                    showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
+                }
+
             }
         });
         isDayProcessRunning=true;
@@ -1487,7 +1544,12 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                         @Override
                         public void run() {
                             hideDialog();
-                            Toast.makeText(DashboardActivity.this,getResources().getString(R.string.inspection_started),Toast.LENGTH_SHORT).show();
+                            if (!selectedJPlan.getWorkplanTemplateId().equals("")) {
+                                Toast.makeText(DashboardActivity.this,getResources().getString(R.string.inspection_started),Toast.LENGTH_SHORT).show();
+                            } else {
+                                //Toast.makeText(DashboardActivity.this,"Maintenance started",Toast.LENGTH_SHORT).show();
+                            }
+
                             refreshSOD();
                         }
                     });
@@ -1644,6 +1706,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 } else {
                     session.setEnd(jp.getTaskList().get(0).getUserEndMp());
                 }
+                makeVirtualSessions(session);
             }
         }
         jp.setEndDateTime(_date.toString());
@@ -1761,7 +1824,8 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Globals.selectedTask = null;
+                setSelectedTask(null);
+                saveCurrentJP("");
                 Globals.selectedUnit = null;
                 Globals.safetyBriefing = null;
                 Globals.selectedWorker = null;
@@ -1774,6 +1838,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 dayStarted = false;
                 refreshSOD();
                 hideDialog();
+                llIssuesContainer.setVisibility(GONE);
             }
         });
     }
@@ -1914,17 +1979,17 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
 
                 // If any permission above not allowed by user, this condition will
                 //execute every time, else your else part will work
-            } else if(!canGetLocation(DashboardActivity.this)) {
-                showSettingsAlert(DashboardActivity.this);
+            } else if(!LocationUpdatesService.canGetLocation()){
+                Utilities.showSettingsAlert(DashboardActivity.this);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(!canGetLocation(DashboardActivity.this)){
-            showSettingsAlert(DashboardActivity.this);
-        }
+//        if(!LocationUpdatesService.canGetLocation(DashboardActivity.this)){
+//            LocationUpdatesService.showSettingsAlert(this);
+//        }
         // check if GPS enabled
-        if (canGetLocation(DashboardActivity.this) && cLocation !=null) {
+        if (LocationUpdatesService.canGetLocation() && cLocation !=null) {
             latitude = cLocation.getLatitude();
             longitude = cLocation.getLongitude();
 
@@ -1940,7 +2005,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 if (!isGpsPermissionAvailable()) {
                     requestPermission(this, mPermission, REQUEST_CODE_PERMISSION);
                 } else {
-                    //gps.showSettingsAlert();
+                    Utilities.showSettingsAlert(DashboardActivity.this);
                 }
             }
             return loc;
@@ -1966,8 +2031,9 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     boolean loadCurrentLocation(){
         getCurrentLocation();
 
-        if(!canGetLocation(DashboardActivity.this)){
+        if(!LocationUpdatesService.canGetLocation()){
             Toast.makeText(DashboardActivity.this,getResources().getString(R.string.enable_gps),Toast.LENGTH_SHORT).show();
+            Utilities.showSettingsAlert(DashboardActivity.this);
             return false;
         }
         if (getCurrentLocation().size() == 2) {
@@ -2001,22 +2067,23 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
 
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     ArrayList<String> loc = getCurrentLocation();
-                    if(loc.size()>0){
-                        latitude=loc.get(0);
-                        longitude=loc.get(1);
+                    if (loc.size() > 0) {
+                        latitude = loc.get(0);
+                        longitude = loc.get(1);
                     }
 
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    latitude="";
-                    longitude="";
+                    latitude = "";
+                    longitude = "";
                 }
                 refreshLocation();
                 return;
@@ -2026,25 +2093,30 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         }
     }
 
-    private void tryLocation(){
-       /* try {
-            ArrayList<String> loc =getCurrentLocation();
-            longitude="";
-            longitude ="";
-            if(loc.size()>0){
-                latitude=loc.get(0);
-                longitude=loc.get(1);
-                //gps.stopUsingGPS();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-        refreshLocation();
-    }
+    //    private void tryLocation(){
+//       /* try {
+//            ArrayList<String> loc =getCurrentLocation();
+//            longitude="";
+//            longitude ="";
+//            if(loc.size()>0){
+//                latitude=loc.get(0);
+//                longitude=loc.get(1);
+//                //gps.stopUsingGPS();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }*/
+//        refreshLocation();
+//    }
     private void refreshLocation(){
         try {
+            if(lastKnownLocation == null){
+                lastKnownLocation = LocationUpdatesService.getLocation();
+            }
+
             String locationString=longitude +","+latitude;
-            if(latitude.equals("") && longitude.equals("")){
+
+            if(latitude.equals("") || longitude.equals("") || longitude.equals("0.0") || !latitude.equals("0.0")){
                 if(lastKnownLocation!=null){
                     Location _loc = lastKnownLocation;
                     latitude = String.valueOf(_loc.getLatitude());
@@ -2054,12 +2126,16 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_black_24dp);
                 }
 
-            } else if(!longitude.equals("") && !latitude.equals("")){
+            }
+
+            else if(!longitude.equals("") && !latitude.equals("") &&
+                    !longitude.equals("0.0") && !latitude.equals("0.0") ){
                 setLocation(tvCurrLocationText, DashboardActivity.this, latitude, longitude);
                 //String locationDesc= Utilities.getLocationAddress(DashboardActivity.this, latitude, longitude);
                 imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_black_24dp);
-            }else
-            {
+            }
+
+            else {
                 imgGpsIcon.setBackgroundResource(R.drawable.ic_location_off_black_24dp);
                 tvCurrLocationText.setText(GPS_UNAVAILABLE_MSG);
             }
@@ -2067,6 +2143,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             e.printStackTrace();
         }
     }
+
     /*private String getLocationDescription(String location){
         String [] loc=Utilities.split(location,",");
         String latitude="", longitude="";
@@ -2186,11 +2263,11 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         //If configured to display only one clock
         try {
             if(isBypassTaskView&&selectedJPlan.getTaskList().size()==1){
-                if(selectedTask == null){
-                    selectedTask = selectedJPlan.getTaskList().get(0);
+                if(getSelectedTask() == null){
+                    setSelectedTask(selectedJPlan.getTaskList().get(0));
                 }
                 //If Milepost requested on stop of task
-                if((isMpReq&&!selectedTask.getStartTime().equals("")) && !selectedTask.isYardInspection() && !isMaintainer){
+                if((isMpReq&&!getSelectedTask().getStartTime().equals("")) && !getSelectedTask().isYardInspection() && !isMaintainer){
                     StopInspectionFragment dialogFragment = new StopInspectionFragment();
                     FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
 
@@ -2227,10 +2304,10 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     }).start();
                 }
             } else {
-                if(selectedTask == null){
-                    selectedTask = selectedJPlan.getTaskList().get(0);
+                if(getSelectedTask() == null){
+                    setSelectedTask(selectedJPlan.getTaskList().get(0));
                 }
-                if(selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)){
+                if(getSelectedTask().getStatus().equals(TASK_IN_PROGRESS_STATUS)){
                     String runFinishMsg = "Run is not finished yet! <br> Please finish the run first?";
                     new AlertDialog.Builder(DashboardActivity.this)
                             .setTitle("Alert!")
@@ -2242,7 +2319,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                                     try {
                                         if (Globals.selectedJPlan != null && Globals.selectedJPlan.getTaskList()!=null) {
                                             if (Globals.selectedJPlan.getTaskList().size() == 1) {
-                                                Globals.selectedTask = selectedJPlan.getTaskList().get(0);
+                                                setSelectedTask(selectedJPlan.getTaskList().get(0));
                                                 Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
                                                 startActivity(intent);
                                             } else {
@@ -2351,11 +2428,13 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                         } else {
                             session.setEnd(jp.getTaskList().get(0).getUserEndMp());
                         }
+                        makeVirtualSessions(session);
                     }
                 }
                 jp.setEndDateTime(_date.toString());
                 jp.setEndLocation(location);
                 jp.setStatus(WORK_PLAN_FINISHED_STATUS);
+                jp.reloadId();
                 if(!offlineMode){
                     jo=jp.getJsonObject();
                 }
@@ -2447,12 +2526,12 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 inbox.loadSampleData(DashboardActivity.this);
                 //Globals.loadInbox(DashboardActivity.this);
                 Globals.loadDayStatus(DashboardActivity.this);
-                refreshSOD();
                 //Log.i("WP Start:",Globals.selectedJPlan.getJsonObject().toString());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         refreshDashboard();
+                        refreshSOD();
                     }
                 });
                 sleep(500);
@@ -2466,7 +2545,8 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             DashboardActivity.this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Globals.selectedTask = null;
+                    setSelectedTask(null);
+                    saveCurrentJP("");
                     Globals.selectedUnit = null;
                     Globals.safetyBriefing = null;
                     Globals.selectedWorker = null;
@@ -2477,10 +2557,11 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     Globals.selectedDUnit = null;
                     isDayProcessRunning=false;
                     dayStarted = false;
-                    tvSessions.setVisibility(View.INVISIBLE);
+                    //tvSessions.setVisibility(View.INVISIBLE);
                     //loadDayStatus(DashboardActivity.this);
                     refreshSOD();
                     hideDialog();
+                    llIssuesContainer.setVisibility(GONE);
                 }
             });
             //Closing Inspection End
@@ -2502,7 +2583,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
     }
     public void startSessionProcess(final JourneyPlan jPlan){
         if(jPlan.getTaskList().size() == 1 && isBypassTaskView){
-            if(isMaintainer){
+            if(isMaintainer||jPlan.getWorkplanTemplateId().equals("")){
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -2530,7 +2611,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             }
             if(isMpReq||isTraverseReq||isWConditionReq||isInspectionTypeReq||showNearByAssets) {
                 initialInspection = jPlan;
-                Intent intent = new Intent(DashboardActivity.this, StartInspectionActivity.class);
+                Intent intent = new Intent(DashboardActivity.this, InspectionStartActivity.class);
                 startActivityForResult(intent, START_INSPECTION_REQUEST_CODE);
             } else {
                 new Thread(new Runnable() {
@@ -2592,6 +2673,7 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     task.setLocationUnit(initialRun.getLocationUnit());
                     task.setTemperatureUnit(initialRun.getTemperatureUnit());
                     task.setTraverseTrack(initialRun.getTraverseTrack());
+                    task.setObserveTrack(initialRun.getObserveTrack());
                     task.setTemperature(initialRun.getTemperature());
                     task.setYardInspection(initialRun.isYardInspection());
 
@@ -2600,6 +2682,8 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                     session.setStatus(SESSION_STARTED);
                     session.setStartTime(now.toString());
                     session.setStart(initialRun.getUserStartMp());
+                    session.setTraverseTrack(initialRun.getTraverseTrack());
+                    session.setObserveTrack(initialRun.getObserveTrack());
                     if(appName.equals(Globals.AppName.SCIM)){
                         session.setStart(task.getMpStart());
                         task.setUserStartMp(task.getMpStart());
@@ -2618,7 +2702,8 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                         }
                     }
                     selectedJPlan.getIntervals().getSessions().add(session);
-                    selectedTask = task;
+                    setSelectedTask(task);
+                    activeSession = session;
                 }}
             //SimpleDateFormat _format = new SimpleDateFormat("hh:mm:ss aa");
        /* Globals.selectedTask.setStatus(TASK_IN_PROGRESS_STATUS);
@@ -2626,15 +2711,15 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
         Globals.isTaskStarted = true;
         Globals.selectedTask.setStartLocation(latitude + "," + longitude);*/
 
-            if(selectedTask == null){
-                selectedTask = selectedJPlan.getTaskList().get(0);
+            if(getSelectedTask() == null){
+                setSelectedTask(selectedJPlan.getTaskList().get(0));
             }
             if(Globals.selectedUnit == null){
-                if(selectedTask.getWholeUnitList().size() == 0){
+                if(getSelectedTask().getWholeUnitList().size() == 0){
                     Toast.makeText(DashboardActivity.this,getResources().getText(R.string.asset_available), Toast.LENGTH_SHORT).show();
                 } else{
                     if(isUseDefaultAsset){
-                        for(Units unit: selectedTask.getWholeUnitList()){
+                        for(Units unit:getSelectedTask().getWholeUnitList()){
                             if(unit.getAttributes().isPrimary()){
                                 Globals.selectedUnit = unit;
                             }
@@ -2658,12 +2743,23 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             initialRun = null;
             initialInspection = null;
         }
+        if (selectedJPlan != null && selectedJPlan.getWorkplanTemplateId().equals("")) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    launchMaintenanceActivity();
+                }
+            });
+
+        } else {
+            Toast.makeText(DashboardActivity.this, "Please try again!", Toast.LENGTH_SHORT).show();
+        }
 
         //loadTaskDetails();
         //startActivity(intent);
     }
     private void selectFirstAsset(){
-        for (Units unit: selectedTask.getWholeUnitList()){
+        for (Units unit: getSelectedTask().getWholeUnitList()){
             if(!unit.getAssetTypeObj().isLocation()){
                 selectedUnit = unit;
                 break;
@@ -2685,6 +2781,9 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        if(location[0] == null){
+                            return;
+                        }
                         if(location[0].equals("")){
                             view.setText(locationString);
                         }else{
@@ -2696,22 +2795,206 @@ public class DashboardActivity extends AppCompatActivity implements Observer,
             }
         }).start();
     }
-    /*private void findAndSetYardInspection(){
-        if(selectedTask!=null){
-            for(Units asset: selectedTask.getWholeUnitList()){
-                if(asset.getAssetTypeObj().isMarkerMilepost()){
-                    selectedTask.setYardInspection(true);
-                    break;
+
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+        if(!LocationUpdatesService.canGetLocation() || mLocation.getProvider().equals("None")) {
+            Utilities.showSettingsAlert(DashboardActivity.this);
+        }
+
+        cLocation = mLocation;
+        lastKnownLocation = mLocation;
+        latitude = String.valueOf(mLocation.getLatitude());
+        longitude = String.valueOf(mLocation.getLongitude());
+        refreshLocation();
+    }
+    private void showDefectsList(){
+        try {
+            ArrayList<Report> issuesList = selectedJPlan.getTaskList().get(0).getReportList();
+            llIssuesContainer.setVisibility(VISIBLE);
+
+            //Reversing the order of issue list
+            Collections.reverse(issuesList);
+            rAdapter = new issueAdapter(DashboardActivity.this, issuesList);
+            LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+            reportList.setLayoutManager(horizontalLayoutManager);
+            reportList.setAdapter(rAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void startMaintenancePlan(String jpCode){
+        selectedJPlan = null;
+        setSelectedTask(null);
+        selectedUnit = null;
+        selectedDUnit = null;
+        if (!jpCode.equals("")) {
+            JourneyPlan journeyPlan = inbox.loadJourneyPlanTemplate(DashboardActivity.this, jpCode);
+            //journeyPlan.setUserStartMp(startMp);
+            startSessionProcess(journeyPlan);
+            //Repopulating issue list
+            if(!isMaintainer && !journeyPlan.getWorkplanTemplateId().equals("")){
+                showDefectsList();
+            } else {
+                llIssuesContainer.setVisibility(GONE);
+            }
+        }
+    }
+    private void makeVirtualSessions(Session session) {
+        if(session.isAllSideTracks()){
+            //get all siding assets in range
+            double start=Double.parseDouble(session.getStart());
+            double end =Double.parseDouble(session.getEnd());
+
+            ArrayList<Units> allSidings=new ArrayList<>();
+            for (Units unit : getSelectedTask().getWholeUnitList()) {
+                if (unit.getAssetType().equals("Side Track")) {
+                    double uStart = Double.parseDouble(unit.getStart());
+                    double uEnd = Double.parseDouble(unit.getEnd());
+
+                    if (isInRange(start, end, uStart)
+                            || isInRange(start, end, uEnd)
+                            || isInRange(uStart, uEnd, start)
+                            || isInRange(uStart, uEnd, end)) {
+                        allSidings.add(unit);
+                    }
                 }
             }
-        } else if(selectedJPlan!=null){
-            for(Units asset: selectedJPlan.getTaskList().get(0).getWholeUnitList()){
-                if(asset.getAssetTypeObj().isMarkerMilepost()){
-                    selectedJPlan.getTaskList().get(0).setYardInspection(true);
-                    break;
+            for(Units unit:allSidings){
+                Double uStart=Double.valueOf(unit.getStart());
+                Double uEnd=Double.valueOf(unit.getEnd());
+                uStart=uStart<start?start:uStart;
+                uEnd =uEnd >end ? end:uEnd;
+                if(!isUnitExistsInSessions(unit,uStart,uEnd)) {
+                    Session _session = Session.clone(session);
+                    _session.setStart(String.valueOf(uStart));
+                    _session.setEnd((String.valueOf(uEnd)));
+                    _session.setExpEnd(_session.getEnd());
+                    _session.setTraverseTrack("");
+                    _session.setTraverseUnit(null);
+                    _session.setObserveTrack(unit.getUnitId());
+                    _session.setObserveUnit(unit);
+                    _session.setType("virtual");
+                    _session.setParentSession(session.getId());
+                    selectedJPlan.getIntervals().getSessions().add(_session);
                 }
             }
         }
-    }*/
+    }
+    private boolean isUnitExistsInSessions(Units unit, Double uStart, Double uEnd ){
+        for(Session session:selectedJPlan.getIntervals().getSessions()){
+            if(session.getObserveTrack().equals(unit.getUnitId()) && session.getStatus().equals(SESSION_STOPPED)){
+                Double start=Double.parseDouble(session.getStart());
+                Double end=Double.parseDouble(session.getEnd());
+                if(uStart>=start && uEnd <=end){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private JourneyPlan getActiveMPlan() {
+        ArrayList<JourneyPlanOpt> activePlans = new ArrayList<>();
+        activePlans = inbox.getInProgressJourneyPlans();
+        JourneyPlanOpt activeJp = null;
+        if(activePlans.size()>0){
+            for(JourneyPlanOpt jp: activePlans){
+                if(jp.getWorkplanTemplateId().equals("")){
+                    activeJp = jp;
+                    break;
+                }
+            }
+            if(activeJp!=null){
+                if(inbox.loadJourneyPlan(DashboardActivity.this, activeJp.getCode())!=null){
+                    return inbox.loadJourneyPlan(DashboardActivity.this, activeJp.getCode());
+                }
+            }
+        }
+        return null;
+    }
+    private void launchMaintenanceActivity(){
+        Intent intent = new Intent(DashboardActivity.this, MaintenanceActivity.class);
+        btnRun.setEnabled(false);
+        startActivity(intent);
+    }
+    private void initThreadScreenUpdate (){
+        if(threadScreenUpdate == null){
+            threadScreenUpdate=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            secCounter++;
+                            if(secCounter>=60){
+                                secCounter=1;
+                            }
+                            if(dayStarted && selectedJPlan!=null && !selectedJPlan.getWorkplanTemplateId().equals("")&& !isMaintainer) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(secCounter % 10 == 0){
+                                            if(LocationUpdatesService.canGetLocation()) {
+                                                refreshLocation();
+                                            }
+                                            else{
+                                                // Utilities.showSettingsAlert(DashboardActivity.this);
+                                            }
+                                        }
+                                        if (blnClockIcon) {
+                                            blnClockIcon = false;
+                                            imgClockIcon.setVisibility(View.INVISIBLE);
+                                        }else{
+                                            blnClockIcon = true;
+                                            imgClockIcon.setVisibility(VISIBLE);
+                                        }
+                                        if(blnGpsIcon){
+                                            imgGpsIcon.setVisibility(View.INVISIBLE);
+                                            blnGpsIcon=false;
+
+                                        }else{
+                                            imgGpsIcon.setVisibility(VISIBLE);
+                                            blnGpsIcon=true;
+                                        }
+
+                                    }
+                                });
+                            }else{
+                                if(!blnGpsIcon){
+                                    DashboardActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if(blnGpsIcon){
+                                                imgGpsIcon.setVisibility(View.INVISIBLE);
+                                                blnGpsIcon=false;
+
+                                            }else{
+                                                imgGpsIcon.setVisibility(VISIBLE);
+                                                blnGpsIcon=true;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            if(secCounter==30 && !isDayProcessRunning) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshDashboard();
+                                        refreshSwitchboard();
+                                    }
+                                });
+                            }
+                            Thread.sleep(1000);
+                        }
+
+                    }catch(InterruptedException e){
+                        //e.printStackTrace();
+                    }
+                }
+            });
+            threadScreenUpdate.start();
+        }
+    }
 }
 

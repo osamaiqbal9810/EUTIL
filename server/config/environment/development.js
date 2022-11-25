@@ -16,7 +16,7 @@ module.exports = {
     //uri: "mongodb://172.19.91.147:27017/timpsv2",//imran
     //uri: "mongodb://localhost:27017/fingerlake20200417",//mine
     // uri: "mongodb://localhost:27017/FLProdAug10",//mine
-    uri: "mongodb://localhost:27017/TIMPS", //mine
+    uri: "mongodb://localhost:27017/2022-06-29-sfrtasite", //mine
     //uri: "mongodb://172.19.91.120:27017/FLProdAug10",//KT //FerromexTimpsDev20200908
     //uri: "mongodb://localhost:27017/FerromexTimpsDev20200908" // test backend stuck issue
     //uri: "mongodb://localhost:27017/RioTinto-20200921", // Rio-Tinto from Tatheer sb
@@ -27,7 +27,7 @@ module.exports = {
     // uri: "mongodb://localhost:27017/20201119-Fingerlakes", // brought Fingerlakes db to correct things
   },
 
-  seedDB: false,
+  seedDB: true,
   defaultData: {
     tenant: {
       id: "ps19",

@@ -29,6 +29,6 @@ class DailyTile extends Component {
 
 export default DailyTile;
 
-const Miniheading = props => {
-  return <div style={{ fontSize: "12px", color: "rgb(64, 118, 179)", fontWeight: 600 }}>{props.heading}</div>;
+const Miniheading = (props) => {
+  return <div style={{ fontSize: "12px", color: "var(--first)", fontWeight: 600 }}>{props.heading}</div>;
 };

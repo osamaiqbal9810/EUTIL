@@ -11,7 +11,7 @@ import { ModalStyles } from "./styles";
 import { languageService } from "../../Language/language.service";
 import { CommonModalStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors, basicColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { MyButton } from "components/Common/Forms/formsMiscItems";
 const ROTATION_TOOLTIP = [
   {
@@ -107,7 +107,7 @@ class ImageSlider extends React.Component {
         }}
       >
         <img
-          src={`http://${getServerEndpoint()}${imageDirectory}/${
+          src={`${getServerEndpoint()}${imageDirectory}/${
             images.length > 0 ? images[this.state.selectedImageIndex].imgName || images[this.state.selectedImageIndex] : ""
           }`}
           style={{
@@ -140,7 +140,7 @@ class ImageSlider extends React.Component {
                   default: {
                     marginRight: "10px",
                     background: basicColors.first,
-                    color: "#fff",
+                    color: "var(--fifth)",
                     padding: "5px 5px",
                     borderRadius: "5px",
                     height: "28px",
@@ -151,6 +151,16 @@ class ImageSlider extends React.Component {
                     marginRight: "10px",
                     background: retroColors.first,
                     color: retroColors.fifth,
+                    padding: "5px 5px",
+                    borderRadius: "5px",
+                    height: "28px",
+                    border: "none",
+                    cursor: "pointer",
+                  },
+                  electric: {
+                    marginRight: "10px",
+                    background: electricColors.first,
+                    color: electricColors.fifth,
                     padding: "5px 5px",
                     borderRadius: "5px",
                     height: "28px",
@@ -172,7 +182,9 @@ class ImageSlider extends React.Component {
             </React.Fragment>
           ))}
         </div>
-        <ModalBody style={{ ...themeService(CommonModalStyle.body), textAlign: "center", overflow: "auto" }}>{imgSelect}</ModalBody>
+        <ModalBody style={{ ...themeService(CommonModalStyle.body), textAlign: "center", overflow: "hidden", maxHeight: "80vh" }}>
+          {imgSelect}
+        </ModalBody>
         <ModalFooter
           style={{ ...ModalStyles.footerButtonsContainer, ...themeService(CommonModalStyle.footer), display: "block", textAlign: "right" }}
         >
@@ -184,9 +196,7 @@ class ImageSlider extends React.Component {
               onClick={() => this.handleImageTransition(selectedImageIndex - 1, images)}
               style={{
                 cursor: "pointer",
-                color: this.checkImageIndexExistence(images, selectedImageIndex - 1)
-                  ? themeService({ default: basicColors.first, retro: retroColors.first })
-                  : "grey",
+                color: this.checkImageIndexExistence(images, selectedImageIndex - 1) ? "var(--first)" : "grey",
               }}
             />
             <Icon
@@ -196,9 +206,7 @@ class ImageSlider extends React.Component {
               onClick={() => this.handleImageTransition(selectedImageIndex + 1, images)}
               style={{
                 cursor: "pointer",
-                color: this.checkImageIndexExistence(images, selectedImageIndex + 1)
-                  ? themeService({ default: basicColors.first, retro: retroColors.first })
-                  : "grey",
+                color: this.checkImageIndexExistence(images, selectedImageIndex + 1) ? "var(--first)" : "grey",
               }}
             />
           </div>

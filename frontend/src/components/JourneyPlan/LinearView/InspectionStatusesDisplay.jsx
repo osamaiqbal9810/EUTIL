@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Table } from "reactstrap";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { inspectionStatusDisplayTableStyles } from "./styles";
 export default class InspectionStatusesDisplay extends Component {
   constructor(props) {

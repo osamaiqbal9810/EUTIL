@@ -9,11 +9,17 @@ import com.app.ps19.tipsapp.Shared.IConvertHelper;
 import com.app.ps19.tipsapp.Shared.IMergeHelper;
 import com.app.ps19.tipsapp.Shared.StaticListItem;
 import com.app.ps19.tipsapp.Shared.Utilities;
+import com.app.ps19.tipsapp.classes.dynforms.DynForm;
+import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
+import com.app.ps19.tipsapp.classes.safetybriefings.JobBriefing;
+import com.app.ps19.tipsapp.classes.safetybriefings.JobBriefingCollection;
+import com.bumptech.glide.load.engine.Resource;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,6 +64,16 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
     private Completion completion;
     private boolean loadCompletion=false;
     private JourneyPlanOpt jpTemplate;
+    private ArrayList<JobBriefing> jbCollection;
+
+    public ArrayList<JobBriefing> getJbCollection() {
+        return jbCollection;
+    }
+
+    public void setJbCollection(ArrayList<JobBriefing> jbCollection) {
+        this.jbCollection = jbCollection;
+    }
+
 
     public JourneyPlanOpt getJpTemplate() {
         return jpTemplate;
@@ -464,6 +480,44 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
                 }
             }
             setRunRanges(_runRanges);*/
+
+            ArrayList<JobBriefing> jBriefing = new ArrayList<>();
+            JSONArray jaBriefings = jsonObject.optJSONArray("jobBriefings");
+
+            HashMap<String, ArrayList<DynForm> > fm =  DynFormList.getFormListForBriefingHM();
+            int _i=0;
+            for(String key: fm.keySet()){
+                JSONObject joData=null;
+                if(jaBriefings!=null){
+                    joData=jaBriefings.optJSONObject(_i);
+                }
+                JobBriefing briefing = new JobBriefing(fm.get(key),joData);
+                jBriefing.add(briefing);
+                _i++;
+            }
+            setJbCollection(jBriefing);
+
+    /*
+            if(jaBriefings!=null){
+                for (int i = 0; i < jaBriefings.length(); i++) {
+                    JobBriefing briefing = new JobBriefing(jaBriefings.getJSONObject(i));
+                    jBriefing.add(briefing);
+                }
+                setJbCollection(jBriefing);
+            }else {
+                HashMap<String, ArrayList<DynForm> > fm =  DynFormList.getFormListForBriefingHM();
+                for(String key: fm.keySet()){
+                    JobBriefing briefing = new JobBriefing(fm.get(key));
+                    jBriefing.add(briefing);
+                }*/
+               /* ArrayList<DynForm> briefingForms = DynFormList.getFormListForBriefing();
+                for (DynForm form: briefingForms){
+                    JobBriefing briefing = new JobBriefing(form);
+                    jBriefing.add(briefing);
+                }*/
+
+//            }
+
             if(jsonObject.optJSONObject("safetyBriefing")!=null) {
                 setSafetyBriefingForm(new SafetyBriefingForm(jsonObject.optJSONObject("safetyBriefing")));
             }
@@ -504,6 +558,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
         }
         JSONObject jo =new JSONObject();
         JSONArray jaTasks=new JSONArray();
+        JSONArray jaBriefing = new JSONArray();
        // JSONArray jaRunRanges = new JSONArray();
         try {
             jo.put("_id",getuId());
@@ -537,6 +592,22 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             jo.put("userEndMP", getUserEndMp());
             jo.put("mpStart", getMpStart());
             jo.put("mpEnd", getMpEnd());*/
+            boolean isDataChanged = false;
+            if(getJbCollection()!=null){
+                for (JobBriefing briefing : getJbCollection()) {
+                    briefing.setChangeOnly(changeOnly);
+                    JSONObject joData = briefing.getJsonObject();
+                    if(joData!=null && joData.length()>0){
+                        isDataChanged = true;
+                        jaBriefing.put(joData);
+                    } else {
+                        jaBriefing.put(new JSONObject());
+                    }
+                }
+            }
+            if(isDataChanged){
+                jo.put("jobBriefings", jaBriefing);
+            }
             if(getSafetyBriefingForm() !=null) {
                 jo.put("safetyBriefing", getSafetyBriefingForm().getJsonObject());
             }
@@ -563,6 +634,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
     private JSONObject getJsonObjectChanged(){
         JSONObject jo=new JSONObject();
         JSONArray jaTasks=new JSONArray();
+        JSONArray jaBriefing = new JSONArray();
         try {
             //putJSONProperty(jo,"_id",getuId());
             putJSONProperty(jo,"date",getDate());
@@ -580,6 +652,24 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             putJSONProperty(jo,"nextDueDate", getNextDueDate());
             putJSONProperty(jo,"subdivision",getSubdivision());
             putJSONProperty(jo,"privateKey",getPrivateKey());
+            boolean isDataChanged = false;
+            if(getJbCollection()!=null){
+                for (JobBriefing briefing : getJbCollection()) {
+                    briefing.setChangeOnly(changeOnly);
+                    JSONObject joData = briefing.getJsonObject();
+                    if(joData!=null && joData.length()>0){
+                        isDataChanged = true;
+                        jaBriefing.put(joData);
+                    } else {
+                        jaBriefing.put(new JSONObject());
+                    }
+
+                }
+            }
+            if(isDataChanged){
+                jo.put("jobBriefings", jaBriefing);
+            }
+            //putJSONProperty(jo,"jobBriefings", jaBriefing);
             if(getSafetyBriefingForm() !=null) {
                 getSafetyBriefingForm().setChangeOnly(changeOnly);
                 JSONObject jsonObject=getSafetyBriefingForm().getJsonObject();
@@ -620,6 +710,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             }
 
             if(user!=null){
+                user=Globals.user;
                 Globals.user.setChangeOnly(changeOnly);
                 JSONObject userObj=Globals.user.getJsonObject();
                 if(userObj!=null && userObj.length()!=0){
@@ -652,7 +743,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             //Check if Id available in List
             if(!privateKey.equals("")){
                 DBHandler db=Globals.db;
-                List<StaticListItem> items=db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"","description='"+privateKey+"'");
+                List<StaticListItem> items=Globals.db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"","description='"+privateKey+"'");
                 if(items.size()==1){
                     StaticListItem item=items.get(0);
                     setId(item.getCode());
@@ -788,6 +879,10 @@ public List<IssueImage> getImageList(){
             if(retValue){
                 blnDataChanged=true;
             }
+        }
+        retValue=getUser().setImageStatus(finalItems);
+        if(retValue){
+            blnDataChanged=true;
         }
         return blnDataChanged;
     }
@@ -1055,6 +1150,7 @@ public List<IssueImage> getImageList(){
                         if(unitsOpt !=null){
                             unit.setDefaultFormValues(unitsOpt.getDefaultFormValues());
                             unit.setDefectsList(unitsOpt.getDefectsList());
+                            unit.setAtivDefects(unitsOpt.getaDefects());
                         }
                     }
                 }

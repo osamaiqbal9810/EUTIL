@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.app.ps19.scimapp.Shared.Globals.SESSION_STARTED;
+import static com.app.ps19.scimapp.Shared.Globals.WORK_PLAN_IN_PROGRESS_STATUS;
+import static com.app.ps19.scimapp.Shared.Globals.getBlinkAnimation;
 import static com.app.ps19.scimapp.Shared.Globals.selectedPostSign;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 

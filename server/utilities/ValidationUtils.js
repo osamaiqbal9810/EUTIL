@@ -1,6 +1,5 @@
-export default class ValidationUtils {
-    //SODObj.hasOwnProperty('employee')
-    //if (typeof target == "object" && typeof source == "object" && !(source instanceof Array) ) {
+let ServiceLocator = require("../framework/servicelocator");
+class ValidationUtils {
     constructor()
     {
     }
@@ -40,8 +39,31 @@ export default class ValidationUtils {
         
         return '';
     }
+    arrayTest(arr, test) {
+        if (!Array.isArray(arr)) return false;
+        let i;
+        for (i = 0; i < arr.length; i++) { if (!test(arr[i])) break; }
+        if (i < arr.length) return false;
+        return true;
+      }
+      
+    isObject(obj) { return typeof obj === 'object'; }
+      
+    isUndefined(obj) { return typeof obj === 'undefined'; }
+      
+    isString(obj) { return typeof obj === 'string'; }
+        
+    isNonNegative(n) { return (Number.isInteger(n) && n >= 0); }
+      
+    isNumeric(n) { return !isNaN(parseFloat(n)) && isFinite(n); }
+      
+    isHex64String(str) { return (typeof str === 'string' && /^[0-9a-fA-F]{64}$/.test(str)); }
+      
+    isHexString(str) { return (typeof str === 'string' && !/[^0-9a-fA-F]/.test(str)); }
 
-
-
+    isNumericInRange(n, start, end) { return (this.isNumeric(n) && n >= start && n <= end); }
 }
 
+const vUtil = new ValidationUtils();
+ServiceLocator.register("ValidationUtils", vUtil);
+module.exports = vUtil;

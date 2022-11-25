@@ -17,7 +17,7 @@ import {
 import { languageService } from "Language/language.service";
 let addButtonStyle = {
   marginBottom: "20px",
-  color: "rgba(64, 118, 179)",
+  color: "var(--first)",
   fontSize: "26px",
   cursor: "pointer",
   textDecoration: "none",
@@ -26,14 +26,14 @@ let labelStyling = {
   margin: "0",
   float: "left",
   fontSize: "14px",
-  color: "rgba(64, 118, 179)",
+  color: "rgb(94, 141, 143)",
   lineHeight: "34px",
 };
 let modalHeadinStyle = {
   padding: "15px",
   textAlign: "left",
   fontWeight: "600",
-  color: "rgb(64, 118, 179)",
+  color: "var(--first)",
 };
 let inputStyle = {
   display: "block",
@@ -42,8 +42,8 @@ let inputStyle = {
   padding: "6px 12px",
   fontSize: "12px",
   lineHeight: "1.42857143",
-  color: "rgba(64, 118, 179)",
-  backgroundColor: "#fff",
+  color: "var(--first)",
+  backgroundColor: "var(--fifth)",
   backgroundImage: "none",
   border: "1px solid #e3e9ef",
   borderRadius: "2px",
@@ -55,9 +55,9 @@ let inputStyle = {
 let btnStyle = {
   height: "30px",
   width: "160px",
-  backgroundColor: "rgba(64, 118, 179)",
+  backgroundColor: "var(--first)",
   border: "1px solid #e3e9ef",
-  color: "#fff",
+  color: "var(--fifth)",
   fontSize: "12px",
   cursor: "pointer",
   borderRadius: "4px",
@@ -68,13 +68,13 @@ let btnStyleCancel = {
   width: "160px",
   backgroundColor: "#6c757d",
   border: "1px solid #e3e9ef",
-  color: "#fff",
+  color: "var(--fifth)",
   fontSize: "12px",
   cursor: "pointer",
   borderRadius: "4px",
   transitionDuration: "0.4s",
 };
-export const UserHours = props => (
+export const UserHours = (props) => (
   <div className="static-modal">
     <Modal isOpen={props.modal}>
       <ModalHeader style={modalHeadinStyle} toggle={props.onCancel}>
@@ -112,7 +112,7 @@ export const UserHours = props => (
   </div>
 );
 
-export const HoursRow = props => (
+export const HoursRow = (props) => (
   <div key={props.index}>
     <Row>
       <Col md="3">
@@ -128,7 +128,7 @@ export const HoursRow = props => (
           id={props.index}
           value={props.day.startTime}
           placeholder="time placeholder"
-          onChange={value => {
+          onChange={(value) => {
             props.onChangeStart(props.index, value);
           }}
         />
@@ -141,7 +141,7 @@ export const HoursRow = props => (
           id={props.index}
           placeholder="time placeholder"
           value={props.day.endTime}
-          onChange={value => {
+          onChange={(value) => {
             props.onChangeEnd(props.index, value);
           }}
         />{" "}
@@ -154,7 +154,7 @@ export const HoursRow = props => (
           style={addButtonStyle}
           id={props.day.checkboxLabel}
           href="#"
-          onClick={e => {
+          onClick={(e) => {
             props.toggleBreakClick(props.index, !props.day.toggleBreak);
           }}
         >
@@ -174,7 +174,7 @@ export const HoursRow = props => (
               id="break-tag"
               placeholder="Tag a break"
               value={props.day.breakTag}
-              onChange={e => {
+              onChange={(e) => {
                 props.onChangeBreakTag(props.index, e);
               }}
             />
@@ -188,7 +188,7 @@ export const HoursRow = props => (
             id={props.index}
             value={props.day.breakStartTime}
             placeholder="time placeholder"
-            onChange={value => {
+            onChange={(value) => {
               props.onChangeStartBreakTime(props.index, value);
             }}
           />
@@ -201,7 +201,7 @@ export const HoursRow = props => (
             id={props.index}
             value={props.day.breakEndTime}
             placeholder="time placeholder"
-            onChange={value => {
+            onChange={(value) => {
               props.onChangeEndBreakTime(props.index, value);
             }}
           />

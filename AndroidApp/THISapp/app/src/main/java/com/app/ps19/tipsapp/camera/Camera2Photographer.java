@@ -39,12 +39,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionInfo;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
+import static com.app.ps19.tipsapp.Shared.Utilities.removeSpaces;
 
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class Camera2Photographer implements InternalPhotographer {
@@ -688,7 +693,14 @@ public class Camera2Photographer implements InternalPhotographer {
         }
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String picturePath = getImgPath(getSelectedTask().getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + ".jpg");
+        String picturePath;
+        UUID uuid = UUID.randomUUID();
+        /*if(selectedJPlan!=null){
+            picturePath = getImgPath(getSelectedTask().getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + ".jpg");
+        } else {
+            picturePath = getImgPath(getVersionInfo().getVersion().getApplicationType().toLowerCase(Locale.ROOT) + "_" + removeSpaces(getVersionInfo().getDisplayData().getDisplayName()).toLowerCase(Locale.ROOT) + "_" + uuid.toString() + ".jpg");
+        }*/
+        picturePath = getImgPath(getVersionInfo().getVersion().getApplicationType().toLowerCase(Locale.ROOT) + "_" + removeSpaces(getVersionInfo().getDisplayData().getDisplayName()).toLowerCase(Locale.ROOT) + "_" + uuid.toString() + ".jpg");
         File pictureFile = new File(picturePath);
         Globals.imgFile = pictureFile;
         Globals.imgSize = new Size(previewSize.getWidth(), previewSize.getHeight());

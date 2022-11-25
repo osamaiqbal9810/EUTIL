@@ -9,12 +9,12 @@ import "./planform.css";
 import moment from "moment";
 import _ from "lodash";
 import { themeService } from "../../../theme/service/activeTheme.service";
-
-const Label = props => <label>{props.children}</label>;
-const Field = props => <div className="field">{props.children}</div>;
+import "./planform.css";
+const Label = (props) => <label>{props.children}</label>;
+const Field = (props) => <div className="field">{props.children}</div>;
 
 const Required = () => <span className="required-fld">*</span>;
-const MyButton = props => (
+const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
   </button>
@@ -23,6 +23,7 @@ const MyButton = props => (
 class JourneyPlanAdd extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       selectedDay: null,
       selectedJourneyPlan: null,
@@ -36,6 +37,10 @@ class JourneyPlanAdd extends Component {
         title: "",
         user: "",
         date: "",
+        inspection_type: "",
+        inspection_freq: "",
+        inspection_date: "",
+        forms: []
       },
     };
     this.handleDayClick = this.handleDayClick.bind(this);
@@ -49,10 +54,11 @@ class JourneyPlanAdd extends Component {
     //   control: styles => ({ ...styles, backgroundColor: 'white', height: '15px' }),
     //   option: (base, state) => ({
     //     ...base,
-    //     color: 'rgba(64, 118, 179)',
+    //     color: '"var(--first)"',
     //     fontSize: '12px'
     //   })
     // }
+
   }
 
   handleCalanderShow() {
@@ -69,6 +75,10 @@ class JourneyPlanAdd extends Component {
         title: "",
         date: "",
         user: "",
+        inspection_type: "",
+        inspection_freq: "",
+        inspection_date: "",
+        forms: []
       },
       showDuplicatePlanText: false,
     });
@@ -119,6 +129,7 @@ class JourneyPlanAdd extends Component {
         title: plan.title,
         user: userObj,
         date: this.state.plan.date,
+        inspection_type: this.state.inspection_type
       },
       showEmptyTitleWarn: checkEmptyTitle,
       showEmptyUserWarn: checkEmptyUser,
@@ -132,6 +143,7 @@ class JourneyPlanAdd extends Component {
           title: "",
           date: "",
           user: "",
+          inspection_type: ""
         },
         selectedDay: null,
         showDatePicker: false,
@@ -147,7 +159,7 @@ class JourneyPlanAdd extends Component {
         plan: {
           title: nextProps.selectedJourneyPlan.title,
           date: nextProps.selectedJourneyPlan.date,
-          user: nextProps.selectedJourneyPlan.user.id,
+          user: nextProps.selectedJourneyPlan.user.id
         },
         showDatePicker: false,
         selectedDay: nextProps.selectedJourneyPlan.date,
@@ -157,7 +169,36 @@ class JourneyPlanAdd extends Component {
         showEmptyDateWarn: false,
         modalState: nextProps.modalState,
       };
-    } else if (nextProps.modalState !== "Add" && nextProps.modalState !== "Edit" && nextProps.modalState !== prevState.modalState) {
+    } else if (nextProps.modalState == "View" && nextProps.modalState !== prevState.modalState) {
+      let freqMap = {
+        NA: 0,
+        one_Year: 1,
+        three_Years: 3,
+        five_Years: 5
+      }
+      let templateId = nextProps.selectedJourneyPlan.workplanTemplateId;
+      let workPlanTemplate = nextProps.workPlanTemplates ? nextProps.workPlanTemplates.find(({ _id }) => _id == templateId) : null;
+      return {
+        selectedJourneyPlan: nextProps.selectedJourneyPlan,
+        workPlanTemplate: workPlanTemplate ? workPlanTemplate : null,
+        plan: {
+          title: nextProps.selectedJourneyPlan.title,
+          date: nextProps.selectedJourneyPlan.date,
+          user: nextProps.selectedJourneyPlan.user.id,
+          inspection_type: workPlanTemplate.inspection_type,
+          inspection_freq: freqMap[workPlanTemplate.inspection_freq],
+          forms: workPlanTemplate.inspectionFormInfo
+        },
+        showDatePicker: false,
+        selectedDay: nextProps.selectedJourneyPlan.date,
+        showDuplicatePlanText: false,
+        showEmptyUserWarn: false,
+        showEmptyTitleWarn: false,
+        showEmptyDateWarn: false,
+        modalState: nextProps.modalState,
+      };
+    }
+    else if (nextProps.modalState !== "Add" && nextProps.modalState !== "Edit" && nextProps.modalState !== prevState.modalState) {
       return {
         modalState: "None",
       };
@@ -177,8 +218,9 @@ class JourneyPlanAdd extends Component {
   //   })
   // }
 
-  handleUpdate(form) {}
+  handleUpdate(form) { }
   handleSubmit(plan) {
+
     //console.log('state plan : ')
     //console.log(this.state.plan)
 
@@ -196,7 +238,7 @@ class JourneyPlanAdd extends Component {
         _id: this.state.plan.user.id,
       });
       if (this.state.modalState == "Add") {
-        let result = _.find(this.props.journeyPlans, plan => {
+        let result = _.find(this.props.journeyPlans, (plan) => {
           let planDate = moment(plan.date).format("ll");
           let newPlanDate = moment(this.state.selectedDay).format("ll");
 
@@ -243,7 +285,7 @@ class JourneyPlanAdd extends Component {
           userObj.email = result.email;
         }
 
-        let duplicateResult = _.find(this.props.journeyPlans, plan => {
+        let duplicateResult = _.find(this.props.journeyPlans, (plan) => {
           let planDate = moment(plan.date).format("ll");
           let newPlanDate = moment(this.state.selectedDay).format("ll");
           let selectedPlanDate = moment(this.state.selectedJourneyPlan.date).format("ll");
@@ -294,17 +336,152 @@ class JourneyPlanAdd extends Component {
 
   render() {
     let options = null;
-    if (this.props.userList) {
+    if (this.props.userList || (this.state.modalState == "View" && this.state.selectedJourneyPlan)) {
       options = this.props.userList.map((user, index) => {
         return (
-          <option value={user._id} key={user._id}>
+          <option value={user._id} key={user._id} selected={this.state.modalState == "View" ? this.state.selectedJourneyPlan.user._id == user._id ? true : false : false}>
             {user.name}
           </option>
         );
       });
     }
     let editFormFields = null;
+    let viewFormFields = null;
     let addFormFields = null;
+    if (this.state.selectedJourneyPlan && this.state.workPlanTemplate && this.state.modalState == "View") {
+      let jDate = moment(this.state.selectedJourneyPlan.date).format("YYYY-MM-DD");
+      let today = moment().format("YYYY-MM-DD");
+      let planDatePassed = moment(jDate).isSameOrBefore(moment(today));
+      let planDateToday = moment(jDate).isSame(moment(today));
+      //console.log(planDatePassed)
+
+      viewFormFields = (
+        <ModalBody style={{maxHeight:'560px', overflowY:'auto' }}>
+          <Field>
+            <Label className="textColorJorneyPlanAdd">
+              Title :<Required />
+            </Label>
+            <Control.text model="plan.title" placeholder="Plan Title" disabled={true} className="textColorJorneyPlanAdd" />
+            <Errors
+              model="plan.title"
+              wrapper={this.errorWrapper}
+              component={this.errorComponent}
+              show={this.errorShow}
+              messages={{
+                required: "Please provide Plan Title.",
+              }}
+            />
+          </Field>
+          {this.state.showEmptyTitleWarn && (
+            <div
+              style={{
+                display: " block",
+                color: "firebrick",
+                fontSize: "12px",
+              }}
+            >
+              Please Enter Title
+            </div>
+          )}
+          <Field>
+            <Label className="textColorJorneyPlanAdd">
+              User :<Required />
+            </Label>
+            <Control.select model="plan.user" disabled={true} className="textColorJorneyPlanAdd">
+              <option className="textColorJorneyPlanAdd"> </option>
+              {options}
+            </Control.select>
+          </Field>
+          {this.state.showEmptyUserWarn && (
+            <div
+              style={{
+                display: " block",
+                color: "firebrick",
+                fontSize: "12px",
+              }}
+            >
+              Please Select User
+            </div>
+          )}
+          <Field model="plan.date">
+            <label className="fullWidth textColorJorneyPlanAdd">
+              Date :<Required />
+            </label>
+            <div>
+              <div className="dateControlField textColorJorneyPlanAdd" onClick={this.handleCalanderShow}>
+                {" "}
+                {this.state.selectedDay ? moment(this.state.selectedDay).format("LL") : "Select A Date"}{" "}
+              </div>
+            </div>
+          </Field>
+
+          <Field>
+            <Label className="textColorJorneyPlanAdd">
+              Inspection Type :<Required />
+            </Label>
+            <Control.text model="plan.inspection_type" placeholder="Inspection Type" disabled={true} className="textColorJorneyPlanAdd"/>
+            <Errors
+              model="plan.inspection_type"
+              wrapper={this.errorWrapper}
+              component={this.errorComponent}
+              show={this.errorShow}
+              messages={{
+                required: "Please provide Inspection Type.",
+              }}
+            />
+          </Field>
+
+          <Field>
+            <Label className="textColorJorneyPlanAdd">
+              Inspection Frequency :<Required />
+            </Label>
+            <Control.text model="plan.inspection_freq" placeholder="Inspection Frequency" disabled={true} className="textColorJorneyPlanAdd"/>
+            <Errors
+              model="plan.inspection_freq"
+              wrapper={this.errorWrapper}
+              component={this.errorComponent}
+              show={this.errorShow}
+              messages={{
+                required: "Please provide Inspection Type.",
+              }}
+            />
+          </Field>
+          <Label className="textColorJorneyPlanAdd">
+            Assets:<Required />
+          </Label>
+          <br></br>
+          <table className="table" >
+          <thead>
+          <tr>
+              <th scope="col">Asset Name</th>
+              <th scope="col">Asset Type</th>
+            </tr>
+          </thead>
+            {
+              this.state.plan.forms.map((form, ind) => {
+                return (
+                  <tr style={{borderBottom:"1px solid gray"}} scope="row" key={ind}>
+                    <td style={{color:"black"}}>{form.assetName}</td>
+                    <td style={{color:"black"}}>{form.assetType}</td>
+                  </tr>
+                )
+              })
+            }
+          </table>
+          {this.state.showDuplicatePlanText && (
+            <div
+              style={{
+                display: " block",
+                color: "firebrick",
+                fontSize: "12px",
+              }}
+            >
+              The Plan on {moment(this.state.plan.date).format("LL")} for {this.state.plan.user.name} Already Exists.
+            </div>
+          )}
+        </ModalBody>
+      );
+    }
     if (this.state.selectedJourneyPlan && this.state.modalState == "Edit") {
       let jDate = moment(this.state.selectedJourneyPlan.date).format("YYYY-MM-DD");
       let today = moment().format("YYYY-MM-DD");
@@ -497,15 +674,15 @@ class JourneyPlanAdd extends Component {
       <Modal
         isOpen={this.props.modal}
         toggle={this.props.toggle}
-        contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
       >
         <LocalForm
           className="planform"
           model="plan"
-          onUpdate={form => this.handleUpdate(form)}
+          onUpdate={(form) => this.handleUpdate(form)}
           validators={this.planValidator}
-          onChange={values => this.handleChange(values)}
-          onSubmit={values => this.handleSubmit(values)}
+          onChange={(values) => this.handleChange(values)}
+          onSubmit={(values) => this.handleSubmit(values)}
           initialState={this.state.plan}
         >
           {this.state.modalState == "Add" && (
@@ -514,12 +691,17 @@ class JourneyPlanAdd extends Component {
           {this.state.modalState == "Edit" && (
             <ModalHeader style={ModalStyles.modalTitleStyle}>{languageService("Update Inspection")}</ModalHeader>
           )}
+
+          {this.state.modalState == "View" && (
+            <ModalHeader style={ModalStyles.modalTitleStyle}>{languageService("View Inspection")}</ModalHeader>
+          )}
           {this.state.modalState == "Add" && addFormFields}
           {this.state.modalState == "Edit" && editFormFields}
+          {this.state.modalState == "View" && viewFormFields}
           <ModalFooter style={ModalStyles.footerButtonsContainer}>
             {this.state.modalState == "Add" && <MyButton type="submit">{languageService("Add")}</MyButton>}
             {this.state.modalState == "Edit" && <MyButton type="submit">{languageService("Save")}</MyButton>}
-            <MyButton type="button" onClick={this.handleClose}>
+            <MyButton type="button" onClick={this.handleClose} style={{ background:'#0096FF' }}>
               Close
             </MyButton>
           </ModalFooter>

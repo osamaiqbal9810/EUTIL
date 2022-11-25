@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -21,8 +22,9 @@ import com.app.ps19.tipsapp.Shared.JsonWebService;
 import com.app.ps19.tipsapp.Shared.OnItemClick;
 import com.app.ps19.tipsapp.Shared.SharedPref;
 import com.app.ps19.tipsapp.classes.User;
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+//import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +37,8 @@ import java.util.Observer;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SERVER;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_STRING_DIVIDER;
 import static com.app.ps19.tipsapp.Shared.Globals.getPingAddress;
-import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionUrl;
+import static com.app.ps19.tipsapp.Shared.Globals.lastWsReturnCode;
 import static com.app.ps19.tipsapp.Shared.Utilities.isNetworkAvailable;
 
 public class EndPointActivity extends AppCompatActivity implements OnItemClick, Observer {
@@ -153,6 +156,7 @@ public class EndPointActivity extends AppCompatActivity implements OnItemClick, 
             serverName.setText(server[1]);
             serverPort.setText(server[2]);
         }
+        serverDisplay.requestFocus();
         alertDialogBuilder.setPositiveButton(getString(R.string.btn_ok), null);
         alertDialogBuilder.setNegativeButton(getString(R.string.btn_cancel), null);
         alertDialogBuilder.setNeutralButton(getString(R.string.btn_test), null);
@@ -260,7 +264,7 @@ public class EndPointActivity extends AppCompatActivity implements OnItemClick, 
             progressDialog.show();
             server = serverName.getText().toString();
             port = serverPort.getText().toString();
-            Globals.lastWsReturnCode = 0;
+            lastWsReturnCode = 0;
             super.onPreExecute();
         }
 
@@ -268,8 +272,17 @@ public class EndPointActivity extends AppCompatActivity implements OnItemClick, 
             // Parse response data
             JSONArray jaUser = new JSONArray();
             //String url = "http://" + server + ":"+ port + "/api/List/JourneyPlan/pull";
-            String userString = JsonWebService.getJSON(getPingAddress(server, port), 5000);
+            String userString;
+            userString = JsonWebService.getJSON(getPingAddress(server, port, "https"), 5000);
             try {
+                if(lastWsReturnCode == 401){
+                    pref.putString(server, "https");
+                } else {
+                    userString = JsonWebService.getJSON(getPingAddress(server, port, "http"), 5000);
+                    if(lastWsReturnCode == 401){
+                        pref.putString(server, "http");
+                    }
+                }
                 if (userString != null) {
                     jaUser = new JSONArray(userString);
                     user = new User(jaUser.getJSONObject(0));
@@ -284,19 +297,18 @@ public class EndPointActivity extends AppCompatActivity implements OnItemClick, 
             if (progressDialog.isShowing())
                 progressDialog.dismiss();
 
-            if (Globals.lastWsReturnCode == 200 || Globals.lastWsReturnCode == 201) {
+            if (lastWsReturnCode == 200 || lastWsReturnCode == 201) {
                 if (user != null) {
                     if (!user.getRemoved()) {
-
                         Toast.makeText(EndPointActivity.this, getString(R.string.toast_server_working), Toast.LENGTH_LONG).show();
                     }
                 }
-            } else if (Globals.lastWsReturnCode == 401) {
+            } else if (lastWsReturnCode == 401) {
                 Toast.makeText(EndPointActivity.this, getString(R.string.toast_server_working), Toast.LENGTH_LONG).show();
 
-            } else if (Globals.lastWsReturnCode == 404) {
+            } else if (lastWsReturnCode == 404) {
                 Toast.makeText(EndPointActivity.this, getString(R.string.toast_timps_no_run), Toast.LENGTH_LONG).show();
-            } else if (Globals.lastWsReturnCode == 0) {
+            } else if (lastWsReturnCode == 0) {
                 Toast.makeText(EndPointActivity.this, getString(R.string.toast_server_unreach), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(EndPointActivity.this, getString(R.string.toast_server_unreach), Toast.LENGTH_LONG).show();

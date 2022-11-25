@@ -6,7 +6,7 @@ import _ from "lodash";
 import { languageService } from "../../Language/language.service";
 import { themeService } from "theme/service/activeTheme.service";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
-const MyButton = props => (
+const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
   </button>
@@ -42,7 +42,7 @@ export default class AddToTeamModalBox extends Component {
   handleAvailablUsersReset() {
     let availableUsers = _.cloneDeep(this.state.availableUsers);
 
-    availableUsers.forEach(element => {
+    availableUsers.forEach((element) => {
       element.selected = false;
     });
     this.setState({
@@ -90,7 +90,7 @@ export default class AddToTeamModalBox extends Component {
           isOpen={this.props.modal}
           toggle={this.props.toggle}
           size="lg"
-          contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+          contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
         >
           <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}> {this.props.headerText}</ModalHeader>
           <ModalBody style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.body))}>
@@ -110,7 +110,7 @@ export default class AddToTeamModalBox extends Component {
           <ModalFooter style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.footer))}>
             <MyButton
               style={themeService(ButtonStyle.commonButton)}
-              onClick={e => {
+              onClick={(e) => {
                 this.props.handleResponse(true, this.state.usersToAdd);
                 this.handleResetUsersToAdd();
               }}
@@ -119,7 +119,7 @@ export default class AddToTeamModalBox extends Component {
             </MyButton>
             <MyButton
               style={themeService(ButtonStyle.commonButton)}
-              onClick={e => {
+              onClick={(e) => {
                 this.props.handleResponse(false);
                 this.handleAvailablUsersReset();
               }}

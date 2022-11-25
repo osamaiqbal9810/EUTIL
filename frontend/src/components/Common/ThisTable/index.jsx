@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 import { thisTableStyle } from "./style/index";
 import { themeService } from "theme/service/activeTheme.service";
 import Radium from "radium";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class ThisTable extends Component {
   constructor(props) {
     super(props);
@@ -56,10 +56,10 @@ class ThisTable extends Component {
     const { columnStyle } = this.state;
 
     let receivedColumns = newTableColms;
-    receivedColumns.forEach(column => {
+    receivedColumns.forEach((column) => {
       let copyColumnStyle = { ...columnStyle };
       let columnKeys = Object.keys(column);
-      columnKeys.forEach(key => {
+      columnKeys.forEach((key) => {
         copyColumnStyle[key] = column[key];
       });
       columns.push(copyColumnStyle);
@@ -101,7 +101,7 @@ class ThisTable extends Component {
           showPaginationTop={this.props.showPaginationTop || false}
           showPaginationBottom={this.props.showPaginationBottom || true}
           pageSizeOptions={this.props.pageSizeOptions || [5, 10, 20, 25, 50, 100]}
-          onPageChange={page => {
+          onPageChange={(page) => {
             if (this.props.handlePageChange) {
               this.props.handlePageChange(page);
             }
@@ -111,7 +111,7 @@ class ThisTable extends Component {
           style={{ ...themeService(thisTableStyle.tableStyle), height: this.props.height ? this.props.height : "inherit" }}
           getTbodyProps={(state, rowInfo, column, instance) => {
             return {
-              className: "scrollbar",
+              className: "scrollbar issue",
             };
           }}
           getTrProps={(state, rowInfo, column, instance) => {
@@ -124,7 +124,7 @@ class ThisTable extends Component {
               }
             }
             return {
-              onClick: e => {
+              onClick: (e) => {
                 //console.log(this.state.selected);
                 let val = indexRow;
                 this.state.selected == indexRow && (val = null);

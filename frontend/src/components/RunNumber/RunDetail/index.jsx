@@ -16,7 +16,7 @@ import _ from "lodash";
 import { languageService } from "../../../Language/language.service";
 import { themeService } from "../../../theme/service/activeTheme.service";
 import { commonPageStyle } from "../../Common/Summary/styles/CommonPageStyle";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { commonSummaryStyle } from "../../Common/Summary/styles/CommonSummaryStyle";
 import permissionCheck from "../../../utils/permissionCheck";
 
@@ -131,7 +131,7 @@ class RunDetail extends Component {
     ) {
       let parentAsset = _.find(this.props.assets.assetsList, { _id: this.props.runNumber.runLineID });
       let runRanges = this.state.runRanges;
-      if (runRanges.length > 0) runRanges = runRanges.map(rr => ({ ...rr, lineName: parentAsset.unitId }));
+      if (runRanges.length > 0) runRanges = runRanges.map((rr) => ({ ...rr, lineName: parentAsset.unitId }));
       this.setState({ parentAsset, runRanges });
     }
 
@@ -276,7 +276,7 @@ class RunDetail extends Component {
                         <ButtonCirclePlus
                           iconSize={60}
                           icon={withPlus}
-                          handleClick={e => {
+                          handleClick={(e) => {
                             this.handleAddEditNewClick("Add");
                           }}
                           {...themeService(commonSummaryStyle.addButtonStyle(this.props))}
@@ -337,7 +337,7 @@ export default RunDetailContainer;
 let runDetailStyle = {
   runDetailInfo: {
     default: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "30px 15px  0px 15px",
       padding: "15px",
@@ -347,7 +347,7 @@ let runDetailStyle = {
       fontSize: "12px",
     },
     retro: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "10px 15px  0px 15px",
       padding: "15px",
@@ -356,9 +356,20 @@ let runDetailStyle = {
       color: retroColors.second,
       fontSize: "12px",
     },
+    electric: {
+      background: "var(--fifth)",
+      boxShadow: "3px 3px 5px #cfcfcf",
+      margin: "10px 15px  0px 15px",
+      padding: "15px",
+      minHeight: "150px",
+      textAlign: "left",
+      color: electricColors.second,
+      fontSize: "12px",
+    },
   },
   subDetailHeading: {
     default: { display: "none" },
     retro: {},
+    electric: {},
   },
 };

@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import Radium from "radium";
 import { getColorsArray } from "utils/colors";
 import DropDown from "components/Common/DropDown/index";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 class CommonTabsV2 extends Component {
   constructor(props) {
@@ -89,9 +89,9 @@ class CommonTabsV2 extends Component {
     let tabStyle =
       activeTheme == "default"
         ? {
-            backgroundColor: finalChcek ? "rgb(64, 118, 179)" : "#f4f4f4",
-            borderColor: finalChcek ? "#fff" : "rgb(64, 118, 179)",
-            color: finalChcek ? "#fff" : "rgba(64, 118, 179)",
+            backgroundColor: finalChcek ? "var(--first)" : "#f4f4f4",
+            borderColor: finalChcek ? "var(--fifth)" : "var(--first)",
+            color: finalChcek ? "var(--fifth)" : "var(--first)",
             backgroundImage: finalChcek
               ? ""
               : "-webkit-gradient(linear, 0 0, 0 100%, from(#f2f2f2), color-stop(85%, #ffffff), to(#cccccc))",
@@ -102,10 +102,10 @@ class CommonTabsV2 extends Component {
             backgroundRepeat: "no-repeat",
           }
         : {
-            backgroundColor: "#fff",
+            backgroundColor: "var(--fifth)",
             border: "1px solid #d8d8d8",
             color: "#000000",
-            borderBottom: finalChcek ? "3px solid " + retroColors.first : "3px solid " + retroColors.fourth,
+            borderBottom: finalChcek ? "3px solid var(--first)" : "3px solid var(--fourth)",
             borderRadius: "0px",
           };
     // console.log(childActive);
@@ -114,7 +114,7 @@ class CommonTabsV2 extends Component {
       <div
         key={this.props.tabValue}
         onClick={(e) => {
-          this.handleTabClick(this.props.tabValue, "rgb(64, 118, 179)");
+          this.handleTabClick(this.props.tabValue, "var(--first)");
         }}
         className={this.state.tabClasses}
         style={tabStyle}

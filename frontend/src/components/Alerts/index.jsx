@@ -4,7 +4,7 @@ import { Col, Row } from "reactstrap";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { languageService } from "../../Language/language.service";
 import { MainPageHeading } from "components/Settings/common";
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { basic_webpage_img_txt } from "react-icons-kit/linea/basic_webpage_img_txt";
 import { basic_mail } from "react-icons-kit/linea/basic_mail";
 import { Icon } from "react-icons-kit";
@@ -16,8 +16,8 @@ import _ from "lodash";
 import { ButtonStyle } from "../../style/basic/commonControls";
 import { ic_launch } from "react-icons-kit/md/ic_launch";
 import { Link, NavLink } from "react-router-dom";
-import {versionInfo} from "../MainPage/VersionInfo";
-
+import { versionInfo } from "../MainPage/VersionInfo";
+import permissionCheck from "../../utils/permissionCheck";
 
 const SIGNAL_APP_CONFIGS = [{ key: "rule2139bAlertTemplate", text: "Apply 213.9b Alert to inspection Template" }];
 
@@ -31,7 +31,7 @@ class Alerts extends Component {
           fontFamily: "Arial",
           fontSize: 12,
           width: "100%",
-          background: "#fff",
+          background: "var(--fifth)",
           margin: "15px",
           padding: "10px 30px ",
         },
@@ -41,6 +41,15 @@ class Alerts extends Component {
           fontSize: 12,
           width: "100%",
           background: retroColors.nine,
+          margin: "15px",
+          padding: "10px 30px ",
+        },
+        electric: {
+          boxShadow: "0",
+          fontFamily: "Arial",
+          fontSize: 12,
+          width: "100%",
+          background: electricColors.nine,
           margin: "15px",
           padding: "10px 30px ",
         },
@@ -141,11 +150,10 @@ class Alerts extends Component {
   };
 
   renderUserConfigs() {
-  let timpsSignalApp = versionInfo.isSITE();
-  
-  let USER_ALERT_CONFIGS = [];
-      USER_ALERT_CONFIGS = timpsSignalApp ? USER_ALERT_CONFIGS : [...USER_ALERT_CONFIGS, ...SIGNAL_APP_CONFIGS];
+    let timpsSignalApp = versionInfo.isSITE();
 
+    let USER_ALERT_CONFIGS = [];
+    USER_ALERT_CONFIGS = timpsSignalApp ? USER_ALERT_CONFIGS : [...USER_ALERT_CONFIGS, ...SIGNAL_APP_CONFIGS];
 
     return USER_ALERT_CONFIGS.map((uac) => {
       return (
@@ -185,18 +193,18 @@ class Alerts extends Component {
     }
 
     return (
-      <div style={{ background: "#fff", margin: "15px", padding: "10px 30px " }}>
+      <div style={{ background: "var(--fifth)", margin: "15px", padding: "10px 30px " }}>
         <Row>
           <Col md="12">
             <MainPageHeading heading="b">{languageService("Alerts")}</MainPageHeading>
           </Col>
         </Row>
         <Row>
-          <Col md={4}>
+          {/* <Col md={4}>
             <div className={"commonform alerts"} style={this.styles.companyInfoContainer}>
               {this.renderUserConfigs()}
 
-              {this.state.isDirty && (
+              {this.state.isDirty && permissionCheck("ALERT CONFIG", "save") && (
                 <React.Fragment>
                   <button
                     onClick={this.saveChanges}
@@ -217,8 +225,8 @@ class Alerts extends Component {
                 </React.Fragment>
               )}
             </div>
-          </Col>
-          <Col md={8}>
+          </Col> */}
+          <Col md={12}>
             <div className={"commonform alerts"} style={this.styles.companyInfoContainer}>
               {alerts.reduce((arr, al) => {
                 let date = moment(al.alertTimeLocal);

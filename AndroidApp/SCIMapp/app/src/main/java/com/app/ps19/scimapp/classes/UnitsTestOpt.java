@@ -1,25 +1,133 @@
 package com.app.ps19.scimapp.classes;
 
-import android.content.Context;
-import android.graphics.Color;
+import android.util.Log;
 
 import com.app.ps19.scimapp.R;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.IConvertHelper;
 import com.app.ps19.scimapp.Shared.Utilities;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Date;
 
 public class UnitsTestOpt implements IConvertHelper {
 
-    private String description="";
-    private String dueDate="";
-    private String expiryDate="";
-    private String testCode="";
+    public String getStartDate() {
+        return startDate;
+    }
 
-    private int color=Color.parseColor("green");
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getAssetType() {
+        return assetType;
+    }
+
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
+    }
+
+    public String getAssetId() {
+        return assetId;
+    }
+
+    public void setAssetId(String assetId) {
+        this.assetId = assetId;
+    }
+
+    public String getTestId() {
+        return testId;
+    }
+
+    public void setTestId(String testId) {
+        this.testId = testId;
+    }
+
+    public Double getStartMP() {
+        return startMP;
+    }
+
+    public void setStartMP(Double startMP) {
+        this.startMP = startMP;
+    }
+
+    public Double getEndMP() {
+        return endMP;
+    }
+
+    public void setEndMP(Double endMP) {
+        this.endMP = endMP;
+    }
+
+    public String getLineId() {
+        return lineId;
+    }
+
+    public void setLineId(String lineId) {
+        this.lineId = lineId;
+    }
+
+    public String getTimezone() {
+        return timezone;
+    }
+
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
+    }
+
+    public String getCurrentPeriodStart() {
+        return currentPeriodStart;
+    }
+
+    public void setCurrentPeriodStart(String currentPeriodStart) {
+        this.currentPeriodStart = currentPeriodStart;
+    }
+
+    public String getCurrentPeriodEnd() {
+        return currentPeriodEnd;
+    }
+
+    public void setCurrentPeriodEnd(String currentPeriodEnd) {
+        this.currentPeriodEnd = currentPeriodEnd;
+    }
+
+    private String startDate = "";
+    private String assetType = "";
+    private String testCode="";
+    private String assetId = "";
+    private String nextDueDate ="";
+    private String nextExpiryDate ="";
+    private String testId ="";
+    private Double startMP = 0.0;
+    private Double endMP = 0.0;
+    private String lineId = "";
+    private String title = "";
+    private String timezone = "";
+    private String currentPeriodStart = "";
+    private String currentPeriodEnd = "";
+    private boolean inspected=false;
+    private TestLinearProps linearProps=null;
+
+    public void setLinearProps(TestLinearProps linearProps) {
+        this.linearProps = linearProps;
+    }
+
+    public TestLinearProps getLinearProps() {
+        return linearProps;
+    }
+
+    public void setInspected(boolean inspected) {
+        this.inspected = inspected;
+    }
+
+    public boolean isInspected() {
+        return inspected;
+    }
+
+    private int color=Globals.COLOR_TEST_NOT_ACTIVE;
     private int sortOrder=1000;
 
     private String dueText ="";
@@ -40,27 +148,28 @@ public class UnitsTestOpt implements IConvertHelper {
         return sortOrder;
     }
 
-    public void setColor(int color) {
-        this.color = color;
-    }
+//    public void setColor(int color) {
+//        this.color = color;
+//    }
+
     public int getColor() {
-        return color;
+        return this.color;
     }
 
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
+    public void setNextDueDate(String nextDueDate) {
+        this.nextDueDate = nextDueDate;
     }
 
-    public String getDueDate() {
-        return dueDate;
+    public String getNextDueDate() {
+        return nextDueDate;
     }
 
-    public void setExpiryDate(String expiryDate) {
-        this.expiryDate = expiryDate;
+    public void setNextExpiryDate(String nextExpiryDate) {
+        this.nextExpiryDate = nextExpiryDate;
     }
 
-    public String getExpiryDate() {
-        return expiryDate;
+    public String getNextExpiryDate() {
+        return nextExpiryDate;
     }
 
     public UnitsTestOpt(JSONObject jo){
@@ -68,11 +177,11 @@ public class UnitsTestOpt implements IConvertHelper {
 
     }
 
-    public String getDescription() {
-        return description;
+    public String getTitle() {
+        return title;
     }
-    public void setDescription(String description) {
-        this.description = description;
+    public void setTitle(String description) {
+        this.title = description;
     }
 
     public String getDueText() {
@@ -87,12 +196,23 @@ public class UnitsTestOpt implements IConvertHelper {
     public boolean parseJsonObject(JSONObject jsonObject) {
 
         try{
-            //hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
-            //TODO: no value for id from loadInbox Globals file
+
+            setStartDate(jsonObject.optString("startDate",""));
+            setAssetType(jsonObject.optString("assetType",""));
             setTestCode(jsonObject.optString("testCode",""));
-            setDescription(jsonObject.optString("title", ""));
-            setDueDate(jsonObject.optString("nextDueDate", ""));
-            setExpiryDate(jsonObject.optString("nextExpiryDate", ""));
+            setAssetId(jsonObject.optString("assetId",""));
+            setNextDueDate(jsonObject.optString("nextDueDate", ""));
+            setNextExpiryDate(jsonObject.optString("nextExpiryDate", ""));
+            setTestId(jsonObject.optString("testId",""));
+            setStartMP(jsonObject.optDouble("start",0.0));
+            setEndMP(jsonObject.optDouble("end",0.0));
+            setLineId(jsonObject.optString("lineId", ""));
+            setTitle(jsonObject.optString("title", ""));
+            setTimezone(jsonObject.optString("timezone", ""));
+            setCurrentPeriodStart(jsonObject.optString("currentPeriodStart", ""));
+            setCurrentPeriodEnd(jsonObject.optString("currentPeriodEnd", ""));
+            setLinearProps(new TestLinearProps(jsonObject.optJSONObject("linearProps")));
+
             makeDueText();
 
             return true;
@@ -106,45 +226,67 @@ public class UnitsTestOpt implements IConvertHelper {
     public JSONObject getJsonObject() {
         JSONObject jo=new JSONObject();
 
+        try {
+            jo.put("startDate", this.startDate);
+            jo.put("assetType", this.assetType);
+            jo.put("testCode", this.testCode);
+            jo.put("assetId", this.assetId);
+            jo.put("nextDueDate", this.nextDueDate);
+            jo.put("nextExpiryDate", this.nextExpiryDate);
+            jo.put("testId", this.testId);
+            jo.put("start", this.startMP);
+            jo.put("end", this.endMP);
+            jo.put("lineId", this.lineId);
+            jo.put("title", this.title);
+            jo.put("timezone", this.timezone);
+
+            jo.put("currentPeriodStart", this.currentPeriodStart);
+            jo.put("currentPeriodEnd", this.currentPeriodEnd);
+            jo.put("linearProps",this.linearProps.getJsonObject());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
 
         return jo;
     }
     @Override
     public String toString() {
-        return description;
+        return title;
     }
 
     private void makeDueText(){
         setDueText("");
-        if(!this.dueDate.equals("") && !this.expiryDate.equals("")){
-            Date dueDate=Utilities.parseMomentDate(this.dueDate);
-            Date expDate =Utilities.parseMomentDate(this.expiryDate);
-            int percentComplete=0;
-            Date today=new Date();
-            setColor(Globals.COLOR_TEST_NOT_ACTIVE);
-            if(today.before(dueDate)){
+        //this.color = Globals.COLOR_TEST_NOT_ACTIVE;
+        if(!this.nextDueDate.equals("") && !this.nextExpiryDate.equals("")
+                && !this.nextExpiryDate.equals("null") &&!this.nextDueDate.equals("null") ) {
+            Date dueDate = Utilities.parseMomentDate(this.nextDueDate);
+            Date expDate = Utilities.parseMomentDate(this.nextExpiryDate);
+            int percentComplete = 0;
+            Date today = new Date();
+
+            if (today.before(dueDate)) {
                 // due date not arrived
                 //int daysBetween=Utilities.getDaysBetween(today, dueDate);
-                String dueText=Utilities.timeDiffText(today,dueDate);
-                String strText= Globals.loginContext.getString(R.string.due_in_text) + dueText;
+                String dueText = Utilities.timeDiffText(today, dueDate);
+                String strText = Globals.loginContext.getString(R.string.due_in_text) + dueText;
                 setDueText(strText);
-                setColor(Globals.COLOR_TEST_NOT_ACTIVE);
-            } else if(today.after(dueDate) && today.before(expDate)){
-                percentComplete=Utilities.getPercentComplete(dueDate,expDate);
-                int daysBetween=Utilities.getDaysBetween(today, expDate);
-                String strText=String.format("Expiring in %d day(s)",daysBetween);
-                String expText=Utilities.timeDiffText(today, expDate);
-                strText=Globals.loginContext.getString(R.string.expiring_in_text) + expText;
+                // this.color = Globals.COLOR_TEST_NOT_ACTIVE;
+            } else if (today.after(dueDate) && today.before(expDate)) {
+                percentComplete = Utilities.getPercentComplete(dueDate, expDate);
+                int daysBetween = Utilities.getDaysBetween(today, expDate);
+                String strText = String.format("Expiring in %d day(s)", daysBetween);
+                String expText = Utilities.timeDiffText(today, expDate);
+                strText = Globals.loginContext.getString(R.string.expiring_in_text) + expText;
                 setDueText(strText);
                 setSortOrder(daysBetween);
 
-                if(percentComplete>75){
-                    setColor(Globals.COLOR_TEST_EXPIRING);
-                }else{
-                    setColor(Globals.COLOR_TEST_ACTIVE);
+                if (percentComplete > 75) {
+                    this.color = Globals.COLOR_TEST_EXPIRING;
+                } else {
+                    this.color = Globals.COLOR_TEST_ACTIVE;
                 }
             }
         }
     }
-
 }

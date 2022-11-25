@@ -54,7 +54,7 @@ class ElectricUtility extends Component {
     // });
     return (
       <React.Fragment>
-        <div className="table-report electric-utility">
+        <div className="table-report electric-utility" id="mainContent">
           <Row>
             <Col md={12}>
               <Row>

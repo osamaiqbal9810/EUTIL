@@ -1,0 +1,55 @@
+.general-button-underlined {
+  background-color: inherit;
+  border: none;
+  font-size: 14px;
+  margin: 0px 10px 0px 0px;
+  padding: 0px !important;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.general-button-pill.non-toggleAble {
+    border: 1px solid;
+    transition: all 0.3s ease-in-out;
+    padding: 3px 10px !important;
+    background-color: var(--first);
+    border-radius: 16px;
+    color: var(--srcond);
+    margin: 0 10px;
+}
+.general-button-pill.non-toggleAble:hover {
+    box-shadow: 1px 1px 4px 0px var(--second);
+    transition: all 0.3s ease-in-out;
+}
+
+.general-button-pill.toggleAble {
+  border: 1px solid;
+  transition: all 0.3s ease-in-out;
+  padding: 3px 10px !important;
+  background-color: var(--first);
+  border-radius: 16px;
+  color: var(--srcond);
+  margin: 0 10px;
+}
+.general-button-pill.toggleAble:hover {
+  opacity: 0.8;
+}
+.general-button-pill.toggleAble.latch-behavior.released {
+  box-shadow: 1px 1px 10px 0px var(--second);
+}
+
+.general-button-pill>span,
+.general-button-pill>span {
+    padding-right: 3px;
+}
+
+.general-button-underlined.grey {
+  color: rgb(107, 110, 110);
+}
+
+.general-button-underlined.file-hyperlink {
+  color: blue;
+}
+.general-button-underlined.file-hyperlink:hover {
+  text-decoration: underline;
+}

@@ -91,6 +91,9 @@
 .DayPickerInput {
   padding: 0 !important;
 }
+.DayPickerInput input {
+  color: #000000 !important;
+}
 .table {
   font-size: 12px;
 }
@@ -107,7 +110,7 @@ span.notification-date {
   text-align: left;
   font-size: 12px;
   letter-spacing: 1px;
-  color: rgb(64, 118, 179);
+  color: var(--first);
   opacity: 0.8;
 }
 .alert-secondary span.notification-date {
@@ -115,7 +118,7 @@ span.notification-date {
 }
 ul.asset-list li:hover,
 ul.asset-list li.active {
-  background-color: rgb(64, 118, 179);
+  background-color: var(--first);
 }
 ul.asset-list {
   padding: 0;
@@ -162,7 +165,7 @@ ul.asset-list {
   padding: 6px;
   color: inherit;
 
-  color: rgb(64, 118, 179);
+  color: var(--first);
   box-shadow: none;
   border-radius: 50%;
   width: 2px;
@@ -208,6 +211,9 @@ ul.asset-list li {
   .table-report .table.table-striped {
     width: 1400px;
   }
+  table.table.inline-table {
+    width: 100%;
+  }
   .table-report.sud-nicman-report,
   .table-report {
     overflow: auto !important;
@@ -249,7 +255,7 @@ div#mainContent {
 }
 .inspection-manage .styled-chk-box input[type="checkbox"] + label {
   left: 10px;
-  color: rgb(26, 26, 26);
+  color: var(--second);
   font-size: 12px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -266,7 +272,7 @@ div#mainContent {
   vertical-align: middle;
 }
 .commonform.alerts .alert-box {
-  background: #fff;
+  background: var(--fifth);
   margin-bottom: 10px;
   padding: 15px;
   border-radius: 5px;
@@ -278,8 +284,21 @@ div#mainContent {
   margin-right: 15px;
   padding-top: "2px";
 }
+.commonform .report-filter {
+  display: inline-block;
+}
 div#mainContent .table-report {
   margin-bottom: 10px;
+}
+div#mainContent .table-report.txn {
+  margin-bottom: 0px;
+}
+.table-report.txn table tr td {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
 }
 #mainContent .table-report.disturbance-report span {
   padding-left: 15px;
@@ -287,4 +306,32 @@ div#mainContent .table-report {
   font-family: serif;
   font-size: 17px;
   vertical-align: middle;
+}
+.footer-curves .signature-image {
+  width: 100%;
+  max-width: 385px;
+  height: 70px;
+  overflow: hidden;
+  position: absolute;
+  right: 65%;
+  -webkit-transform: translate(50%);
+  -ms-transform: translate(50%);
+  transform: translate(50%);
+  bottom: 0;
+  top: -28px;
+}
+.logix-services.turn .signature-image {
+  right: 39%;
+}
+.table-report.bridge .signature-image {
+  width: 50%;
+  max-width: 385px;
+  height: 70px;
+  overflow: hidden;
+  position: absolute;
+  right: 28%;
+  -webkit-transform: translate(50%);
+  -ms-transform: translate(50%);
+  transform: translate(50%);
+  bottom: -6px;
 }

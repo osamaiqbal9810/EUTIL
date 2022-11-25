@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.IConvertHelper;
 import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.classes.ativ.ATIVDefect;
 import com.app.ps19.scimapp.classes.dynforms.DynForm;
 import com.app.ps19.scimapp.classes.dynforms.DynFormList;
 import com.app.ps19.scimapp.classes.maintenance.MaintenanceExecution;
@@ -33,6 +34,7 @@ import java.util.List;
 
 import static android.content.ContentValues.TAG;
 import static com.app.ps19.scimapp.Shared.Globals.FULL_DATE_FORMAT;
+import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
 
 
 public class Task implements IConvertHelper{
@@ -63,6 +65,7 @@ public class Task implements IConvertHelper{
     private String mpEnd;
     private ArrayList<RunRanges> runRanges;
     private String traverseTrack;
+    private String observeTrack;
     private String traverseBy;
     private String weatherConditions;
     private String inspectionType;
@@ -76,9 +79,34 @@ public class Task implements IConvertHelper{
     private String locationUnit;
     private boolean isYardInspection = false;
     private MaintenanceList maintenanceList;
+    private ArrayList<ATIVDefect> ativIssues;
     private ArrayList<MaintenanceExecution> maintenanceExecutions;
 
+    public ArrayList<ATIVDefect> getAtivIssues() {
+        return ativIssues;
+    }
 
+    public void setAtivIssues(ArrayList<ATIVDefect> ativIssues) {
+        this.ativIssues = ativIssues;
+    }
+
+    public String getAppVersion() {
+        return appVersion;
+    }
+
+    public void setAppVersion(String appVersion) {
+        this.appVersion = appVersion;
+    }
+
+    private String appVersion = "";
+
+    public String getObserveTrack() {
+        return observeTrack;
+    }
+
+    public void setObserveTrack(String observeTrack) {
+        this.observeTrack = observeTrack;
+    }
     public ArrayList<MaintenanceExecution> getMaintenanceExecutions() {
         return maintenanceExecutions;
     }
@@ -174,6 +202,60 @@ public class Task implements IConvertHelper{
     public void setInspectionTypeDescription(String inspectionTypeDescription) {
         this.inspectionTypeDescription = inspectionTypeDescription;
     }
+    /*
+        public ArrayList<UnitsDefectsOpt> getUnitDefectsListByID(String unitId){
+            ArrayList<UnitsDefectsOpt> retDefects = new ArrayList<>();
+    
+           for(int i = 0 ; i< this.unitList.size() ; i ++) {
+               if (unitList.get(i).getUnitId().equals(unitId)) {
+                   if(unitList.get(i).hasDefectsList()) {
+                       retDefects.addAll(unitList.get(i).getDefectsList());
+                       Collections.reverse(retDefects);
+                   }
+                   break;
+               }
+           }
+    
+           return retDefects != null ? retDefects : new  ArrayList<UnitsDefectsOpt>() ;
+        }*/
+    public ArrayList<UnitsDefectsOpt> getUnitDefectsListByID(String unitId){
+        ArrayList<UnitsDefectsOpt> retDefects = new ArrayList<>();
+
+        for(int i = 0 ; i< this.unitList.size() ; i ++) {
+            if (unitList.get(i).getUnitId().equals(unitId)) {
+                if(unitList.get(i).hasDefectsList()) {
+                    retDefects.addAll(unitList.get(i).getDefectsList());
+                    Collections.reverse(retDefects);
+                }
+                break;
+            }
+        }
+
+        return retDefects != null ? retDefects : new  ArrayList<UnitsDefectsOpt>() ;
+    }
+
+    public Units getUnitByID(String unitId){
+        for(Units unit : this.unitList){
+            if(unit.getUnitId().equals(unitId)){
+                return unit;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<UnitsTestOpt> getUnitTestFormListByID(String unitId){
+        ArrayList<UnitsTestOpt> retTestFormList = new ArrayList<>();
+
+        for(int i = 0 ; i< this.unitList.size() ; i ++) {
+            if(unitList.get(i).getUnitId().equals(unitId)){
+                retTestFormList = unitList.get(i).getTestFormList();
+                break;
+            }
+        }
+        return retTestFormList != null ? retTestFormList : new  ArrayList<UnitsTestOpt>();
+    }
+
+
 
     public HashMap<String , String > getAppFormCurrentValuesHM(){
         HashMap<String , String > hashMap=new HashMap<>();
@@ -349,6 +431,23 @@ public class Task implements IConvertHelper{
         });
         return unitOutList;
     }
+    public ArrayList<DUnit> getSortedUnitListWithinRange(LatLng userLatLng, String start, String end){
+        ArrayList<DUnit> unitOutList=new ArrayList<>();
+        ArrayList<DUnit> sortedUnits = new ArrayList<>();
+        double dStart = Double.parseDouble(start);
+        double dEnd = Double.parseDouble(end);
+
+        sortedUnits = getUnitList(userLatLng);
+        for(DUnit unit: sortedUnits){
+            if (isInRange(Double.parseDouble(unit.getUnit().getStart()), Double.parseDouble(unit.getUnit().getEnd()), dStart)
+                    || isInRange(Double.parseDouble(unit.getUnit().getStart()), Double.parseDouble(unit.getUnit().getEnd()), dEnd)
+                    || isInRange(dStart, dEnd, Double.parseDouble(unit.getUnit().getStart()))
+                    || isInRange(dStart, dEnd, Double.parseDouble(unit.getUnit().getEnd()))){
+                unitOutList.add(unit);
+            }
+        }
+        return unitOutList;
+    }
 
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
@@ -365,6 +464,7 @@ public class Task implements IConvertHelper{
         this.title=jsonObject.optString("title","");
         this.description = jsonObject.optString("desc", "");
         this.notes=jsonObject.optString("notes","");
+        setAppVersion(jsonObject.optString("appVersion", ""));
         setTemperature(jsonObject.optString("temperature", ""));
         setTemperatureUnit(jsonObject.optString("tempUnit", ""));
         setLocationUnit(jsonObject.optString("locUnit",""));
@@ -396,9 +496,11 @@ public class Task implements IConvertHelper{
         this.inspectionTypeDescription = jsonObject.optString("inspectionTypeDescription");
         this.weatherConditions = jsonObject.optString("weatherConditions","");
         this.traverseTrack = jsonObject.optString("traverseTrack","");
+        this.observeTrack = jsonObject.optString("observeTrack","");
         this.traverseBy = jsonObject.optString("traverseBy","");
         JSONArray jaUnits = jsonObject.optJSONArray("units");
         HashMap<String, Units> unitsHashMap=new HashMap<>();
+        HashMap<String, UnitsGroup> unitGroupHash=new HashMap<>();
         ArrayList<Units> unitItems = new ArrayList<>();
         if (jaUnits != null) {
             for (int i = 0; i < jaUnits.length(); i++) {
@@ -408,6 +510,30 @@ public class Task implements IConvertHelper{
                         Units unit = new Units(mContext, jo);
                         unitItems.add(unit);
                         unitsHashMap.put(unit.getUnitId(), unit);
+                        if(unit.getAttributes()!=null){
+                            String group=unit.getAttributes().getGroup();
+                            if(!group.equals("")){
+                                //Search group in hash
+                                if(unitGroupHash.get(group)==null){
+                                    // Not found add new
+                                    UnitsGroup unitsGroup=new UnitsGroup(group);
+                                    unitsGroup.setMainUnit(unit);
+                                    unitsGroup.getUnitsList().add(unit);
+                                    unit.setUnitsGroup(unitsGroup);
+                                    unit.setVisible(true);
+                                    unitGroupHash.put(group , unitsGroup);
+                                }else{
+                                    UnitsGroup unitsGroup=unitGroupHash.get(group);
+                                    unitsGroup.getUnitsList().add(unit);
+                                    unit.setVisible(false);
+                                    unitGroupHash.put(group , unitsGroup);
+                                }
+
+                            }
+                        }
+                        for(String groupKey:unitGroupHash.keySet()){
+                            unitGroupHash.get(groupKey).refresh();
+                        }
                     }
                 }
             }
@@ -435,6 +561,22 @@ public class Task implements IConvertHelper{
         }
         this.reportList=items;
         calculateIssueCounter();
+        try {
+            JSONArray jaAtivIssues=jsonObject.optJSONArray("ativIssues");
+            ArrayList<ATIVDefect> _ativIssues=new ArrayList<>();
+            if(jaAtivIssues !=null){
+                for(int i=0;i<jaAtivIssues.length();i++){
+                    JSONObject jo=jaAtivIssues.optJSONObject(i);
+                    if(jo !=null){
+                        ATIVDefect aIssue=new ATIVDefect(jo);
+                        _ativIssues.add(aIssue);
+                    }
+                }
+            }
+            setAtivIssues(_ativIssues);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //Adding this to handle special task
         if(jsonObject.has("locationSpecial")){
             JSONObject specialLoc = null;
@@ -470,6 +612,7 @@ public class Task implements IConvertHelper{
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        //TODO: update setRunRange
         setRunRanges(_runRanges);
         calculateRanges();
 
@@ -487,7 +630,8 @@ public class Task implements IConvertHelper{
                     JSONArray jaFormData=jo.optJSONArray("form");
                     DynForm form =formListMap.get(formId);
                     if(form !=null){
-                        form.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
+                        if(jaFormData!=null)
+                            form.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -555,6 +699,7 @@ public class Task implements IConvertHelper{
             jo.put("runStart", getMpStart());
             jo.put("runEnd", getMpEnd());
             jo.put("traverseTrack", getTraverseTrack());
+            jo.put("observeTrack", getObserveTrack());
             jo.put("traverseBy", getTraverseBy());
             jo.put("weatherConditions", getWeatherConditions());
             jo.put("temperature", getTemperature());
@@ -563,9 +708,16 @@ public class Task implements IConvertHelper{
             jo.put("inspectionTypeDescription", getInspectionTypeDescription());
             jo.put("tempUnit", getTemperatureUnit());
             jo.put("locUnit", getLocationUnit());
+            jo.put("appVersion", getAppVersion());
             //jo.put("title",getTitle());
             //jo.put("description",getDescription());
             //jo.put("notes",getNotes());
+            JSONArray jaAtivIssues = new JSONArray();
+            for (ATIVDefect aIssue : getAtivIssues()) {
+                jaAtivIssues.put(aIssue.getJsonObject());
+            }
+            jo.put("ativIssues", jaAtivIssues);
+
             JSONArray jaReports = new JSONArray();
             for (Report report : reportList) {
                 jaReports.put(report.getJsonObject());
@@ -612,6 +764,7 @@ public class Task implements IConvertHelper{
 
         return jo;
     }
+
     public JSONObject getJsonObjectChanged() {
         JSONObject jo=new JSONObject();
         JSONArray jaRunRanges = new JSONArray();
@@ -629,6 +782,7 @@ public class Task implements IConvertHelper{
             putJSONProperty(jo,"runStart", getMpStart());
             putJSONProperty(jo,"runEnd", getMpEnd());
             putJSONProperty(jo,"traverseTrack", getTraverseTrack());
+            putJSONProperty(jo,"observeTrack", getObserveTrack());
             putJSONProperty(jo,"traverseBy", getTraverseBy());
             putJSONProperty(jo,"weatherConditions", getWeatherConditions());
             putJSONProperty(jo,"inspectionType", getInspectionType());
@@ -637,6 +791,7 @@ public class Task implements IConvertHelper{
             putJSONProperty(jo,"temperature", getTemperature());
             putJSONProperty(jo, "locUnit", getLocationUnit());
             putJSONProperty(jo, "tempUnit", getTemperatureUnit());
+            putJSONProperty(jo,"appVersion", getAppVersion());
             JSONArray jaReports = new JSONArray();
             boolean isDataExists=false;
             for (Report report : reportList) {
@@ -652,6 +807,23 @@ public class Task implements IConvertHelper{
                     jo.put("issues", jaReports);
                 }
             }
+
+            JSONArray jaAIssues = new JSONArray();
+            boolean isDExists=false;
+            for (ATIVDefect aIssue : getAtivIssues()) {
+                aIssue.setChangeOnly(changeOnly);
+                JSONObject joIssue=aIssue.getJsonObject();
+                jaAIssues.put(joIssue);
+                if(joIssue.length()!=0){
+                    isDExists=true;
+                }
+            }
+            if(jaAIssues.length()>0) {
+                if(isDExists) {
+                    jo.put("ativIssues", jaAIssues);
+                }
+            }
+
             JSONArray jaUnits = new JSONArray();
             boolean blnDataChanged=false;
             for (Units unit : unitList) {
@@ -710,6 +882,7 @@ public class Task implements IConvertHelper{
 
         return jo;
     }
+
     private boolean putJSONProperty(JSONObject jo, String fieldName, Object value){
         Object oldValue=null;
         Object value1=null;
@@ -737,10 +910,12 @@ public class Task implements IConvertHelper{
         HashMap<String , String > map=new HashMap<>();
         for(int i=0;i<ja.length();i++){
             try {
-                JSONObject jo=ja.getJSONObject(i);
-                String id=jo.getString("id");
-                String value=jo.getString("value");
-                map.put(id, value);
+                JSONObject jo=ja.optJSONObject(i);
+                if(jo !=null && jo.length()>0) {
+                    String id = jo.getString("id");
+                    String value = jo.getString("value");
+                    map.put(id, value);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -920,6 +1095,14 @@ public class Task implements IConvertHelper{
         return reportList;
     }
 
+    public  ArrayList<Report> getReversedReportList() {
+        ArrayList<Report> retCollection = new ArrayList<>();
+        retCollection.addAll(reportList);
+        Collections.reverse(retCollection);
+        return retCollection;
+    }
+
+
     /*Old method for getting reports filtered by Asset Type*/
     public ArrayList<Report> getFilteredReportList(String type) {
         ArrayList<Report> filteredReportList = new ArrayList<>();
@@ -1056,6 +1239,7 @@ public class Task implements IConvertHelper{
         this.endTime=jsonObject.optString("endTime","");
         this.status=jsonObject.optString("status","");
         this.traverseTrack = jsonObject.optString("traverseTrack", "");
+        this.observeTrack = jsonObject.optString("observeTrack", "");
         this.traverseBy = jsonObject.optString("traverseBy", "");
         this.weatherConditions = jsonObject.optString("weatherConditions", "");
         setTemperature(jsonObject.optString("temperature", ""));
@@ -1154,11 +1338,25 @@ public class Task implements IConvertHelper{
     private boolean isYardAssetAvailable(){
         if(getWholeUnitList().size()>0){
             for(Units asset: getWholeUnitList()){
+                if(asset.isLinear()&&!asset.getAssetTypeObj().isMarkerMilepost()){
+                    return false;
+                }
+            }}
+        if(getWholeUnitList().size()>0){
+            for(Units asset: getWholeUnitList()){
                 if(asset.getAssetTypeObj().isMarkerMilepost()){
                     return true;
                 }
             }
         }
         return false;
+    }
+    public Units getLocationAsset(){
+        for (Units asset: unitList){
+            if(asset.getAssetTypeObj().isLocation()){
+                return asset;
+            }
+        }
+        return null;
     }
 }

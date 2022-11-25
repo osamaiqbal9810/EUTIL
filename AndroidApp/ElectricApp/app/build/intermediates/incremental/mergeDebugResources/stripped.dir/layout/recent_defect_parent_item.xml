@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/dp5">
+    <LinearLayout
+        android:id="@+id/ll_mp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_left"
+        android:padding="@dimen/dp5"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:textSize="18sp"
+            android:text="Milepost: "/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:orientation="horizontal"
+            >
+        <TextView
+            android:id="@+id/tv_start_mp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="49.1"/>
+        <TextView
+            android:id="@+id/tv_divider"
+            android:layout_width="wrap_content"
+            android:textSize="18sp"
+            android:layout_height="wrap_content"
+            android:text=" - "/>
+        <TextView
+            android:id="@+id/tv_end_mp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="50.1"/>
+    </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/border_left"
+        android:gravity="start"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp5"
+        android:paddingLeft="10dp"
+        android:paddingEnd="@dimen/dp10"
+        android:paddingRight="@dimen/dp10"
+        android:paddingStart="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tv_issue_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp10"
+            android:ellipsize="end"
+            android:maxLines = "2"
+            android:textSize="17sp"
+            android:text="Text"
+            tools:ignore="TextViewEdits"
+
+            android:layout_marginEnd="@dimen/dp10" />
+
+    </LinearLayout>
+
+</LinearLayout>-->
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/rounded_corner">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="30dp"
+        android:padding="@dimen/dp5"
+        android:background="@drawable/border_left"
+        android:layout_marginStart="30dp">
+    <LinearLayout
+        android:id="@+id/ll_title"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:background="@drawable/border_bottom">
+        <TextView
+            android:id="@+id/tv_issue_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp10"
+            android:ellipsize="end"
+            android:maxLines = "2"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:fontFamily="@font/cabin"
+            android:text="Text"
+            tools:ignore="TextViewEdits"
+
+            android:layout_marginEnd="@dimen/dp10" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_below="@id/ll_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dp5"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:id="@+id/ll_marker_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_marker_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/cabin"
+                android:gravity="bottom"
+                android:text="Start Marker"
+                android:maxLength="30"
+                android:ellipsize="end"
+                android:maxLines="1"
+                app:drawableLeftCompat="@drawable/ic_flag_black_24dp" />
+            <TextView
+                android:id="@+id/tv_marker_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11sp"
+                android:textStyle="bold"
+                android:fontFamily="@font/cabin"
+                android:gravity="bottom"
+                android:maxLength="30"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:text="End Marker"
+                app:drawableLeftCompat="@drawable/ic_flag_grey_24dp" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_gravity="bottom"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:id="@+id/ll_number_mp_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingRight="@dimen/dp5"
+                    android:paddingLeft="@dimen/dp5"
+                    android:paddingStart="@dimen/dp5"
+                    android:layout_gravity="bottom"
+                    android:orientation="horizontal"
+                    android:paddingEnd="15dp">
+                    <TextView
+                        android:id="@+id/tv_start_mp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/cabin"
+                        android:gravity="bottom"
+                        app:drawableLeftCompat="@drawable/ic_flag_black_24dp"
+                        android:text="49.1"/>
+                    <TextView
+                        android:id="@+id/tv_divider"
+                        android:layout_width="wrap_content"
+                        android:textSize="14sp"
+                        android:layout_height="wrap_content"/>
+                    <TextView
+                        android:id="@+id/tv_end_mp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:fontFamily="@font/cabin"
+                        android:gravity="bottom"
+                        app:drawableLeftCompat="@drawable/ic_flag_grey_24dp"
+                        android:text="50.1"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:src="@drawable/ic_baseline_date_range_24"/>
+                <TextView
+                    android:id="@+id/tv_date_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="13sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/cabin"
+                    android:gravity="bottom"
+                    android:text=""/>
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout>

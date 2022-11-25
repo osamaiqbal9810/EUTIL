@@ -47,17 +47,17 @@ function ExecDetail(props) {
           </div>
         </Col>
         <Col md={"6"}>
-          <div style={props.fieldHeading}>{languageService("MP Start ")} :</div>
+          <div style={{...props.fieldHeading,display:"block"}}>{languageService("MP Start ")} :</div>
           <div style={props.fieldText}>
             {/* <Gravatar style={{ borderRadius: '30px', marginRight: '5px' }} email={'abc@abc.com'} size={20} /> */}
-            {props.m0.startMp}
+            {props.m0.prefixStart} {props.m0.startMp}
           </div>
         </Col>
         <Col md={"6"}>
-          <div style={props.fieldHeading}>{languageService("MP End")} :</div>
+          <div style={{...props.fieldHeading,display:"block"}}>{languageService("MP End")} :</div>
           <div style={props.fieldText}>
             {/* <Gravatar style={{ borderRadius: '30px', marginRight: '5px' }} email={'abc@abc.com'} size={20} /> */}
-            {props.m0.endMp}
+            {props.m0.prefixEnd} {props.m0.endMp}
           </div>
         </Col>
 

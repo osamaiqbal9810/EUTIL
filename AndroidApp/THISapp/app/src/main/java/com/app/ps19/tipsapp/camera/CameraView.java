@@ -4,6 +4,7 @@ package com.app.ps19.tipsapp.camera;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -201,5 +202,8 @@ public class CameraView extends RelativeLayout {
         for (Callback callback : callbacks) {
             callback.onScale(scaleFactor);
         }
+    }
+    public Bitmap getBitmap(){
+        return textureView.getBitmap();
     }
 }

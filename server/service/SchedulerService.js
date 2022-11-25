@@ -1,15 +1,10 @@
 import _ from "lodash";
 import moment from "moment";
+import { findInspectionStatus } from "../timps/api/findInspectionStatus";
 export default class SchedulerService {
   getSchedules(
     template,
-    startDate,
     executed_schedules,
-    dateRange,
-    workingDays,
-    locationTimezone,
-    timezoneMethodService,
-    ignoreExecutionsMethod,
   ) {
     let config = {
       expiryDateToStartNextScheduleAtStartOfPeriod: false,
@@ -20,26 +15,14 @@ export default class SchedulerService {
       singleUpcomingSchedule: true,
     };
     let inspections = [];
-    for (let scheduleFreq of template.inspectionFrequencies) {
-      if (scheduleFreq.freq > 0) {
-        inspections = [
-          ...inspections,
-          ...this.getScheduleOfFreq(
-            template,
-            executed_schedules,
-            dateRange,
-            workingDays,
-            scheduleFreq,
-            config,
-            startDate,
-            locationTimezone,
-            timezoneMethodService,
-            ignoreExecutionsMethod,
-            "Default",
-          ),
-        ];
-      }
-    }
+    inspections = [
+      ...inspections,
+      ...this.getScheduleOfFreq(
+        template,
+        executed_schedules,
+      ),
+    ];
+
     return inspections;
   }
 
@@ -97,325 +80,62 @@ export default class SchedulerService {
     return testFormSchedules;
   }
 
-  getScheduleOfFreq(
-    template,
-    executed_schedules,
-    dateRange,
-    workingDays,
-    InspecFreqOption,
-    config,
-    startDate,
-    locationTimezone,
-    timezoneMethodService,
-    ignoreExecutionsMethod,
-    mode,
-  ) {
-    let freqOption = {};
-    freqOption.timeFrame = templateTimeFrame[InspecFreqOption.timeFrame];
-    freqOption.recurTimeFrame = templateTimeFrame[InspecFreqOption.recurTimeFrame];
-    freqOption.freq = parseInt(InspecFreqOption.freq);
-    freqOption.timeFrameNumber = parseInt(InspecFreqOption.timeFrameNumber);
-    freqOption.recurNumber = parseInt(InspecFreqOption.recurNumber);
-    freqOption.maxInterval = InspecFreqOption.maxInterval && parseInt(InspecFreqOption.maxInterval);
-    freqOption.minDays = InspecFreqOption.minDays && parseInt(InspecFreqOption.minDays);
-
-    const DATE_FILTER_TO = moment
-      .tz(dateRange.to.format("YYYY-MM-DD"), locationTimezone)
-      .endOf("day")
-      .toDate();
-    const DATE_FILTER_FROM = moment
-      .tz(dateRange.from.format("YYYY-MM-DD"), locationTimezone)
-      .startOf("day")
-      .toDate();
-    const DATE_FILTER_TODAY = moment
-      .tz(dateRange.today.format("YYYY-MM-DD"), locationTimezone)
-      .startOf("day")
-      .toDate();
-    let exec_schedules = [...executed_schedules];
-
-    // # check if minDays are 0 then make sure its set to 1
-    let minDaysBeforeNextSchedule = freqOption.minDays ? freqOption.minDays + 1 : 1;
-
-    // # all executions to return
-    let allSchedulesToReturn = [];
-
-    // # if it is starting at a date greater then our maximum desired date then it wont show
-    if (startDate <= DATE_FILTER_TO) {
-      let currentDatePoint = startDate;
-      //   let prevDatePoint;
-      // # get in the current time period of template
-      let nextTimePeriodStart = currentDatePoint;
-
-      while (nextTimePeriodStart < DATE_FILTER_FROM) {
-        // console.log("while loop F1");
-        nextTimePeriodStart = getNextTimePeriod(nextTimePeriodStart, freqOption);
-        // prevDatePoint = new Date(currentDatePoint);
-        // currentDatePoint = nextTimePeriodStart;
-      }
-      // # filter executed_schedules in the two time period we have (current or one before it)
-
-      let filteredSchedules = [];
-      //let prevPeriodSchedules = [];
-      let lengthOfExecutedSchedules = exec_schedules.length;
-      for (let es = 0; es < lengthOfExecutedSchedules; es++) {
-        if (compareTwoDates(exec_schedules[es].date, currentDatePoint, "ISOA")) {
-          filteredSchedules.push(exec_schedules[es]);
-        } else if (
-          compareTwoDates(exec_schedules[es].date, template.startDate, "ISOB") &&
-          compareTwoDates(exec_schedules[es].date, DATE_FILTER_FROM, "ISOA") &&
-          compareTwoDates(exec_schedules[es].date, DATE_FILTER_TO, "ISOB")
-        ) {
-          //  # dumb include schedules executed before start date ( in case start date can be edited) but the date should be in our range
-          allSchedulesToReturn.push(exec_schedules[es]);
-        }
-      }
-      let lengthOfFilteredSchedules = filteredSchedules.length;
-      // # end of time Period to check the time period in which enough inspection are needed or executed , also to calculate expiry date
-      let endOfTimePeriod = getEndTimePeriod(currentDatePoint, freqOption, locationTimezone, timezoneMethodService);
-      let shedsInCurrentTimePeriod = [];
-      let templateSchedules = [];
-
-      // # this section will basically add the executed schedules along with missed ones from our date range time period.
-      for (let e = 0; e < lengthOfFilteredSchedules; e++) {
-        // # Check if any schedule to be calculated before moving to time period of current executed schedule
-
-        while (filteredSchedules[e].date > endOfTimePeriod) {
-          // console.log("while loop F2");
-          let expiryDate = calculateExpiryDate(
-            shedsInCurrentTimePeriod,
-            minDaysBeforeNextSchedule,
-            endOfTimePeriod,
-            freqOption,
-            config,
-            workingDays,
-          );
-          if (shedsInCurrentTimePeriod.length < freqOption.freq) {
-            if (compareTwoDates(DATE_FILTER_TODAY, expiryDate, "IA")) {
-              let missedSchedule = foreCastedInspectionObjectGet(template, expiryDate, "Missed");
-              missedSchedule.date = moment(missedSchedule.date).toDate();
-              missedSchedule.expiryDate = moment(missedSchedule.date).toDate();
-              shedsInCurrentTimePeriod.push(missedSchedule);
-            }
-          }
-          if (shedsInCurrentTimePeriod.length >= freqOption.freq) {
-            // # if we have enough then lets move to next period
-            let nextTimePeriodStart = getNextTimePeriod(currentDatePoint, freqOption);
-            endOfTimePeriod = getEndTimePeriod(nextTimePeriodStart, freqOption, locationTimezone, timezoneMethodService);
-            currentDatePoint = nextTimePeriodStart;
-            templateSchedules = [...templateSchedules, ...shedsInCurrentTimePeriod];
-            allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-            shedsInCurrentTimePeriod = [];
-          }
-        }
-        let pushed = false;
-        // # we check if we can push our executed schedule , otherwise add a missed one in current time period
-        while (!pushed) {
-          // console.log("while loop F3");
-          let expiryDate = calculateExpiryDate(
-            shedsInCurrentTimePeriod,
-            minDaysBeforeNextSchedule,
-            endOfTimePeriod,
-            freqOption,
-            config,
-            workingDays,
-          );
-
-          if (compareTwoDates(filteredSchedules[e].date, expiryDate, "IA")) {
-            let missedSchedule = foreCastedInspectionObjectGet(template, expiryDate, "Missed");
-            missedSchedule.date = moment(missedSchedule.date).toDate();
-            missedSchedule.expiryDate = moment(missedSchedule.date).toDate();
-            shedsInCurrentTimePeriod.push(missedSchedule);
-          } else {
-            let toIgnore = ignoreExecutionsMethod && ignoreExecutionsMethod(filteredSchedules[e], template);
-            if (toIgnore) {
-              allSchedulesToReturn.push(filteredSchedules[e]);
-            } else {
-              shedsInCurrentTimePeriod.push(filteredSchedules[e]);
-            }
-            filteredSchedules[e].pushed = true;
-            pushed = true;
-          }
-        }
-      }
-      // # all executed schedules are added now we will be adding missed if we are before today or upcoming if we are in future based on config amount of upcoming
-      let afterEndOfRange = false;
-      // # check if we are ready to move to next period in case we have enough inspection in current one
-      if (shedsInCurrentTimePeriod.length > 0 && shedsInCurrentTimePeriod.length >= freqOption.freq) {
-        let nextTimePeriodStart = getNextTimePeriod(currentDatePoint, freqOption);
-        endOfTimePeriod = getEndTimePeriod(nextTimePeriodStart, freqOption, locationTimezone, timezoneMethodService);
-        currentDatePoint = nextTimePeriodStart;
-        //   adjustedDate = moment(shedsInCurrentTimePeriod[shedsInCurrentTimePeriod.length - 1].date).add(minDaysBeforeNextSchedule, "days");
-        templateSchedules = [...templateSchedules, ...shedsInCurrentTimePeriod];
-        allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-        shedsInCurrentTimePeriod = [];
-        // # if next period goes beyond filter range then no need to iterate
-        // if (moment(moment(nextTimePeriodStart).format("YYYY-MM-DD")).isAfter(moment(moment(DATE_FILTER_TO).format("YYYY-MM-DD")))) {
-        //   afterEndOfRange = true;
-        // }
-        nextTimePeriodStart > DATE_FILTER_TO && (afterEndOfRange = true);
-      }
-      let firstFutureSchedule = false;
-      while (!afterEndOfRange) {
-        // console.log("while loop F4");
-        if (shedsInCurrentTimePeriod.length < freqOption.freq) {
-          let expiryDateToCheck = calculateExpiryDate(
-            shedsInCurrentTimePeriod,
-            minDaysBeforeNextSchedule,
-            endOfTimePeriod,
-            freqOption,
-            config,
-            workingDays,
-          );
-          // if max interval is given then calculate it
-          if (freqOption.maxInterval) {
-            let maxIntervalExpiryDate = nextMaxIntervalExpiryDate(
-              shedsInCurrentTimePeriod,
-              templateSchedules,
-              currentDatePoint,
-              freqOption,
-              timezoneMethodService,
-              locationTimezone,
-            );
-            if (maxIntervalExpiryDate) {
-              let maxExpiryDateIsBefore = compareTwoDates(maxIntervalExpiryDate, expiryDateToCheck, "IB");
-              maxExpiryDateIsBefore && (expiryDateToCheck = maxIntervalExpiryDate);
-            }
-          }
-          if (compareTwoDates(expiryDateToCheck, timezoneMethodService.startOfDayMethod(DATE_FILTER_TODAY, locationTimezone), "IB")) {
-            let missedSchedule = foreCastedInspectionObjectGet(template, expiryDateToCheck, "Missed");
-            missedSchedule.date = moment(missedSchedule.date).toDate();
-            missedSchedule.expiryDate = moment(missedSchedule.date).toDate();
-            shedsInCurrentTimePeriod.push(missedSchedule);
-          } else if (
-            compareTwoDates(expiryDateToCheck, DATE_FILTER_TO, "ISOB") ||
-            compareTwoDates(expiryDateToCheck, endOfTimePeriod, "ISOB")
-          ) {
-            let futureSchedule = foreCastedInspectionObjectGet(template, expiryDateToCheck, "Future", mode);
-            // # set future schedules to their due dates instead of expiry
-            calculateDueDate(
-              futureSchedule,
-              currentDatePoint,
-              shedsInCurrentTimePeriod,
-              templateSchedules,
-              config,
-              freqOption,
-              timezoneMethodService,
-              locationTimezone,
-            );
-            let momentDate = futureSchedule.dueDate
-              ? moment.utc(new Date(futureSchedule.dueDate).getTime()).format("YYYYMMDD")
-              : moment.utc(new Date(futureSchedule.date).getTime()).format("YYYYMMDD");
-            // # check if temporary user is assigned
-            let futureChange_date = template.modifications && template.modifications[momentDate];
-            if (futureChange_date && futureChange_date.user) {
-              futureSchedule.temp_user = futureChange_date.user;
-            }
-
-            // # check next inspection due today
-            if (config.moveNextScheduleToTodayIfPossible) {
-              updateNextScheduleDueToToday(
-                futureSchedule,
-                DATE_FILTER_TODAY,
-                shedsInCurrentTimePeriod,
-                templateSchedules,
-                currentDatePoint,
-                freqOption,
-                locationTimezone,
-                timezoneMethodService,
-              );
-            }
-            futureSchedule.expiryDate = moment(futureSchedule.expiryDate).toDate();
-            futureSchedule.dueDate = moment(futureSchedule.dueDate).toDate();
-            futureSchedule.date = moment(futureSchedule.date).toDate();
-            shedsInCurrentTimePeriod.push(futureSchedule);
-
-            if (!firstFutureSchedule) {
-              firstFutureSchedule = true;
-              template.updatedNextDates = {
-                nextDueDate: futureSchedule.dueDate,
-                nextExpiryDate: futureSchedule.expiryDate,
-              };
-              template.nextDueDate && (template.updatedNextDates.currentDueDate = template.nextDueDate);
-              template.nextExpiryDate && (template.updatedNextDates.currentExpiryDate = template.nextExpiryDate);
-              if (compareTwoDates(currentDatePoint, DATE_FILTER_TODAY, "ISOB")) {
-                template.updatedNextDates.currentPeriodStart = currentDatePoint;
-                template.updatedNextDates.currentPeriodEnd = endOfTimePeriod;
-              }
-            }
-          } else {
-            templateSchedules = [...templateSchedules, ...shedsInCurrentTimePeriod];
-            allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-            shedsInCurrentTimePeriod = [];
-            afterEndOfRange = true;
-          }
-        }
-        if (shedsInCurrentTimePeriod.length == freqOption.freq) {
-          let nextTimePeriodStart = getNextTimePeriod(currentDatePoint, freqOption);
-          endOfTimePeriod = getEndTimePeriod(nextTimePeriodStart, freqOption, locationTimezone, timezoneMethodService);
-          currentDatePoint = nextTimePeriodStart;
-
-          templateSchedules = [...templateSchedules, ...shedsInCurrentTimePeriod];
-          allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-          shedsInCurrentTimePeriod = [];
-          // get only current time period schedules
-          // firstFutureSchedule && (afterEndOfRange = true);
-        } // # if next period goes beyond filter range then no need to iterate
-        if (currentDatePoint > DATE_FILTER_TO || shedsInCurrentTimePeriod.length > freqOption.freq) {
-          templateSchedules = [...templateSchedules, ...shedsInCurrentTimePeriod];
-          allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-          shedsInCurrentTimePeriod = [];
-          currentDatePoint > DATE_FILTER_TO && (afterEndOfRange = true);
-        }
-        // limit it to only 1 schedule
-        if (firstFutureSchedule && config.singleUpcomingSchedule) {
-          allSchedulesToReturn = [...allSchedulesToReturn, ...shedsInCurrentTimePeriod];
-          shedsInCurrentTimePeriod = [];
-          afterEndOfRange = true;
-        }
-      }
+  getScheduleOfFreq(template, executed_schedules) {
+    //console.log(executed_schedules);
+    let freqMap = {
+      NA: 0,
+      one_Year: 1,
+      three_Years: 3,
+      five_Years: 5
     }
+      let allSchedulesToReturn = [];
+    let inspection_date = template.inspection_date;
+    let lastInspection = template.lastInspection;
+    let exec_schedules = [...executed_schedules];
+    let status = findInspectionStatus(inspection_date, freqMap[template.inspection_freq], exec_schedules);
+    if (status == "Upcoming") {
+      status = "Future";
+    }
+
+    let scheduleObj = foreCastedInspectionObjectGet(template, inspection_date, status)
+
+    allSchedulesToReturn = [...allSchedulesToReturn, scheduleObj];
 
     return allSchedulesToReturn;
   }
 }
+
 function foreCastedInspectionObjectGet(c_plan, date, status, mode) {
   let inspection = {};
-  if (mode == "SITE") {
-    inspection = {
-      date: date,
-      status: status,
-      title: c_plan.title,
-      testCode: c_plan.testCode,
-    };
-  } else {
-    inspection = {
-      user: c_plan.user,
-      tasks: c_plan.tasks,
-      date: date,
-      title: c_plan.title,
-      workplanTemplateId: c_plan._id,
-      lineId: c_plan.lineId,
-      lineName: c_plan.lineName,
-      status: status == "Future" ? status + " Inspection" : status,
-    };
-  }
+
+  inspection = {
+    user: c_plan.user,
+    tasks: c_plan.tasks,
+    date: date,
+    title: c_plan.title,
+    workplanTemplateId: c_plan._id,
+    lineId: c_plan.lineId,
+    lineName: c_plan.lineName,
+    status: status == "Future" ? status + " Inspection" : status,
+  };
   return inspection;
 }
 
-export function getNextTimePeriod(currentDatePoint, freqOption) {
-  let nextTimePeriodStart = moment(currentDatePoint).add(freqOption.recurNumber, freqOption.recurTimeFrame);
+export function getNextTimePeriod(currentDatePoint, year) {
+  let nextTimePeriodStart = moment(currentDatePoint).add(year, 'Year');
   return nextTimePeriodStart;
 }
 
-export function getEndTimePeriod(datePoint, freqOption, locationTimezone, timezoneMethodService) {
-  let subtractedDate = moment(moment(datePoint).add(freqOption.timeFrameNumber, freqOption.timeFrame)).subtract(1, "day");
+export function getEndTimePeriod(datePoint, year, locationTimezone, timezoneMethodService) {
+  let subtractedDate = moment(datePoint).add(year, "Year").endOf('year');
   let date = timezoneMethodService.endOfDayMethod(subtractedDate, locationTimezone);
+  //console.log(date);
   return date;
 }
-export function getLastPeriodStart(datePoint, freqOption) {
-  let date = moment(datePoint).subtract(freqOption.recurNumber, freqOption.recurTimeFrame);
-  return date;
-}
+// export function getLastPeriodStart(datePoint, freqOption) {
+//   let date = moment(datePoint).subtract(freqOption.recurNumber, 'Year');
+//   return date;
+// }
 
 const templateTimeFrame = {
   Week: "w",
@@ -425,11 +145,12 @@ const templateTimeFrame = {
 };
 
 function calculateExpiryDate(shedsInCurrentTimePeriod, minDaysBeforeNextSchedule, timePeriod, freqOption, config, workingDays) {
+
   let subtractVal = minDaysBeforeNextSchedule;
   if (config.expiryDateToStartNextScheduleAtStartOfPeriod) {
-    subtractVal = minDaysBeforeNextSchedule * (freqOption.freq - shedsInCurrentTimePeriod.length);
+    subtractVal = minDaysBeforeNextSchedule * (freqOption - shedsInCurrentTimePeriod.length);
   } else {
-    subtractVal = minDaysBeforeNextSchedule * (freqOption.freq - shedsInCurrentTimePeriod.length - 1);
+    subtractVal = minDaysBeforeNextSchedule * (freqOption - shedsInCurrentTimePeriod.length - 1);
   }
 
   return config.adjustOffDays
@@ -437,6 +158,18 @@ function calculateExpiryDate(shedsInCurrentTimePeriod, minDaysBeforeNextSchedule
     : moment(timePeriod).subtract(subtractVal, "days");
 }
 
+// function calculateExpiryDate(shedsInCurrentTimePeriod, minDaysBeforeNextSchedule, timePeriod, freqOption, config, workingDays) {
+//   let subtractVal = minDaysBeforeNextSchedule;
+//   if (config.expiryDateToStartNextScheduleAtStartOfPeriod) {
+//     subtractVal = minDaysBeforeNextSchedule * (freqOption - shedsInCurrentTimePeriod.length);
+//   } else {
+//     subtractVal = minDaysBeforeNextSchedule * (freqOption - shedsInCurrentTimePeriod.length - 1);
+//   }
+
+//   return config.adjustOffDays
+//     ? reverseWorkingDaysAdj ust(moment(timePeriod).subtract(subtractVal, "days"), workingDays)
+//     : moment(timePeriod).subtract(subtractVal, "days");
+// }
 // not tested implementation
 function nextWorkingDaysAdjusted(currDate, rawNum, workingDays, reverse) {
   let adjustedNum = rawNum;
@@ -509,7 +242,7 @@ function updateNextScheduleDueToToday(
     //TODO: if today is also within due date by adding min days
     let todayDueDate = DATE_FILTER_TODAY;
     let dueDateOfSchedule = futureSchedule.dueDate;
-    !dueDateOfSchedule && (dueDateOfSchedule = moment(dateToCheckAgainst).add(freqOption.minDays, "days"));
+    !dueDateOfSchedule && (dueDateOfSchedule = moment(dateToCheckAgainst).add(0, "days"));
     if (compareTwoDates(todayDueDate, dueDateOfSchedule, "IA")) {
       futureSchedule.date = todayDueDate;
     }
@@ -525,6 +258,7 @@ function calculateDueDate(
   timezoneMethodService,
   locationTimezone,
 ) {
+  let minDays = 0;
   let result = getLastDateOfScheduleWithTimePeriodChange(shedsInCurrentTimePeriod, templateSchedules, {
     freqOption: freqOption,
     currentTimePeriod: currentTimePeriod,
@@ -535,7 +269,7 @@ function calculateDueDate(
   let dateToDue;
   if (dateOfLastSchedule) {
     let daysToAdd =
-      !expiryDateReceived && config.minDaysGapBetweenTimePeriodsInFutureSchedules && freqOption.minDays > 0 ? freqOption.minDays + 1 : 1;
+      !expiryDateReceived && config.minDaysGapBetweenTimePeriodsInFutureSchedules && minDays > 0 ? minDays + 1 : 1;
     // dateToDue = expiryDateReceived
     //   ? timezoneMethodService.startOfDayMethod(moment(dateOfLastSchedule).add(daysToAdd, "days"), locationTimezone)
     //   : moment(dateOfLastSchedule).add(daysToAdd, "days");
@@ -577,10 +311,10 @@ function nextMaxIntervalExpiryDate(
   if (dateOfLastSchedule) {
     // # ignore if we are on latest schedule in frequency or if we frequency is only 1
     let shedsLength = shedsInCurrentTimePeriod.length;
-    let ignoreCheckMaxIntervalWithinTimePeriod = timePeriodChange == true ? false : freqOption.freq == 1 || shedsLength == freqOption.freq;
+    let ignoreCheckMaxIntervalWithinTimePeriod = timePeriodChange == true ? false : freqOption == 1 || shedsLength == freqOption;
     if (!ignoreCheckMaxIntervalWithinTimePeriod) {
       maxExpiryDate = timezoneMethodService.endOfDayMethod(
-        moment(dateOfLastSchedule).add(freqOption.maxInterval, "days"),
+        moment(dateOfLastSchedule).add(5, "days"),
         locationTimezone,
       );
       //moment(dateOfLastSchedule).add(freqOption.maxInterval, "days");
@@ -592,6 +326,7 @@ function nextMaxIntervalExpiryDate(
 }
 
 function getLastDateOfScheduleWithTimePeriodChange(shedsInCurrentTimePeriod, templateSchedules, lastTimePeriodScheduleCondition) {
+  let minDays = 0;
   let result, timePeriodChange, dateOfLastSchedule, expiryDateReceived;
   if (shedsInCurrentTimePeriod.length > 0) {
     let sc = getLastElementOfArray(shedsInCurrentTimePeriod);
@@ -603,7 +338,7 @@ function getLastDateOfScheduleWithTimePeriodChange(shedsInCurrentTimePeriod, tem
     if (lastTimePeriodScheduleCondition) {
       let freqOption = lastTimePeriodScheduleCondition.freqOption;
       let currentTimePeriod = lastTimePeriodScheduleCondition.currentTimePeriod;
-      if (tsc && compareTwoDates(moment(tsc.date).add(freqOption.minDays ? freqOption.minDays : 0, "days"), currentTimePeriod, "ISOA")) {
+      if (tsc && compareTwoDates(moment(tsc.date).add(minDays ? minDays : 0, "days"), currentTimePeriod, "ISOA")) {
         dateOfLastSchedule = tsc.expiryDate ? tsc.expiryDate : tsc.date;
         expiryDateReceived = tsc.expiryDate ? true : false;
         timePeriodChange = true;

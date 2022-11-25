@@ -1,0 +1,1737 @@
+{
+    "listName": "Distribution Overhead Facilities",
+    "inspection_type": "Stray Voltage",
+    "opt1": [
+        {
+            "tab-name": "Pole, Conductors & Miscellaneous",
+            "sections": [
+                {
+                    "section_name": "Pole Condition",
+                    "fields": [
+                        {
+                            "id": "pole_priority_level",
+                            "field_name": "pole_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "pole_strayVoltage_value",
+                            "field_name": "pole_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "pole_repair_status",
+                            "field_name": "pole_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "pole_inspection_comments",
+                            "field_name": "pole_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Grounding",
+                    "fields": [
+                        {
+                            "id": "priority_level",
+                            "field_name": "grounding_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "grounding_strayVoltage_value",
+                            "field_name": "grounding_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "grounding_repair_status",
+                            "field_name": "grounding_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "grounding_inspection_comments",
+                            "field_name": "grounding_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Anchors/Guy Wire",
+                    "fields": [
+                        {
+                            "id": "anchors_priority_level",
+                            "field_name": "anchors_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "anchors_strayVoltage_value",
+                            "field_name": "anchors_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "anchors_repair_status",
+                            "field_name": "anchors_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "anchors_inspection_comments",
+                            "field_name": "anchors_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Cross Arms/Bracing",
+                    "fields": [
+                        {
+                            "id": "bracing_priority_level",
+                            "field_name": "bracing_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "bracing_strayVoltage_value",
+                            "field_name": "bracing_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "bracing_repair_status",
+                            "field_name": "bracing_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "bracing_inspection_comments",
+                            "field_name": "bracing_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Conduit Risers",
+                    "fields": [
+                        {
+                            "id": "risers_priority_level",
+                            "field_name": "risers_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "risers_strayVoltage_value",
+                            "field_name": "risers_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "risers_repair_status",
+                            "field_name": "risers_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "risers_inspection_comments",
+                            "field_name": "risers_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Trimming Related",
+                    "fields": [
+                        {
+                            "id": "trimming_priority_level",
+                            "field_name": "trimming_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "trimming_strayVoltage_value",
+                            "field_name": "trimming_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "trimming_repair_status",
+                            "field_name": "trimming_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "trimming_inspection_comments",
+                            "field_name": "trimming_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Primary Wire",
+                    "fields": [
+                        {
+                            "id": "primary_priority_level",
+                            "field_name": "primary_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "primary_strayVoltage_value",
+                            "field_name": "primary_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "primary_repair_status",
+                            "field_name": "primary_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "primary_inspection_comments",
+                            "field_name": "primary_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Secondary Wire",
+                    "fields": [
+                        {
+                            "id": "secondary_priority_level",
+                            "field_name": "secondary_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "secondary_strayVoltage_value",
+                            "field_name": "secondary_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "secondary_repair_status",
+                            "field_name": "secondary_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "secondary_inspection_comments",
+                            "field_name": "secondary_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Neutral",
+                    "fields": [
+                        {
+                            "id": "neutral_priority_level",
+                            "field_name": "neutral_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "neutral_strayVoltage_value",
+                            "field_name": "neutral_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "neutral_repair_status",
+                            "field_name": "neutral_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "neutral_inspection_comments",
+                            "field_name": "neutral_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Insulators",
+                    "fields": [
+                        {
+                            "id": "insulators_priority_level",
+                            "field_name": "insulators_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "insulators_strayVoltage_value",
+                            "field_name": "insulators_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "insulators_repair_status",
+                            "field_name": "insulators_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "insulators_inspection_comments",
+                            "field_name": "insulators_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Other/Miscellaneous",
+                    "fields": [
+                        {
+                            "id": "others_priority_level",
+                            "field_name": "others_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "others_strayVoltage_value",
+                            "field_name": "others_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "others_repair_status",
+                            "field_name": "others_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "others_inspection_comments",
+                            "field_name": "others_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "tab-name": "Pole Equipment & Joint Use/Pole Attachments",
+            "sections": [
+                {
+                    "section_name": "Transformers",
+                    "fields": [
+                        {
+                            "id": "transformer_priority_level",
+                            "field_name": "transformer_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "transformer_strayVoltage_value",
+                            "field_name": "transformer_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "transformer_repair_status",
+                            "field_name": "transformer_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "transformer_inspection_comments",
+                            "field_name": "transformer_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Transformer Company",
+                    "fields": [
+                        {
+                            "id": "stickerOnTransformer",
+                            "field_name": "stickerOnTransformer",
+                            "field_type": "select",
+                            "field_label": "# sticker(s) on transformer?",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "mapMatchRealWorld",
+                            "field_name": "mapMatchRealWorld",
+                            "field_type": "select",
+                            "field_label": "Map match the real world?",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "transformerC_inspection_comments",
+                            "field_name": "Inspection Comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Cutouts",
+                    "fields": [
+                        {
+                            "id": "cutouts_priority_level",
+                            "field_name": "cutouts_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "cutouts_strayVoltage_value",
+                            "field_name": "cutouts_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "cutouts_repair_status",
+                            "field_name": "cutouts_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "cutouts_inspection_comments",
+                            "field_name": "cutouts_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Lightning Arrestors",
+                    "fields": [
+                        {
+                            "id": "arrestors_priority_level",
+                            "field_name": "arrestors_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "arrestors_strayVoltage_value",
+                            "field_name": "arrestors_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "arrestors_repair_status",
+                            "field_name": "arrestors_repair_status",
+                            "field_type": "checkbox",
+                            "field_label": "Repaired"
+                        },
+                        {
+                            "id": "arrestors_inspection_comments",
+                            "field_name": "arrestors_inspection_comments",
+                            "field_type": "textArea",
+                            "field_label": "Inspection Comments"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Other Equipment",
+                    "fields": [
+                        {
+                            "id": "otherEq_priority_level",
+                            "field_name": "otherEq_priority_level",
+                            "field_type": "select",
+                            "field_label": "Priority Level",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "otherEq_strayVoltage_value",
+                            "field_name": "otherEq_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        },
+                        {
+                            "id": "otherEq_repair_status",
+                            "field_name": "otherEq_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "otherEq_inspection_comments",
+                            "field_name": "otherEq_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Pole Attachments",
+                    "fields": [
+                        {
+                            "id": "powerSupplyOnPole",
+                            "field_name": "powerSupplyOnPole",
+                            "field_label": "Power supply on Pole?",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "additionalPowerSupply",
+                            "field_name": "additionalPowerSupply",
+                            "field_label": "Additional power supply on pole ?",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "meterBoxOnPole",
+                            "field_name": "meterBoxOnPole",
+                            "field_label": "Meter box on pole ?",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "meterBoxOnPole_strayVoltage_value",
+                            "field_name": "meterBoxOnPole_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Joint Use Assessment",
+                    "fields": [
+                        {
+                            "id": "noJointPoleAttachments",
+                            "field_name": "noJointPoleAttachments",
+                            "field_label": "No joint use attachments on this pole ?",
+                            "field_type": "checkbox",
+                            "required": true
+                        },
+                        {
+                            "id": "doubleWood",
+                            "field_name": "doubleWood",
+                            "field_label": "Double Wood ?",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "Yes",
+                                    "label": "Yes"
+                                },
+                                {
+                                    "value": "No",
+                                    "label": "No"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "frontier_attachments",
+                            "field_name": "frontier_attachments",
+                            "field_label": "Frontier Attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "greenlight_attachments",
+                            "field_name": "greenlight_attachments",
+                            "field_label": "Greenlight Attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "mci_attachments",
+                            "field_name": "mci_attachments",
+                            "field_label": "MCI Attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "nyTel_attachments",
+                            "field_name": "nyTel_attachments",
+                            "field_label": "NY Tel (Verizon) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "bellAtlantic_attachments",
+                            "field_name": "bellAtlantic_attachments",
+                            "field_label": "Bell Atlantic (wifi) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "fmcFiber_attachments",
+                            "field_name": "fmcFiber_attachments",
+                            "field_label": "FMC Fiber attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "level3Comm_attachments",
+                            "field_name": "level3Comm_attachments",
+                            "field_label": "Level 3 Communications (TW Telecom) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "crownCastle_attachments",
+                            "field_name": "crownCastle_attachments",
+                            "field_label": "Crown Castle (Lighttower, Fibertech) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "spectrum_attachments",
+                            "field_name": "spectrum_attachments",
+                            "field_label": "Spectrum (Time Warner) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "firstLight_attachments",
+                            "field_name": "firstLight_attachments",
+                            "field_label": "First Light (Finger Lakes Technology Group) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "monroe_attachments",
+                            "field_name": "monroe_attachments",
+                            "field_label": "Monroe Security and Safety (M3S) attachments:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "0",
+                                    "label": "0"
+                                },
+                                {
+                                    "value": "1",
+                                    "label": "1"
+                                },
+                                {
+                                    "value": "2",
+                                    "label": "2"
+                                },
+                                {
+                                    "value": "3",
+                                    "label": "3"
+                                },
+                                {
+                                    "value": "4",
+                                    "label": "4"
+                                },
+                                {
+                                    "value": "5",
+                                    "label": "5"
+                                },
+                                {
+                                    "value": "6",
+                                    "label": "6"
+                                },
+                                {
+                                    "value": "7",
+                                    "label": "7"
+                                },
+                                {
+                                    "value": "8",
+                                    "label": "8"
+                                },
+                                {
+                                    "value": "9",
+                                    "label": "9"
+                                },
+                                {
+                                    "value": "10",
+                                    "label": "10"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "jointUse_strayVoltage_value",
+                            "field_name": "jointUse_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Light Assessment",
+                    "fields": [
+                        {
+                            "id": "lightAssess_noLights",
+                            "field_name": "lightAssess_noLights",
+                            "field_label": "No lights on this pole:",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "lightAssess_light1",
+                            "field_name": "lightAssess_light1",
+                            "field_label": "Light (1):",
+                            "field_type": "label"
+                        },
+                        {
+                            "id": "light1_fixtureType",
+                            "field_name": "light1_fixtureType",
+                            "field_label": "Fixture Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "cobrahead",
+                                    "label": "Cobrahead"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light1_lampType",
+                            "field_name": "light1_lampType",
+                            "field_label": "Lamp Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "LED",
+                                    "label": "LED"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light1_wattage",
+                            "field_name": "light1_wattage",
+                            "field_label": "Wattage:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "72",
+                                    "label": "72"
+                                },
+                                {
+                                    "value": "52",
+                                    "label": "52"
+                                },
+                                {
+                                    "value": "22",
+                                    "label": "22"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light1_craneLength",
+                            "field_name": "light1_craneLength",
+                            "field_label": "Crane Length:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "16",
+                                    "label": "16' "
+                                },
+                                {
+                                    "value": "20",
+                                    "label": "20' "
+                                },
+                                {
+                                    "value": "30",
+                                    "label": "30' "
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightAssess_light2",
+                            "field_name": "lightAssess_light2",
+                            "field_label": "Light (2):",
+                            "field_type": "label"
+                        },
+                        {
+                            "id": "light2_fixtureType",
+                            "field_name": "light2_fixtureType",
+                            "field_label": "Fixture Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "cobrahead",
+                                    "label": "Cobrahead"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light2_lampType",
+                            "field_name": "light2_lampType",
+                            "field_label": "Lamp Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "LED",
+                                    "label": "LED"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light2_wattage",
+                            "field_name": "light2_wattage",
+                            "field_label": "Wattage:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "72",
+                                    "label": "72"
+                                },
+                                {
+                                    "value": "52",
+                                    "label": "52"
+                                },
+                                {
+                                    "value": "22",
+                                    "label": "22"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light2_craneLength",
+                            "field_name": "light2_craneLength",
+                            "field_label": "Crane Length:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "16",
+                                    "label": "16' "
+                                },
+                                {
+                                    "value": "20",
+                                    "label": "20' "
+                                },
+                                {
+                                    "value": "30",
+                                    "label": "30' "
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightAssess_light3",
+                            "field_name": "lightAssess_light3",
+                            "field_label": "Light (3):",
+                            "field_type": "label"
+                        },
+                        {
+                            "id": "light3_fixtureType",
+                            "field_name": "light3_fixtureType",
+                            "field_label": "Fixture Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "cobrahead",
+                                    "label": "Cobrahead"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light3_lampType",
+                            "field_name": "light3_lampType",
+                            "field_label": "Lamp Type:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "LED",
+                                    "label": "LED"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light3_wattage",
+                            "field_name": "light3_wattage",
+                            "field_label": "Wattage:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "72",
+                                    "label": "72"
+                                },
+                                {
+                                    "value": "52",
+                                    "label": "52"
+                                },
+                                {
+                                    "value": "22",
+                                    "label": "22"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "light3_craneLength",
+                            "field_name": "light3_craneLength",
+                            "field_label": "Crane Length:",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "16",
+                                    "label": "16' "
+                                },
+                                {
+                                    "value": "20",
+                                    "label": "20' "
+                                },
+                                {
+                                    "value": "30",
+                                    "label": "30' "
+                                }
+                            ]
+                        },
+                        {
+                            "id": "lightAssesment_strayVoltage_value",
+                            "field_name": "lightAssesment_stray_voltage",
+                            "field_label": "Reading",
+                            "field_type": "text"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

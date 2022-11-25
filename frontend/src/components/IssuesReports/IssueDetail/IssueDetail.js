@@ -99,7 +99,7 @@ class Detail extends React.Component {
         <React.Fragment>
           <Col md={"12"}>
             <div style={this.props.fieldHeading}>
-              {languageService("Supervisor Comments")}:
+              {languageService("Track Manager Comments")}:
               <SvgIcon
                 size={15}
                 icon={cross}
@@ -131,7 +131,7 @@ class Detail extends React.Component {
       return (
         <Col md={"12"}>
           <div style={this.props.fieldHeading}>
-            {languageService("Supervisor Comments")}:
+            {languageService("Track Manager Comments")}:
             <SvgIcon
               size={15}
               icon={pencil}
@@ -155,7 +155,7 @@ class Detail extends React.Component {
       <React.Fragment>
         <Col md={"12"}>
           <div style={this.props.fieldHeading}>
-            {languageService("Supervisor Comments")}: &nbsp;
+            {languageService("Track Manager Comments")}: &nbsp;
             {permissionCheck("ISSUE CLOSE", "update") && (
               <button style={{ marginBottom: "10px" }} onClick={() => this.setState({ commentsEditMode: true })}>
                 {languageService("Add Comment")}
@@ -171,7 +171,7 @@ class Detail extends React.Component {
     const { issue } = this.state;
     const serverObject = issue.serverObject || {};
     let timpsSignalApp = versionInfo.isSITE();
-
+    let elecUtilityApp = versionInfo.isEUtility();
     return (
       <div
         style={{
@@ -220,7 +220,7 @@ class Detail extends React.Component {
                       marginRight: "5px",
                       marginLeft: "5px",
                       verticalAlign: "middle",
-                      color: "rgb(64, 118, 179)",
+                      color: "var(--first)",
                       cursor: "pointer",
                       zIndex: "10",
                       position: "relative",
@@ -254,19 +254,32 @@ class Detail extends React.Component {
             <div style={this.props.fieldHeading}>{languageService("Information")}:</div>
             <div style={this.props.fieldText}>{issue.voiceNotes ? issue.voiceNotes : ""}</div>
           </Col>
-
-          {/* <Col md={"12"}>
-            <div style={this.props.fieldHeading}>{languageService("Weather Conditions")}:</div>
-            <div style={this.props.fieldText}>{issue.weatherConditions}</div>
-          </Col>
-
-          <Col md={"12"}>
-            <div style={this.props.fieldHeading}>{languageService("Temperature")}:</div>
-            <div style={this.props.fieldText}>
-              {issue.temperature} {issue.tempUnit === "F" ? `℉` : `℃`}
-            </div>
-          </Col> */}
-
+          {!timpsSignalApp && !elecUtilityApp && (
+            <Col md={"12"}>
+              <div style={this.props.fieldHeading}>{languageService("Rail Direction")}:</div>
+              <div style={this.props.fieldText}>{issue.railDirection ? issue.railDirection : ""}</div>
+            </Col>
+          )}
+          {!timpsSignalApp && !this.props.disableRule213Config && (
+            <Col md={"12"}>
+              <div style={this.props.fieldHeading}>{languageService("Rule 213.9(b) Applied")}:</div>
+              <div style={this.props.fieldText}>{issue.ruleApplied ? languageService("Yes") : "No"}</div>
+            </Col>
+          )}
+          {!elecUtilityApp && (
+            <Col md={"12"}>
+              <div style={this.props.fieldHeading}>{languageService("Weather Conditions")}:</div>
+              <div style={this.props.fieldText}>{issue.weatherConditions}</div>
+            </Col>
+          )}
+          {!elecUtilityApp && (
+            <Col md={"12"}>
+              <div style={this.props.fieldHeading}>{languageService("Temperature")}:</div>
+              <div style={this.props.fieldText}>
+                {issue.temperature} {issue.tempUnit === "F" ? `℉` : `℃`}
+              </div>
+            </Col>
+          )}
           <Col md={"12"}>
             <div style={this.props.fieldHeading}>{languageService("Inspector")}:</div>
             {this.props.getUserDisplay(issue.user)}
@@ -282,7 +295,7 @@ class Detail extends React.Component {
             <div style={this.props.fieldText}>{issue.issueType ? issue.issueType : ""}</div>
           </Col>
 
-          {/* {issue.issueType === "Deficiency" && !timpsSignalApp && (
+          {issue.issueType === "Deficiency" && !timpsSignalApp && (
             <Col md={"12"}>
               <div style={this.props.fieldHeading}>{languageService("Add Deficiency to FRA Report")}:</div>
               <div style={this.props.fieldText}>
@@ -298,7 +311,7 @@ class Detail extends React.Component {
                 </div>
               </div>
             </Col>
-          )} */}
+          )}
 
           {/* <Col md={"12"}>
             <div style={this.props.fieldHeading}>{languageService("Issue Priority")}:</div>
@@ -352,7 +365,7 @@ class Detail extends React.Component {
                     minWidth: "100%",
                     marginBottom: "20px",
                     backgroundColor: "rgb(255, 255, 255)",
-                    color: "rgb(26, 26, 26)",
+                    color: "var(--second)",
                     fontSize: "12px",
                     cursor: "pointer",
                     borderRadius: "0px",
@@ -372,7 +385,7 @@ class Detail extends React.Component {
                     minWidth: "100%",
                     marginBottom: "20px",
                     backgroundColor: "rgb(255, 255, 255)",
-                    color: "rgb(26, 26, 26)",
+                    color: "var(--second)",
                     fontSize: "12px",
                     cursor: "pointer",
                     borderRadius: "0px",

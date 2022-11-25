@@ -5,6 +5,7 @@
     android:id="@+id/sv_dash"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+
     <include
         android:id="@+id/layout_user"
         layout="@layout/user_info" />
@@ -40,11 +41,11 @@
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="10dp"
                     android:layout_toRightOf="@id/iv_location_title"
-                    android:text="@string/live_location"
                     android:fontFamily="@font/cabin"
+                    android:text="@string/live_location"
+                    android:textColor="@color/title_text"
                     android:textSize="@dimen/tile_font_size_title"
-                    android:textStyle="bold"
-                    android:textColor="@color/title_text" />
+                    android:textStyle="bold" />
             </RelativeLayout>
             <LinearLayout
                 android:id="@+id/ll_current_location"
@@ -108,6 +109,7 @@
                     android:id="@+id/ll_BtnSS_ma"
                     android:layout_width="50dp"
                     android:layout_height="50dp"
+                    android:visibility="invisible"
                     android:background="@color/color_stop_background">
 
                     <LinearLayout
@@ -172,7 +174,7 @@
                         android:textSize="@dimen/tile_font_size_title"
                         android:textStyle="bold"
                         android:textColor="@color/title_text"
-                        android:text="@string/inspection_in_progress"/>
+                        android:text="Inspection"/>
                 </LinearLayout>
                 <View
                     android:id="@+id/v_divider_inspection"
@@ -186,13 +188,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/v_divider_inspection"
-                    android:gravity="center"
                     android:layout_marginTop="@dimen/tile_top_bottom"
                     android:layout_marginBottom="@dimen/tile_top_bottom"
-                    android:text="3rd Rail"
                     android:fontFamily="@font/cabin"
+                    android:gravity="center"
+                    android:text="No active inspection"
                     android:textColor="@color/title_text"
-                    android:textSize="@dimen/tile_font_size_details"/>
+                    android:textSize="@dimen/tile_font_size_details" />
                 <LinearLayout
                     android:id="@+id/llFinishedStatus_ma"
                     android:orientation="horizontal"
@@ -307,7 +309,7 @@
                                 android:layout_height="wrap_content"
                                 android:paddingLeft="40dp"
                                 android:fontFamily="@font/cabin"
-                                android:text="5"
+                                android:text="0"
                                 android:textSize="@dimen/tile_font_size_details" />
                         </LinearLayout>
                         <LinearLayout
@@ -392,7 +394,7 @@
                         android:layout_marginBottom="@dimen/tile_top_bottom"
                         android:fontFamily="@font/cabin"
                         android:gravity="center"
-                        android:text="35 "
+                        android:text="0"
                         android:textSize="@dimen/tile_font_size_details" />
                 </RelativeLayout>
             </LinearLayout>
@@ -445,30 +447,31 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
                     android:layout_below="@id/v_divider_time"
                     android:layout_marginTop="@dimen/tile_top_bottom"
                     android:layout_marginBottom="@dimen/tile_top_bottom"
+                    android:gravity="center"
                     android:orientation="horizontal">
+
                     <TextView
                         android:id="@+id/tv_teh_ma"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="20d 15h"
+                        android:fontFamily="@font/cabin"
+                        android:text="00h"
                         android:textColor="@color/title_text"
-                        android:textSize="@dimen/tile_font_size_details"
-                        android:fontFamily="@font/cabin" />
+                        android:textSize="@dimen/tile_font_size_details" />
+
                     <TextView
                         android:id="@+id/tv_tem_ma"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
                         android:paddingLeft="5dp"
                         android:paddingRight="5dp"
+                        android:text="00m"
                         android:textColor="@color/title_text"
-                        android:textSize="@dimen/tile_font_size_details"
-                        android:text="0m"
-                        android:fontFamily="@font/cabin"
-                        />
+                        android:textSize="@dimen/tile_font_size_details" />
                 </LinearLayout>
 
 
@@ -974,7 +977,7 @@
             android:drawablePadding="5dp"
             android:drawableTint="@android:color/black"
             android:fontFamily="@font/cabin"
-            android:text="@string/inspections"
+            android:text="@string/maintenance_title"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAllCaps="false"

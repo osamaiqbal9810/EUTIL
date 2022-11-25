@@ -12,7 +12,6 @@ import ImageSlider from "./ImageSlider";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { none } from "../../images/FileTypes";
 
-
 class ImageArea extends Component {
   constructor(props) {
     super(props);
@@ -67,13 +66,13 @@ class ImageArea extends Component {
         if (index >= 0) {
           return (
             <div
-              onClick={e => {
+              onClick={(e) => {
                 this.handleImgShow(image.imgName, this.props, index);
               }}
               style={{ display: "inline-block", width: "30%", margin: "0 3% 0 0", cursor: "pointer" }}
               key={image.imgName + index}
             >
-              <ImageMainComp imageName={image.imgName} borderStyle={"1px solid rgba(64, 118, 179)"} width={"100%"} path={this.props.path} />
+              <ImageMainComp imageName={image.imgName} borderStyle={"1px solid var(--first)"} width={"100%"} path={this.props.path} />
             </div>
           );
         }
@@ -105,7 +104,7 @@ export default ImageArea;
 
 class ImageMainComp extends Component {
   render() {
-    let path = "http://" + getServerEndpoint() + this.props.path + "/" + this.props.imageName;
+    let path = getServerEndpoint() + this.props.path + "/" + this.props.imageName;
     if (!this.props.imageName) {
       path = noImage;
     }
@@ -115,10 +114,15 @@ class ImageMainComp extends Component {
           style={themeService({
             default: {
               width: "inherit",
-              border: this.props.borderStyle ? this.props.borderStyle : "3px solid rgba(64, 118, 179)",
+              border: this.props.borderStyle ? this.props.borderStyle : "3px solid var(--first)",
               borderRadius: "5px",
             },
             retro: {
+              width: "inherit",
+              border: none,
+              borderRadius: "0",
+            },
+            electric: {
               width: "inherit",
               border: none,
               borderRadius: "0",

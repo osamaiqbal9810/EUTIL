@@ -50,8 +50,9 @@ import { commonStyles } from "../../../theme/commonStyles";
 import { maintenaceDetailstyle } from "../styles/maintenanceDetailstyle";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { getAssetLinesWithSelf } from "../../../reduxRelated/actions/assetHelperAction";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import ExecDetail from "./ExecutionDetail";
+import { LocPrefixService } from "../../LocationPrefixEditor/LocationPrefixService";
 
 class MaintenanceDetail extends Component {
   constructor(props) {
@@ -229,10 +230,11 @@ class MaintenanceDetail extends Component {
         let mExec = _.find(mExecs, (m) => {
           return this.state.maintenance._id == m._id;
         });
-        if(mExec && mExec.startMp && mExec.endMp)
-        {
+        if (mExec && mExec.startMp && mExec.endMp) {
           mExec.startMP = mExec.startMp;
           mExec.endMP = mExec.endMp;
+          mExec.prefixStart = LocPrefixService.getPrefixMp(mExec.startMp, this.state.maintenance.lineId);
+          mExec.prefixEnd = LocPrefixService.getPrefixMp(mExec.endMp, this.state.maintenance.lineId);
           this.setState({ mExecution: mExec });
         }
       }
@@ -336,6 +338,8 @@ class MaintenanceDetail extends Component {
       selectedAsset.text = location.unitId;
       selectedAsset.visible = true;
       selectedAsset._id = location._id;
+      selectedAsset.sPrefix = LocPrefixService.getPrefixMp(location.start, this.state.maintenance.lineId);
+      selectedAsset.ePrefix = LocPrefixService.getPrefixMp(location.end, this.state.maintenance.lineId);
       // selectedAsset. = offset,
       if (this.props.lineAssets && this.state.maintenance && this.state.maintenance.lineId) {
         line = this.props.lineAssets.find((l) => {
@@ -344,8 +348,10 @@ class MaintenanceDetail extends Component {
       } else enableDisplay = false;
     }
     // if(selectedAsset!={}) // todo enable this
-
-    this.setState({ gisDisplay: enableDisplay, selectedAsset: selectedAsset, lineAsset: line });
+    let m = { ...this.state.maintenance };
+    m.location[index].sPrefix = LocPrefixService.getPrefixMp(m.location[index].start, this.state.maintenance.lineId);
+    m.location[index].ePrefix = LocPrefixService.getPrefixMp(m.location[index].end, this.state.maintenance.lineId);
+    this.setState({ maintenance: m, gisDisplay: enableDisplay, selectedAsset: selectedAsset, lineAsset: line });
   }
   makeEstimateHistoryRecord(
     action,
@@ -587,7 +593,7 @@ class MaintenanceDetail extends Component {
         diff = substractObjects(l1.start, l1.end);
       let lat = l1.start.lat ? l1.start.lat.toString() : "";
       let lon = l1.start.lon ? l1.start.lon.toString() : "";
-      formatstr += l1.type === "GPS" ? lat + ", " + lon : this.format2Digit(l1.start);
+      formatstr += l1.type === "GPS" ? lat + ", " + lon : (l1.sPrefix ? l1.sPrefix : "") + this.format2Digit(l1.start);
 
       if (
         (typeof l1.end == "object" && l1.end != {} && Object.keys(diff).length != 0) ||
@@ -596,7 +602,7 @@ class MaintenanceDetail extends Component {
         let endLat = l1.end.lat ? l1.end.lat.toString() : "";
         let endLon = l1.end.lon ? l1.end.lon.toString() : "";
         formatstr += " -> ";
-        formatstr += l1.type === "GPS" ? endLat + ", " + endLon : this.format2Digit(l1.end);
+        formatstr += l1.type === "GPS" ? endLat + ", " + endLon : (l1.ePrefix ? l1.ePrefix : "") + this.format2Digit(l1.end);
       }
 
       let style = { ...themeService(maintenaceDetailstyle.gpsIconTextStyle) };
@@ -1106,10 +1112,13 @@ const ToggleButton = (props) => {
           display: "inline-block",
           borderRadius: "2px",
           padding: "7px 7px 7px 7px ",
-          background: props.viewStatus == 1 ? retroColors.first : "#fff",
-          color: retroColors.second,
+          background: props.viewStatus == 1 ? "var(--twelve)" : "var(--fifth)",
+          color:
+            props.viewStatus == 1
+              ? themeService({ retro: "var(--sixth)", electric: "var(--fifth)" })
+              : themeService({ retro: "var(--sixth)", electric: "var(--sixth)" }),
           border: "1px solid",
-          borderColor: props.viewStatus == 1 ? retroColors.first : "grey",
+          borderColor: props.viewStatus == 1 ? "var(--twelve)" : "grey",
         }}
       >
         {languageService("Work Order")}
@@ -1123,10 +1132,13 @@ const ToggleButton = (props) => {
           display: "inline-block",
           borderRadius: "2px",
           padding: "7px 7px 7px 7px ",
-          color: retroColors.second,
-          background: props.viewStatus == 2 ? retroColors.first : "#fff",
+          background: props.viewStatus == 1 ? "var(--fifth)" : "var(--twelve)",
+          color:
+            props.viewStatus == 1
+              ? themeService({ retro: "var(--sixth)", electric: "var(--sixth)" })
+              : themeService({ retro: "var(--sixth)", electric: "var(--fifth)" }),
           border: "1px solid",
-          borderColor: props.viewStatus == 2 ? retroColors.first : "grey",
+          borderColor: props.viewStatus == 1 ? "grey" : "var(--twelve)",
         }}
       >
         {languageService("Maintenance")}

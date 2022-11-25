@@ -158,6 +158,7 @@ class EstimateListEditable extends Component {
         id: "actions",
         header: languageService("Actions"),
         type: "action",
+        editable: true,
         ...permissionColActions,
       },
     ];

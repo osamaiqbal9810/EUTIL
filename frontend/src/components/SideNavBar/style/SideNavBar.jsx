@@ -1,5 +1,5 @@
 import { getImageOf } from "theme/themeconfig";
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 let backImage = getImageOf("SideNavBar");
 
 export const SideNavBarStyle = {
@@ -32,6 +32,19 @@ export const SideNavBarStyle = {
       transition: "all .2s ease-in-out",
       borderRight: "3px solid ",
       borderRightColor: retroColors.first,
+    },
+    electric: {
+      background: electricColors.fifth,
+      height: "100%",
+      position: "fixed",
+      textAlign: "left",
+      top: "70px",
+      fontFamily: "Arial",
+      fontSize: "14px",
+      letterSpacing: "0.35px",
+      transition: "all .2s ease-in-out",
+      borderRight: "3px solid ",
+      borderRightColor: electricColors.first,
     },
   },
 };

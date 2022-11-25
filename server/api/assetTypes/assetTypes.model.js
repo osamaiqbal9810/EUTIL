@@ -17,7 +17,8 @@ let assetsType = new Schema({
   defectCodesObj: { type: Object, default: null },
   inspectable: { type: Boolean, default: false }, // is asset inspectable or not in workplan
   plannable: { type: Boolean, default: false }, // is location is injectable or not
-  location: { type: Boolean, default: false },
+  location: { type: Boolean, default: false }, // is this a location asset
+  configurationAsset: { type: Boolean, default: false }, // is this a configuration asset --a group of equipments
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   menuFilter: { type: Boolean, default: false },
@@ -25,6 +26,7 @@ let assetsType = new Schema({
   allowedAssetTypes: { type: Array, default: [] },
   parentAssetType: { type: String, default: null },
   accessPermission: { type: String, default: null },
+  sortOrder: { type: Number, default: 0 },
 });
 
 assetsType.pre("save", function (next) {

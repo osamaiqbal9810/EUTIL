@@ -6,9 +6,9 @@ import { siteOptionsTexts, timpsOptionsTexts } from "./options";
 import { languageService } from "../../Language/language.service";
 import { themeService } from "theme/service/activeTheme.service";
 import { setupOptionStyle } from "./style/SetupOptions";
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import permissionCheck from "../../utils/permissionCheck";
-import {versionInfo} from "../MainPage/VersionInfo";
+import { versionInfo } from "../MainPage/VersionInfo";
 class SetupOptions extends Component {
   constructor(props) {
     super(props);
@@ -26,7 +26,7 @@ class SetupOptions extends Component {
   }
 
   render() {
-    let optionsTexts=[];
+    let optionsTexts = [];
     let timpsSignalApp = versionInfo.isSITE();
 
     optionsTexts = timpsSignalApp ? siteOptionsTexts : timpsOptionsTexts;
@@ -83,8 +83,9 @@ let getStyles = (props, state) => {
     default: basicColors.first,
 
     retro: retroColors.second,
+    electric: electricColors.second,
   });
-  let borderBottomActiveRetro = "1px solid " + retroColors.fourth;
+  let borderBottomActiveRetro = "1px solid var(--fourth)";
   let fontWeight = "normal";
   let fontSize = "11px";
   let textPadding = "10px 20px";
@@ -93,12 +94,12 @@ let getStyles = (props, state) => {
     fontWeight = "bold";
     fontSize = "12px";
     textPadding = "10px 20px 6px";
-    borderBottomActiveRetro = "4px solid " + retroColors.first;
+    borderBottomActiveRetro = "4px solid var(--first)";
   }
   return {
     rowContainer: themeService({
       default: {
-        backgroundColor: "#fff",
+        backgroundColor: "var(--fifth)",
         borderBottom: "1px solid #e3e9ef",
         textAlign: "left",
         color: color,
@@ -109,12 +110,34 @@ let getStyles = (props, state) => {
         cursor: "pointer",
         boxShadow: "3px 3px 5px #cfcfcf",
         ":hover": {
-          backgroundColor: "rgba(64, 118, 179)",
-          color: "#fff",
+          backgroundColor: "var(--first)",
+          color: "var(--fifth)",
         },
       },
       retro: {
         backgroundColor: retroColors.fifth,
+        // border: "1px solid" + retroColors.fourth,
+        borderBottom: borderBottomActiveRetro,
+        textAlign: "left",
+        color: color,
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        fontSize: fontSize,
+        letterSpacing: "0.35px",
+        cursor: "pointer",
+        minWidth: "150px",
+        boxShadow: "none",
+        ":hover": {
+          borderBottomSize: "4px",
+        },
+        ":active": {
+          fontWeight: "bold",
+          fontFamily: "Arial",
+          fontSize: fontSize,
+        },
+      },
+      electric: {
+        backgroundColor: electricColors.fifth,
         // border: "1px solid" + retroColors.fourth,
         borderBottom: borderBottomActiveRetro,
         textAlign: "left",

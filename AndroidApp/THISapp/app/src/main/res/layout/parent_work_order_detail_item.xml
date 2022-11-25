@@ -16,24 +16,24 @@
         android:padding="5dp"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <TextView
-            android:id="@+id/tvLineName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:fontFamily="@font/cabin"
-            android:paddingLeft="5dp"
-            android:layout_gravity="center_vertical"
-            android:textSize="18dp"
+        android:id="@+id/tvLineName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="@font/cabin"
+        android:paddingLeft="5dp"
+        android:layout_gravity="center_vertical"
+        android:textSize="18dp"
         android:layout_marginLeft="10dp"
-            android:paddingStart="5dp" />
+        android:paddingStart="5dp" />
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -46,7 +46,7 @@
         android:textColor="@color/title_text"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <TextView
         android:id="@+id/tvMrNumber"
@@ -57,12 +57,12 @@
         android:layout_marginLeft="10dp"
         android:layout_gravity="center_vertical"
         android:textSize="18dp"
-         />
+        />
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
 
     <TextView
@@ -76,7 +76,7 @@
         android:textColor="@color/title_text"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <TextView
         android:id="@+id/tvStatus"
@@ -92,7 +92,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
     <TextView
         android:layout_width="match_parent"
@@ -105,7 +105,7 @@
         android:padding="5dp"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <TextView
         android:id="@+id/tvMaintenanceType"
@@ -121,7 +121,35 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/def_codes_1"
+        android:textSize="16dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/cabin"
+        android:textColor="@color/title_text"
+        android:padding="5dp"
+        android:gravity="center_horizontal"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/title_background"
+        />
+    <TextView
+        android:id="@+id/tv_issue_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:fontFamily="@font/cabin"
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center_vertical"
+        android:textSize="18dp"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginBottom="5dp"
+        android:background="@color/title_background"/>
 
     <!--<TextView
         android:layout_width="match_parent"
@@ -134,7 +162,7 @@
         android:textColor="@color/title_text"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <TextView
         android:id="@+id/tvMarked"
@@ -150,7 +178,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>-->
+        android:background="@color/title_background"/>-->
 
     <TextView
         android:layout_width="match_parent"
@@ -163,7 +191,7 @@
         android:textColor="@color/title_text"
         android:gravity="center_horizontal"
         android:layout_gravity="center_horizontal"
-        android:background="@color/color_start_button_light"
+        android:background="@color/title_background"
         />
     <Button
         android:id="@+id/btn_show_on_map"
@@ -187,7 +215,7 @@
             android:textSize="16dp"
             android:fontFamily="@font/cabin"
             android:textColor="@color/title_text"
-            android:background="@color/color_start_button_light"
+            android:background="@color/title_background"
             android:layout_margin="1dp"
             android:gravity="center_horizontal"
             android:padding="5dp"/>
@@ -207,7 +235,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -223,7 +251,7 @@
             android:textSize="16dp"
             android:fontFamily="@font/cabin"
             android:textColor="@color/title_text"
-            android:background="@color/color_start_button_light"
+            android:background="@color/title_background"
             android:layout_margin="1dp"
             android:gravity="center_horizontal"
             android:padding="5dp"/>
@@ -243,7 +271,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
     <!--<LinearLayout
         android:layout_width="match_parent"
@@ -259,7 +287,7 @@
             android:textSize="16dp"
             android:fontFamily="@font/cabin"
             android:textColor="@color/title_text"
-            android:background="@color/color_start_button_light"
+            android:background="@color/title_background"
             android:layout_margin="1dp"
             android:gravity="center_horizontal"
             android:padding="5dp"/>
@@ -279,7 +307,7 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light"/>
+        android:background="@color/title_background"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -295,7 +323,7 @@
             android:textSize="16dp"
             android:fontFamily="@font/cabin"
             android:textColor="@color/title_text"
-            android:background="@color/color_start_button_light"
+            android:background="@color/title_background"
             android:layout_margin="1dp"
             android:gravity="center_horizontal"
             android:padding="5dp"/>
@@ -316,6 +344,6 @@
         android:layout_width="match_parent"
         android:layout_height="2dp"
         android:layout_marginBottom="5dp"
-        android:background="@color/color_start_button_light" />-->
+        android:background="@color/title_background" />-->
 
 </LinearLayout>

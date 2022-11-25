@@ -28,11 +28,12 @@ class TrackDisturbanceReport extends Component {
       let trackDisturbanceForm = _.find(task.appForms, { name: "Track Disturbance Report" });
       if (trackDisturbanceForm) {
         let basicData = {};
-        trackDisturbanceForm.form.forEach((item, i) => {
-          if (item) {
-            basicData = { ...basicData, [item.id]: item.value };
-          }
-        });
+        trackDisturbanceForm.form &&
+          trackDisturbanceForm.form.forEach((item, i) => {
+            if (item) {
+              basicData = { ...basicData, [item.id]: item.value };
+            }
+          });
         console.log(basicData);
         this.setState({ basicData, staticMode: true });
       }

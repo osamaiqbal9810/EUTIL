@@ -5,7 +5,7 @@ let labelStyle = {
   fontFamily: "Myriad Pro",
   fontSize: "24px",
   letterSpacing: "0.5px",
-  color: "rgb(64, 118, 179)",
+  color: "var(--first)",
 };
 class AssetsNotFound extends React.Component {
   render() {
@@ -18,7 +18,7 @@ class AssetsNotFound extends React.Component {
         </div>
         <div
           className="row"
-          style={{ textTransform: "uppercase", width: "70%", lineHeight: "26px", marginTop: "15px", color: "rgb(64, 118, 179)" }}
+          style={{ textTransform: "uppercase", width: "70%", lineHeight: "26px", marginTop: "15px", color: "var(--first)" }}
         >
           No {this.props.AssetName} found kindly contact Administrator
         </div>

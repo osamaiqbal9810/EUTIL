@@ -1,7 +1,7 @@
 /* eslint eqeqeq: 0 */
 import React, { Component } from "react";
 //import DropDown from "components/Common/DropDown/index";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import DropDownWrapper from "./DropDownWrapper.jsx";
 import { loc } from "./sampleData";
 class DropDownComp extends Component {

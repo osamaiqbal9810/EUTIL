@@ -4,7 +4,7 @@ import DropDownComp from "../../Common/DropDown/dropDown";
 import _ from "lodash";
 import { Col, Row } from "reactstrap";
 import propTypes from "prop-types";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import CommonModal from "../../Common/CommonModal";
 import {
   assetTreeObjMethod,
@@ -18,6 +18,11 @@ import SelectedAssetWithTests from "./SelectedAssetWithTests";
 import AssetCalendarWrapper from "./AssetCalendarWrapper";
 import { inspectionTemplate } from "../../../templates/InspectionTemplate";
 import ColorsLegend from "../ColorsLegend";
+import { Icon } from "react-icons-kit";
+import { arrowCircleLeft } from "react-icons-kit/fa/arrowCircleLeft";
+import { arrowCircleRight } from "react-icons-kit/fa/arrowCircleRight";
+import { languageService } from "../../../Language/language.service";
+import AssetTestSelector from "./AssetTestSelector/AssetTestSelector";
 
 class AssetInspections extends Component {
   constructor(props) {
@@ -30,12 +35,14 @@ class AssetInspections extends Component {
       allTestExecs: [],
       range: {},
       multiTestSelection: false,
+      assetsRight: -55,
     };
 
     this.handleSelectItem = this.handleSelectItem.bind(this);
     this.handleSelectTest = this.handleSelectTest.bind(this);
     this.getRangeDataFromServer = this.getRangeDataFromServer.bind(this);
     this.setModalOpener = this.setModalOpener.bind(this);
+    this.handleAssetsSideBarExpand = this.handleAssetsSideBarExpand.bind(this);
 
     this.openModelMethod = null;
   }
@@ -61,7 +68,27 @@ class AssetInspections extends Component {
       this.testSchedulesReceveid(this.props.testSchedules);
     }
   }
-
+  handleAssetsSideBarExpand() {
+    if (this.state.assetsRight == 0) {
+      this.setState({ assetsRight: -590 });
+      setTimeout(
+        function () {
+          //Start the timer
+          this.setState({ assetsRight: -55 }); //After 1 second, set render to true
+        }.bind(this),
+        1000,
+      );
+    } else {
+      this.setState({ assetsRight: -590 });
+      setTimeout(
+        function () {
+          //Start the timer
+          this.setState({ assetsRight: 0 }); //After 1 second, set render to true
+        }.bind(this),
+        1000,
+      );
+    }
+  }
   loadAssetOptions(assetTree, locationsToConsider, firstSelect) {
     let dropDownFilterAssets = filterMethodForAssetsAndLocs(assetTree, locationsToConsider);
 
@@ -87,10 +114,12 @@ class AssetInspections extends Component {
   }
   handleSelectItem(item) {
     this.openModelMethod(false);
-    this.setState({
-      selectedAsset: item,
-    });
-    this.props.getAssetTests(item.id);
+    if (item) {
+      this.setState({
+        selectedAsset: item,
+      });
+      this.props.getAssetTests(item.id);
+    }
   }
   handleSelectTest(assetTest, multi, assetTestsRec) {
     if (assetTest) {
@@ -113,6 +142,7 @@ class AssetInspections extends Component {
       }
       this.setState({
         assetTests: assetTests,
+        selectedAssetTest: assetTest,
         ...testExecsUpdate,
       });
     }
@@ -127,6 +157,9 @@ class AssetInspections extends Component {
   }
 
   getRangeDataFromServer(range) {
+    this.state.selectedAssetTest &&
+      this.state.selectedAsset &&
+      this.fetchTestExecs(this.state.selectedAssetTest, this.state.selectedAsset, range);
     this.setState({
       range: range,
     });
@@ -149,8 +182,15 @@ class AssetInspections extends Component {
   render() {
     return (
       <React.Fragment>
-        <CommonModal className="assets-selector" setModalOpener={this.setModalOpener} receiveToggleMethod={this.receiveToggleMethod}>
-          <DropDownComp items={this.state.dropDownFilterAssets} onSelectItem={this.handleSelectItem} />
+        {/* <CommonModal className="assets-selector" setModalOpener={this.setModalOpener} receiveToggleMethod={this.receiveToggleMethod}> */}
+        <CommonModal
+          className="assets-selection-modal"
+          setModalOpener={this.setModalOpener}
+          receiveToggleMethod={this.receiveToggleMethod}
+          modalStyle={{ maxWidth: "80vw", height: "92vh" }}
+        >
+          {/* <DropDownComp items={this.state.dropDownFilterAssets} onSelectItem={this.handleSelectItem} /> */}
+          <AssetTestSelector listItems={this.state.dropDownFilterAssets} onSelectItem={this.handleSelectItem} />
         </CommonModal>
 
         <Col>
@@ -165,17 +205,31 @@ class AssetInspections extends Component {
           />
         </Col>
         <br />
-        <AssetCalendarWrapper
-          getDateControls={this.props.getDateControls}
-          getRangeDataFromServer={this.getRangeDataFromServer}
-          actionType={this.props.testScheduleActionType}
-          actionReadSuccess={"TESTSCHEDULES_READ_SUCCESS"}
-          lineSelectionActionType={this.props.lineSelectionActionType}
-          data={this.state.testExecs}
-          history={this.props.history}
-          inspectionFilter={this.props.inspectionFilter}
-          handleUpdateFilterState={this.props.handleUpdateFilterState}
-        />
+        <Row style={{ margin: "0px 0px 30px", position: "relative", width: "100%", overflow: "hidden" }}>
+          {/* <div className="gis-nav" style={{ right: this.state.assetsRight + "px", minHeight: "400px" }}>
+            <div className="button" onClick={this.handleAssetsSideBarExpand} style={{ textTransform: "uppercase" }}>
+              <span>
+                <Icon
+                  icon={this.state.assetsRight == -55 ? arrowCircleLeft : arrowCircleRight}
+                  style={{ verticalAlign: "text-bottom" }}
+                  size={24}
+                />
+              </span>
+              {languageService("Completion")}
+            </div>
+          </div> */}
+          <AssetCalendarWrapper
+            getDateControls={this.props.getDateControls}
+            getRangeDataFromServer={this.getRangeDataFromServer}
+            actionType={this.props.testScheduleActionType}
+            actionReadSuccess={"TESTSCHEDULES_READ_SUCCESS"}
+            lineSelectionActionType={this.props.lineSelectionActionType}
+            data={this.state.testExecs}
+            history={this.props.history}
+            inspectionFilter={this.props.inspectionFilter}
+            handleUpdateFilterState={this.props.handleUpdateFilterState}
+          />
+        </Row>
         {/* <ColorsLegend template={inspectionTemplate}></ColorsLegend> */}
       </React.Fragment>
     );

@@ -14,16 +14,16 @@ class ReportSelection extends Component {
     let rows =
       this.props.reports &&
       this.props.reports.length > 0 &&
-      this.props.reports.map(report => {
+      this.props.reports.map((report, index) => {
         return (
-          <tr key={report.id}>
+          <tr key={report.title ? report.title._id + index : index}>
             <td>{report.assetName}</td>
             <td>{report.testDescription}</td>
             <td>{report.title ? report.title.title : ""}</td>
             <td>{report.assetMP}</td>
             <td>
               <ButtonActionsTable
-                handleClick={e => {
+                handleClick={(e) => {
                   this.props.handleClick(report);
                 }}
                 margin="0px 10px 0px 0px"
@@ -62,7 +62,7 @@ class ReportSelection extends Component {
                   </th>
                 </tr>
               </thead>
-              <tbody style={{ background: "#fff", fontSize: "12px" }}>{rows}</tbody>
+              <tbody style={{ background: "var(--fifth)", fontSize: "12px" }}>{rows}</tbody>
             </table>
           </Col>
           <Col md={1}></Col>

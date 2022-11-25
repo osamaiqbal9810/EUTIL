@@ -173,10 +173,12 @@ class LocationSetup extends Component {
       prevProps.assetHelperActionType !== this.props.assetHelperActionType &&
       this.props.assetHelperActionType == "GET_UNASSIGNED_ASSETS_FAILURE"
     ) {
-      if (this.props.errorMessage.status) {
-        this.showToastError(languageService(this.props.errorMessage.status), languageService(this.props.errorMessage.statusText));
-      } else {
-        this.showToastError(languageService(this.props.errorMessage) + languageService("Asset"));
+      if (this.props.errorMessage) {
+        if (this.props.errorMessage.status) {
+          this.showToastError(languageService(this.props.errorMessage.status), languageService(this.props.errorMessage.statusText));
+        } else {
+          this.showToastError(languageService(this.props.errorMessage) + languageService("Asset"));
+        }
       }
       this.setState({
         spinnerLoading: false,
@@ -230,10 +232,10 @@ class LocationSetup extends Component {
     let atr = {};
     let iterateOver = ["timpsAttributes", "lampAttributes", "systemAttributes"];
     if (foundAType) {
-      iterateOver.forEach(attributeType => {
+      iterateOver.forEach((attributeType) => {
         if (foundAType[attributeType]) {
           let aTypeItrKeys = Object.keys(foundAType[attributeType]);
-          aTypeItrKeys.forEach(key => {
+          aTypeItrKeys.forEach((key) => {
             atr[key] = "";
           });
         }
@@ -478,7 +480,7 @@ class LocationSetup extends Component {
         propsToUpdate.levels["3"] = this.state.newlyCreatedAsset._id;
         propsToUpdate.levels.currentLevel = 3;
       }
-      let aIds = selectedAssetsToAdd.map(a => {
+      let aIds = selectedAssetsToAdd.map((a) => {
         return a._id;
       });
       this.props.updateAsset({ _id: "multi", assets: aIds, propsToUpdate: propsToUpdate });
@@ -490,7 +492,7 @@ class LocationSetup extends Component {
     });
   }
 
-  handleConfirmationDelete = response => {
+  handleConfirmationDelete = (response) => {
     if (response) {
       this.props.deleteAsset({ _id: this.state.selectedLocationToDeleteConfirmation._id });
     }
@@ -651,7 +653,7 @@ export default LocationSetupContainer;
 
 function checkSelected(arrayOfAssets, assetToCheck) {
   let updatedArray = [...arrayOfAssets];
-  updatedArray.forEach(element => {
+  updatedArray.forEach((element) => {
     element.selected = element._id == assetToCheck._id ? true : false;
   });
   return updatedArray;

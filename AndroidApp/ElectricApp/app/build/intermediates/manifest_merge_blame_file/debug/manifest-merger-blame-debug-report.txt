@@ -1,0 +1,768 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="com.app.ps19.elecapp"
+4    android:versionCode="8"
+5    android:versionName="1.7" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="16"
+8-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml
+9        android:targetSdkVersion="30" />
+9-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml
+10    <!--
+11         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+12         Google Maps Android API v2, but you must specify either coarse or fine
+13         location permissions for the "MyLocation" functionality.
+14    -->
+15    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+15-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:10:5-79
+15-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:10:22-76
+16    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+16-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:11:5-71
+16-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:11:22-68
+17    <uses-permission android:name="android.permission.READ_PROFILE" />
+17-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:12:5-71
+17-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:12:22-68
+18    <uses-permission android:name="android.permission.READ_CONTACTS" />
+18-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:13:5-72
+18-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:13:22-69
+19    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+19-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:14:5-79
+19-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:14:22-76
+20    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+20-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:15:5-81
+20-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:15:22-78
+21    <uses-permission android:name="android.permission.CAMERA" />
+21-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:16:5-65
+21-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:16:22-62
+22    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+22-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:17:5-81
+22-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:17:22-78
+23    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+23-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:18:5-80
+23-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:18:22-77
+24    <uses-permission android:name="android.permission.INTERNET" />
+24-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:19:5-67
+24-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:19:22-64
+25    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+25-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:20:5-71
+25-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:20:22-68
+26    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+26-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:21:5-77
+26-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:21:22-74
+27    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+27-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:22:5-68
+27-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:22:22-65
+28    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+28-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:23:5-78
+28-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:23:22-75
+29
+30    <queries>
+30-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:369:5-373:15
+31        <intent>
+31-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:370:9-372:18
+32            <action android:name="android.media.action.IMAGE_CAPTURE" />
+32-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:371:13-73
+32-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:371:21-70
+33        </intent>
+34        <!-- Needs to be explicitly declared on Android R+ -->
+35        <package android:name="com.google.android.apps.maps" />
+35-->[com.google.android.gms:play-services-maps:17.0.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\1072a0e7cc3ed35a82ec41c7e75d1f84\jetified-play-services-maps-17.0.1\AndroidManifest.xml:33:9-64
+35-->[com.google.android.gms:play-services-maps:17.0.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\1072a0e7cc3ed35a82ec41c7e75d1f84\jetified-play-services-maps-17.0.1\AndroidManifest.xml:33:18-61
+36    </queries>
+37
+38    <uses-feature
+38-->[com.google.android.gms:play-services-maps:17.0.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\1072a0e7cc3ed35a82ec41c7e75d1f84\jetified-play-services-maps-17.0.1\AndroidManifest.xml:26:5-28:35
+39        android:glEsVersion="0x00020000"
+39-->[com.google.android.gms:play-services-maps:17.0.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\1072a0e7cc3ed35a82ec41c7e75d1f84\jetified-play-services-maps-17.0.1\AndroidManifest.xml:27:9-41
+40        android:required="true" />
+40-->[com.google.android.gms:play-services-maps:17.0.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\1072a0e7cc3ed35a82ec41c7e75d1f84\jetified-play-services-maps-17.0.1\AndroidManifest.xml:28:9-32
+41
+42    <application
+42-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:25:5-368:19
+43        android:name="androidx.multidex.MultiDexApplication"
+44        android:allowBackup="true"
+44-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:26:9-35
+45        android:appComponentFactory="androidx.core.app.CoreComponentFactory"
+45-->[androidx.core:core:1.3.1] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\ff37b710ecf84191a2687617c776753e\core-1.3.1\AndroidManifest.xml:24:18-86
+46        android:debuggable="true"
+47        android:hardwareAccelerated="true"
+47-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:27:9-43
+48        android:icon="@mipmap/ic_launcher_new"
+48-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:28:9-47
+49        android:label="@string/app_name"
+49-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:29:9-41
+50        android:largeHeap="true"
+50-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:30:9-33
+51        android:roundIcon="@mipmap/ic_launcher_new_round"
+51-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:31:9-58
+52        android:supportsRtl="true"
+52-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:32:9-35
+53        android:testOnly="true"
+54        android:theme="@style/AppTheme"
+54-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:33:9-40
+55        android:usesCleartextTraffic="true" >
+55-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:34:9-44
+56        <activity
+56-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:36:9-40:59
+57            android:name="com.app.ps19.elecapp.InspectionMapActivity"
+57-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:37:13-50
+58            android:exported="false"
+58-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:38:13-37
+59            android:label="@string/title_activity_inspection_map"
+59-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:39:13-66
+60            android:theme="@style/AppTheme.NoActionBar" />
+60-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:40:13-56
+61        <activity
+61-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:41:9-44:52
+62            android:name="com.app.ps19.elecapp.reports.ReportShowActivity"
+62-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:42:13-55
+63            android:launchMode="singleTask"
+63-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:43:13-44
+64            android:screenOrientation="portrait" />
+64-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:44:13-49
+65        <activity
+65-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:45:9-48:52
+66            android:name="com.app.ps19.elecapp.inspection.InspectionActivity"
+66-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:46:13-58
+67            android:launchMode="singleTask"
+67-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:47:13-44
+68            android:screenOrientation="portrait" />
+68-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:48:13-49
+69        <activity
+69-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:49:9-53:52
+70            android:name="com.app.ps19.elecapp.defects.DefectsActivity"
+70-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:50:13-52
+71            android:label="@string/title_activity_defects"
+71-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:51:13-59
+72            android:launchMode="singleTask"
+72-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:52:13-44
+73            android:screenOrientation="portrait" />
+73-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:53:13-49
+74        <activity
+74-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:54:9-57:52
+75            android:name="com.app.ps19.elecapp.defects.PreviousDefectsMapActivity"
+75-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:55:13-63
+76            android:launchMode="singleTask"
+76-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:56:13-44
+77            android:screenOrientation="portrait" />
+77-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:57:13-49
+78        <activity android:name="com.app.ps19.elecapp.InspectionStartActivity" />
+78-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:58:9-61
+78-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:58:19-58
+79        <activity
+79-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:59:9-62:52
+80            android:name="com.app.ps19.elecapp.DashActivity"
+80-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:60:13-41
+81            android:launchMode="singleTask"
+81-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:61:13-44
+82            android:screenOrientation="portrait" /> <!-- uCrop cropping activity -->
+82-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:62:13-49
+83        <activity
+83-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:63:9-66:59
+84            android:name="com.yalantis.ucrop.UCropActivity"
+84-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:64:13-60
+85            android:screenOrientation="portrait"
+85-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:65:13-49
+86            android:theme="@style/AppTheme.NoActionBar" /> <!-- cache directory file provider paths -->
+86-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:66:13-56
+87        <provider
+88            android:name="androidx.core.content.FileProvider"
+88-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:68:13-62
+89            android:authorities="com.app.ps19.elecapp.provider"
+89-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:69:13-60
+90            android:exported="false"
+90-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:70:13-37
+91            android:grantUriPermissions="true" >
+91-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:71:13-47
+92            <meta-data
+92-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:72:13-74:54
+93                android:name="android.support.FILE_PROVIDER_PATHS"
+93-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:73:17-67
+94                android:resource="@xml/file_paths" />
+94-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:74:17-51
+95        </provider>
+96
+97        <activity
+97-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:77:9-80:52
+98            android:name="com.app.ps19.elecapp.ImagePickerActivity"
+98-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:78:13-48
+99            android:launchMode="singleTask"
+99-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:79:13-44
+100            android:screenOrientation="portrait" />
+100-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:80:13-49
+101        <activity
+101-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:81:9-85:59
+102            android:name="com.app.ps19.elecapp.ProfileActivity"
+102-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:82:13-44
+103            android:launchMode="singleTask"
+103-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:83:13-44
+104            android:screenOrientation="portrait"
+104-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:84:13-49
+105            android:theme="@style/AppTheme.NoActionBar" />
+105-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:85:13-56
+106        <activity
+106-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:86:9-90:52
+107            android:name="com.app.ps19.elecapp.UpdatePasswordActivity"
+107-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:87:13-51
+108            android:label="@string/title_activity_change_password"
+108-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:88:13-67
+109            android:launchMode="singleTask"
+109-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:89:13-44
+110            android:screenOrientation="portrait" />
+110-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:90:13-49
+111        <!--
+112             The API key for Google Maps-based APIs is defined as a string resource.
+113             (See the file "res/values/google_maps_api.xml").
+114             Note that the API key is linked to the encryption key used to sign the APK.
+115             You need a different API key for each encryption key, including the release key that is used to
+116             sign the APK for publishing.
+117             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+118        -->
+119        <meta-data
+119-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:99:9-101:55
+120            android:name="com.google.android.geo.API_KEY"
+120-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:100:13-58
+121            android:value="@string/google_maps_key" />
+121-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:101:13-52
+122
+123        <activity
+123-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:103:9-107:52
+124            android:name="com.app.ps19.elecapp.classes.maintenance.MaintenanceMapActivity"
+124-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:104:13-71
+125            android:label="@string/title_activity_maintenance_map"
+125-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:105:13-67
+126            android:launchMode="singleTask"
+126-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:106:13-44
+127            android:screenOrientation="portrait" />
+127-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:107:13-49
+128        <activity
+128-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:108:9-112:52
+129            android:name="com.app.ps19.elecapp.MaintenanceExecActivity"
+129-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:109:13-52
+130            android:label="@string/maintenance_exec_title"
+130-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:110:13-59
+131            android:launchMode="singleTask"
+131-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:111:13-44
+132            android:screenOrientation="portrait" />
+132-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:112:13-49
+133        <activity
+133-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:113:9-118:59
+134            android:name="com.app.ps19.elecapp.UnitCordsAdjActivity"
+134-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:114:13-49
+135            android:label="@string/activity_update_asset_location"
+135-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:115:13-67
+136            android:launchMode="singleTask"
+136-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:116:13-44
+137            android:screenOrientation="portrait"
+137-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:117:13-49
+138            android:theme="@style/AppTheme.NoActionBar" />
+138-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:118:13-56
+139        <activity
+139-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:119:9-123:59
+140            android:name="com.app.ps19.elecapp.SessionDashboard"
+140-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:120:13-45
+141            android:label="@string/title_activity_session_dashboard"
+141-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:121:13-69
+142            android:screenOrientation="portrait"
+142-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:122:13-49
+143            android:theme="@style/AppTheme.NoActionBar" />
+143-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:123:13-56
+144        <activity
+144-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:124:9-128:59
+145            android:name="com.app.ps19.elecapp.wplan.WplanActivity"
+145-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:125:13-48
+146            android:label="@string/title_activity_wplan"
+146-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:126:13-57
+147            android:screenOrientation="portrait"
+147-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:127:13-49
+148            android:theme="@style/AppTheme.NoActionBar" />
+148-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:128:13-56
+149        <activity
+149-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:129:9-134:52
+150            android:name="com.app.ps19.elecapp.ReportWebViewActivity"
+150-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:130:13-50
+151            android:configChanges="layoutDirection|locale"
+151-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:131:13-59
+152            android:label="@string/report_web_title"
+152-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:132:13-53
+153            android:launchMode="singleTask"
+153-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:133:13-44
+154            android:screenOrientation="portrait" />
+154-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:134:13-49
+155        <activity
+155-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:135:9-140:52
+156            android:name="com.app.ps19.elecapp.PdfActivity"
+156-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:136:13-40
+157            android:configChanges="layoutDirection|locale"
+157-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:137:13-59
+158            android:label="@string/activity_pdf_title"
+158-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:138:13-55
+159            android:launchMode="singleTask"
+159-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:139:13-44
+160            android:screenOrientation="portrait" />
+160-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:140:13-49
+161        <activity
+161-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:141:9-145:59
+162            android:name="com.app.ps19.elecapp.Shared.StartInspectionActivity"
+162-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:142:13-59
+163            android:launchMode="singleTask"
+163-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:143:13-44
+164            android:screenOrientation="portrait"
+164-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:144:13-49
+165            android:theme="@style/AppTheme.NoActionBar" />
+165-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:145:13-56
+166        <activity
+166-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:146:9-153:20
+167            android:name="com.app.ps19.elecapp.AppFormActivity"
+167-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:147:13-44
+168            android:label=""
+168-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:148:13-29
+169            android:launchMode="singleTask" >
+169-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:149:13-44
+170            <meta-data
+170-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:150:13-152:71
+171                android:name="android.support.PARENT_ACTIVITY"
+171-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:151:17-63
+172                android:value="com.app.ps19.elecapp.IssuesActivity" />
+172-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:152:17-68
+173        </activity>
+174        <activity
+174-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:154:9-160:59
+175            android:name="com.app.ps19.elecapp.DashboardActivity"
+175-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:155:13-46
+176            android:configChanges="locale"
+176-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:156:13-43
+177            android:label="@string/title_activity_monitoring"
+177-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:157:13-62
+178            android:launchMode="singleTask"
+178-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:158:13-44
+179            android:screenOrientation="portrait"
+179-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:159:13-49
+180            android:theme="@style/AppTheme.NoActionBar" />
+180-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:160:13-56
+181        <activity
+181-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:161:9-167:59
+182            android:name="com.app.ps19.elecapp.infoTableActivity"
+182-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:162:13-46
+183            android:configChanges="locale"
+183-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:163:13-43
+184            android:label="@string/info_table"
+184-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:164:13-47
+185            android:launchMode="singleTask"
+185-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:165:13-44
+186            android:screenOrientation="portrait"
+186-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:166:13-49
+187            android:theme="@style/AppTheme.NoActionBar" />
+187-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:167:13-56
+188        <!--
+189 <activity
+190            android:name=".MainActivity"
+191            android:configChanges="locale"
+192            android:label="@string/title_activity_monitoring"
+193            android:launchMode="singleTask"
+194            android:screenOrientation="portrait"
+195            android:theme="@style/AppTheme.NoActionBar" />
+196        -->
+197        <activity
+197-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:177:9-182:59
+198            android:name="com.app.ps19.elecapp.EndPointActivity"
+198-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:178:13-45
+199            android:label="@string/title_activity_end_point"
+199-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:179:13-61
+200            android:launchMode="singleTask"
+200-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:180:13-44
+201            android:screenOrientation="portrait"
+201-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:181:13-49
+202            android:theme="@style/AppTheme.NoActionBar" />
+202-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:182:13-56
+203        <activity
+203-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:183:9-187:52
+204            android:name="com.app.ps19.elecapp.safetyBriefing.WorkerAddActivity"
+204-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:184:13-61
+205            android:label="@string/activity_title_worker_add"
+205-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:185:13-62
+206            android:launchMode="singleTask"
+206-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:186:13-44
+207            android:screenOrientation="portrait" />
+207-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:187:13-49
+208        <activity
+208-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:188:9-192:59
+209            android:name="com.app.ps19.elecapp.ScribbleNotesActivity"
+209-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:189:13-50
+210            android:launchMode="singleTop"
+210-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:190:13-43
+211            android:screenOrientation="portrait"
+211-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:191:13-49
+212            android:theme="@style/AppTheme.NoActionBar" />
+212-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:192:13-56
+213        <activity
+213-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:193:9-198:55
+214            android:name="com.app.ps19.elecapp.safetyBriefing.SafetyBriefingActivity"
+214-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:194:13-66
+215            android:label="@string/activity_title_safety_briefing"
+215-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:195:13-67
+216            android:launchMode="singleTask"
+216-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:196:13-44
+217            android:screenOrientation="portrait"
+217-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:197:13-49
+218            android:windowSoftInputMode="adjustPan" />
+218-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:198:13-52
+219        <activity
+219-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:199:9-203:52
+220            android:name="com.app.ps19.elecapp.DefectCodeActivity"
+220-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:200:13-47
+221            android:label="@string/title_activity_defect_code"
+221-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:201:13-63
+222            android:launchMode="singleTask"
+222-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:202:13-44
+223            android:screenOrientation="portrait" />
+223-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:203:13-49
+224        <activity
+224-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:204:9-215:20
+225            android:name="com.app.ps19.elecapp.LoginActivity"
+225-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:205:13-42
+226            android:label="@string/app_name"
+226-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:206:13-45
+227            android:launchMode="singleTask"
+227-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:207:13-44
+228            android:screenOrientation="portrait"
+228-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:208:13-49
+229            android:theme="@style/AppTheme.NoActionBar" >
+229-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:209:13-56
+230            <intent-filter>
+230-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:210:13-214:29
+231                <action android:name="android.intent.action.MAIN" />
+231-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:211:17-69
+231-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:211:25-66
+232
+233                <category android:name="android.intent.category.LAUNCHER" />
+233-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:213:17-77
+233-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:213:27-74
+234            </intent-filter>
+235        </activity>
+236        <activity
+236-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:216:9-221:59
+237            android:name="com.app.ps19.elecapp.TaskDashboardActivity"
+237-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:217:13-50
+238            android:label="@string/title_activity_task_dashboard"
+238-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:218:13-66
+239            android:launchMode="singleTask"
+239-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:219:13-44
+240            android:screenOrientation="portrait"
+240-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:220:13-49
+241            android:theme="@style/AppTheme.NoActionBar" />
+241-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:221:13-56
+242        <activity
+242-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:222:9-227:59
+243            android:name="com.app.ps19.elecapp.TaskActivity"
+243-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:223:13-41
+244            android:label="@string/title_activity_inbox"
+244-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:224:13-57
+245            android:launchMode="singleTask"
+245-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:225:13-44
+246            android:screenOrientation="portrait"
+246-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:226:13-49
+247            android:theme="@style/AppTheme.NoActionBar" />
+247-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:227:13-56
+248        <activity
+248-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:228:9-233:59
+249            android:name="com.app.ps19.elecapp.InboxActivity"
+249-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:229:13-42
+250            android:label="@string/title_activity_inbox"
+250-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:230:13-57
+251            android:launchMode="singleTask"
+251-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:231:13-44
+252            android:screenOrientation="portrait"
+252-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:232:13-49
+253            android:theme="@style/AppTheme.NoActionBar" />
+253-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:233:13-56
+254        <activity
+254-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:234:9-239:59
+255            android:name="com.app.ps19.elecapp.TaskDetailActivity"
+255-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:235:13-47
+256            android:label="@string/title_activity_task_detail"
+256-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:236:13-63
+257            android:launchMode="singleInstance"
+257-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:237:13-48
+258            android:screenOrientation="portrait"
+258-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:238:13-49
+259            android:theme="@style/AppTheme.NoActionBar" />
+259-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:239:13-56
+260        <activity
+260-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:240:9-245:59
+261            android:name="com.app.ps19.elecapp.ReportAddActivity"
+261-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:241:13-46
+262            android:label="@string/title_activity_report_add"
+262-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:242:13-62
+263            android:launchMode="singleTop"
+263-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:243:13-43
+264            android:screenOrientation="portrait"
+264-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:244:13-49
+265            android:theme="@style/AppTheme.NoActionBar" />
+265-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:245:13-56
+266        <activity
+266-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:246:9-251:59
+267            android:name="com.app.ps19.elecapp.ReportInboxActivity"
+267-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:247:13-48
+268            android:label="@string/title_activity_report_inbox"
+268-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:248:13-64
+269            android:launchMode="singleTask"
+269-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:249:13-44
+270            android:screenOrientation="portrait"
+270-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:250:13-49
+271            android:theme="@style/AppTheme.NoActionBar" />
+271-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:251:13-56
+272        <activity
+272-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:252:9-257:59
+273            android:name="com.app.ps19.elecapp.ReportDetailActivity"
+273-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:253:13-49
+274            android:label="@string/title_activity_report_detail"
+274-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:254:13-65
+275            android:launchMode="singleTask"
+275-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:255:13-44
+276            android:screenOrientation="portrait"
+276-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:256:13-49
+277            android:theme="@style/AppTheme.NoActionBar" />
+277-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:257:13-56
+278        <activity
+278-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:258:9-263:59
+279            android:name="com.app.ps19.elecapp.ReportViewActivity"
+279-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:259:13-47
+280            android:label="@string/title_activity_report_view"
+280-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:260:13-63
+281            android:launchMode="singleTask"
+281-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:261:13-44
+282            android:screenOrientation="portrait"
+282-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:262:13-49
+283            android:theme="@style/AppTheme.NoActionBar" />
+283-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:263:13-56
+284        <activity
+284-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:264:9-269:59
+285            android:name="com.app.ps19.elecapp.SettingsActivity"
+285-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:265:13-45
+286            android:label="@string/title_activity_server_info"
+286-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:266:13-63
+287            android:launchMode="singleTask"
+287-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:267:13-44
+288            android:screenOrientation="portrait"
+288-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:268:13-49
+289            android:theme="@style/AppTheme.NoActionBar" />
+289-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:269:13-56
+290        <activity
+290-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:270:9-275:59
+291            android:name="com.app.ps19.elecapp.IssuesActivity"
+291-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:271:13-43
+292            android:label="@string/title_activity_issues"
+292-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:272:13-58
+293            android:launchMode="singleTask"
+293-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:273:13-44
+294            android:screenOrientation="portrait"
+294-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:274:13-49
+295            android:theme="@style/AppTheme.NoActionBar" /> <!-- <activity -->
+295-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:275:13-56
+296        <!-- android:name=".CameraActivity" -->
+297        <!-- android:label="@string/title_activity_issues" -->
+298        <!-- android:launchMode="singleTop" -->
+299        <!-- android:screenOrientation="portrait" -->
+300        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
+301        <activity
+301-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:281:9-286:59
+302            android:name="com.app.ps19.elecapp.Camera2Activity"
+302-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:282:13-44
+303            android:label="@string/title_activity_issues"
+303-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:283:13-58
+304            android:launchMode="singleTop"
+304-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:284:13-43
+305            android:screenOrientation="portrait"
+305-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:285:13-49
+306            android:theme="@style/AppTheme.NoActionBar" />
+306-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:286:13-56
+307        <activity
+307-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:287:9-291:59
+308            android:name="com.app.ps19.elecapp.PictureActivity"
+308-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:288:13-44
+309            android:launchMode="singleTop"
+309-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:289:13-43
+310            android:screenOrientation="portrait"
+310-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:290:13-49
+311            android:theme="@style/AppTheme.NoActionBar" />
+311-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:291:13-56
+312        <activity
+312-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:292:9-296:52
+313            android:name="com.app.ps19.elecapp.RptTimeAndGpsActivity"
+313-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:293:13-50
+314            android:label="@string/title_activity_rpt_time_and_gps"
+314-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:294:13-68
+315            android:launchMode="singleTop"
+315-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:295:13-43
+316            android:screenOrientation="portrait" />
+316-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:296:13-49
+317        <!--
+318             The API key for Google Maps-based APIs is defined as a string resource.
+319             (See the file "res/values/google_maps_api.xml").
+320             Note that the API key is linked to the encryption key used to sign the APK.
+321             You need a different API key for each encryption key, including the release key that is used to
+322             sign the APK for publishing.
+323             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+324        -->
+325        <activity
+325-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:305:9-309:52
+326            android:name="com.app.ps19.elecapp.WorkPlanActivity"
+326-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:306:13-45
+327            android:label="@string/select_work_plan"
+327-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:307:13-53
+328            android:launchMode="singleTop"
+328-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:308:13-43
+329            android:screenOrientation="portrait" />
+329-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:309:13-49
+330        <activity
+330-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:310:9-315:52
+331            android:name="com.app.ps19.elecapp.UnitSelectionActivity"
+331-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:311:13-50
+332            android:label="@string/title_activity_select_asset"
+332-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:312:13-64
+333            android:launchMode="singleTop"
+333-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:313:13-43
+334            android:parentActivityName="com.app.ps19.elecapp.IssuesActivity"
+334-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:314:13-57
+335            android:screenOrientation="portrait" />
+335-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:315:13-49
+336        <activity
+336-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:316:9-324:20
+337            android:name="com.app.ps19.elecapp.AssetMapsActivity"
+337-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:317:13-46
+338            android:label="@string/title_activity_asset_maps"
+338-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:318:13-62
+339            android:launchMode="singleTask"
+339-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:319:13-44
+340            android:screenOrientation="portrait" >
+340-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:320:13-49
+341            <meta-data
+341-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:150:13-152:71
+342                android:name="android.support.PARENT_ACTIVITY"
+342-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:151:17-63
+343                android:value="com.app.ps19.elecapp.IssuesActivity" />
+343-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:152:17-68
+344        </activity>
+345        <activity android:name="com.app.ps19.elecapp.hos.HosActivity" />
+345-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:325:9-53
+345-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:325:19-50
+346        <activity
+346-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:326:9-330:52
+347            android:name="com.app.ps19.elecapp.MaintenanceActivity"
+347-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:327:13-48
+348            android:exported="false"
+348-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:328:13-37
+349            android:label="@string/maintenances_activity_title"
+349-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:329:13-64
+350            android:screenOrientation="portrait" />
+350-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:330:13-49
+351        <activity android:name="com.app.ps19.elecapp.CameraIntentActivity" />
+351-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:331:9-58
+351-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:331:19-55
+352
+353        <meta-data
+353-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:333:9-335:57
+354            android:name="preloaded_fonts"
+354-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:334:13-43
+355            android:resource="@array/preloaded_fonts" />
+355-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:335:13-54
+356
+357        <receiver
+357-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:337:9-340:39
+358            android:name="com.app.ps19.elecapp.geofencing.providers.GeofencingProvider"
+358-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:338:13-68
+359            android:enabled="true"
+359-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:339:13-35
+360            android:exported="true" /> <!-- Foreground services in Q+ require type. -->
+360-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:340:13-36
+361        <service
+361-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:341:9-345:56
+362            android:name="com.app.ps19.elecapp.location.LocationUpdatesService"
+362-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:342:13-60
+363            android:enabled="true"
+363-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:343:13-35
+364            android:exported="true"
+364-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:344:13-36
+365            android:foregroundServiceType="location" />
+365-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:345:13-53
+366        <!--
+367        <receiver
+368
+369        android:name=".activity.providers.DeviceActivityDetector"
+370                    android:enabled="true"
+371
+372        android:exported="false"
+373        />
+374        -->
+375        <uses-library
+375-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:355:9-357:40
+376            android:name="org.apache.http.legacy"
+376-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:356:13-50
+377            android:required="false" />
+377-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:357:13-37
+378
+379        <provider
+380            android:name="androidx.core.content.FileProvider"
+380-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:68:13-62
+381            android:authorities="com.app.ps19.elecapp.provider"
+381-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:69:13-60
+382            android:exported="false"
+382-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:70:13-37
+383            android:grantUriPermissions="true" >
+383-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:71:13-47
+384            <meta-data
+384-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:72:13-74:54
+385                android:name="android.support.FILE_PROVIDER_PATHS"
+385-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:73:17-67
+386                android:resource="@xml/file_paths" >
+386-->D:\E-utility-New-Inspection\ElectricUtility\AndroidApp\ElectricApp\app\src\main\AndroidManifest.xml:74:17-51
+387            </meta-data>
+388        </provider>
+389
+390        <activity
+390-->[com.karumi:dexter:5.0.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\ee6bc4772ca71edf2fc4087673d9aa38\jetified-dexter-5.0.0\AndroidManifest.xml:27:9-29:72
+391            android:name="com.karumi.dexter.DexterActivity"
+391-->[com.karumi:dexter:5.0.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\ee6bc4772ca71edf2fc4087673d9aa38\jetified-dexter-5.0.0\AndroidManifest.xml:28:13-60
+392            android:theme="@style/Dexter.Internal.Theme.Transparent" />
+392-->[com.karumi:dexter:5.0.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\ee6bc4772ca71edf2fc4087673d9aa38\jetified-dexter-5.0.0\AndroidManifest.xml:29:13-69
+393
+394        <provider
+394-->[com.squareup.picasso:picasso:2.71828] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\2ac640245a66a3ee73615bd9f0a9af87\jetified-picasso-2.71828\AndroidManifest.xml:8:9-11:40
+395            android:name="com.squareup.picasso.PicassoProvider"
+395-->[com.squareup.picasso:picasso:2.71828] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\2ac640245a66a3ee73615bd9f0a9af87\jetified-picasso-2.71828\AndroidManifest.xml:9:13-64
+396            android:authorities="com.app.ps19.elecapp.com.squareup.picasso"
+396-->[com.squareup.picasso:picasso:2.71828] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\2ac640245a66a3ee73615bd9f0a9af87\jetified-picasso-2.71828\AndroidManifest.xml:10:13-72
+397            android:exported="false" />
+397-->[com.squareup.picasso:picasso:2.71828] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\2ac640245a66a3ee73615bd9f0a9af87\jetified-picasso-2.71828\AndroidManifest.xml:11:13-37
+398
+399        <meta-data
+399-->[com.google.maps.android:android-maps-utils:0.5] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\e9da645a5422e8f875c022a75716461e\jetified-android-maps-utils-0.5\AndroidManifest.xml:8:9-10:69
+400            android:name="com.google.android.gms.version"
+400-->[com.google.maps.android:android-maps-utils:0.5] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\e9da645a5422e8f875c022a75716461e\jetified-android-maps-utils-0.5\AndroidManifest.xml:9:13-58
+401            android:value="@integer/google_play_services_version" />
+401-->[com.google.maps.android:android-maps-utils:0.5] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\e9da645a5422e8f875c022a75716461e\jetified-android-maps-utils-0.5\AndroidManifest.xml:10:13-66
+402
+403        <activity
+403-->[com.google.android.gms:play-services-base:17.5.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\3f9aba943b40305b342ef7e68662fdd0\jetified-play-services-base-17.5.0\AndroidManifest.xml:23:9-26:75
+404            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+404-->[com.google.android.gms:play-services-base:17.5.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\3f9aba943b40305b342ef7e68662fdd0\jetified-play-services-base-17.5.0\AndroidManifest.xml:24:13-79
+405            android:exported="false"
+405-->[com.google.android.gms:play-services-base:17.5.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\3f9aba943b40305b342ef7e68662fdd0\jetified-play-services-base-17.5.0\AndroidManifest.xml:25:13-37
+406            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+406-->[com.google.android.gms:play-services-base:17.5.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\3f9aba943b40305b342ef7e68662fdd0\jetified-play-services-base-17.5.0\AndroidManifest.xml:26:13-72
+407
+408        <provider
+408-->[androidx.lifecycle:lifecycle-process:2.2.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\d5906b530ddf7ea2d590e933f9f3c829\jetified-lifecycle-process-2.2.0\AndroidManifest.xml:25:9-29:43
+409            android:name="androidx.lifecycle.ProcessLifecycleOwnerInitializer"
+409-->[androidx.lifecycle:lifecycle-process:2.2.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\d5906b530ddf7ea2d590e933f9f3c829\jetified-lifecycle-process-2.2.0\AndroidManifest.xml:26:13-79
+410            android:authorities="com.app.ps19.elecapp.lifecycle-process"
+410-->[androidx.lifecycle:lifecycle-process:2.2.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\d5906b530ddf7ea2d590e933f9f3c829\jetified-lifecycle-process-2.2.0\AndroidManifest.xml:27:13-69
+411            android:exported="false"
+411-->[androidx.lifecycle:lifecycle-process:2.2.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\d5906b530ddf7ea2d590e933f9f3c829\jetified-lifecycle-process-2.2.0\AndroidManifest.xml:28:13-37
+412            android:multiprocess="true" />
+412-->[androidx.lifecycle:lifecycle-process:2.2.0] C:\Users\osama.iqbal\.gradle\caches\transforms-2\files-2.1\d5906b530ddf7ea2d590e933f9f3c829\jetified-lifecycle-process-2.2.0\AndroidManifest.xml:29:13-40
+413    </application>
+414
+415</manifest>

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { retroColors, basicColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 import { themeService } from "theme/service/activeTheme.service";
 
 class SelectionListDropDown extends Component {
@@ -17,6 +17,7 @@ class SelectionListDropDown extends Component {
         style={themeService({
           default: { width: "100%", padding: "3px 0px", color: basicColors.first },
           retro: { width: "100%", padding: "3px 0px", color: retroColors.second },
+          electric: { width: "100%", padding: "3px 0px", color: electricColors.second },
         })}
         defaultValue={this.props.selectedItem}
       >

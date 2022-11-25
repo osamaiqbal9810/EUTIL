@@ -5,7 +5,10 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.PowerManager;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -19,7 +22,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationChangedInterface;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
+import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.LatLong;
 
@@ -27,16 +32,17 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Utilities.getLocationDescription;
 
-public class UnitSelectionActivity extends AppCompatActivity implements SensorEventListener, LocationChangedInterface {
+public class UnitSelectionActivity extends AppCompatActivity implements SensorEventListener, OnLocationUpdatedListener {
     private TextView txtDegrees;
     private ImageView imgCompass;
     private float currentDegree=0f;
     private SensorManager sensorManager;
     ListView lvStaticUnits;
     ListView lvSortedUnits;
-    GPSTracker gps;
+    // GPSTracker gps;
     uSelectionAdapter selectionSortedAdt;
     uSelectionAdapter selectionStaticAdt;
     Double preLongitude;
@@ -57,6 +63,7 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
     protected PowerManager.WakeLock mWakeLock;
     public PowerManager pm ;
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,18 +137,21 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
                 }
             }
         });
-        gps = new GPSTracker(UnitSelectionActivity.this);
-        if (gps.canGetLocation()) {
-            preLongitude = gps.getLongitude();
-            preLatitude = gps.getLatitude();
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+        // gps = new GPSTracker(UnitSelectionActivity.this);
+        if (LocationUpdatesService.canGetLocation()) {
+            Location loc = LocationUpdatesService.getLocation();
+            preLongitude = loc.getLongitude();
+            preLatitude = loc.getLatitude();
 
-            tvLatitude.setText(Double.toString(gps.getLatitude()));
-            tvLongitude.setText(Double.toString(gps.getLongitude()));
-            CURRENT_LOCATION = String.valueOf(gps.getLatitude()) + "," + String.valueOf(gps.getLongitude());
+            tvLatitude.setText(Double.toString(loc.getLatitude()));
+            tvLongitude.setText(Double.toString(loc.getLongitude()));
+            CURRENT_LOCATION = String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude());
 
             LatLong location = new LatLong(Double.toString(preLatitude), Double.toString(preLongitude));
             tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-            staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+            staticList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()>=0) {
                 //    it.remove();
@@ -150,7 +160,7 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
                     it.remove();
                 }
             }
-            sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+            sortedList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {
                 //    it.remove();
@@ -171,6 +181,8 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
 
             selectionSortedAdt = new uSelectionAdapter(this, "sorted", sortedList);
             lvSortedUnits.setAdapter(selectionSortedAdt);
+        }else{
+            Utilities.showSettingsAlert(UnitSelectionActivity.this);
         }
 
         isUp = false;
@@ -178,7 +190,7 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
     public void listUpdate(String lat, String lon){
         LatLong location = new LatLong(lat, lon);
         //staticList.clear();
-        staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+        staticList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
             //if (it.next().getDistance()>=0) {
             //    it.remove();
@@ -188,7 +200,7 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
             }
         }
         //sortedList.clear();
-        sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+        sortedList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
             //if (it.next().getDistance()<0) {
             //    it.remove();
@@ -262,6 +274,8 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
             }
         }
         try {
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
             sensorManager.unregisterListener(UnitSelectionActivity.this);
         } catch (Exception e) {
             e.printStackTrace();
@@ -277,6 +291,8 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
         if(imgCompass.getTag().equals(R.drawable.compass)) {
             sensorManager.registerListener(UnitSelectionActivity.this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
         }
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
     }
 
     @Override
@@ -318,9 +334,21 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
         return resultDegree+" "+compasLoc;
     }
 
+    //    @Override
+//    public void locationChanged(Location mLocation) {
+//
+//    }
     @Override
-    public void locationChanged(Location mLocation) {
-        /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
+    public boolean onSupportNavigateUp(){
+        finish();
+        return true;
+    }
+
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+        if(!LocationUpdatesService.canGetLocation() || mLocation.getProvider().equals("None")) { Utilities.showSettingsAlert(UnitSelectionActivity.this); return; }
+                /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
         txtDegrees.setText(location);*/
 
         tvLatitude.setText(String.valueOf(mLocation.getLatitude()));
@@ -329,10 +357,5 @@ public class UnitSelectionActivity extends AppCompatActivity implements SensorEv
         LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
         tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
         listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
-    }
-    @Override
-    public boolean onSupportNavigateUp(){
-        finish();
-        return true;
     }
 }

@@ -13,7 +13,13 @@ import androidx.annotation.Nullable;
 
 import com.app.ps19.tipsapp.R;
 import com.app.ps19.tipsapp.classes.Session;
+import com.app.ps19.tipsapp.classes.ranges.RangeChunk;
+import com.app.ps19.tipsapp.classes.ranges.RangeCompletion;
+
+import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class TemplatePlanCompletionView extends View {
     Paint linePaint = new Paint();
@@ -54,7 +60,7 @@ public class TemplatePlanCompletionView extends View {
     }
 
     float mpStart=0.0f;
-    float mpEnd = 100.0f;
+    float mpEnd = 200.0f;
     String title="Template Completion";
     String defaultTitle="Template Completion";
 
@@ -102,6 +108,8 @@ public class TemplatePlanCompletionView extends View {
     }
 
     private void addSampleData(){
+        this.mpStart=0.0f;
+        this.mpEnd=200.0f;
         ArrayList<Session> _completion=new ArrayList<>();
         _completion.add(new Session("1", "10","closed"));
         _completion.add(new Session("20", "25","closed"));
@@ -179,15 +187,16 @@ public class TemplatePlanCompletionView extends View {
         int viewWidth=this.getMeasuredWidth(), viewHeight=getMeasuredHeight();
         int w=viewWidth-offsetEnd, h=viewHeight;
         int lineX=offsetStart, lineX1=w, lineY=h/2, lineY1=h/2;
+        float fLineX=offsetStart, fLineX1=w, fLineY= h/2, fLineY1=h/2;
         if(title==null ){
             title=defaultTitle;
         }
         int stokeHeight=20;
         float mpLen=mpEnd-mpStart;
         int lineLen=lineX1-lineX;
-        int lineStep=lineLen/ Math.round(mpLen);
+        int lineStep=lineLen/(Math.round(mpLen)<=0?1:Math.round(mpLen));
         int titleTextWidth=(int) titleTextPaint.measureText(title);
-        linePaintGray.setStrokeWidth(50);
+        linePaintGray.setStrokeWidth(60);
         if(isShowTitle()) {
             canvas.drawText(title, w / 2 - titleTextWidth / 2, lineY - 100, titleTextPaint);
         }else{
@@ -200,27 +209,62 @@ public class TemplatePlanCompletionView extends View {
         int cntPlus=1;
         int mpTextWidth=Math.round(mpTextPaint.measureText(String.valueOf(mpEnd)));
         int lineLoopStep=lineStep;
+        float fLineLen=fLineX1-fLineX;
+        float fLineLoopStep= (fLineX1-fLineX)/10;//fLineLen/(Math.round(mpLen)<=0?1:Math.round(mpLen))/10;
 
         int startTick=lineX/lineStep;
         int safeRange=0;
-        for(int i=lineX;i<=lineX1;i+=lineLoopStep){
+        float fSafeRange=0.0f;
+        float prevTickValue=0.0f;
+        String text0="",text1="",text2="";
+        String prevText="";
+        for(float i=fLineX;i<=fLineX1;i+=fLineLoopStep){
             //int tickValue=(i/lineStep)+cnt-startTick;
-            float tickValue=(((float)i)/(((float)lineLen)/mpLen))+cnt-startTick;
+            //float tickValue=(((float)i)/(((float)lineLen)/mpLen))+cnt-startTick;
+            float tickValue=((i-offsetStart)/(fLineLen/mpLen))+mpStart-startTick;
+
             String text=String.valueOf(Math.round(tickValue));
-            int textWidth = (int) mpTextPaint.measureText(text);
-            if(i>safeRange){
-                canvas.drawLine(i,lineY,i,lineY-stokeHeight,strokePaint);
-                canvas.drawText(text,i-textWidth/2,lineY-(stokeHeight+stokeHeight/2),mpTextPaint);
-                safeRange=i+mpTextWidth;
+            if(tickValue != (int) tickValue   ){
+                text0=String.format("%.0f",tickValue);
+                text2=String.format("%.2f",tickValue);
+                text1=String.format("%.1f",tickValue);
+                if((int)tickValue == tickValue){
+                    text=String.valueOf((int) tickValue);
+                }else if(Float.valueOf(text2).equals(Float.valueOf(text1))){
+                    text=text1;
+                }else{
+                    text=text2;
+                }
             }
+            int textWidth = (int) mpTextPaint.measureText(text);
+
+            if(i==fLineX){
+                text=String.valueOf(mpStart);
+                textWidth =  (int) mpTextPaint.measureText(text);
+            }else if(i==fLineX1 ||(i==fLineX1-fLineLoopStep && i+fLineLoopStep> fLineX1)){
+                if(Math.round(tickValue)!=tickValue){
+                    text=String.valueOf(mpEnd);
+                    textWidth =  (int) mpTextPaint.measureText(text);
+                }
+            }
+            if(i>fSafeRange){
+                canvas.drawLine(i,lineY,i,lineY-stokeHeight,strokePaint);
+                if(!prevText.equals(text) || i==fLineX1) {
+                    canvas.drawText(text, i - textWidth / 2, lineY - (stokeHeight + stokeHeight / 2), mpTextPaint);
+                }
+                fSafeRange=i+mpTextWidth;
+            }
+            prevTickValue=tickValue;
+            //prevText=text;
             //cnt+=lineLoopStep;
         }
         float lineStep1=lineLen /mpLen;
-        float startAdj=mpStart * lineStep1;
+        float startAdj=0;//mpStart * lineStep1;
         float totalCompleted=0, totalInProgress=0,totalOthers=0;
         /*
         * Completion others
         * */
+        /*
         for(int i=0;i<completionOthers.size();i++){
             Session compRange=completionOthers.get(i);
             float start=compRange.getStartF() *lineStep1-startAdj +offsetStart;
@@ -231,6 +275,7 @@ public class TemplatePlanCompletionView extends View {
             if( compRange.getStatus().equals("closed") || compRange.getStatus().equals("open") ){
                 //totalCompleted+=(Math.abs(compRange.getEndF()-compRange.getStartF()));
                 totalOthers+=(Math.abs(compRange.getEndF()-compRange.getStartF()));
+                totalOthers=totalOthers>mpLen?mpLen:totalOthers;
             }
             //else if(compRange.getStatus().equals("open")){
             //    totalInProgress+=(Math.abs(compRange.getEndF()-compRange.getStartF()));
@@ -240,32 +285,62 @@ public class TemplatePlanCompletionView extends View {
                 //drawArrow(canvas, start,y,end,y,20,arrowPaint);
             }
         }
-
+        */
         linePaintGreen.setStrokeWidth(50);
-        linePaintYellow.setStrokeWidth(50);
+        //linePaintYellow.setStrokeWidth(50);
+        linePaintYellow.setStrokeWidth(25);
+        ArrayList<RangeChunk> ranges=new ArrayList<>();
+        ArrayList<RangeChunk> rangesInProgress=new ArrayList<>();
         for(int i=0;i<completion.size();i++){
             Session compRange=completion.get(i);
             float start=compRange.getStartF() *lineStep1-startAdj +offsetStart;
             float end=compRange.getEndF()*lineStep1-startAdj+offsetStart;
             float y=lineY + offSetStatusLine;
+            float x1=(compRange.getStartF()-mpStart)*lineStep1+offsetStart;
+            float x2=(compRange.getEndF()-mpStart) *lineStep1+offsetStart;
+
             Paint linePaint= compRange.getStatus().equals("closed")?linePaintGreen:linePaintYellow;
             float yOffset=50-linePaint.getStrokeWidth();
             if( compRange.getStatus().equals("closed")){
                 totalCompleted+=(Math.abs(compRange.getEndF()-compRange.getStartF()));
+                totalCompleted=(totalCompleted>mpLen)? mpLen:totalCompleted;
+                ranges.add(new RangeChunk(compRange.getStartF(), compRange.getEndF(),compRange.getStatus()));
             }else if(compRange.getStatus().equals("open")){
                 totalInProgress+=(Math.abs(compRange.getEndF()-compRange.getStartF()));
+                totalInProgress=(totalInProgress>mpLen)?mpLen:totalInProgress;
+                rangesInProgress.add(new RangeChunk(compRange.getStartF(),compRange.getEndF()));
+                //ranges.add(new RangeChunk(compRange.getStartF(), compRange.getEndF(),compRange.getStatus()));
             }
-            canvas.drawLine(start,y, end, y, linePaint);
+            //canvas.drawLine(start,y, end, y, linePaint);
+            float lineAdjustY=(linePaint.equals(linePaintYellow))?(linePaintYellow.getStrokeWidth()/2):0;
+            canvas.drawLine(x1,y+lineAdjustY, x2, y+lineAdjustY, linePaint);
             if((start > end) && isShowArrow()){
-                drawArrow(canvas, start,y,end,y,20,arrowPaint);
+                drawArrow(canvas, start,y+lineAdjustY,end,y+lineAdjustY,20,arrowPaint);
             }
         }
         float legendX=lineX, legendY=lineY+offSetStatusLine+90;
+        RangeCompletion rangeCompletion=new RangeCompletion(mpStart, mpEnd);
+        float percentComplete=(totalCompleted/Math.abs(mpEnd-mpStart) )*100;
+        float percentInProgress=(totalInProgress/Math.abs(mpEnd-mpStart) )*100;
+        float percentInProgress1=(totalInProgress/Math.abs(mpEnd-mpStart) )*100;
 
-        float percentComplete=Math.round((Math.abs(mpEnd-mpStart) /totalCompleted)*100);
-        float percentInProgress=Math.round((Math.abs(mpEnd-mpStart) /totalInProgress)*100);
+        float percentCompleteOther=(totalOthers/Math.abs(mpEnd-mpStart) )*100;
         float rectSize=25;
-        String text=String.format("Completed:%d%%",Math.round(totalCompleted));
+        ArrayList<RangeChunk> allRanges=new ArrayList<>();
+        rangeCompletion.setChunkList(ranges);
+        rangeCompletion.calculate();
+        percentComplete=rangeCompletion.getCompletePercent();
+        rangeCompletion.setChunkList(rangesInProgress);
+        rangeCompletion.calculate();
+        percentInProgress1=rangeCompletion.getCompletePercent();
+
+        allRanges.addAll(ranges);
+        allRanges.addAll(rangesInProgress);
+        rangeCompletion.setChunkList(allRanges);
+        rangeCompletion.calculate();
+        float totalCompletePercent=rangeCompletion.getCompletePercent();
+
+        String text=String.format("Completed:%d%%",Math.round(percentComplete));
         float textWidth=mpTextPaint.measureText(text);
         float spaceBetween=rectSize;
         linePaintGreen.setStrokeWidth(8);
@@ -275,19 +350,26 @@ public class TemplatePlanCompletionView extends View {
         canvas.drawRect(new RectF(legendX ,legendY-rectSize,legendX + rectSize,legendY),linePaintGreen);
         canvas.drawText(text,legendX+(rectSize+rectSize/2), legendY,mpTextPaint);
         float nextTextX=legendX+(rectSize*1)+spaceBetween+textWidth;
-        text=String.format("In Progress:%d%%",Math.round(totalInProgress));
+        //text=String.format("In Progress:%d%%",Math.round(percentInProgress));
+        text=String.format("In Progress:%d%%",Math.round(percentInProgress1));
         textWidth=mpTextPaint.measureText(text);
         canvas.drawRect(new RectF(nextTextX ,legendY-rectSize,nextTextX + rectSize,legendY),linePaintYellow);
         canvas.drawText(text,nextTextX+(rectSize+rectSize/2), legendY,mpTextPaint);
         nextTextX=nextTextX+(rectSize*1)+spaceBetween+textWidth;
 
-        text=String.format("Others:%d%%",Math.round(totalOthers));
+        /*
+        text=String.format("Others:%d%%",Math.round(percentCompleteOther));
         textWidth=mpTextPaint.measureText(text);
         canvas.drawRect(new RectF(nextTextX ,legendY-rectSize,nextTextX + rectSize,legendY),linePaintGreenOthers);
         canvas.drawText(text,nextTextX+(rectSize+rectSize/2), legendY,mpTextPaint);
         nextTextX=nextTextX+(rectSize*1)+spaceBetween+textWidth;
-
-        text=String.format("Remaining:%d%%",Math.round(100-totalInProgress-totalCompleted-totalOthers));
+        */
+        //float remainingPercent=Math.round(100-percentInProgress1 - percentComplete- percentCompleteOther);
+        //float remainingPercent=Math.round(100-percentInProgress1 - percentComplete);
+        //float remainingPercent=Math.round(100- percentComplete);
+        float remainingPercent=Math.round(100- totalCompletePercent);
+        remainingPercent=remainingPercent<0?0:remainingPercent>100?100:remainingPercent;
+        text=String.format("Remaining:%d%%",Math.round(remainingPercent));
         textWidth=mpTextPaint.measureText(text);
         canvas.drawRect(new RectF(nextTextX ,legendY-rectSize,nextTextX + rectSize,legendY),linePaintGray);
         canvas.drawText(text,nextTextX+(rectSize+rectSize/2), legendY,mpTextPaint);

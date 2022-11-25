@@ -1,6 +1,7 @@
 import AssetsModel from "../assets/assets.modal";
 import AssetsTypeModel from "../assetTypes/assetTypes.model";
-import _ from "lodash";
+import _, { head } from "lodash";
+import { DataExporterCSV } from "../../service/DataExporterToCSV";
 let ServiceLocator = require("../../framework/servicelocator");
 
 class LocationService {
@@ -135,6 +136,124 @@ class LocationService {
     }
     return createTreeAgainCheck;
   }
+  async locationAssetsToCSV(locId) {
+    let result = {};
+    try {
+      let assets = await AssetsModel.find({ parentAsset: locId, isRemoved: false }).exec();
+      let dataToWrite = assetDataToCSV(assets);
+      let errorVal = await DataExporterCSV(dataToWrite, "./uploads/assetsExports/", "assetExport.csv");
+      if (errorVal) {
+        result.erroVal = errorVal.message;
+        result.status = 500;
+      } else {
+        result.value = {};
+        result.status = 200;
+      }
+    } catch (err) {
+      console.log('location.service.locationAssetsToCSV.catch:', err);
+      result.erroVal = err;
+      result.status = 500;
+    }
+    return result;
+  }
 }
 
 export default LocationService;
+
+// export function assetDataToCSV(assets) {
+//    const assetHeaders = "Asset Type,Name,Description,Start Mp,End Mp,Lat,Long";
+//   let data = assetHeaders + ", \n";
+//   for (let asset of assets) {
+//     data = data + `${filterEscapeCharFields(asset.assetType)},`;
+//     data = data + `${filterEscapeCharFields(asset.unitId)},`;
+//     data = data + `${filterEscapeCharFields(asset.description)},`;
+//     data = data + `${filterEscapeCharFields(asset.start)},`;
+//     data = data + `${filterEscapeCharFields(asset.end)},`;
+//     data = data + `${filterEscapeCharFields(asset.coordinates && asset.coordinates.length > 0 ? asset.coordinates[0] : "")},`;
+//     data = data + `${filterEscapeCharFields(asset.coordinates && asset.coordinates.length > 0 ? asset.coordinates[1] : "")},`;
+//     data = data + `\n`;
+//   }
+//   return data;
+// }
+export function assetDataToCSV( assets ) {
+  // Make plain headers
+  let headerFields=[], csvData='';
+  headerFields = makeHeaders(assets);
+  // console.log('final headers', headerFields);
+  for(let asset of assets) {
+    csvData += makeCSVRow(asset._doc, headerFields) + '\n';
+  }
+  csvData = headerFields.join(',') + '\n' + csvData;
+
+  return csvData;
+}
+function makeCSVRow(value, headers) {
+  let csvRow = '';
+
+  for(let i=0; i<headers.length; i++) {
+    let fieldName = headers[i], fieldLevels=fieldName.split('.'), fieldValue='';
+
+    if( fieldLevels.length > 1 ) // Todo: implement and test multilevel array and objects
+      fieldValue = value[fieldLevels[0]][fieldLevels[1]];
+    else 
+      fieldValue = value[fieldName];
+      
+      if(fieldValue==null || fieldValue==undefined)
+       fieldValue='';
+
+      if(typeof fieldValue==='string') 
+      { 
+        fieldValue  = fieldValue.replace(/"/g, "'");
+        fieldValue = '"' + fieldValue + '"';
+      }
+
+      csvRow += `${filterEscapeCharFields(fieldValue)}${i===headers.length-1 ? '':','}`;
+  }
+
+  return csvRow;
+}
+function makeHeaders(assets) {
+  const exceptions = ['_id', 'childAsset', 'parentAsset', 'levels', 'isRemoved', 'lineId', 'trackId', 'assetLength', 'createdAt', 'updatedAt', '__v']; // do not export these fields
+  let headerFields=[];
+  for(let asset of assets) {
+    let fields = Object.keys(asset._doc);
+    for(let field of fields) {
+      if(!exceptions.includes(field)) {
+        addHeaderR(field, asset._doc[field], headerFields);
+      }
+    }
+ }
+ return headerFields;
+}
+function addHeaderR(fieldName, fieldValue, headerFields) {
+  if(fieldValue && typeof fieldValue === 'object' && !Array.isArray(fieldValue)) {
+    let attributes = Object.keys(fieldValue);
+    for(let attribute of attributes) {
+      addHeaderR(fieldName+'.'+attribute, fieldValue[attribute], headerFields);
+    }
+  }
+  else if(Array.isArray(fieldValue)) {
+    
+    if(fieldValue.length > 0) {
+      // if(headerFields.includes(fieldName))
+      // { 
+      //   let removeIndex = headerFields.findIndex((v)=>{return v===fieldName});
+      //   headerFields.splice(removeIndex, 1);
+      // }
+      for(let index=0; index < fieldValue.length; index++) {
+        addHeaderR(fieldName+'.'+index, fieldValue[index], headerFields);
+      }
+    }
+    else 
+     addHeaderR(fieldName+'.0','', headerFields);
+  }
+  else if(!headerFields.includes(fieldName)) {
+    headerFields.push(fieldName);
+  }
+}
+function filterEscapeCharFields(value) {
+  if (value && typeof value === "string") {
+    value = value.replace(/\n/g, "");
+  }
+  return value;
+}

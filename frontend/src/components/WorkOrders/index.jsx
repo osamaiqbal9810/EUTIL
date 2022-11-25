@@ -42,7 +42,7 @@ import { themeService } from "../../theme/service/activeTheme.service";
 import { commonStyles } from "../../theme/commonStyles";
 import { commonSummaryStyle } from "../Common/Summary/styles/CommonSummaryStyle";
 import ConfirmationDialog from "../Common/ConfirmationDialog";
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 import MenuFilter from "components/Common/MenuFilters/index";
 import EstimateListEditable from "../Maintenance/AddMaintenance/EstimateListEditable";
 
@@ -533,6 +533,16 @@ class WorkOrder extends Component {
                     fontWeight: "400",
                     lineHeight: "1.5",
                   },
+                  electric: {
+                    fontFamily: "Myriad Pro",
+                    color: electricColors.second,
+                    display: "inline-block",
+                    margin: "0 auto",
+                    width: "150px",
+                    fontSize: "1rem",
+                    fontWeight: "400",
+                    lineHeight: "1.5",
+                  },
                 })}
               >
                 {languageService("Need Help")}
@@ -563,8 +573,9 @@ class WorkOrder extends Component {
             {this.props.workOrderFilters && this.props.workOrderFilters.mr && (
               <div
                 style={themeService({
-                  default: { marginTop: "5px", color: "rgb(64, 118, 179)", float: "right" },
+                  default: { marginTop: "5px", color: "var(--first)", float: "right" },
                   retro: { marginTop: "5px", color: retroColors.second, float: "right" },
+                  electric: { marginTop: "5px", color: electricColors.second, float: "right" },
                 })}
               >
                 {languageService("Add")} {this.props.workOrderFilters.mr.mrNumber} {languageService("to capital plan")}{" "}
@@ -610,7 +621,7 @@ class WorkOrder extends Component {
                 //   fontFamily: "Myriad Pro",
                 //   fontSize: "16px",
                 //   letterSpacing: "0.5px",
-                //   color: " rgba(64, 118, 179)",
+                //   color: "var(--first)",
                 //   paddingLeft: "15px",
                 // }}
                 style={themeService(commonPageStyle.commonSummaryHeadingContainer)}

@@ -22,16 +22,16 @@ class UserInLineEdit extends Component {
         userVal.inspector.valid = true;
       }
     }
-    if (this.props.inspection.temp_user) {
-      userVal.inspector.value = this.props.inspection.temp_user.id;
+    if (this.props.inspection.user) {
+      userVal.inspector.value = this.props.inspection.user._id;
     } else {
       userVal.inspector.value = this.props.inspection.user._id;
     }
+    
     this.updateFrom({ userVal });
-    console.log("comdMount");
   }
 
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = newState => {this.setState({ ...newState })};
   render() {
     return (
       <div>

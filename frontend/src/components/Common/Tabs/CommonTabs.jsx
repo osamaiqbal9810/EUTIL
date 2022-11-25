@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Radium from "radium";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { getLanguageLocal, languageService } from "Language/language.service";
 class CommonTabs extends Component {
   constructor(props) {
@@ -39,7 +39,7 @@ let getStyles = (props, state) => {
   let borders = themeService({
     default: {
       backgColor: "#e3e9ef",
-      color: "#fff",
+      color: "var(--fifth)",
     },
     retro: {
       backgColor: retroColors.four,
@@ -48,13 +48,13 @@ let getStyles = (props, state) => {
   });
 
   if (props.tabState) {
-    borders.backgColor = themeService({ default: basicColors.first, retro: retroColors.first });
-    borders.color = "#fff";
-    // borders.borderTop = '3px solid rgba(64, 118, 179)'
-    // borders.borderHoverTop = '3px solid rgba(64, 118, 179)'
+    borders.backgColor = themeService({ default: basicColors.first, retro: retroColors.first, electric: electricColors.first });
+    borders.color = "var(--fifth)";
+    // borders.borderTop = '3px solid "var(--first)"'
+    // borders.borderHoverTop = '3px solid "var(--first)"'
   } else {
     borders.backgColor = "#e3e9ef";
-    borders.color = themeService({ default: basicColors.first, retro: retroColors.second });
+    borders.color = themeService({ default: basicColors.first, retro: retroColors.second, electric: electricColors.second });
   }
   let commonStyle = themeService({
     default: {
@@ -82,16 +82,34 @@ let getStyles = (props, state) => {
       color: retroColors.second,
       borderRadius: "0px",
     },
+
+    electric: {
+      display: "inline-block",
+      padding: "10px 10px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      textTransform: "uppercase",
+      cursor: "pointer",
+      backgroundColor: electricColors.fourth,
+      color: electricColors.second,
+      borderRadius: "0px",
+    },
   });
   let hoverCommonStyle = themeService({
     default: {
-      color: "rgba(64, 118, 179)",
-      borderBottom: "1px solid rgba(64, 118, 179)",
-      borderLeft: "1px solid rgba(64, 118, 179)",
-      borderRight: "1px solid rgba(64, 118, 179)",
+      color: "var(--first)",
+      borderBottom: "1px solid var(--first)",
+      borderLeft: "1px solid var(--first)",
+      borderRight: "1px solid var(--first)",
     },
     retro: {
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
+      borderBottom: "1px solid red",
+      borderLeft: "1px solid red",
+      borderRight: "1px solid red",
+    },
+    electric: {
+      color: "var(--first)",
       borderBottom: "1px solid red",
       borderLeft: "1px solid red",
       borderRight: "1px solid red",

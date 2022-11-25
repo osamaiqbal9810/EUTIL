@@ -3,7 +3,6 @@ package com.app.ps19.scimapp.Shared;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
@@ -11,15 +10,20 @@ import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AlertDialog;
+
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -44,12 +48,17 @@ import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
 import static com.app.ps19.scimapp.Shared.Globals.NEARBY_ASSETS_LIST_SIZE;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.angleOffset;
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMp;
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMpOnly;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.isBackOnTaskClose;
 import static com.app.ps19.scimapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
+import static com.app.ps19.scimapp.Shared.Utilities.closeKeyboard;
 import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
+import static com.app.ps19.scimapp.Shared.Utilities.showKeyboard;
 
 public class StopInspectionFragment extends DialogFragment {
     View mView;
@@ -70,6 +79,7 @@ public class StopInspectionFragment extends DialogFragment {
     ArrayAdapter<Units> assetAheadAdapter;
     LinearLayout llNearByAssets;
     EditText etEndMp;
+    TextView tvEndPrefix;
     public static String STOP_INSPECTION_RETURN_MSG = "finish activity";
     public static String STOP_INSPECTION_RETURN_MSG_FOR_DASHBOARD = "task closed";
     @NonNull
@@ -133,10 +143,11 @@ public class StopInspectionFragment extends DialogFragment {
         //final View mView = getLayoutInflater().inflate(R.layout.fragment_start_inspection, null);
         mView = _mView;
         context = mView.getContext();
-        if (selectedTask == null) {
-            selectedTask = selectedJPlan.getTaskList().get(0);
+        if (getSelectedTask() == null) {
+            setSelectedTask(selectedJPlan.getTaskList().get(0));
         }
         //  Get View elements from Layout file. Be sure to include inflated view name (mView)
+        tvEndPrefix = mView.findViewById(R.id.tv_endmp_prefix);
         spAssetsAhead = (Spinner) mView.findViewById(R.id.sp_assets_ahead);
         spAssetsBehind = (Spinner) mView.findViewById(R.id.sp_assets_behind);
         btnCancel = (Button) mView.findViewById(R.id.btn_cancel);
@@ -148,7 +159,7 @@ public class StopInspectionFragment extends DialogFragment {
         TextView tvTotalMp = (TextView) mView.findViewById(R.id.tv_title_msg_wp_start_mp_value);
         TextView tvCompletedTill = (TextView) mView.findViewById(R.id.tv_completed_title);
 
-        tvTotalMp.setText(Html.fromHtml("<b>" + "MP " + "</b> " + selectedTask.getMpStart() + " to " + "<b>" + "MP " + "</b> " + selectedTask.getMpEnd()));
+        tvTotalMp.setText(Html.fromHtml("<b>" + "MP " + "</b> " + getPrefixMp(getSelectedTask().getMpStart()) + getString(R.string.to_part2) + "<b>" + "MP " + "</b> " + getPrefixMp(getSelectedTask().getMpEnd())));
         //etEndMp.setHint(selectedJPlan.getMpEnd());
         TextInputLayout textInputLayout = (TextInputLayout) mView.findViewById(R.id.ti_end_mp);
         //textInputLayout.setHint(selectedTask.getMpEnd());
@@ -156,12 +167,13 @@ public class StopInspectionFragment extends DialogFragment {
         assetsBehind = new ArrayList<>();
         llNearByAssets.setVisibility(View.VISIBLE);
         etSelectedAsset.setEnabled(false);
+        etEndMp.addTextChangedListener(endMpTw);
 
         if(location != null){
-            fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(location.getLatitude(), location.getLongitude()));
+            fixedAssetsList = getSelectedTask().getUnitList(new LatLng(location.getLatitude(), location.getLongitude()));
             listUpdate(location);
         } else if(lastKnownLocation!=null) {
-            fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
+            fixedAssetsList = getSelectedTask().getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
             listUpdate(Globals.lastKnownLocation);
         }
         if(fixedAssetsList == null || fixedAssetsList.size() == 0){
@@ -205,6 +217,12 @@ public class StopInspectionFragment extends DialogFragment {
                 e.printStackTrace();
             }
         }
+        // Hiding Nearby assets as req by client
+        llNearByAssets.setVisibility(View.GONE);
+
+        etEndMp.requestFocus();
+        etEndMp.setText(getSelectedTask().getMpEnd());
+        //showKeyboard(context);
         // Set up the buttons
         //btnCancel.setVisibility(View.GONE);
         btnOk.setOnClickListener(new View.OnClickListener() {
@@ -213,17 +231,18 @@ public class StopInspectionFragment extends DialogFragment {
                 try {
                     if (etEndMp.getText().toString().equals("")) {
                         Toast.makeText(context, R.string.milepost_required_msg, Toast.LENGTH_SHORT).show();
-                    } else if (!isInRange(Double.parseDouble(selectedTask.getMpStart()), Double.parseDouble(selectedTask.getMpEnd()), Double.parseDouble(etEndMp.getText().toString()))) {
+                    } else if (!isInRange(Double.parseDouble(getSelectedTask().getMpStart()), Double.parseDouble(getSelectedTask().getMpEnd()), Double.parseDouble(etEndMp.getText().toString()))) {
                         Toast.makeText(context, getResources().getText(R.string.toast_range_milepost), Toast.LENGTH_LONG).show();
                         //return;
                     } else {
-                        Globals.selectedTask.setUserEndMp(etEndMp.getText().toString());
+                        getSelectedTask().setUserEndMp(etEndMp.getText().toString());
                         Toast.makeText(context,
                                 getResources().getText(R.string.task_closed), Toast.LENGTH_SHORT).show();
                         if (isBypassTaskView && selectedJPlan.getTaskList().size() == 1) {
                             if (closeTask()) {
                                 StopDialogListener dialogListener = (StopDialogListener) getActivity();
                                 dialogListener.onFinishStopDialog(STOP_INSPECTION_RETURN_MSG_FOR_DASHBOARD);
+                                //closeKeyboard(context);
                                 dismiss();
                             }
                         }
@@ -231,6 +250,7 @@ public class StopInspectionFragment extends DialogFragment {
                             if (closeTask()) {
                                 StopDialogListener dialogListener = (StopDialogListener) getActivity();
                                 dialogListener.onFinishStopDialog(STOP_INSPECTION_RETURN_MSG);
+                                //closeKeyboard(context);
                                 dismiss();
                             }
                         }
@@ -246,6 +266,7 @@ public class StopInspectionFragment extends DialogFragment {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //closeKeyboard(context);
                 dismiss();
             }
         });
@@ -267,13 +288,23 @@ public class StopInspectionFragment extends DialogFragment {
             }
         });*/
     }
+    TextWatcher endMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvEndPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
     private boolean closeTask(){
-        if (!selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+        if (!getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
             Date now = new Date();
         /*if(Globals.selectedTask.getStartTime().equals("")){
             return false;
         }*/
-            String selTaskId = Globals.selectedTask.getTaskId();
+            String selTaskId =getSelectedTask().getTaskId();
 
             for (Task task : Globals.selectedJPlan.getTaskList()) {
                 if (task.getTaskId().equals(selTaskId)) {
@@ -311,7 +342,7 @@ public class StopInspectionFragment extends DialogFragment {
         if (getArguments() != null) {
             setFullScreen = getArguments().getBoolean("fullScreen");
         }
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light_DialogWhenLarge_NoActionBar);
+        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar);
        /* if (setFullScreen)
             setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_Black_NoTitleBar_Fullscreen);*/
     }
@@ -379,9 +410,9 @@ public class StopInspectionFragment extends DialogFragment {
             double startOffset;
             double endOffset;
             if(mLocation != null){
-                fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
+                fixedAssetsList = getSelectedTask().getUnitList(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
             } else if(lastKnownLocation!=null){
-                fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
+                fixedAssetsList = getSelectedTask().getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
             }
             for (Iterator<DUnit> it = fixedAssetsList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {

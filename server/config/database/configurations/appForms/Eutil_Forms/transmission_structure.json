@@ -1,0 +1,481 @@
+{
+    "listName": "Transmission",
+    "inspection_type": "Structural",
+    "opt1": [
+        {
+            "tab-name": "Towers/Poles",
+            "Section": [
+                {
+                    "section_name": "Steel Towers",
+                    "fields": [
+                        {
+                            "id": "steel_transmission_priority_level",
+                            "field_name": "steel_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "steel_transmission_repair_status",
+                            "field_name": "steel_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "steel_transmission_inspection_comments",
+                            "field_name": "steel_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Poles",
+                    "fields": [
+                        {
+                            "id": "poles_transmission_priority_level",
+                            "field_name": "poles_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "poles_transmission_repair_status",
+                            "field_name": "poles_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "poles_transmission_inspection_comments",
+                            "field_name": "poles_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Anchors/ Guy Wire",
+                    "fields": [
+                        {
+                            "id": "anchors_transmission_priority_level",
+                            "field_name": "anchors_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "anchors_transmission_repair_status",
+                            "field_name": "anchors_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "anchors_transmission_inspection_comments",
+                            "field_name": "anchors_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Crossarm/ Brace",
+                    "fields": [
+                        {
+                            "id": "brace_transmission_priority_level",
+                            "field_name": "brace_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "brace_transmission_repair_status",
+                            "field_name": "brace_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "brace_transmission_inspection_comments",
+                            "field_name": "brace_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Grounding System",
+                    "fields": [
+                        {
+                            "id": "grounding_transmission_priority_level",
+                            "field_name": "grounding_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "grounding_transmission_repair_status",
+                            "field_name": "grounding_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "grounding_transmission_inspection_comments",
+                            "field_name": "grounding_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "tab-name": "Conductors",
+            "Section": [
+                {
+                    "section_name": "Cable",
+                    "fields": [
+                        {
+                            "id": "cable_transmission_priority_level",
+                            "field_name": "cable_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "cable_transmission_repair_status",
+                            "field_name": "cable_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "cable_transmission_inspection_comments",
+                            "field_name": "cable_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Static/Neutral",
+                    "fields": [
+                        {
+                            "id": "static_transmission_priority_level",
+                            "field_name": "static_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "static_transmission_repair_status",
+                            "field_name": "static_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "static_transmission_inspection_comments",
+                            "field_name": "static_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Insulators",
+                    "fields": [
+                        {
+                            "id": "insulator_transmission_priority_level",
+                            "field_name": "insulator_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "insulator_transmission_repair_status",
+                            "field_name": "insulator_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "insulator_transmission_inspection_comments",
+                            "field_name": "insulator_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "tab-name": "Miscellaneous",
+            "Section": [
+                {
+                    "section_name": "Right of Way Conditions",
+                    "fields": [
+                        {
+                            "id": "misc_transmission_priority_level",
+                            "field_name": "misc_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "misc_transmission_repair_status",
+                            "field_name": "misc_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "misce_transmission_inspection_comments",
+                            "field_name": "misc_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                },
+                {
+                    "section_name": "Other",
+                    "fields": [
+                        {
+                            "id": "misc_transmission_priority_level",
+                            "field_name": "misc_transmission_priority_level",
+                            "field_label": "Priority Level",
+                            "field_type": "select",
+                            "options": [
+                                {
+                                    "value": "",
+                                    "label": "No Repair Required or N/A"
+                                },
+                                {
+                                    "value": "Level-1",
+                                    "label": "Level-1"
+                                },
+                                {
+                                    "value": "Level-2",
+                                    "label": "Level-2"
+                                },
+                                {
+                                    "value": "Level-3",
+                                    "label": "Level-3"
+                                },
+                                {
+                                    "value": "Level-4",
+                                    "label": "Level-4"
+                                }
+                            ],
+                            "required": true
+                        },
+                        {
+                            "id": "misc_transmission_repair_status",
+                            "field_name": "miscc_transmission_repair_status",
+                            "field_label": "Repaired",
+                            "field_type": "checkbox"
+                        },
+                        {
+                            "id": "miscc_transmission_inspection_comments",
+                            "field_name": "miscc_transmission_inspection_comments",
+                            "field_label": "Inspection Comments",
+                            "field_type": "textArea"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

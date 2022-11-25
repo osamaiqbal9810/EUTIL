@@ -7,13 +7,15 @@ export const siteOptionsTexts = [
     displayName: "Inspection Run Planning",
     path: "inspectionplan",
   },
-  { displayName: "AssetTypes Tests", path: "assetTypetestForms" },
-  { displayName: "Lists", path: "applicationLists" },
+  //{ displayName: "AssetTypes Tests", path: "assetTypetestForms" },
+  //{ displayName: "Lists", path: "applicationLists" },
   { displayName: "Settings", path: "setting" },
-  // { displayName: "Alerts", path: "alerts" },
+  { displayName: "Locations Prefix", path: "locationPrefix" },
+  { displayName: "Alerts", path: "alerts" },
   { displayName: "Support", path: "company" },
   //{ displayName: "Line", path: "line" },
   // { displayName: "Asset Type", path: "assetTypes" },
+  // { displayName: "General Files", path: "generalInfo" },
 ];
 
 export const timpsOptionsTexts = [
@@ -21,9 +23,11 @@ export const timpsOptionsTexts = [
   { displayName: "Team", path: "team" },
   { displayName: "Location", path: "locationSetup", checkPermission: true, permissionResource: "LOCATION", permissionAction: "view" },
   { displayName: "Inspection Run Planning", path: "inspectionplan" },
-  { displayName: "AssetTypes Tests", path: "assetTypetestForms" },
-  { displayName: "Lists", path: "applicationLists" },
+  //{ displayName: "AssetTypes Tests", path: "assetTypetestForms" },
+  //{ displayName: "Lists", path: "applicationLists" },
   { displayName: "Settings", path: "setting" },
-  // { displayName: "Alerts", path: "alerts" },
+  //{ displayName: "Locations Prefix", path: "locationPrefix" },
+  { displayName: "Alerts", path: "alerts" },
   { displayName: "Support", path: "company" },
+  // { displayName: "General Files", path: "generalInfo" },
 ];

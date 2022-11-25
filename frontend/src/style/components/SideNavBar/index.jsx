@@ -7,7 +7,7 @@ export const sideNav = {
   backgroundRepeat: "no-repeat",
   backgroundSize: "cover",
   backgroundColor: "#5e8d8f",
-  color: "#FFF",
+  color: "var(--fifth)",
   height: "100%",
   position: "fixed",
   textAlign: "left",

@@ -3,7 +3,7 @@ import React, { Component } from "react";
 import { checkmark } from "react-icons-kit/icomoon/checkmark";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { locationListStyle } from "../LocationSetup/LocationListStyle";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export default class CustomCheckbox extends Component {
   constructor(props) {
     super(props);
@@ -25,11 +25,11 @@ export default class CustomCheckbox extends Component {
           ...themeService(locationListStyle.customCheckBoxContainer),
           ...this.props.containerStyle,
           ...{
-            color: this.state.check ? retroColors.first : retroColors.second,
+            color: this.state.check ? "var(--first)" : "var(--second)",
             cursor: this.props.disabled ? "disabled" : "pointer",
           },
         }}
-        onClick={e => {
+        onClick={(e) => {
           if (!this.props.disabled) {
             this.setState({
               check: !this.state.check,

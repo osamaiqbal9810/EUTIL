@@ -122,7 +122,7 @@ class PlanMaintenanceForm extends React.Component {
     return (
       <div>
         <Modal
-          contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+          contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
           isOpen={this.props.modal}
           toggle={this.props.toggle}
         >

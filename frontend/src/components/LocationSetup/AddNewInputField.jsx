@@ -4,7 +4,7 @@ import { floppyDisk } from "react-icons-kit/icomoon/floppyDisk";
 import { locationListStyle } from "./LocationListStyle";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { cross } from "react-icons-kit/icomoon/cross";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { Tooltip } from "reactstrap";
 import { languageService } from "../../Language/language.service";
 export default class AddNewInputField extends Component {
@@ -30,30 +30,35 @@ export default class AddNewInputField extends Component {
           defaultValue={this.props.value ? this.props.value : ""}
           placeholder="name"
         />
-        <span
-          id={`save-delete-btn-${this.props.index}`}
-          style={{ ...themeService(locationListStyle.saveInputIcon), ...{ color: "#840f0f" } }}
-          onClick={(e) => {
-            this.setState({
-              value: "",
-            });
-            this.props.handleAddNewLocation(false);
-          }}
-        >
-          <SvgIcon style={{ verticalAlign: "middle" }} icon={cross} size="15" />
-        </span>
-        <Tooltip
-          isOpen={this.state.tooltip}
-          target={`save-delete-btn-${this.props.index}`}
-          toggle={() => this.setState({ tooltip: !this.state.tooltip })}
-        >
-          {languageService("Delete")}
-        </Tooltip>
+        {!this.props.noDelete && (
+          <React.Fragment>
+            <span
+              id={`save-delete-btn-${this.props.index}`}
+              style={{ ...themeService(locationListStyle.saveInputIcon), ...{ color: "#840f0f" } }}
+              onClick={(e) => {
+                this.setState({
+                  value: "",
+                });
+                this.props.handleAddNewLocation(false);
+              }}
+            >
+              <SvgIcon style={{ verticalAlign: "middle" }} icon={cross} size="15" />
+            </span>
+
+            <Tooltip
+              isOpen={this.state.tooltip}
+              target={`save-delete-btn-${this.props.index}`}
+              toggle={() => this.setState({ tooltip: !this.state.tooltip })}
+            >
+              {languageService("Delete")}
+            </Tooltip>
+          </React.Fragment>
+        )}
         <span
           id={`save-btn-${this.props.index || 99}`}
           style={{
             ...themeService(locationListStyle.saveInputIcon),
-            ...{ color: this.props.color ? this.props.color : retroColors.first },
+            ...{ color: this.props.color ? this.props.color : "var(--first)" },
           }}
           onClick={(e) => {
             this.setState({

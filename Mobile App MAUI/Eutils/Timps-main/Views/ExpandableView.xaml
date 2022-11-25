@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage x:Class="TekTrackingCore.Views.ExpandableView"
+             xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:TekTrackingCore.ViewModels"
+                xmlns:localone="clr-namespace:TekTrackingCore"
+              xmlns:localtwo="clr-namespace:TekTrackingCore"
+             xmlns:ListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"   
+             BackgroundColor="White">
+
+    <!--<ContentPage.BindingContext>
+        <local:StaticListItemViewModel/>
+    </ContentPage.BindingContext>-->
+
+    <ContentPage.Behaviors>
+        <localone:SfListViewAccordionBehavior/>
+    </ContentPage.Behaviors>
+
+    <ContentPage.Resources>
+        <localone:Converter x:Name="Converter" x:Key="Converter"/>
+    </ContentPage.Resources>
+
+    <ContentPage.Content>
+        <HorizontalStackLayout x:Name="mainGrid" BackgroundColor="#F0F0F0" Margin='{OnPlatform Android="5,0,0,0",iOS="5,0,0,0", Default="0,0,0,0"}'>
+            <ListView:SfListView x:Name="listView"  ItemsSource="{Binding WorkPlanList}"
+                                AutoFitMode="DynamicHeight" SelectionMode="None" ItemSpacing="0,2.5,0,2.5">
+                <ListView:SfListView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout   Margin="0,0,0,0" VerticalOptions="FillAndExpand" BackgroundColor="#D3D3D3" HorizontalOptions="FillAndExpand"  Padding="5,10,0,10" >
+
+                            <StackLayout  Padding="3" VerticalOptions="Center">
+
+
+                                <Label  VerticalTextAlignment="Center"   Text="{Binding Title}"
+                                                               FontFamily="Roboto-Regular"
+                                                              FontAttributes="Bold"
+                                                               FontSize="{OnPlatform Android={OnIdiom Phone=14, Tablet=14}, iOS={OnIdiom Phone=12, Tablet=14}, MacCatalyst=14 , Default= 14 }"/>
+                            </StackLayout>
+
+
+
+
+                            <StackLayout x:Name="ExpandGrid" IsVisible="{Binding IsVisible}"  Padding="0,10,0,0"
+                                                  HorizontalOptions="FillAndExpand" >
+
+                                <BoxView  BackgroundColor="LightGray"/>
+
+
+
+                                <localone:UnitControl>
+
+                                </localone:UnitControl>
+                              
+                            </StackLayout>
+
+                        </StackLayout>
+                    </DataTemplate>
+                </ListView:SfListView.ItemTemplate>
+            </ListView:SfListView>
+        </HorizontalStackLayout>
+    </ContentPage.Content>
+</ContentPage>

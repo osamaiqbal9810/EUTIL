@@ -10,7 +10,7 @@ import { validate, doBasicValidation } from "../../utils/helpers";
 
 import { formFeildStyle } from "./style/formFields";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import Select from "react-select";
 import InputSelectOptions from "../../components/Common/inputSelectOptions";
 import moment from "moment";
@@ -36,7 +36,7 @@ const groupBadgeStyles = {
 
 const FormFields = (props) => {
   let formData = props[props.fieldTitle];
-
+  
   const renderFields = () => {
     if (formData) {
       const formArray = [];
@@ -101,7 +101,7 @@ const FormFields = (props) => {
 
   const showRequired = (validation) => {
     return validation.required ? (
-      <span className="required-fld" style={themeService({ default: {}, retro: { color: retroColors.second } })}>
+      <span className="required-fld" style={themeService({ default: {}, retro: { color: retroColors.second }, electric: { color: electricColors.second } })}>
         *
       </span>
     ) : null;
@@ -199,12 +199,10 @@ const FormFields = (props) => {
           <div className={values.config.captionElement ? "YearNavigation" : ""} style={themeService(formFeildStyle.feildStyle)}>
             {showLabel(values)}
             <DayPickerInput
-
               inputProps={{ readOnly: true, disabled: values.config.disabled || false }}
               {...{ ...values.config, placeholder: languageService(values.config.placeholder) }}
               value={values.value ? moment(values.value).format("Y-M-D") : ""}
               dayPickerProps={{
-
                 month: values.value ? new Date(values.value) : new Date(),
                 localeUtils: MomentLocaleUtils,
                 locale: getLanguageLocal(),
@@ -280,7 +278,7 @@ const FormFields = (props) => {
           <div style={themeService(formFeildStyle.feildStyle)}>
             {showValidation(values)}
             {showLabel(values)}
-            <AssetSelection {...values.config} selected={values.value} style={themeService(formFeildStyle.inputStyle)} />
+            <AssetSelection name={values.config.name} {...values.config} selected={values.value} selectedValues={dualListBoxChangeHandler} style={themeService(formFeildStyle.inputStyle)} />
           </div>
         );
 
@@ -386,9 +384,11 @@ const FormFields = (props) => {
   };
 
   // Change state field
+  const dualListBoxChangeHandler = (values) => {
+    props.selectedValues(values);
+  }
   const changeHandler = (e, blur) => {
     let formData = _.cloneDeep(props[[props.fieldTitle]]);
-
     const { name, value } = e.target;
     formData[name].value = value;
 
@@ -486,6 +486,7 @@ const FormFields = (props) => {
           style={themeService({
             default: { marginTop: "5px", fontSize: "12px", color: "rgb(157, 7, 7)" },
             retro: { marginTop: "5px", fontSize: "12px", color: "rgb(157, 7, 7)", textAlign: "right" },
+            electric: { marginTop: "5px", fontSize: "12px", color: "rgb(157, 7, 7)", textAlign: "right" },
           })}
         >
           <span>{languageService(element.validationMessage)}</span>

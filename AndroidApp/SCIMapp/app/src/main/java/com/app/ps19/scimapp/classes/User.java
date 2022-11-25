@@ -1,6 +1,7 @@
 package com.app.ps19.scimapp.classes;
 
 import com.app.ps19.scimapp.Shared.IConvertHelper;
+import com.app.ps19.scimapp.Shared.Utilities;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,6 +150,7 @@ public class User implements IConvertHelper {
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
         try {
+            hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
 
             setId(jsonObject.optString("id"));
             setName(jsonObject.optString("name",""));
@@ -160,6 +162,7 @@ public class User implements IConvertHelper {
             setPhoneNumber(jsonObject.optString("phone", ""));
             setMobileNumber(jsonObject.optString("mobile", ""));
             set_id(jsonObject.optString("_id", ""));
+            hmBackupValues.put("id",getId());
             this.signature = null;
             if(jsonObject.optJSONObject("signature")!=null) {
                 setSignature(new IssueImage(jsonObject.optJSONObject("signature")));
@@ -169,7 +172,7 @@ public class User implements IConvertHelper {
                 setProfImg(new IssueImage(jsonObject.optJSONObject("profile_img")));
             }
 
-            hmBackupValues= new HashMap<>();
+/*            hmBackupValues= new HashMap<>();
             hmBackupValues.put("id",getId());
             hmBackupValues.put("name",getName());
             hmBackupValues.put("email",getEmail());
@@ -181,8 +184,7 @@ public class User implements IConvertHelper {
             hmBackupValues.put("mobile", getMobileNumber());
             hmBackupValues.put("_id", get_id());
             hmBackupValues.put("signature", getSignature());
-            hmBackupValues.put("profile_img", getProfImg());
-
+            hmBackupValues.put("profile_img", getProfImg());*/
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -256,7 +258,7 @@ public class User implements IConvertHelper {
     private boolean putJSONProperty(JSONObject jo, String fieldName, Object value){
         Object oldValue=null;
         oldValue=hmBackupValues.get(fieldName);
-        if(oldValue !=null && !oldValue.equals(value)){
+        if(oldValue ==null || (oldValue !=null && !oldValue.equals(value))){
             try {
                 jo.put(fieldName,value);
             } catch (JSONException e) {

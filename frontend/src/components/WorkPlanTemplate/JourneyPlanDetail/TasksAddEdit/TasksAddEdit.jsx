@@ -11,7 +11,7 @@ import ImageGallery from "components/Common/ImageGallery/index";
 import ImageArea from "components/Common/ImageArea";
 import { languageService } from "../../../../Language/language.service";
 // import { CommonFormStyle } from "components/SetupPage/User/UserForm/style";
-import { retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { themeService } from "../../../../theme/service/activeTheme.service";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { MyButton } from "../../../Common/Forms/formsMiscItems";
@@ -30,7 +30,7 @@ class TasksAddEdit extends Component {
         default: {
           fontSize: "12px",
           minHeight: "30px",
-          color: "rgba(64, 118, 179)",
+          color: "var(--first)",
           padding: "12px 10px 6px 12px",
           borderLeft: "1px solid #e3e9ef",
           borderRight: "1px solid #e3e9ef",
@@ -45,7 +45,25 @@ class TasksAddEdit extends Component {
           fontSize: "12px",
           lineHeight: "1.42857143",
           color: retroColors.second,
-          backgroundColor: "#fff",
+          backgroundColor: "var(--fifth)",
+          backgroundImage: "none",
+          border: "1px solid #e3e9ef",
+          borderRadius: "2px",
+          WebkitBoxShadow: "inset 0 1px 1px rgba(0, 0, 0, 0.05)",
+          boxShadow: "inset 0 1px 1px rgba(0, 0, 0, 0.05)",
+          WebkitTransition: "border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+          OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
+          transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+          display: "inline-block",
+        },
+        electric: {
+          width: "70%",
+          height: "34px",
+          padding: "6px 12px",
+          fontSize: "12px",
+          lineHeight: "1.42857143",
+          color: electricColors.second,
+          backgroundColor: "var(--fifth)",
           backgroundImage: "none",
           border: "1px solid #e3e9ef",
           borderRadius: "2px",
@@ -278,7 +296,7 @@ class TasksAddEdit extends Component {
   render() {
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
         isOpen={this.props.modal}
         toggle={this.toggle}
         className={this.props.className}

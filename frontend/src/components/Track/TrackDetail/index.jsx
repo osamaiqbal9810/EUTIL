@@ -41,22 +41,22 @@ class TrackComponent extends Component {
     };
     this.styles = {
       TrackInfoContainer: {
-        background: "#fff",
+        background: "var(--fifth)",
         //     boxShadow: '3px 3px 5px #cfcfcf',
         margin: "0px 30px  0px 30px",
         padding: "15px",
         textAlign: "left",
-        color: " rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       },
       fieldHeading: {
-        color: "rgba(64, 118, 179)",
+        color: "rgb(94, 141, 143)",
         fontWeight: "600",
         fontSize: "14px",
         paddingBottom: "0.5em",
       },
       fieldText: {
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "14px",
         paddingBottom: "1em",
       },
@@ -306,7 +306,7 @@ class TrackComponent extends Component {
                 fontFamily: "Myriad Pro",
                 fontSize: "24px",
                 letterSpacing: "0.5px",
-                color: " rgba(64, 118, 179)",
+                color: "var(--first)",
               }}
             >
               <Link to="/track" className="linkStyleTable">

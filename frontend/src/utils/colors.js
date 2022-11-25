@@ -16,9 +16,18 @@ export const colors = {
     fifth: "#F6921E",
     sixth: "#F6921E",
     seventh: "#C38A48", //rgb(195, 138, 72)
-    total: "rgb(64, 118, 179)",
+    total: "var(--first)",
   },
   retro: {
+    total: "#c2976c",
+    second: "#e02c49",
+    third: "#f69220",
+    fourth: "#40a7f4",
+    fifth: "#3ab34a",
+    sixth: "#808080",
+    seventh: "#C38A48", //rgb(195, 138, 72)}
+  },
+  electric: {
     total: "#c2976c",
     second: "#e02c49",
     third: "#f69220",

@@ -133,10 +133,16 @@ export default class BulkAdd extends Component {
     let skipfirstrow = this.state.fileAttributes.skipfirstrow.value;
     let ignoreEmptyRows = this.state.fileAttributes.ignoreEmptyRows.value;
     let idata = [];
+    let columnData = this.importData[0].map((v) => {
+      return v;
+    });
     let importData = skipfirstrow ? this.importData.slice(1) : this.importData;
     let fileAttributes = this.state.fileAttributes,
       locationAttributes = this.state.locationFields;
+    let importRemainingFields = this.state.fileAttributes.importRemainingFields.value;
+    let notImportedCols = [];
 
+    // console.log(columnData, fileAttributes, importData);
     if (ignoreEmptyRows) {
       importData = importData.filter((d) => {
         let emptyRecord = true;
@@ -148,10 +154,70 @@ export default class BulkAdd extends Component {
         return !emptyRecord;
       });
     }
+    if (importRemainingFields) {
+      // get columns not selected for import
+      let importedCols = [];
+
+      for (let fileAttributeKey in fileAttributes) {
+        let fileAttribute = fileAttributes[fileAttributeKey];
+        if (fileAttribute.element === "select" && !notImportedCols.includes(fileAttribute.value)) importedCols.push(fileAttribute.value);
+      }
+
+      for (let i = 0; i < columnData.length; i++) if (!importedCols.includes(i + "")) notImportedCols.push(i);
+
+      // console.log('Not imported indexes:', notImportedCols);
+    }
 
     idata = importData.map((d, i) => {
       let latitude = this.state.importGPS && locationAttributes.latitude.touched ? d[locationAttributes.latitude.value] : 0;
       let longitude = this.state.importGPS && locationAttributes.longitude.touched ? d[locationAttributes.longitude.value] : 0;
+      let remainingObject = {};
+
+      if (importRemainingFields) {
+        for (let nicIndex = 0; nicIndex < notImportedCols.length; nicIndex++) {
+          let index = notImportedCols[nicIndex];
+          let fieldName = columnData[index],
+            fieldLevel = fieldName.split(".");
+          let fieldValue = d[index];
+
+          // if it's a json then replace ' with " because this was done by TIMPS exporter
+          if (fieldValue.startsWith("{") && fieldValue.endsWith("}")) fieldValue = fieldValue.replace(/'/g, '"');
+
+          if (fieldLevel.length > 1) {
+            const isFieldArray = !isNaN(parseInt(fieldLevel[1]));
+            if (!remainingObject.hasOwnProperty(fieldLevel[0])) {
+              if (isFieldArray) remainingObject[fieldLevel[0]] = [];
+              else remainingObject[fieldLevel[0]] = {};
+            }
+            if (fieldValue !== "") {
+              if (isFieldArray) remainingObject[fieldLevel[0]][parseInt(fieldLevel[1])] = fieldValue;
+              else remainingObject[fieldLevel[0]][fieldLevel[1]] = fieldValue;
+            }
+          } else {
+            remainingObject[fieldName] = fieldValue;
+          }
+          let addColumn = fieldLevel.length > 1 ? fieldLevel[0] : fieldName;
+          if (
+            !importAssetsColumns.find((iac) => {
+              return iac.id === addColumn;
+            })
+          )
+            importAssetsColumns.push({
+              id: addColumn,
+              header: addColumn,
+              field: addColumn,
+              editable: false,
+              type: "text",
+              minWidth: 150,
+              accessor: (d) => {
+                const val = d[addColumn];
+                if (typeof val === "object") return JSON.stringify(val);
+
+                return val;
+              },
+            });
+        }
+      }
 
       return {
         assetType: this.getMappedValue(fileAttributes, d, "assettype"),
@@ -163,6 +229,7 @@ export default class BulkAdd extends Component {
         lineId: this.props.parentAsset.lineId ? this.props.parentAsset.lineId : this.props.parentAsset._id,
         coordinates: this.state.importGPS ? [latitude, longitude] : [],
         index: i,
+        ...remainingObject,
       };
     });
     let valid = true;
@@ -223,7 +290,11 @@ export default class BulkAdd extends Component {
 
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal " + this.props.className })}
+        contentClassName={themeService({
+          default: this.props.className,
+          retro: "retroModal " + this.props.className,
+          electric: "electricModal " + this.props.className,
+        })}
         isOpen={this.props.isOpen}
         toggle={this.props.toggle}
         style={{ maxWidth: "80vw" }}
@@ -272,7 +343,7 @@ export default class BulkAdd extends Component {
             </Row>
           )}
         </ModalBody>
-        <ModalFooter style={{ ...ModalStyles.footerButtonsContainer, backgroundColor: "rgba(40, 61, 104, 0.3)" }}>
+        <ModalFooter style={{ ...ModalStyles.footerButtonsContainer, backgroundColor: "var(--nine)" }}>
           <MyButton
             style={themeService(ButtonStyle.commonButton)}
             type="submit"
@@ -353,6 +424,24 @@ const ifileAttributes = {
     containerConfig: {},
     config: {
       name: "ignoreEmptyRows",
+      type: "checkbox",
+      disabled: false,
+    },
+    validation: {
+      required: false,
+    },
+    valid: true,
+    touched: false,
+    validationMessage: "",
+  },
+  importRemainingFields: {
+    element: "checkbox",
+    value: true,
+    label: true,
+    labelText: "Import remaining fields",
+    containerConfig: {},
+    config: {
+      name: "importRemainingFields",
       type: "checkbox",
       disabled: false,
     },
@@ -553,8 +642,8 @@ let importAssetsColumns = [
     },
   },
   {
-    id: "name",
-    header: "Name",
+    id: "unitId",
+    header: "UnitId",
     field: "unitId",
     editable: false,
     type: "text",

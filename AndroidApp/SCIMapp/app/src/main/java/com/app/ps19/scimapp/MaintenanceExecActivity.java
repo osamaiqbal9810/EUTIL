@@ -18,6 +18,8 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -33,8 +35,11 @@ import android.widget.Toast;
 
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.classes.Inbox;
 import com.app.ps19.scimapp.classes.IssueImage;
 import com.app.ps19.scimapp.classes.IssueVoice;
+import com.app.ps19.scimapp.classes.JourneyPlan;
+import com.app.ps19.scimapp.classes.JourneyPlanOpt;
 import com.app.ps19.scimapp.classes.Task;
 import com.app.ps19.scimapp.classes.maintenance.MaintenanceExecution;
 import java.io.File;
@@ -49,14 +54,19 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMp;
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMpOnly;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
+import static com.app.ps19.scimapp.Shared.Globals.isMaintainer;
 import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.scimapp.Shared.Globals.selectedMaintenance;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.tempIssueImgList;
 import static com.app.ps19.scimapp.Shared.Globals.tempIssueVoiceList;
 import static com.app.ps19.scimapp.Shared.Utilities.getVoicePath;
+import static com.app.ps19.scimapp.Shared.Globals.inbox;
 
 public class MaintenanceExecActivity extends AppCompatActivity {
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
@@ -96,7 +106,10 @@ public class MaintenanceExecActivity extends AppCompatActivity {
     EditText etEndMp;
     String initialTime;
     boolean isEditMode;
+    TextView tvStartMpPrefix;
+    TextView tvEndMpPrefix;
     MaintenanceExecution selectedExecution = null;
+    String locId;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +117,7 @@ public class MaintenanceExecActivity extends AppCompatActivity {
         setContentView(R.layout.activity_maintenance_exec);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(getString(R.string.maintenance_exec_title));
+        locId = getIntent().getStringExtra("locId");
         tvMrNumber = (TextView) findViewById(R.id.tv_mr_number);
         etStartMp = (EditText) findViewById(R.id.et_mp_start);
         etEndMp = (EditText) findViewById(R.id.et_mp_end);
@@ -118,17 +132,15 @@ public class MaintenanceExecActivity extends AppCompatActivity {
         btnSpeak = (ImageButton) findViewById(R.id.btn_speak);
         rvVoiceNotes = (RecyclerView) findViewById(R.id.rv_voice);
         rvImages = (RecyclerView) findViewById(R.id.horizontal_recycler_view);
+        tvStartMpPrefix = findViewById(R.id.tv_startmp_prefix);
+        tvEndMpPrefix = findViewById(R.id.tv_endmp_prefix);
         initialTime = getUTCdatetimeAsString();
-        for(MaintenanceExecution exec: selectedTask.getMaintenanceExecutions()){
-            try {
-                if(exec.getId().equals(selectedMaintenance.getId())){
-                    isEditMode = true;
-                    selectedExecution = exec;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        if(selectedJPlan!=null){
+            setEditMode(selectedJPlan);
+        } else if(getActiveMPlan()!=null) {
+            setEditMode(getActiveMPlan());
         }
+
         //tvDueDate = (TextView) findViewById(R.id.tv_select_due_date);
 
         tempIssueImgList = new ArrayList<IssueImage>();
@@ -137,6 +149,21 @@ public class MaintenanceExecActivity extends AppCompatActivity {
         tvMrNumber.setText(selectedMaintenance.getMrNumber());
         tvMrDescription.setText(selectedMaintenance.getDescription());
         tvMrType.setText(selectedMaintenance.getMaintenanceType());
+        if(selectedMaintenance.getReport()!=null){
+            if(selectedMaintenance.getReport().getStartMarker()!=null && !selectedMaintenance.getReport().getStartMarker().equals("")){
+                etStartMp.setText(selectedMaintenance.getReport().getStartMarker());
+                etEndMp.setText(selectedMaintenance.getReport().getEndMarker());
+            } else {
+                etStartMp.setText(selectedMaintenance.getReport().getStartMp());
+                etEndMp.setText(selectedMaintenance.getReport().getEndMp());
+                try {
+                    tvStartMpPrefix.setText(getPrefixMpOnly(selectedMaintenance.getReport().getStartMp(), locId));
+                    tvEndMpPrefix.setText(getPrefixMpOnly(selectedMaintenance.getReport().getEndMp(), locId));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         if(isEditMode){
 
             beforeImgs.addAll(selectedExecution.getImgList());
@@ -145,6 +172,12 @@ public class MaintenanceExecActivity extends AppCompatActivity {
             setVoiceAdapter(attachmentVoice);
             etEndMp.setText(selectedExecution.getEndMp());
             etStartMp.setText(selectedExecution.getStartMp());
+            try {
+                tvStartMpPrefix.setText(getPrefixMpOnly(selectedExecution.getStartMp(),locId));
+                tvEndMpPrefix.setText(getPrefixMpOnly(selectedExecution.getEndMp(),locId));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             etSpeechToText.setText(selectedExecution.getVoiceNotes());
         }
 
@@ -175,42 +208,18 @@ public class MaintenanceExecActivity extends AppCompatActivity {
                     Toast.makeText(MaintenanceExecActivity.this, getString(R.string.require_info), Toast.LENGTH_SHORT).show();
                     etSpeechToText.requestFocusFromTouch();
                 } else {
-                    if(isEditMode){
-                        for (MaintenanceExecution execution: selectedTask.getMaintenanceExecutions()){
-                            if(execution.getId().equals(selectedExecution.getId())){
-                                execution.setStartMp(etStartMp.getText().toString());
-                                execution.setEndMp(etEndMp.getText().toString());
-                                execution.setImgList(beforeImgs);
-                                execution.setVoiceList(attachmentVoice);
-                                execution.setVoiceNotes(etSpeechToText.getText().toString());
-                                execution.setLocation(getLocation());
-                                execution.setTimeStamp(initialTime);
-                            }
-                        }
-                    } else {
-                        UUID gId = UUID.randomUUID();
-                        MaintenanceExecution mExec = new MaintenanceExecution();
-                        mExec.setStartMp(etStartMp.getText().toString());
-                        mExec.setEndMp(etEndMp.getText().toString());
-                        mExec.setImgList(beforeImgs);
-                        mExec.setVoiceList(attachmentVoice);
-                        mExec.setVoiceNotes(etSpeechToText.getText().toString());
-                        mExec.setLocation(getLocation());
-                        mExec.setTimeStamp(initialTime);
-                        mExec.setGuId(gId.toString());
-                        mExec.setId(selectedMaintenance.getId());
-                        for (Task task: selectedJPlan.getTaskList()){
-                            if(task.getTaskId().equals(selectedTask.getTaskId())){
-                                task.getMaintenanceExecutions().add(mExec);
-                            }
-                        }
+                    if(selectedJPlan != null){
+                        execAsInspector(selectedJPlan);
+                    } else if(getActiveMPlan() != null) {
+                        execAsInspector(getActiveMPlan());
                     }
-                    selectedJPlan.update();
-                    //Updating selected Task
-                    selectedTask = selectedJPlan.getTaskList().get(0);
-                    selectedMaintenance = null;
-                    selectedExecution = null;
-                    finish();
+                    /* if(isMaintainer){
+                        execAsMaintainer();
+                    } else {
+                        if(getActiveMPlan()!=null){
+                            execAsInspector(getActiveMPlan());
+                        }
+                    }*/
                 }
             }
         });
@@ -225,7 +234,15 @@ public class MaintenanceExecActivity extends AppCompatActivity {
         ibCapturePic.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MaintenanceExecActivity.this, CameraActivity.class);
+                //Intent intent = new Intent(MaintenanceExecActivity.this, CameraActivity.class);
+                Intent intent = null;//new Intent(MaintenanceExecActivity.this, Camera2Activity.class);
+                switch (Globals.cameraType){
+                    case IntentType:
+                        intent = new Intent(MaintenanceExecActivity.this, CameraIntentActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(MaintenanceExecActivity.this, Camera2Activity.class);
+                }
                 startActivityForResult(intent, REQ_CODE_CAMERA);
             }
         });
@@ -259,6 +276,117 @@ public class MaintenanceExecActivity extends AppCompatActivity {
                 }
             }
         });
+        etStartMp.addTextChangedListener(startMpTw);
+        etEndMp.addTextChangedListener(endMpTw);
+    }
+
+    private void setEditMode(JourneyPlan jPlan) {
+        for(MaintenanceExecution exec: jPlan.getTaskList().get(0).getMaintenanceExecutions()){
+            try {
+                if(exec.getId().equals(selectedMaintenance.getId())){
+                    isEditMode = true;
+                    selectedExecution = exec;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private JourneyPlan getActiveMPlan() {
+        ArrayList<JourneyPlanOpt> activePlans = new ArrayList<>();
+        activePlans = inbox.getInProgressJourneyPlans();
+        JourneyPlanOpt activeJp = null;
+        if(activePlans.size()>0){
+            for(JourneyPlanOpt jp: activePlans){
+                if(jp.getWorkplanTemplateId().equals("")){
+                    activeJp = jp;
+                    break;
+                }
+            }
+            if(activeJp!=null){
+                if(inbox.loadJourneyPlan(MaintenanceExecActivity.this, activeJp.getCode())!=null){
+                    return inbox.loadJourneyPlan(MaintenanceExecActivity.this, activeJp.getCode());
+                }
+            }
+        }
+        return null;
+    }
+
+    private void execAsMaintainer(){
+        if(isEditMode){
+            for (MaintenanceExecution execution: getSelectedTask().getMaintenanceExecutions()){
+                if(execution.getId().equals(selectedExecution.getId())){
+                    execution.setStartMp(etStartMp.getText().toString());
+                    execution.setEndMp(etEndMp.getText().toString());
+                    execution.setImgList(beforeImgs);
+                    execution.setVoiceList(attachmentVoice);
+                    execution.setVoiceNotes(etSpeechToText.getText().toString());
+                    execution.setLocation(getLocation());
+                    execution.setTimeStamp(initialTime);
+                }
+            }
+        } else {
+            UUID gId = UUID.randomUUID();
+            MaintenanceExecution mExec = new MaintenanceExecution();
+            mExec.setStartMp(etStartMp.getText().toString());
+            mExec.setEndMp(etEndMp.getText().toString());
+            mExec.setImgList(beforeImgs);
+            mExec.setVoiceList(attachmentVoice);
+            mExec.setVoiceNotes(etSpeechToText.getText().toString());
+            mExec.setLocation(getLocation());
+            mExec.setTimeStamp(initialTime);
+            mExec.setGuId(gId.toString());
+            mExec.setId(selectedMaintenance.getId());
+            for (Task task: selectedJPlan.getTaskList()){
+                if(task.getTaskId().equals(getSelectedTask().getTaskId())){
+                    task.getMaintenanceExecutions().add(mExec);
+                }
+            }
+        }
+        selectedJPlan.update();
+        //Updating selected Task
+        setSelectedTask(selectedJPlan.getTaskList().get(0));
+        selectedMaintenance = null;
+        selectedExecution = null;
+        finish();
+    }
+    private void execAsInspector(JourneyPlan jPlan){
+        if(isEditMode){
+            for (MaintenanceExecution execution: jPlan.getTaskList().get(0).getMaintenanceExecutions()){
+                if(execution.getId().equals(selectedExecution.getId())){
+                    execution.setStartMp(etStartMp.getText().toString());
+                    execution.setEndMp(etEndMp.getText().toString());
+                    execution.setImgList(beforeImgs);
+                    execution.setVoiceList(attachmentVoice);
+                    execution.setVoiceNotes(etSpeechToText.getText().toString());
+                    execution.setLocation(getLocation());
+                    execution.setTimeStamp(initialTime);
+                }
+            }
+        } else {
+            UUID gId = UUID.randomUUID();
+            MaintenanceExecution mExec = new MaintenanceExecution();
+            mExec.setStartMp(etStartMp.getText().toString());
+            mExec.setEndMp(etEndMp.getText().toString());
+            mExec.setImgList(beforeImgs);
+            mExec.setVoiceList(attachmentVoice);
+            mExec.setVoiceNotes(etSpeechToText.getText().toString());
+            mExec.setLocation(getLocation());
+            mExec.setTimeStamp(initialTime);
+            mExec.setGuId(gId.toString());
+            mExec.setId(selectedMaintenance.getId());
+
+            jPlan.getTaskList().get(0).getMaintenanceExecutions().add(mExec);
+
+        }
+        jPlan.update();
+        //Updating selected Task
+        //setSelectedTask(selectedJPlan.getTaskList().get(0));
+        selectedMaintenance = null;
+        selectedExecution = null;
+        finish();
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -293,12 +421,14 @@ public class MaintenanceExecActivity extends AppCompatActivity {
         }
         return true;
     }
+
     public static String getUTCdatetimeAsString() {
         final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
         sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
         final String utcTime = sdf.format(new Date());
         return utcTime;
     }
+
     private String getLocation(){
         if(lastKnownLocation!=null){
             return String.valueOf(lastKnownLocation.getLatitude() + "," + lastKnownLocation.getLongitude());
@@ -306,6 +436,7 @@ public class MaintenanceExecActivity extends AppCompatActivity {
             return "0.0,0.0";
         }
     }
+
     void showConfirmationDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
 //set icon
@@ -461,7 +592,7 @@ public class MaintenanceExecActivity extends AppCompatActivity {
     }
 
     public void setVoiceAdapter(ArrayList<IssueVoice> attachments) {
-        voiceAdapter = new reportVoiceAdapter(this, attachments);
+        voiceAdapter = new reportVoiceAdapter(this, attachments, MaintenanceExecActivity.this.getLocalClassName());
 
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvVoiceNotes.setLayoutManager(horizontalLayoutManager);
@@ -507,4 +638,24 @@ public class MaintenanceExecActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    TextWatcher startMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvStartMpPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
+    TextWatcher endMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvEndMpPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
 }

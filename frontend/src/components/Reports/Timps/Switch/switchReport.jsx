@@ -7,9 +7,16 @@ import { Rect } from "react-konva";
 import _ from "lodash";
 import { CRUDFunction } from "reduxCURD/container";
 import { curdActions } from "reduxCURD/actions";
-import { getWeather } from "../Track/trackReport";
+import { getAllowedSwitches } from "../../../../AssetTypeConfig/Reports/SwitchinspectionReport";
 import moment from "moment";
 import { iconToShow, iconTwoShow } from "../../variables";
+import { LocPrefixService } from "../../../LocationPrefixEditor/LocationPrefixService";
+function getWeather(task) {
+  let tempUnit = task.tempUnit ? task.tempUnit : "";
+  let temp = task.temperature || task.temperature == 0 ? task.temperature + " " + tempUnit : "";
+  let weatherVal = task.weatherConditions ? task.weatherConditions : "";
+  return temp ? temp + (weatherVal ? ", " + weatherVal : "") : weatherVal ? weatherVal : "";
+}
 class SwitchReport extends React.Component {
   constructor(props) {
     super(props);
@@ -28,7 +35,7 @@ class SwitchReport extends React.Component {
     };
   }
   componentDidMount() {
-    this.calculateSwitchData(this.props.inspec);
+    this.props.inspec && this.calculateSwitchData(this.props.inspec);
   }
 
   calculateSwitchData(jPlan) {
@@ -38,7 +45,7 @@ class SwitchReport extends React.Component {
       switchSideTrack = [];
 
       jPlanFirstTask.units.forEach((asset, index) => {
-        if (asset.assetType == "Switch" || asset.assetType == "Side Track") {
+        if (getAllowedSwitches(asset.assetType) || asset.assetType === "Side Track") {
           switchSideTrack.push(asset);
         }
       });
@@ -53,11 +60,12 @@ class SwitchReport extends React.Component {
     }
     if (switchSideTrack) {
       switchSideTrack.forEach((asset) => {
-        let basicFieldsOfAsset = asset.assetType == "Switch" ? true : false;
+        let basicFieldsOfAsset = getAllowedSwitches(asset.assetType) ? true : false;
         let dataRow = {};
+        dataRow.id = asset.id;
+        let prefix = LocPrefixService.getPrefixMp(asset.start, jPlan.lineId);
+        dataRow.mp = (prefix ? prefix : "") + asset.start;
         if (basicFieldsOfAsset) {
-          dataRow.id = asset.id;
-          dataRow.mp = asset.start;
           dataRow.Operated = findSwitchDataFromAppForm(asset, "operateswitch");
           dataRow.GatePoints = findSwitchDataFromAppForm(asset, "gagepoints");
           dataRow.GuardCheckGage = findSwitchDataFromAppForm(asset, "guardcheck");
@@ -131,16 +139,16 @@ class SwitchReport extends React.Component {
         return (
           <React.Fragment key={dataRow.id}>
             <tr style={{ pageBreakInside: "avoid" }}>
-              <td rowspan={lengthOfIssues}>{dataRow.mp ? dataRow.mp : ""}</td>
-              <td rowspan={lengthOfIssues} style={{ wordBreak: "break-all" }}>
+              <td rowSpan={lengthOfIssues}>{dataRow.mp ? dataRow.mp : ""}</td>
+              <td rowSpan={lengthOfIssues} style={{ wordBreak: "break-all" }}>
                 {dataRow.assetName}
               </td>
-              <td rowspan={lengthOfIssues}>{dataRow.Operated ? dataRow.Operated : ""}</td>
-              <td rowspan={lengthOfIssues}>{dataRow.GatePoints ? dataRow.GatePoints : ""}</td>
-              <td rowspan={lengthOfIssues}>{dataRow.GuardCheckGage ? dataRow.GuardCheckGage : ""}</td>
-              <td rowspan={lengthOfIssues}>{dataRow.GuardFaceGage ? dataRow.GuardFaceGage : ""}</td>
-              <td rowspan={lengthOfIssues}>{dataRow.GuardCheckOut ? dataRow.GuardCheckOut : ""}</td>
-              <td rowspan={lengthOfIssues}>{dataRow.GuardFaceOut ? dataRow.GuardFaceOut : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.Operated ? dataRow.Operated : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.GatePoints ? dataRow.GatePoints : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.GuardCheckGage ? dataRow.GuardCheckGage : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.GuardFaceGage ? dataRow.GuardFaceGage : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.GuardCheckOut ? dataRow.GuardCheckOut : ""}</td>
+              <td rowSpan={lengthOfIssues}>{dataRow.GuardFaceOut ? dataRow.GuardFaceOut : ""}</td>
               {firstIssue}
             </tr>
             {issueArea}
@@ -161,7 +169,7 @@ class SwitchReport extends React.Component {
         >
           <Row>
             <Col md={2}>
-              <img src={themeService(iconToShow)} alt="Logo" style={themeService(switchReportStyle.logoStyle)} />
+              <img src={themeService(iconToShow)} alt="Logo" style={{ ...themeService(switchReportStyle.logoStyle), width: "100%" }} />
             </Col>
             <Col md={8}>
               <h2 style={{ ...themeService(switchReportStyle.headingStyle), transform: "translateX(-21px)" }}>
@@ -266,10 +274,15 @@ function addEmptyColsIfNotEnough(mapArray, minRows, cols) {
     emptyRows = [];
     for (let i = 0; i < countToAdd; i++) {
       let row = [];
-      if (i === 0 || i === 3 || i === 6) row = <tr rowspan="3">{getCols(cols)}</tr>;
+      if (i === 0 || i === 3 || i === 6)
+        row = (
+          <tr key={i} rowSpan="3">
+            {getCols(cols)}
+          </tr>
+        );
       else
         row = (
-          <tr style={{ pageBreakInside: "avoid" }}>
+          <tr key={i} style={{ pageBreakInside: "avoid" }}>
             <td colSpan="5"></td>
             <td></td>
           </tr>
@@ -282,9 +295,9 @@ function addEmptyColsIfNotEnough(mapArray, minRows, cols) {
 function getCols(num) {
   let cols = [];
   for (let i = 0; i < num; i++) {
-    if (i < 8) cols.push(<td rowspan="3"></td>);
-    else if (i === 8) cols.push(<td colSpan="5"></td>);
-    else cols.push(<td></td>);
+    if (i < 8) cols.push(<td key={i} rowSpan="3"></td>);
+    else if (i === 8) cols.push(<td key={i} colSpan="5"></td>);
+    else cols.push(<td key={i}></td>);
   }
   return cols;
 }

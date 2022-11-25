@@ -89,7 +89,7 @@ public class ListViewDialog {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                progressDialog.show();
+                //progressDialog.show();
                 // Object o = prestListView.getItemAtPosition(position);
                 //prestationEco str = (prestationEco)o; //As you are using Default String Adapter
                 //Toast.makeText(context,"Clicked on list item",Toast.LENGTH_SHORT).show();

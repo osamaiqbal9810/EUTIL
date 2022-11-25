@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
+
+                <ImageView
+                    android:id="@+id/iv_defect_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_list_gray_24dp" />
+
+                <TextView
+                    android:id="@+id/tv_defect_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_defect_title"
+                    android:fontFamily="@font/cabin"
+                    android:text="Attach Defect/Deficiency"
+                    android:textColor="@color/title_text"
+                    android:textStyle="bold" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:padding="@dimen/report_add_padding">
+
+                <!--<TextView
+                    android:id="@+id/textView23"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="9dp"
+                    android:text="@string/priority"
+                    android:textColor="@color/report_add_heading" />-->
+
+                <TextView
+                    android:id="@+id/tv_defects"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:fontFamily="@font/cabin"
+                    android:text="@string/defects_title"
+                    android:textStyle="bold"/>
+                <LinearLayout
+                    android:id="@+id/ll_def_counter"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="invisible"
+                    android:paddingLeft="30dp"
+                    android:paddingStart="30dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tv_defect_select_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:paddingTop="10dp"
+                        android:text="0"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="5dp"
+                        android:paddingTop="10dp"
+                        android:fontFamily="@font/cabin"
+                        android:text="/"
+                        android:textColor="@color/colorPrimary"
+                        android:textStyle="italic"/>
+
+                    <TextView
+                        android:id="@+id/tv_defect_total_count"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:paddingTop="10dp"
+                        android:paddingEnd="5dp"
+                        android:paddingRight="5dp"
+                        android:text="100"
+                        android:textStyle="bold" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/ll_def_divider"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="20dp"
+                    android:paddingStart="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingEnd="20dp">
+                    <View
+                        android:layout_width="2dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/title_background"
+                        />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent">
+                    <CheckBox
+                        android:id="@+id/cb_deficiency"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/cabin"
+                        android:padding="10dp"
+                        android:longClickable="true"
+                        android:text="@string/deficiency_checkbox"
+                        />
+                </LinearLayout>
+
+
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal"
+                android:background="@color/title_background">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingLeft="30dp"
+                    android:src="@drawable/ic_baseline_radio_button_unchecked_24"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/dp10"
+                    android:layout_gravity="center"
+                    android:ellipsize="end"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/cabin"
+                    android:textStyle="bold"
+                    android:textColor="@color/title_black"
+                    android:text="Info"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/report_add_padding">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:counterEnabled="true">
+
+                    <EditText
+                        android:id="@+id/et_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Please add information"
+                        android:lines="8"
+                        android:minLines="2"
+                        android:gravity="top|start"
+                        android:maxLines="10"
+                        android:scrollbars="vertical"
+                        android:inputType="textMultiLine"
+                        android:fontFamily="@font/cabin"/>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:orientation="horizontal"
+                android:background="@color/title_background">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingLeft="30dp"
+                    android:src="@drawable/ic_baseline_radio_button_unchecked_24"/>
+                <TextView
+                    android:id="@+id/tv_dialog_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="@dimen/dp10"
+                    android:layout_gravity="center"
+                    android:ellipsize="end"
+                    android:textSize="16sp"
+                    android:fontFamily="@font/cabin"
+                    android:textStyle="bold"
+                    android:textColor="@color/title_black"
+                    android:text="Details"/>
+
+            </LinearLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_details"
+                android:padding="@dimen/dp10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:id="@+id/rl_apply_rule_title"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:visibility="visible"
+                android:background="@color/title_background">
+
+                <ImageView
+                    android:id="@+id/iv_rule_title"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:drawableTint="@android:color/black"
+                    android:src="@drawable/ic_priority_high_gray_24dp" />
+
+                <TextView
+                    android:id="@+id/tv_apply_rule_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="10dp"
+                    android:layout_toRightOf="@id/iv_rule_title"
+                    android:fontFamily="@font/cabin"
+                    android:text="Verify ?"
+                    android:textColor="@color/title_text" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_apply_rule"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/report_add_padding">
+
+                <!--<TextView
+                    android:id="@+id/textView23"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="9dp"
+                    android:text="@string/priority"
+                    android:textColor="@color/report_add_heading" />-->
+
+                <CheckBox
+                    android:id="@+id/cb_verify"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/cabin"
+                    android:padding="10dp"
+                    android:longClickable="true"
+                    android:text="Verified"
+                    />
+            </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+            <Button
+                android:id="@+id/btn_update"
+                android:layout_width="wrap_content"
+                android:layout_height="38dp"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                android:textAllCaps="false"
+                android:background="@color/btn_color_primary"
+                android:padding="5dp"
+                android:fontFamily="@font/cabin"
+                android:text="@string/button_save"
+                android:textColor="@color/credentials_white"
+                android:textSize="17sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

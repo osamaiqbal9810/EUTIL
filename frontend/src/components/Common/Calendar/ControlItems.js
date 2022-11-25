@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import SvgIcon from "react-icons-kit";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 export const ControlArrow = props => {
   return (
@@ -11,7 +11,7 @@ export const ControlArrow = props => {
         padding: "5px",
         cursor: "pointer",
         verticalAlign: "middle",
-        color: themeService({ default: basicColors.first, retro: retroColors.second }),
+        color: themeService({ default: basicColors.first, retro: retroColors.second, electric: electricColors.second }),
       }}
     >
       <SvgIcon
@@ -44,7 +44,7 @@ export const CenterTextControl = props => {
         fontFamily: "Arial",
         fontSize: "18px",
         letterSpacing: "0.95px",
-        color: themeService({ default: basicColors.first, retro: retroColors.second }),
+        color: themeService({ default: basicColors.first, retro: retroColors.second, electric: electricColors.second }),
       }}
     >
       {props.textName}

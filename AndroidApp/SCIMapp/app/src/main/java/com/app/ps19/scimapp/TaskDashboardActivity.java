@@ -1,60 +1,41 @@
 package com.app.ps19.scimapp;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
-import android.os.IBinder;
-import android.preference.PreferenceManager;
-
-import com.app.ps19.scimapp.Shared.StartInspectionActivity;
-import com.app.ps19.scimapp.classes.Session;
-import com.google.android.material.textfield.TextInputLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.text.Html;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.app.ps19.scimapp.Shared.GPSTrackerEx;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationChangedInterface;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.Shared.StartInspectionFragment;
 import com.app.ps19.scimapp.Shared.StopInspectionFragment;
 import com.app.ps19.scimapp.Shared.Utilities;
-import com.app.ps19.scimapp.Shared.Utils;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.scimapp.classes.Session;
 import com.app.ps19.scimapp.classes.Task;
 import com.app.ps19.scimapp.classes.Units;
 
@@ -75,27 +56,31 @@ import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_NOT_STARTED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.appName;
 import static com.app.ps19.scimapp.Shared.Globals.getBlinkAnimation;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.initialInspection;
 import static com.app.ps19.scimapp.Shared.Globals.initialRun;
 import static com.app.ps19.scimapp.Shared.Globals.isBackOnTaskClose;
+import static com.app.ps19.scimapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.scimapp.Shared.Globals.isInspectionTypeReq;
 import static com.app.ps19.scimapp.Shared.Globals.isMpReq;
-import static com.app.ps19.scimapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.scimapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.scimapp.Shared.Globals.isUseDefaultAsset;
 import static com.app.ps19.scimapp.Shared.Globals.isWConditionReq;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.scimapp.Shared.StartInspectionFragment.START_INSPECTION_RETURN_MSG;
 import static com.app.ps19.scimapp.Shared.StopInspectionFragment.STOP_INSPECTION_RETURN_MSG;
 
-public class TaskDashboardActivity extends AppCompatActivity implements LocationChangedInterface, SharedPreferences.OnSharedPreferenceChangeListener, StartInspectionFragment.StartDialogListener, StopInspectionFragment.StopDialogListener {
+public class TaskDashboardActivity extends AppCompatActivity implements
+        StartInspectionFragment.StartDialogListener
+        , StopInspectionFragment.StopDialogListener
+        , OnLocationUpdatedListener {
     private static final int REQUEST_CODE_PERMISSION = 2;
     private static final int ISSUE_ACTIVITY_REQUEST_CODE = 1;
     private static final int START_INSPECTION_ACTIVITY_REQUEST_CODE = 10;
-    String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+    //    String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
     SimpleDateFormat TASK_VIEW_DATE_FORMAT_FULL = new SimpleDateFormat("EEE, d MMM yyyy hh:mm:ss aa");
     SimpleDateFormat TASK_VIEW_DATE_FORMAT = new SimpleDateFormat("EEE, d MMM yyyy", Locale.ENGLISH);
     SimpleDateFormat TASK_VIEW_TIME_FORMAT = new SimpleDateFormat("hh:mm aa", Locale.ENGLISH);
@@ -169,44 +154,44 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     //TextView timeTxt;
 
     private Location cLocation;
-    LocationManager locationManager;
+    // LocationManager locationManager;
     private static final String TAG = "resPMain";
 
     // Used in checking for runtime permissions.
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+//    private MyReceiver myReceiver;
+//
+//    // A reference to the service used to get location updates.
+//    private LocationUpdatesService mService = null;
+//
+//    // Tracks the bound state of the service.
+//    private boolean mBound = false;
+//    // Monitors the state of the connection to the service.
+//    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+//            mService = binder.getService();
+//            mBound = true;
+//            if(mService!=null){
+//                mService.requestLocationUpdates();
+//            }
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            mService = null;
+//            mBound = false;
+//        }
+//    };
 
-    // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
-
-    // Tracks the bound state of the service.
-    private boolean mBound = false;
-    // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    }
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//
+//    }
 
     @Override
     public void onFinishStartDialog(String inputText) {
@@ -226,69 +211,87 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     /**
      * Returns the current state of the permissions needed.
      */
-    private boolean checkPermissions() {
-        return  PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-    }
+//    private boolean checkPermissions() {
+//        return  PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION);
+//    }
 
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            /*Snackbar.make(
-                    findViewById(R.layout.activity_main),
-                    R.string.permission_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Request permission
-                            ActivityCompat.requestPermissions(DashboardActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
-                        }
-                    })
-                    .show();*/
-        } else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
+//    private void requestPermissions() {
+//        boolean shouldProvideRationale =
+//                ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                        Manifest.permission.ACCESS_FINE_LOCATION);
+//
+//        // Provide an additional rationale to the user. This would happen if the user denied the
+//        // request previously, but didn't check the "Don't ask again" checkbox.
+//        if (shouldProvideRationale) {
+//            Log.i(TAG, "Displaying permission rationale to provide additional context.");
+//            /*Snackbar.make(
+//                    findViewById(R.layout.activity_main),
+//                    R.string.permission_rationale,
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            // Request permission
+//                            ActivityCompat.requestPermissions(DashboardActivity.this,
+//                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                                    REQUEST_PERMISSIONS_REQUEST_CODE);
+//                        }
+//                    })
+//                    .show();*/
+//        } else {
+//            Log.i(TAG, "Requesting permission");
+//            // Request permission. It's possible this can be auto answered if device policy
+//            // sets the permission in a given state or the user denied the permission
+//            // previously and checked "Never ask again".
+//            ActivityCompat.requestPermissions(this,
+//                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                    REQUEST_PERMISSIONS_REQUEST_CODE);
+//        }
+//    }
 
     /**
      * Receiver for broadcasts sent by {@link LocationUpdatesService}.
      */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (mLocation != null) {
-                cLocation = mLocation;
-                latitude = String.valueOf(mLocation.getLatitude());
-                longitude = String.valueOf(mLocation.getLongitude());
-                refreshLocation();
+//    private class MyReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (mLocation != null) {
+//                cLocation = mLocation;
+//                latitude = String.valueOf(mLocation.getLatitude());
+//                longitude = String.valueOf(mLocation.getLongitude());
+//                refreshLocation();
+//                /*Toast.makeText(TaskDashboardActivity.this, Utils.getLocationText(mLocation),
+//                        Toast.LENGTH_SHORT).show();*/
+//            }
+//        }
+//    }
+
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+        if(!LocationUpdatesService.canGetLocation() || mLocation.getProvider().equals("None")) { Utilities.showSettingsAlert(TaskDashboardActivity.this); return; }
+
+        if (mLocation != null) {
+            cLocation = mLocation;
+            latitude = String.valueOf(mLocation.getLatitude());
+            longitude = String.valueOf(mLocation.getLongitude());
+            refreshLocation();
                 /*Toast.makeText(TaskDashboardActivity.this, Utils.getLocationText(mLocation),
                         Toast.LENGTH_SHORT).show();*/
-            }
         }
+
     }
 
     @Override
     public void onResume(){
         super.onResume();
         try {
-            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+            //Listen to location Updates
+            LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+//            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+//                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -301,25 +304,32 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                 thread.interrupt();
             }
         }
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+
+        //Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
             case KeyEvent.KEYCODE_BACK:
-                if (mBound) {
-                    // Unbind from the service. This signals to the service that this activity is no longer
-                    // in the foreground, and the service can respond by promoting itself to a foreground
-                    // service.
-                    unbindService(mServiceConnection);
-                    mBound = false;
-                }
+
+
+                //Remove Location Updates
+                LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//                if (mBound) {
+//                    // Unbind from the service. This signals to the service that this activity is no longer
+//                    // in the foreground, and the service can respond by promoting itself to a foreground
+//                    // service.
+//                    unbindService(mServiceConnection);
+//                    mBound = false;
+//                }
                 finish();
                 return true;
         }
@@ -329,7 +339,10 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     public void onPause() {
         super.onPause();
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
             super.onPause();
         } catch (Exception e) {
             e.printStackTrace();
@@ -338,34 +351,39 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     @Override
     protected void onStop(){
         super.onStop();
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
+        //Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .unregisterOnSharedPreferenceChangeListener(this);
     }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onStart(){
         super.onStart();
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         /*if(gps == null){
             gps = new GPSTrackerEx(TaskDashboardActivity.this);
         }*/
         tryLocation();
-        bindService(new Intent(TaskDashboardActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
-        if (!checkPermissions()) {
-            requestPermissions();
-        } else {
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
+//        bindService(new Intent(TaskDashboardActivity.this, LocationUpdatesService.class), mServiceConnection,
+//                Context.BIND_AUTO_CREATE);
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .registerOnSharedPreferenceChangeListener(this);
+//        if (!checkPermissions()) {
+//            requestPermissions();
+//        } else {
+//            if(mService!=null){
+//                mService.requestLocationUpdates();
+//            }
+//        }
     }
 
     @Override
@@ -375,17 +393,21 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         requestWindowFeature(Window.FEATURE_PROGRESS);
-        //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
-        if (Utils.requestingLocationUpdates(this)) {
 
-        }
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+
+        //-------------------GPS Code--------------
+        // myReceiver = new MyReceiver();
+//        if (Utils.requestingLocationUpdates(this)) {
+//
+//        }
         //--------------------END-------------------
 
         //For not showing activity if configured so
         try {
             if(isBypassTaskView && selectedJPlan.getTaskList().size() == 1){
-                if(!selectedTask.getStartTime().equals(""))
+                if(!getSelectedTask().getStartTime().equals(""))
                     onViewAction();
             }
         } catch (Exception e) {
@@ -422,9 +444,9 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         btnView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!Globals.selectedTask.getStartTime().equals("")) {
+                if(!getSelectedTask().getStartTime().equals("")) {
                     if(Globals.selectedUnit == null){
-                        if(Globals.selectedTask.getWholeUnitList().size() == 0){
+                        if(getSelectedTask().getWholeUnitList().size() == 0){
                             Toast.makeText(TaskDashboardActivity.this, getResources().getText(R.string.asset_available), Toast.LENGTH_SHORT).show();
                         } else{
                             if(defaultUnitSelection()){
@@ -443,7 +465,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                     //GOTO RUNNING TASK OPTION
                     final Task task =Globals.selectedJPlan.getRunningTask();
                     if(task !=null){
-                        Globals.selectedTask=task;
+                        setSelectedTask(task);
                         loadTaskDetails();
                     }
                 }
@@ -464,6 +486,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
             }
         });
         llBtnSS.setOnLongClickListener(new View.OnLongClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public boolean onLongClick(View view) {
                 if(!isLocationAvailable()){
@@ -483,7 +506,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                         e.printStackTrace();
                     }
                 } else {
-                    Task task=Globals.selectedTask;
+                    Task task=getSelectedTask();
                     if(task.getStatus().equals(Globals.TASK_NOT_STARTED_STATUS)
                             || task.getStatus().equals(TASK_IN_PROGRESS_STATUS)
                             || task.getStatus().equals("")){
@@ -497,7 +520,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         llFinishedStatus=findViewById(R.id.llFinishedStatus_tdb);
         llTileElapsed=findViewById(R.id.llTileElapsed_tdb);
         getLlTileElapsedSmall=findViewById(R.id.llTileElapsedSmall_tdb);
-        Globals.setUserInfoView(TaskDashboardActivity.this,userImage, tvUserName);
+        //Globals.setUserInfoView(TaskDashboardActivity.this,userImage, tvUserName);
 
 //        final Task task=Globals.selectedTask;
         //       tvTaskTitle.setText(task.getTitle());
@@ -506,21 +529,20 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         /*if(gps == null){
             gps = new GPSTrackerEx(TaskDashboardActivity.this);
         }*/
-        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
-        //locationManager.getAllProviders()
-        if(locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)){
-            tryLocation();
-        } else {
-            showSettingsAlert();
-        }
+//        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+//        //locationManager.getAllProviders()
+//        if(locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)){
+//            tryLocation();
+//        } else {
+//            showSettingsAlert();
+//        }
         startThread();
         loadTaskDetails();
-
-
     }
+
     private void startTask(boolean isCopyValues, String expEnd){
         Date now = new Date();
-        String selTaskId = Globals.selectedTask.getTaskId();
+        String selTaskId = getSelectedTask().getTaskId();
         for (Task task: Globals.selectedJPlan.getTaskList()){
             if(task.getTaskId().equals(selTaskId)){
                 Session session = new Session();
@@ -577,7 +599,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         Globals.selectedTask.setStartLocation(latitude + "," + longitude);*/
 
         if(Globals.selectedUnit == null){
-            if(Globals.selectedTask.getWholeUnitList().size() == 0){
+            if(getSelectedTask().getWholeUnitList().size() == 0){
                 Toast.makeText(TaskDashboardActivity.this,getResources().getText(R.string.asset_available), Toast.LENGTH_SHORT).show();
             } else{
                 if(defaultUnitSelection()){
@@ -599,10 +621,10 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     }
     private boolean closeTask(){
         Date now = new Date();
-        if(Globals.selectedTask.getStartTime().equals("")){
+        if(getSelectedTask().getStartTime().equals("")){
             return false;
         }
-        String selTaskId = Globals.selectedTask.getTaskId();
+        String selTaskId =getSelectedTask().getTaskId();
 
         for (Task task: Globals.selectedJPlan.getTaskList()){
             if(task.getTaskId().equals(selTaskId)){
@@ -631,7 +653,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                 } else {
                     session.setEndLocation(latitude + "," + longitude);
                 }
-                session.setEnd(selectedTask.getUserEndMp());
+                session.setEnd(getSelectedTask().getUserEndMp());
             }
         }
         Globals.selectedJPlan.update();
@@ -673,7 +695,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                             }
                         }else
                         {
-                            if(isMpReq && !selectedTask.isYardInspection()){
+                            if(isMpReq && !getSelectedTask().isYardInspection()){
                                 isStopDialog();
                                 //endMpDialog();
                             } else {
@@ -698,7 +720,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                 .show();
     }
     private void loadTaskDetails(){
-        final Task task=Globals.selectedTask;
+        final Task task=getSelectedTask();
         tvTaskTitle.setText(task.getTitle());
         tvTaskDesc.setText(task.getDescription());
         tvTaskNotes.setText(task.getNotes());
@@ -727,7 +749,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         llFinished.setVisibility(View.GONE);
         tvTaskStatus.setVisibility(View.GONE);
         if(task !=null){
-            if(!task.equals(Globals.selectedTask)){
+            if(!task.equals(getSelectedTask())){
                 btnView.setText(getResources().getText(R.string.view_running_task));
                 btnView.setVisibility(View.VISIBLE);
                 llBtnSS.setVisibility(View.GONE);
@@ -768,7 +790,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     public void setInProgressTaskView() {
         Date _date = new Date();
         String taskDate = TASK_VIEW_DATE_FORMAT.format(_date);
-        Task task =Globals.selectedTask;
+        Task task =getSelectedTask();
         tvTaskStatus.setVisibility(View.GONE);
         btnView.setVisibility(View.VISIBLE);
         btnView.setText(getResources().getText(R.string.view));
@@ -800,7 +822,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     }
 
     private void refreshTimeElapsed(){
-        Task task =Globals.selectedTask;
+        Task task =getSelectedTask();
         ArrayList<Integer> items=getElapsedTime(task.getStartTime());
         String days=formatElapsedTime(0,items);
         String hours=formatElapsedTime(1,items);
@@ -811,7 +833,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         tvElapsedText1.setText(mins);
     }
     private void refreshCounts(){
-        Task task =Globals.selectedTask;
+        Task task =getSelectedTask();
         int _issueCount=task.getReportList().size();
         int _imageCount=task.getImageList().size();
         if(_issueCount !=issueCount || _imageCount !=imageCount) {
@@ -824,7 +846,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     public void setFinishedTaskView() {
         Date _date = new Date();
         String taskDate = TASK_VIEW_DATE_FORMAT.format(_date);
-        Task task =Globals.selectedTask;
+        Task task =getSelectedTask();
         tvTaskStatus.setVisibility(View.VISIBLE);
         llFinished.setVisibility(View.VISIBLE);
         llFinished.setAnimation(getBlinkAnimation());
@@ -878,10 +900,14 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
             return true;
         }
         runOnUiThread(new Runnable() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void run() {
-                if(Utilities.isGPSEnabled(TaskDashboardActivity.this)){
+                if(LocationUpdatesService.canGetLocation()){
                     tryLocation();
+                }
+                else{
+                    Utilities.showSettingsAlert(TaskDashboardActivity.this);
                 }
             }
         });
@@ -901,8 +927,8 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                         }else if(blnGpsImage){
                             toggleGpsIcon();
                         }
-                        if(Globals.selectedTask!=null){
-                            if(Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)){
+                        if(getSelectedTask()!=null){
+                            if(getSelectedTask().getStatus().equals(TASK_IN_PROGRESS_STATUS)){
                                 blnClockImage=!blnClockImage;
                                 TaskDashboardActivity.this.runOnUiThread(new Runnable() {
                                     @Override
@@ -923,8 +949,8 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                         if(secCounter>59){
                             secCounter=1;
                             //Time Elapsed Refresh
-                            if(Globals.selectedTask!=null){
-                                if(Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)){
+                            if(getSelectedTask()!=null){
+                                if(getSelectedTask().getStatus().equals(TASK_IN_PROGRESS_STATUS)){
                                     TaskDashboardActivity.this.runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
@@ -972,17 +998,17 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         ArrayList<String> loc = new ArrayList<>();
         // create class object
         try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-            } else if(!locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)){
-                showSettingsAlert();
-            }
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+//            } else if(!locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER)){
+//                showSettingsAlert();
+//            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -990,7 +1016,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
             gps.getLocation();
         }*/
         // check if GPS enabled
-        if (Utilities.canGetLocation(TaskDashboardActivity.this)) {
+        if (LocationUpdatesService.canGetLocation()) {
             if(cLocation!=null){
                 latitude = cLocation.getLatitude();
                 longitude = cLocation.getLongitude();
@@ -1012,80 +1038,79 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
             // can't get location
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings
+            Utilities.showSettingsAlert(TaskDashboardActivity.this);
             if(blnShowLocationAlert) {
-                if (!isGpsPermissionAvailable()) {
-                    requestPermission(this, mPermission, REQUEST_CODE_PERMISSION);
-                } else {
-                    // gps.showSettingsAlert();
-                }
+//                if (!isGpsPermissionAvailable()) {
+//                    requestPermission(this, mPermission, REQUEST_CODE_PERMISSION);
+//                } else {
+//                    // gps.showSettingsAlert();
+//                }
             }
             return loc;
         }
 
     }
-    public boolean isGpsPermissionAvailable(){
-        try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);*/
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-                return false;
-            } else {
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  false;
-    }
+    //    public boolean isGpsPermissionAvailable(){
+//        try {
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);*/
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return  false;
+//    }
     public void requestPermission(Context context, String reqPermission, int permissionCode){
         ActivityCompat.requestPermissions((Activity) context, new String[]{reqPermission},
                 permissionCode);
 
     }
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    ArrayList<String> loc = getCurrentLocation();
-                    if(loc.size()>0){
-                        latitude=loc.get(0);
-                        longitude=loc.get(1);
-                    }
+    //    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_CODE_PERMISSION: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    ArrayList<String> loc = getCurrentLocation();
+//                    if(loc.size()>0){
+//                        latitude=loc.get(0);
+//                        longitude=loc.get(1);
+//                    }
+//
+//                } else {
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+//                    latitude="";
+//                    longitude="";
+//                }
+//                refreshLocation();
+//                return;
+//            }
+//            // other 'case' lines to check for other
+//            // permissions this app might request
+//        }
+//    }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void tryLocation() {
+        Location loc = LocationUpdatesService.getLocation();
+        latitude = String.valueOf(loc.getLatitude());
+        longitude = String.valueOf(loc.getLongitude());
 
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    latitude="";
-                    longitude="";
-                }
-                refreshLocation();
-                return;
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-    private void tryLocation(){
-        ArrayList<String> loc =getCurrentLocation();
-        longitude="";
-        longitude ="";
-        if(loc.size()>0){
-            latitude=loc.get(0);
-            longitude=loc.get(1);
-            //gps.stopUsingGPS();
-        }
         refreshLocation();
     }
+
     private void refreshLocation(){
         Location _loc = null;
-        if(Utilities.canGetLocation(TaskDashboardActivity.this)){
+        if(LocationUpdatesService.canGetLocation()){
             if(cLocation!=null){
                 _loc = cLocation;
             } else if(Globals.lastKnownLocation!=null){
@@ -1097,7 +1122,9 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
                 /*String locationString=longitude +","+latitude;
                 String locationDesc= getLocationDescription();*/
                 setLocation(tvCurrLocationText, TaskDashboardActivity.this, latitude,longitude);
-                imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_black_24dp);
+                if(imgGpsIcon!=null) {
+                    imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_black_24dp);
+                }
                 /*if(locationDesc.equals("")){
                     tvCurrLocationText.setText(locationString);
                 }else{
@@ -1108,6 +1135,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         } else {
             imgGpsIcon.setBackgroundResource(R.drawable.ic_gps_off_white_24dp);
             tvCurrLocationText.setText(getString(R.string.enable_location));
+            Utilities.showSettingsAlert(TaskDashboardActivity.this);
         }
        /* String locationString=longitude +","+latitude;
         if(latitude.equals("") && longitude.equals("")){
@@ -1278,13 +1306,13 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     }
 
 
-    @Override
-    public void locationChanged(Location mLocation) {
-        /*cLocation = mLocation;
-        latitude = String.valueOf(mLocation.getLatitude());
-        longitude = String.valueOf(mLocation.getLongitude());
-        refreshLocation();*/
-    }
+//    @Override
+//    public void locationChanged(Location mLocation) {
+//        /*cLocation = mLocation;
+//        latitude = String.valueOf(mLocation.getLatitude());
+//        longitude = String.valueOf(mLocation.getLongitude());
+//        refreshLocation();*/
+//    }
     /* @Override
      public boolean onKeyDown(int keyCode, KeyEvent event) {
          switch(keyCode){
@@ -1318,7 +1346,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     }
     private void isStartDialog(){
         initialInspection = selectedJPlan;
-        Intent intent = new Intent( TaskDashboardActivity.this, StartInspectionActivity.class);
+        Intent intent = new Intent( TaskDashboardActivity.this, InspectionStartActivity.class);
         startActivityForResult(intent, START_INSPECTION_ACTIVITY_REQUEST_CODE);
 
                 /*StartInspectionFragment dialogFragment = new StartInspectionFragment();
@@ -1374,7 +1402,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
     private void onViewAction(){
 
         if(Globals.selectedUnit == null){
-            if(Globals.selectedTask.getWholeUnitList().size() == 0){
+            if(getSelectedTask().getWholeUnitList().size() == 0){
                 Toast.makeText(TaskDashboardActivity.this, getResources().getText(R.string.asset_available), Toast.LENGTH_SHORT).show();
             } else{
                 if(defaultUnitSelection()){
@@ -1412,21 +1440,21 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
 
         if(isUseDefaultAsset){
             if(appName.equals(Globals.AppName.SCIM)){
-                for(Units unit: selectedTask.getWholeUnitList()) {
+                for(Units unit:getSelectedTask().getWholeUnitList()) {
                     if ((!unit.getAssetTypeClassify().equals("linear") && !unit.getAssetTypeClassify().equals("")) && (unit.getAssetTypeObj().isInspectable() && !unit.getAssetTypeObj().isLocation())) {
                         selectedUnit = unit;
                         return true;
                     }
                 }
             } else if(appName.equals(Globals.AppName.TIMPS)){
-                for(Units unit: selectedTask.getWholeUnitList()){
+                for(Units unit: getSelectedTask().getWholeUnitList()){
                     if(unit.getAttributes().isPrimary()){
                         Globals.selectedUnit = unit;
                         return true;
                     }
                 }
                 if(selectedUnit == null){
-                    for(Units unit: selectedTask.getWholeUnitList()){
+                    for(Units unit: getSelectedTask().getWholeUnitList()){
                         if(!unit.getAssetTypeObj().isLocation() && unit.getAssetTypeObj().isInspectable()){
                             Globals.selectedUnit = unit;
                             return true;
@@ -1437,7 +1465,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
 
         }else {
             if(appName.equals(Globals.AppName.SCIM)){
-                for(Units unit: selectedTask.getWholeUnitList()) {
+                for(Units unit: getSelectedTask().getWholeUnitList()) {
                     if ((!unit.getAssetTypeClassify().equals("linear") && !unit.getAssetTypeClassify().equals("")) && (unit.getAssetTypeObj().isInspectable() && !unit.getAssetTypeObj().isLocation())) {
                         selectedUnit = unit;
                         return true;
@@ -1450,7 +1478,7 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         return false;
     }
     private boolean selectFirstAsset(){
-        for (Units unit: selectedTask.getWholeUnitList()){
+        for (Units unit: getSelectedTask().getWholeUnitList()){
             if(!unit.getAssetTypeObj().isLocation() && unit.getAssetTypeObj().isInspectable()){
                 selectedUnit = unit;
                 return true;
@@ -1562,4 +1590,6 @@ public class TaskDashboardActivity extends AppCompatActivity implements Location
         // Showing Alert Message
         alertDialog.show();
     }
+
+
 }

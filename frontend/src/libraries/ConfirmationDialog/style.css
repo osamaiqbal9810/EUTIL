@@ -1,0 +1,21 @@
+.modal-dialog.confirmation-dialog.modal-dialog-centered {
+  max-width: 40vh !important;
+}
+
+.modal-dialog.confirmation-dialog .modal-header {
+  background-color: var(--seventh);
+}
+.modal-dialog.confirmation-dialog .modal-body, 
+.modal-dialog.confirmation-dialog .modal-footer {
+  background-color: rgb(200, 222, 188);
+  font-size: 14px;
+}
+
+.modal-dialog.confirmation-dialog .modal-footer button {
+  font-size: 14px;
+  padding: 5px 30px;
+}
+
+.confirmation-dialog-warning-message {
+  color: var(--red);
+}

@@ -206,5 +206,20 @@ export const formFicheB24 = {
   opt2: {
     config: [],
     allowedInstruction: ["GI305.pdf"],
+    classify: "point",
+    restrictAssetTypes: [
+      "Diamond",
+      "Switch",
+      "Crossing",
+      "AEI Reader",
+      "Grade Crossing Warning",
+      "High Water Detector",
+      "Hotbox Detector",
+      "Turnout",
+      "Turnout 1",
+      "Turnout 2",
+      "Turnout 3",
+      "Turnout 4",
+    ],
   },
 };

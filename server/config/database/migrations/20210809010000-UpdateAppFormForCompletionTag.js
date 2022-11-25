@@ -1,4 +1,5 @@
-import { updateApplicationLookups, scimAppForms, timpsAppForms } from "../configurations/applicationlookupslist";
+import { updateApplicationLookups, timpsAppForms } from "../configurations/applicationlookupslist";
+import { scimAppForms } from "../configurations/appForms/SITE_AppForms";
 
 module.exports = {
   async up() {

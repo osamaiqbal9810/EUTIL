@@ -7,6 +7,8 @@ import SvgIcon from "react-icons-kit";
 import _ from "lodash";
 import moment from "moment";
 import YardReportView from "./yardReportView";
+import { yardTypeATypeTracks } from "../../../../AssetTypeConfig/Reports/DefectReportConfig";
+import { checkYardTrackReportMethod } from "../../../../AssetTypeConfig/Reports/YardTrackReportConfig";
 
 class YardReport extends Component {
   constructor(props) {
@@ -72,7 +74,7 @@ class YardReport extends Component {
       //console.log(task.runStart, task.runEnd);
       task &&
         task.units.map((unit, count) => {
-          if (unit.assetType == "track" || unit.assetType == "CWR Track" || unit.assetType == "Side Track") {
+          if (checkYardTrackReportMethod(unit.assetType)) {
             let assetData = {};
             assetData = unit;
             assetData.HighRail = "";
@@ -135,11 +137,7 @@ class YardReport extends Component {
           let includeAllowedDeficiencies = true; //this.props.includeAllowedDeficiencies
           let includeDeficiencyCheck = includeAllowedDeficiencies && issue.issueType == "Deficiency" && serverObj.includeFRAReport;
           if (
-            (issue.unit.assetType == "track" ||
-              issue.unit.assetType == "CWR Track" ||
-              issue.unit.assetType == "Switch" ||
-              issue.unit.assetType == "Yard Track" ||
-              issue.unit.assetType == "Side Track") &&
+            _.find(yardTypeATypeTracks, (item) => issue.unit.assetType === item) &&
             (issue.issueType == "Defect" || includeDeficiencyCheck)
           ) {
             issueData.MP = startEndMP(issue);

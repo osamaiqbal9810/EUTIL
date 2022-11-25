@@ -26,18 +26,21 @@ import { themeService } from "../../../theme/service/activeTheme.service";
 import { commonFilterStyles } from "../../Common/Filters/styles/CommonFilterStyle";
 import { statusStyle } from "../../JourneyPlan/JourneyPlanList/style";
 import { CommonModalStyle } from "../../../style/basic/commonControls";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { dateSort, generalSort } from "../../../utils/sortingMethods";
 import CommonFilters from "components/Common/Filters/CommonFilters";
 import DateAndLineFilter from "../../Common/Filters/DateAndLineFilter";
 import permissionCheck from "utils/permissionCheck.js";
 import { checkmark } from "react-icons-kit/icomoon/checkmark";
+import { androidDoneAll } from "react-icons-kit/ionicons/androidDoneAll";
 //import { timpsSignalApp } from "../../../config/config";
 import { versionInfo } from "../../MainPage/VersionInfo";
+import { LocPrefixService } from "../../LocationPrefixEditor/LocationPrefixService";
 
 let defaultStyle = themeService({
   default: { fontSize: "14px", color: basicColors.first },
   retro: { fontSize: "14px", color: retroColors.second },
+  electric: { fontSize: "14px", color: electricColors.second },
 });
 
 const ROTATION_TOOLTIP = [
@@ -67,7 +70,7 @@ class IssuesList extends Component {
   constructor(props) {
     super(props);
     let timpsSignalApp = versionInfo.isSITE();
-
+    let elecUtilApp = versionInfo.isEUtility();
     this.state = {
       selectedImg: "",
       selectedImageIndex: 0,
@@ -157,6 +160,8 @@ class IssuesList extends Component {
         id: "mp",
         show: this.props.forDashboard ? false : true,
         accessor: (d) => {
+          let startPrefix = LocPrefixService.getPrefixMp(d.startMp, d.lineId);
+          let endPrefix = LocPrefixService.getPrefixMp(d.endMp, d.lineId);
           if (d.startMarker || d.endMarker) {
             return (
               <div>
@@ -166,60 +171,155 @@ class IssuesList extends Component {
           } else if (d.startMp || d.endMp)
             return (
               <div>
-                {d.startMp},{d.endMp}
+                {startPrefix}
+                {d.startMp},{endPrefix}
+                {d.endMp}
               </div>
             );
           return <div>N/A</div>;
         },
-        minWidth: 70, //150,
+        minWidth: 120, //150,
+      },
+      {
+        Header: languageService("Defect Codes"),
+        id: "defect",
+        show: this.props.forDashboard || timpsSignalApp ? false : true,
+        width: 250,
+        accessor: (d) => {
+          let defectCount = 0;
+          let defectCodes = d.defectCodes;
+          let defectDescription = d.description;
+          if (d && d.defectCodes && d.defectCodes.length) {
+            defectCodes = defectCodes.filter((dc) => dc !== "");
+            defectCount = defectCodes.length;
+            return (
+              <React.Fragment>
+                <div id={"defect-" + defectCodes} className="defect-code-button" style={{ textAlign: "center" }}>
+                  <ButtonActionsTable
+                    handleClick={() => {
+                      this.props.showDefectModal(d);
+                    }}
+                    buttonText={<span>{defectDescription}</span>}
+                  />
+                </div>
+                {/* <Tooltip isOpen={this.state.tooltipOpen} target={"defect-" + defectCodes} toggle={this.toggleTooltip}>
+                  <span>{defectDescription}</span>
+                </Tooltip>  */}
+              </React.Fragment>
+            );
+          } else {
+            return <div style={{ textAlign: "center" }}>N/A</div>;
+          }
+        },
+        style: { whiteSpace: "unset" },
       },
       // {
-      //   Header: languageService("Defect Codes"),
-      //   id: "defect",
+      //   Header: languageService("Defect Description"),
+      //   id: "defectDescription",
       //   show: this.props.forDashboard || timpsSignalApp ? false : true,
-      //   width: 100,
+      //   width: 200,
       //   accessor: (d) => {
-      //     let defectCount = 0;
-      //     let defectCodes = d.defectCodes;
-
-      //     if (d && d.defectCodes && d.defectCodes.length) {
-      //       defectCodes = defectCodes.filter((dc) => dc !== "");
-      //       defectCount = defectCodes.length;
-      //       return (
-      //         <div style={{ textAlign: "center" }}>
-      //           <ButtonActionsTable
-      //             handleClick={() => {
-      //               this.props.showDefectModal(d);
-      //             }}
-      //             buttonText={<span>{defectCodes.toString()}</span>}
-      //           />
-      //         </div>
-      //       );
-      //     } else {
-      //       return <div style={{ textAlign: "center" }}>N/A</div>;
-      //     }
-      //   },
-      //   style: { whiteSpace: "unset" },
-      // },
-      // {
-      //   Header: languageService("Rule 213.9(b)"),
-      //   id: "rule_applied",
-      //   width: 158,
-
-      //   show: this.props.forDashboard || timpsSignalApp ? false : true,
-      //   accessor: (d) => {
-      //     return (
-      //       <div style={{ textAlign: "center" }}>
-      //         <input type="checkbox" readOnly checked={!!d.ruleApplied} />
-      //       </div>
-      //     );
+      //     let dDecsription = d.description;
+      //     return <div style={{ textAlign: "center" }}>{dDecsription}</div>;
       //   },
       // },
       {
-        Header: languageService("Assign Maintenance"),
+        Header: languageService("Rule 213.9(b)"),
+        id: "rule_applied",
+        width: 158,
+
+        show: this.props.forDashboard || timpsSignalApp || elecUtilApp ? false : true,
+        accessor: (d) => {
+          return (
+            <div style={{ textAlign: "center" }}>
+              <input type="checkbox" readOnly checked={!!d.ruleApplied} />
+            </div>
+          );
+        },
+      },
+      {
+        Header: "Repair in (Days)",
+        width: 100,
+        id: "repairBy",
+        accessor: (d) => {
+          let value = "";
+          let color = "inherit";
+          if (d.closeReason) {
+            value = "Closed";
+          } else if (d.serverObject && d.remedialAction == "No Repair Required or N/A" && d.serverObject.repairDate) {
+            value = "N/A";
+          } else if (d.serverObject && d.serverObject.repairDate) {
+            value = "Repaired";
+          } else if (d && d.remedialAction == "Not Repaired") {
+            let repairField = _.find(d.remedialActionItems, { id: "repairBy" });
+            let nowDate = moment();
+            if (repairField) {
+              value = moment(repairField.value).endOf("day").diff(nowDate, "days");
+              if (value === 0) {
+                value = (moment(repairField.value).endOf("day").diff(nowDate, "hours") / 24).toFixed(2);
+                color = "rgb(224, 44, 73)";
+              } else {
+                let originalGap = moment(repairField.value).endOf("day").diff(moment(d.timeStamp), "days");
+                value / originalGap <= 0.25 && (color = "rgb(224, 44, 73)");
+              }
+              if (value <= 0) value = "Overdue";
+            }
+          }
+          return <span style={{ color: color }}>{value}</span>;
+        },
+        show: this.props.forDashboard || timpsSignalApp || elecUtilApp ? false : true,
+      },
+      {
+        Header: () => {
+          return (
+            <div>
+              <div style={{ display: "inline-block" }}>
+                {languageService("Assign Maintenance")}
+                {this.props.multiIssueToMaintenance && this.props.multiIssueToMaintenance.length > 0 && (
+                  <div style={{ display: "inline-block", position: "relative" }} id="select-all">
+                    <div
+                      style={themeService({
+                        default: { color: basicColors },
+                        retro: { color: retroColors.second },
+                        electric: { color: electricColors.second },
+                      })}
+                    >
+                      <SvgIcon
+                        size={23}
+                        icon={androidDoneAll}
+                        onClick={(e) => this.props.updateMultiAssignMaintenance()}
+                        style={{
+                          marginRight: "5px",
+                          marginLeft: "5px",
+                          verticalAlign: "middle",
+                          cursor: "pointer",
+                          zIndex: "10",
+                          position: "relative",
+                          color: "rgb(224, 44, 73)",
+                        }}
+                      />
+                    </div>{" "}
+                    {/* <Tooltip
+                      placement="right"
+                      isOpen={this.state.tooltipOpen}
+                      target={"select-all"}
+                      toggle={() => this.toggle("select-all")}
+                    >
+                      Assign All
+                    </Tooltip> */}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        },
         id: "issueMaintenance",
         width: 200,
-        show: this.props.forDashboard ? false : versionInfo.isTIMPS() ? true : false,
+        show: this.props.forDashboard
+          ? false
+          : (versionInfo.isTIMPS() || versionInfo.isEUtility()) && permissionCheck("MAINTENANCE", "create")
+          ? true
+          : false,
         accessor: (d) => {
           let maintenanceRole = d.serverObject ? d.serverObject.maintenanceRole : "";
           let editMaintenance = d.maintenanceAction === "maintenanceMode";
@@ -242,7 +342,13 @@ class IssuesList extends Component {
                     <React.Fragment>
                       {editMaintenance && (
                         <div style={{ display: "inline-block" }}>
-                          <div style={themeService({ default: { color: basicColors }, retro: { color: retroColors.second } })}>
+                          <div
+                            style={themeService({
+                              default: { color: basicColors },
+                              retro: { color: retroColors.second },
+                              electric: { color: electricColors.second },
+                            })}
+                          >
                             <SvgIcon
                               size={15}
                               icon={checkmark}
@@ -334,7 +440,7 @@ class IssuesList extends Component {
       //   minWidth: 90, //150,
       // },
       {
-        Header: languageService("Category/Priority"),
+        Header: languageService("Remedial Action"),
         id: "fixedOnSite",
         accessor: (issue) => {
           let remediation = {
@@ -615,6 +721,9 @@ class IssuesList extends Component {
     } else {
       this.setState({ tooltip });
     }
+    this.setState({
+      tooltipOpen: !this.state.tooltipOpen,
+    });
   }
   handleIframeToggle() {
     this.setState({
@@ -811,9 +920,7 @@ class IssuesList extends Component {
         }}
       >
         <img
-          src={`http://${getServerEndpoint()}applicationresources/${
-            images.length > 0 ? images[this.state.selectedImageIndex].imgName : ""
-          }`}
+          src={`${getServerEndpoint()}applicationresources/${images.length > 0 ? images[this.state.selectedImageIndex].imgName : ""}`}
           style={{
             display: "block",
             marginLeft: "auto",
@@ -831,7 +938,7 @@ class IssuesList extends Component {
         isOpen={this.state.imgModal}
         toggle={this.handleToggle}
         style={{ height: "auto" }}
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", retro: "electricModal" })}
       >
         <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>{this.state.imgDescription}</ModalHeader>
         <div style={themeService({ default: { position: "absolute", top: "17px", right: "10px" } })}>
@@ -842,7 +949,7 @@ class IssuesList extends Component {
                   default: {
                     marginRight: "10px",
                     background: basicColors.first,
-                    color: "#fff",
+                    color: "var(--fifth)",
                     padding: "5px 5px",
                     borderRadius: "5px",
                     height: "28px",
@@ -853,6 +960,16 @@ class IssuesList extends Component {
                     marginRight: "10px",
                     background: retroColors.first,
                     color: retroColors.fifth,
+                    padding: "5px 5px",
+                    borderRadius: "5px",
+                    height: "28px",
+                    border: "none",
+                    cursor: "pointer",
+                  },
+                  electric: {
+                    marginRight: "10px",
+                    background: electricColors.first,
+                    color: electricColors.fifth,
                     padding: "5px 5px",
                     borderRadius: "5px",
                     height: "28px",
@@ -895,7 +1012,7 @@ class IssuesList extends Component {
             style={{
               cursor: "pointer",
               color: this.checkImageIndexExistence(images, selectedImageIndex - 1)
-                ? themeService({ default: basicColors.first, retro: retroColors.first })
+                ? themeService({ default: basicColors.first, retro: retroColors.first, electric: electricColors.first })
                 : "grey",
             }}
           />
@@ -908,7 +1025,7 @@ class IssuesList extends Component {
             style={{
               cursor: "pointer",
               color: this.checkImageIndexExistence(images, selectedImageIndex + 1)
-                ? themeService({ default: basicColors.first, retro: retroColors.first })
+                ? themeService({ default: basicColors.first, retro: retroColors.first, electric: electricColors.first })
                 : "grey",
             }}
           />
@@ -936,14 +1053,17 @@ class IssuesList extends Component {
   };
 
   render() {
-    let columns = this.columns;
+    let columns = [...this.columns];
     if (this.props.forDashboard) {
-      _.remove(this.columns, { id: "actions" });
-      _.remove(this.columns, { id: "description" });
-      _.remove(this.columns, { id: "fixedOnSite" });
-      _.remove(this.columns, { id: "imgList" });
-      _.remove(this.columns, { id: "locationLat" });
-      _.remove(this.columns, { id: "locationLon" });
+      _.remove(columns, { id: "actions" });
+      _.remove(columns, { id: "description" });
+      _.remove(columns, { id: "fixedOnSite" });
+      _.remove(columns, { id: "imgList" });
+      _.remove(columns, { id: "locationLat" });
+      _.remove(columns, { id: "locationLon" });
+    }
+    if (this.props.disableRule213Config) {
+      _.remove(columns, { id: "rule_applied" });
     }
 
     let imgComp = null;
@@ -953,7 +1073,7 @@ class IssuesList extends Component {
         if (img) {
           imgName = img.imgName;
         }
-        let paths = "http://" + getServerEndpoint() + "thumbnails/" + imgName;
+        let paths = getServerEndpoint() + "thumbnails/" + imgName;
         //  console.log(paths)
         return (
           <div className="colsImgs" key={index}>
@@ -985,7 +1105,7 @@ class IssuesList extends Component {
         }}
       >
         <img
-          src={`http://${getServerEndpoint()}applicationresources/${
+          src={`${getServerEndpoint()}applicationresources/${
             this.state.images.length > 0 ? this.state.images[this.state.selectedImageIndex].imgName : ""
           }`}
           style={{
@@ -1064,7 +1184,7 @@ class IssuesList extends Component {
               filterTodayOrAll={this.state.filterTodayOrAll}
               firstFilterName={languageService("In Progress")}
               noFilters
-              tableColumns={this.columns}
+              tableColumns={columns}
               tableData={this.props.tableData}
               pageSize={this.state.pageSize}
               pagination={true}
@@ -1078,7 +1198,7 @@ class IssuesList extends Component {
           <div style={{ boxShadow: "3px 3px 5px #cfcfcf" }}>
             <ThisTable
               // defaultSorted={[{ id: "dateIssue", desc: false }]}
-              tableColumns={this.columns}
+              tableColumns={columns}
               tableData={this.props.forDashboard ? this.props.tableData : this.props.tableData}
               pageSize={this.props.forDashboard ? this.props.pageSize : this.state.pageSize}
               minRows={8}

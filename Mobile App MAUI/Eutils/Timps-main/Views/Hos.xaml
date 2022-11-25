@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TekTrackingCore.Views.Hos"
+             Title="Hos">
+
+    <ContentPage.Resources>
+       
+        <ResourceDictionary>
+       
+
+            <Style TargetType="BoxView" x:Key="boxBorderBottom">
+                <Setter Property="HorizontalOptions" Value="FillAndExpand" />
+                <Setter Property="HeightRequest" Value="2"/>
+                <Setter Property="Color" Value="Grey"/>
+
+            </Style>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
+  
+    <VerticalStackLayout>
+
+
+        <Frame BackgroundColor="#00B5E2"
+                   CornerRadius="0"
+                   HeightRequest="60"
+                   Padding=" 10, 10"
+                  >
+
+            <HorizontalStackLayout Spacing="10" VerticalOptions="Center"  Margin="5,0,0,0">
+                <Image Source="calender.png" WidthRequest="30"/>
+                <Label Text="Live location"
+                      FontSize="22" />
+            </HorizontalStackLayout>
+           
+            </Frame>
+        <FlexLayout HeightRequest="40" AlignItems="Center" JustifyContent="SpaceBetween" Margin="5,0,5,0">
+
+            <Label FontAttributes="Bold" Text="Date"/>
+
+
+            <Label Text="19-sep-2022"/>
+
+
+            <Label FontAttributes="Bold" Text="Total Hours"/>
+
+            <Label Text="00:00"/>
+
+        </FlexLayout>
+
+
+        <FlexLayout
+            Margin="0 ,10,0,0"
+               >
+            <Frame   HeightRequest="100"  CornerRadius="0"   BackgroundColor="LightSkyBlue" Margin="3,0,3,0">
+                <FlexLayout Direction="Column" AlignItems="Center">
+                    <HorizontalStackLayout >
+                        <Image Margin="0,3,0,0"  WidthRequest="25" Source="signin.png"/>
+                        <Label Text="Signed In" Margin="0,5,0,0"/>
+                    </HorizontalStackLayout>
+                    <BoxView  Style="{StaticResource boxBorderBottom}" />
+
+                    <Label  Text="--:--"
+                      FontSize="24"  />
+                </FlexLayout>
+            </Frame>
+            <Frame    HeightRequest="100"  CornerRadius="0"   BackgroundColor="LightSkyBlue" Margin="3,0,3,0" >
+                <FlexLayout Direction="Column" AlignItems="Center">
+                    <HorizontalStackLayout Spacing="5" >
+                        <Image Margin="0,3,0,0"  WidthRequest="25" Source="signout.png"/>
+                        <Label  Text="Signed Out" Margin="0,5,0,0"/>
+                    </HorizontalStackLayout>
+                    <BoxView  Style="{StaticResource boxBorderBottom}" />
+                    <Label  Text="--:--"
+                      FontSize="24"  />
+                </FlexLayout>
+            </Frame>
+        </FlexLayout>
+
+
+        <Frame Margin="0,10,0,0" BackgroundColor="#00B5E2"
+                   CornerRadius="0"
+                   HeightRequest="60"
+                   Padding=" 10, 10"
+                  >
+
+            <HorizontalStackLayout Spacing="10" VerticalOptions="Center"  Margin="5,0,0,0">
+                <Image Source="calender.png" WidthRequest="30"/>
+                <Label Text="Today"
+                      FontSize="22" />
+            </HorizontalStackLayout>
+
+        </Frame>
+
+        <FlexLayout HeightRequest="30" AlignItems="Center" JustifyContent="SpaceBetween" Margin="5,0,5,0">
+
+            <Label FontAttributes="Bold" Text="Date"/>
+
+
+            <Label Text="19-sep-2022"/>
+
+
+            <Label FontAttributes="Bold" Text="Total Hours"/>
+
+            <Label Text="00:00"/>
+
+        </FlexLayout>
+        <StackLayout >
+        <Border HeightRequest="60" WidthRequest="400" Stroke="black"
+        StrokeThickness="1"
+        Background="white"
+ 
+       >
+                <FlexLayout AlignItems="Center" JustifyContent="SpaceAround" >
+
+                    <StackLayout>
+                    <Label Text="Time" FontAttributes="Bold"  />
+                    <TimePicker  Time="4:15:26"/>
+                    </StackLayout>
+
+
+
+                    <Button Text="SIGN IN" BackgroundColor="#D3D3D3"  CornerRadius="5" FontAttributes="Bold" TextColor="Black" />
+                </FlexLayout>
+               
+            </Border>
+        </StackLayout>
+
+       
+    </VerticalStackLayout>
+</ContentPage>

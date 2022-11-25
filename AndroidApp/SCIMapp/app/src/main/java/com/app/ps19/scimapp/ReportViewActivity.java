@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 
 public class ReportViewActivity extends AppCompatActivity {
@@ -269,11 +270,11 @@ public class ReportViewActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(Globals.selectedUnit.getAssetTypeObj().getDefectCodes() != null){
-                    if(Globals.selectedTask.getStatus().equals(Globals.TASK_FINISHED_STATUS)){
+                    if(getSelectedTask().getStatus().equals(Globals.TASK_FINISHED_STATUS)){
                         Intent intent = new Intent( ReportViewActivity.this, DefectCodeActivity.class);
                         startActivity(intent);}
                 } else if (defectList != null && defectList.size()>0){
-                    if(Globals.selectedTask.getStatus().equals(Globals.TASK_FINISHED_STATUS)){
+                    if(getSelectedTask().getStatus().equals(Globals.TASK_FINISHED_STATUS)){
                         AlertDialog.Builder builder = new AlertDialog.Builder(ReportViewActivity.this);
                         // Get the layout inflater
                         LayoutInflater inflater = (ReportViewActivity.this).getLayoutInflater();
@@ -375,7 +376,7 @@ public class ReportViewActivity extends AppCompatActivity {
         img_recycler_view.setAdapter(horizontalAdapter);
     }
     public void setVoiceAdapter(ArrayList<IssueVoice> attachments) {
-        voiceAdapter = new reportVoiceAdapter(this, attachments);
+        voiceAdapter = new reportVoiceAdapter(this, attachments, ReportViewActivity.this.getLocalClassName());
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvVoice.setLayoutManager(horizontalLayoutManager);
         rvVoice.setAdapter(voiceAdapter);

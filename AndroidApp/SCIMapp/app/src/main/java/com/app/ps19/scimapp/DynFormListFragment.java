@@ -29,6 +29,7 @@ import com.app.ps19.scimapp.classes.dynforms.OnValueChangeEventListener;
 import java.util.ArrayList;
 
 import static com.app.ps19.scimapp.Shared.Globals.appName;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 
 
 /**
@@ -189,7 +190,7 @@ public class DynFormListFragment extends Fragment implements OnValueChangeEventL
         return rootView;
     }
     private void fillFormList(){
-        if(Globals.selectedTask!=null){
+        if(getSelectedTask()!=null){
             Log.i("List Frags","getting app forms");
             mParam2=(mParam2.equals("")?"":Globals.selectedUnit.getAssetType());
             if(!mParam2.equals("")){
@@ -204,7 +205,7 @@ public class DynFormListFragment extends Fragment implements OnValueChangeEventL
                     return;
                 }
             }else{
-                _formList=Globals.selectedTask.getAppForms();
+                _formList=getSelectedTask().getAppForms();
             }
             ArrayList<DynForm> _formFilterList=new ArrayList<>();
             String viewGroup=mParam3 !=null?mParam3:"";

@@ -1,0 +1,34 @@
+﻿<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:localization="clr-namespace:TekTrackingCore.Resources.Localization"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="TekTrackingCore.MainPage"
+             Title="{localization:Translate MainPageTitle}">
+ 
+
+    <ScrollView>
+        <VerticalStackLayout
+			Spacing="25"
+			Padding="30,0"
+			VerticalOptions="Center">
+
+
+            <Label Text ="Static resource. Updates on App restart."/>
+            <Label Text="{x:Static localization:AppResources.MainPageTitle}" />
+
+            <Label Text ="Resource updated dynamically, thanks to Binding. No restart needed."
+			      />
+            <!--<Label Text="{Binding LocalizationResourceManager[Intro], Mode=OneWay}" />-->
+
+            <Label Text ="The same as above, but using MarkupExtension"
+			     />
+            <Label Text="{localization:Translate Intro}" />
+
+            <Picker x:Name="LanguagePicker"
+					SelectedIndexChanged="LanguageChanged"
+			        HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

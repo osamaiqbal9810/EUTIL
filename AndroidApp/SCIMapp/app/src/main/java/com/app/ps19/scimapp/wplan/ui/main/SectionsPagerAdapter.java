@@ -9,8 +9,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.app.ps19.scimapp.R;
-import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.wplan.RunsFragment;
 import com.app.ps19.scimapp.wplan.TemplateTestFragment;
 import com.app.ps19.scimapp.wplan.plansFragment;
 
@@ -34,21 +32,26 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         // Return a PlaceholderFragment (defined as a static inner class below).
         switch (position) {
             case 0:
-                if(Globals.isTimpsApp()) {
-                    return RunsFragment.newInstance("First", "Briefing");
-                }else{
-                    //if(Globals.testApp){
-                    return TemplateTestFragment.newInstance("","");
-                    //}else{
-                    //   return RunsFragment.newInstance("First", "Briefing");
-                    //}
-                }
+//                if(Globals.isTimpsApp()) {
+//                    //return RunsFragment.newInstance("First", "Briefing");
+//                }else{
+                //if(Globals.testApp){
+                return TemplateTestFragment.newInstance("ALL","");
+
+            //return TemplateTestFragment.newInstance("ALL","");
+
+            //return WPlanLocFilterFragment.newInstance("","");
+            //}else{
+            //   return RunsFragment.newInstance("First", "Briefing");
+            //}
+            //  }
             case 1:
                 return plansFragment.newInstance(1);
-            // case 2:
-            //     return TemplateTestFragment.newInstance("","");
+            case 2:
+                // return TemplateTestFragment.newInstance("","");
         }
-        return PlaceholderFragment.newInstance(position + 1);
+        //  return PlaceholderFragment.newInstance(position + 1);
+        return TemplateTestFragment.newInstance("ALL","");
     }
 
     @Nullable

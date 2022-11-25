@@ -1,20 +1,20 @@
-import React, {Component} from "react";
-import {ModalStyles} from "components/Common/styles.js";
+import React, { Component } from "react";
+import { ModalStyles } from "components/Common/styles.js";
 import "components/Common/commonform.css";
-import {ButtonStyle, CommonModalStyle} from "style/basic/commonControls";
-import {themeService} from "theme/service/activeTheme.service";
-import {languageService} from "../../../Language/language.service";
+import { ButtonStyle, CommonModalStyle } from "style/basic/commonControls";
+import { themeService } from "theme/service/activeTheme.service";
+import { languageService } from "../../../Language/language.service";
 import _ from "lodash";
-import {Col, Row} from "reactstrap";
+import { Col, Row } from "reactstrap";
 import EditableTable from "components/Common/EditableTable";
-import {guid} from "../../../utils/UUID";
-import {userStyles} from "../../SetupPage/User/style/userStyles";
-import {ButtonMain} from "../Buttons";
-import {withPlus} from "react-icons-kit/entypo/withPlus";
-import {info} from "react-icons-kit/icomoon/info";
-import {ALERT_FIELDS, processAlertFieldMapping} from "./mapingFieldNames";
+import { guid } from "../../../utils/UUID";
+import { userStyles } from "../../SetupPage/User/style/userStyles";
+import { ButtonMain } from "../Buttons";
+import { withPlus } from "react-icons-kit/entypo/withPlus";
+import { info } from "react-icons-kit/icomoon/info";
+import { ALERT_FIELDS, processAlertFieldMapping } from "./mapingFieldNames";
 import moment from "moment";
-import {calculateAlertTime} from "../../../utils/helpers";
+import { calculateAlertTime } from "../../../utils/helpers";
 import SvgIcon from "react-icons-kit";
 import TooltipWrapper from "../TooltipWrapper";
 
@@ -27,14 +27,14 @@ class AlertSetupForm extends Component {
       alertRules: [],
       pageSize: 30,
       page: 0,
-        error: {status: false, message: ''},
+      error: { status: false, message: "" },
       alertRulesCols: [
         {
           id: "field",
           header: `${languageService("Alert")} ${languageService("Field")}`,
           type: "text",
           field: "field",
-          editable: false,
+          editable: true,
           minWidth: 30,
           possibleValues: [],
         },
@@ -43,16 +43,16 @@ class AlertSetupForm extends Component {
           header: `${languageService("Alert")} ${languageService("Type")}`,
           type: "text",
           field: "type",
-          editable: false,
+          editable: true,
           minWidth: 15,
           possibleValues: ["web", "email"],
         },
         {
           id: "event",
-            header: `${languageService("Alert")} ${languageService("Event")}`,
+          header: `${languageService("Alert")} ${languageService("Event")}`,
           type: "text",
           field: "event",
-          editable: false,
+          editable: true,
           minWidth: 15,
           possibleValues: ["before", "after"],
         },
@@ -61,7 +61,7 @@ class AlertSetupForm extends Component {
           header: languageService("Time"),
           type: "text",
           field: "time",
-          editable: false,
+          editable: true,
           minWidth: 20,
         },
         {
@@ -69,7 +69,7 @@ class AlertSetupForm extends Component {
           header: languageService("Unit of time"),
           type: "text",
           field: "unitOfTime",
-          editable: false,
+          editable: true,
           minWidth: 15,
           possibleValues: ["minutes", "hours", "days", "months"],
         },
@@ -78,73 +78,69 @@ class AlertSetupForm extends Component {
           header: languageService("Recipient"),
           type: "multiple",
           field: "destinations",
-          editable: false,
+          editable: true,
           minWidth: 60,
           possibleValues: [],
-            formatter: (val) => {
-                // let size = val.length > 3 ? 3 : val.length;
-                // return val.slice(0, size).toString().split(",").join(", ");
+          formatter: (val) => {
+            // let size = val.length > 3 ? 3 : val.length;
+            // return val.slice(0, size).toString().split(",").join(", ");
 
-                return val.toString().split(",").join(", ");
-            }
+            return val.toString().split(",").join(", ");
+          },
         },
         {
           id: "expectedTime",
           header: languageService("Expected Alert Time"),
           type: "text",
           field: "alertTimeLocal",
-          editable: false,
+          editable: true,
           minWidth: 35,
           func: (obj) => {
-              let result = 'N/A';
-              let date = moment(obj.alertTimeLocal);
+            let result = "N/A";
+            let date = moment(obj.alertTimeLocal);
 
-              if (obj.alertTimeLocal && date.isValid()) {
-                  let calculatedDate = calculateAlertTime(date, obj.time, obj.unitOfTime, obj.event);
+            if (obj.alertTimeLocal && date.isValid()) {
+              let calculatedDate = calculateAlertTime(date, obj.time, obj.unitOfTime, obj.event);
 
-                  if (obj.status === 'generated' && !obj.editMode) {
-                      result = (
-                          <TooltipWrapper
-                              placement="right"
-                              target={`alertInfo_${obj._id}`}
-                              infoText={'Alert sent.'}
-                          >
-                              <div id={`alertInfo_${obj._id}`} style={{color: 'darkblue'}}>
-                                  <SvgIcon icon={info} size={15}/>
-                                  <span style={{marginLeft: '5px'}}>{calculatedDate.format('LLLL')}</span>
-                              </div>
-                          </TooltipWrapper>
-                      );
+              if (obj.status === "generated" && !obj.editMode) {
+                result = (
+                  <TooltipWrapper placement="right" target={`alertInfo_${obj._id}`} infoText={"Alert sent."}>
+                    <div id={`alertInfo_${obj._id}`} style={{ color: "darkblue" }}>
+                      <SvgIcon icon={info} size={15} />
+                      <span style={{ marginLeft: "5px" }}>{calculatedDate.format("LLLL")}</span>
+                    </div>
+                  </TooltipWrapper>
+                );
 
-                      return result;
-                  }
-
-                  if (calculatedDate.isBefore() && !obj.editMode) {
-                      // let fieldMapObject = ALERT_FIELDS.find(al => al.text === obj.field);
-                      //
-                      // if (fieldMapObject && fieldMapObject.exact && obj.event === 'before') {
-                      //
-                      // }
-
-                      result = (
-                          <TooltipWrapper
-                              placement="right"
-                              target={`alertInfo_${obj._id}`}
-                              infoText={'Expected alert time is in back date, therefore notification will not be generated. For correction, please modify alert settings for this event.'}
-                          >
-                              <div id={`alertInfo_${obj._id}`} style={{color: 'red'}}>
-                                  <SvgIcon icon={info} size={15}/>
-                                  <span style={{marginLeft: '5px'}}>{calculatedDate.format('LLLL')}</span>
-                              </div>
-                          </TooltipWrapper>
-                      );
-                  }
-                  else
-                      result = calculatedDate.format('LLLL');
+                return result;
               }
 
-              return result;
-          }
+              if (calculatedDate.isBefore() && !obj.editMode) {
+                // let fieldMapObject = ALERT_FIELDS.find(al => al.text === obj.field);
+                //
+                // if (fieldMapObject && fieldMapObject.exact && obj.event === 'before') {
+                //
+                // }
+
+                result = (
+                  <TooltipWrapper
+                    placement="right"
+                    target={`alertInfo_${obj._id}`}
+                    infoText={
+                      "Expected alert time is in back date, therefore notification will not be generated. For correction, please modify alert settings for this event."
+                    }
+                  >
+                    <div id={`alertInfo_${obj._id}`} style={{ color: "red" }}>
+                      <SvgIcon icon={info} size={15} />
+                      <span style={{ marginLeft: "5px" }}>{calculatedDate.format("LLLL")}</span>
+                    </div>
+                  </TooltipWrapper>
+                );
+              } else result = calculatedDate.format("LLLL");
+            }
+
+            return result;
+          },
         },
         {
           id: "actions",
@@ -152,7 +148,7 @@ class AlertSetupForm extends Component {
           type: "action",
           immediate: ["Edit", "Delete"],
           editMode: ["Save", "Cancel"],
-          editable: false,
+          editable: true,
           minWidth: 20,
         },
       ],
@@ -177,11 +173,11 @@ class AlertSetupForm extends Component {
       this.setAlertRulesValuesToForm(_.cloneDeep(this.props.alertRules));
     }
 
-      if (this.props.formType === 'alertSetupFormViewOnlyMode') {
-          let {alertRulesCols} = this.state;
-          alertRulesCols = alertRulesCols.filter(arc => arc.id !== 'actions');
-          this.setState({alertRulesCols});
-      }
+    if (this.props.formType === "alertSetupFormViewOnlyMode") {
+      let { alertRulesCols } = this.state;
+      alertRulesCols = alertRulesCols.filter((arc) => arc.id !== "actions");
+      this.setState({ alertRulesCols });
+    }
   }
   setAlertRulesValuesToForm(alertRules) {
     let data = [];
@@ -190,15 +186,14 @@ class AlertSetupForm extends Component {
       data = alertRules.map((al) => {
         al.destinations = this.processDestinationFromIdToName(al.destinations, this.props.users);
         al.type = Array.isArray(al.type) && al.type.length ? al.type[0] : al.type;
-        if (al.event === 'exact')
-            al.event = 'after';
+        if (al.event === "exact") al.event = "after";
 
-        if (!('_id' in al)) {
-            al._id = guid();
-            al.newItem = true;
+        if (!("_id" in al)) {
+          al._id = guid();
+          al.newItem = true;
         }
 
-        al.field = processAlertFieldMapping(al.field, 'text');
+        al.field = processAlertFieldMapping(al.field, "text");
 
         return al;
       });
@@ -208,14 +203,22 @@ class AlertSetupForm extends Component {
   }
   setFieldsInColumns(fields) {
     let alertRulesCols = _.cloneDeep(this.state.alertRulesCols);
+    let disableRule = this.props.configApplicationLookup && this.props.configApplicationLookup.find((c) => c.code === "disableRule213");
 
-    fields = fields.map(f => processAlertFieldMapping(f, 'text'));
+    let fieldsArray = [];
+    for (let f of fields) {
+      if (disableRule && disableRule.opt2 && f === "Rule 213.9(b) Issue 30day Expiry") {
+      } else {
+        let field = processAlertFieldMapping(f, "text");
+        fieldsArray.push(field);
+      }
+    }
 
     let colIndex = alertRulesCols.findIndex((c) => {
       return c.id === "field";
     });
 
-    alertRulesCols[colIndex].possibleValues = ["Select Field", ...fields];
+    alertRulesCols[colIndex].possibleValues = ["Select Field", ...fieldsArray];
 
     return this.setState({ alertRulesCols });
   }
@@ -237,7 +240,7 @@ class AlertSetupForm extends Component {
     let deleteIndex = null,
       index = 0,
       dirty = false;
-      let error = {status: false, message: ''};
+    let error = { status: false, message: "" };
     //console.log(action, ' pressed on grid', obj);
     for (let item of alertRules) {
       if (item._id === obj._id) {
@@ -247,50 +250,61 @@ class AlertSetupForm extends Component {
           this.backup.set(item._id, itm); // backup data for cancel edit
           item.editMode = true;
         } else if (action === "Save") {
-            let valid = true;
-            if (item.field.trim() === "" || item.field.trim() === "Select Field" ) {
-                valid = false;
-                error.status = true;
-                error.message = `${languageService('Alert')} ${languageService('Field')} ${languageService('is')} ${languageService('required')}`;
-            }
-            if (valid && item.time.trim() === "") {
-                valid = false;
-                error.status = true;
-                error.message = `${languageService('Time')} ${languageService('is')} ${languageService('required')}`;
-            }
-            if (valid && item.time <= 0) {
-                valid = false;
-                error.status = true;
-                error.message = `${languageService('Please provide time value greater than')} 0`;
-            }
-            if (valid && (!item.destinations || !item.destinations.length)) {
-                valid = false;
-                error.status = true;
-                error.message = languageService('Select atleast one recipient');
-            }
-            let findDuplicate = alertRules.find(al => {
-               let find = false;
+          let valid = true;
+          if (item.field.trim() === "" || item.field.trim() === "Select Field") {
+            valid = false;
+            error.status = true;
+            error.message = `${languageService("Alert")} ${languageService("Field")} ${languageService("is")} ${languageService(
+              "required",
+            )}`;
+          }
+          if (valid && item.time.trim() === "") {
+            valid = false;
+            error.status = true;
+            error.message = `${languageService("Time")} ${languageService("is")} ${languageService("required")}`;
+          }
+          if (valid && item.time <= 0) {
+            valid = false;
+            error.status = true;
+            error.message = `${languageService("Please provide time value greater than")} 0`;
+          }
+          if (valid && (!item.destinations || !item.destinations.length)) {
+            valid = false;
+            error.status = true;
+            error.message = languageService("Select atleast one recipient");
+          }
+          let findDuplicate = alertRules.find((al) => {
+            let find = false;
 
-               if (al._id !== item._id && al.field === item.field && al.type === item.type && al.event === item.event && al.time === item.time && al.unitOfTime === item.unitOfTime)
-                   find = true;
+            if (
+              al._id !== item._id &&
+              al.field === item.field &&
+              al.type === item.type &&
+              al.event === item.event &&
+              al.time === item.time &&
+              al.unitOfTime === item.unitOfTime
+            )
+              find = true;
 
-               return find;
-            });
-            if (findDuplicate) {
-                valid = false;
-                error.status = true;
-                error.message = languageService('Duplicate alert');
-            }
-            let fieldMapObject = ALERT_FIELDS.find(al => al.text === item.field);
-            if (fieldMapObject && fieldMapObject.exact && item.event === 'before') {
-                valid = false;
-                error.status = true;
-                error.message = `${languageService('Alert event')} "${languageService('before')}" ${languageService('cannot be selected')} ${languageService('for')} "${languageService('Inspection Date')}".`;
-            }
-            if (valid) {
-                item.editMode = false;
-                dirty = true;
-            }
+            return find;
+          });
+          if (findDuplicate) {
+            valid = false;
+            error.status = true;
+            error.message = languageService("Duplicate alert");
+          }
+          let fieldMapObject = ALERT_FIELDS.find((al) => al.text === item.field);
+          if (fieldMapObject && fieldMapObject.exact && item.event === "before") {
+            valid = false;
+            error.status = true;
+            error.message = `${languageService("Alert event")} "${languageService("before")}" ${languageService(
+              "cannot be selected",
+            )} ${languageService("for")} "${languageService("Inspection Date")}".`;
+          }
+          if (valid) {
+            item.editMode = false;
+            dirty = true;
+          }
         } else if (action === "Cancel") {
           if (this.backup.has(item._id)) {
             let itembk = this.backup.get(item._id);
@@ -314,7 +328,7 @@ class AlertSetupForm extends Component {
           // this.props.deleteApplicationlookups(item);
           alertRules.splice(deleteIndex, 1);
         } else if (dirty) {
-            item.dirty = true;
+          item.dirty = true;
         }
 
         this.setState({ alertRules: alertRules, error });
@@ -347,26 +361,26 @@ class AlertSetupForm extends Component {
   }
   addEntry() {
     let alertRules = _.cloneDeep(this.state.alertRules);
-      let error = {status: false, message: ''};
-      let findEditMode = alertRules.find(al => al.editMode);
-      if (findEditMode) {
-          error.status = true;
-          error.message = languageService('Please first save/cancel unsaved rules');
-          this.setState({ error });
-      } else {
-          alertRules.push({
-              _id: guid(),
-              field: "",
-              type: "web",
-              event: "before",
-              unitOfTime: "minutes",
-              destinations: [],
-              time: "",
-              editMode: true,
-              newItem: true,
-          });
-          this.setState({ alertRules });
-      }
+    let error = { status: false, message: "" };
+    let findEditMode = alertRules.find((al) => al.editMode);
+    if (findEditMode) {
+      error.status = true;
+      error.message = languageService("Please first save/cancel unsaved rules");
+      this.setState({ error });
+    } else {
+      alertRules.push({
+        _id: guid(),
+        field: "",
+        type: "web",
+        event: "before",
+        unitOfTime: "minutes",
+        destinations: [],
+        time: "",
+        editMode: true,
+        newItem: true,
+      });
+      this.setState({ alertRules });
+    }
 
     // let lastPage = Math.ceil(alertRules.length / this.state.pageSize);
 
@@ -390,80 +404,77 @@ class AlertSetupForm extends Component {
     }, []);
   };
   submitAlertForm() {
-        let type = "cancel";
-        let data = [];
-        let alertRules = _.cloneDeep(this.state.alertRules);
-        let error = {status: false, message: ''};
+    let type = "cancel";
+    let data = [];
+    let alertRules = _.cloneDeep(this.state.alertRules);
+    let error = { status: false, message: "" };
 
-        let findEditMode = alertRules.find(al => al.editMode);
-        if (findEditMode) {
-            error.status = true;
-            error.message = languageService('Please first save/cancel unsaved rules');
-            this.setState({error});
-        } else {
-            type = "add";
-            data = alertRules.reduce((arr, al) => {
-                if (al) {
-                    if (al.dirty) {
-                        delete al.dirty;   // delete before it goes to server
-                    }
+    let findEditMode = alertRules.find((al) => al.editMode);
+    if (findEditMode) {
+      error.status = true;
+      error.message = languageService("Please first save/cancel unsaved rules");
+      this.setState({ error });
+    } else {
+      type = "add";
+      data = alertRules.reduce((arr, al) => {
+        if (al) {
+          if (al.dirty) {
+            delete al.dirty; // delete before it goes to server
+          }
 
-                    if (al.newItem) {
-                        delete al.newItem; // delete before it goes to server
-                        delete al._id;
-                    }
+          if (al.newItem) {
+            delete al.newItem; // delete before it goes to server
+            delete al._id;
+          }
 
-                    let fieldMapObject = ALERT_FIELDS.find(alert => alert.text === al.field);
+          let fieldMapObject = ALERT_FIELDS.find((alert) => alert.text === al.field);
 
-                    if (fieldMapObject.isTemplate) {
-                        al.isTemplate = !!fieldMapObject.isTemplate;
-                        al.disableRecalculate = !!fieldMapObject.disableRecalculate;
-                        al.title = fieldMapObject.title;
-                        al.message = fieldMapObject.message;
-                    }
-                    
-                    al.destinations = this.processDestinationFields(al.destinations, this.props.users);
+          if (fieldMapObject.isTemplate) {
+            al.isTemplate = !!fieldMapObject.isTemplate;
+            al.disableRecalculate = !!fieldMapObject.disableRecalculate;
+            al.title = fieldMapObject.title;
+            al.message = fieldMapObject.message;
+          }
 
-                    al.reference = {
-                        fieldDisplayText: al.field,
-                        field: processAlertFieldMapping(al.field)
-                    };
+          al.destinations = this.processDestinationFields(al.destinations, this.props.users);
 
-                    if (al.reference.field === 'lastInspection')
-                        al.event = 'exact';
+          al.reference = {
+            fieldDisplayText: al.field,
+            field: processAlertFieldMapping(al.field),
+          };
 
+          if (al.reference.field === "lastInspection") al.event = "exact";
 
-
-                    arr.push(al);
-                }
-                return arr;
-            }, []);
-
-            this.props.handleAction({ type, data });
+          arr.push(al);
         }
+        return arr;
+      }, []);
+
+      this.props.handleAction({ type, data });
     }
+  }
   render() {
     const { alertRules } = this.state;
 
     return (
       <React.Fragment>
         <Row>
-            {this.props.formType === 'alertSetupForm' && (
-                <Col md={12}>
-                    <div style={{ float: "right", marginRight: "21px", textAlign: 'center' }}>
-                        <div>{`${languageService("Add")} ${languageService("Alert")}`}</div>
-                        <ButtonMain
-                            handleClick={this.addEntry}
-                            icon={withPlus}
-                            width="40px"
-                            iconSize={18}
-                            backgroundColor={themeService(userStyles.addButtonIconStyle.backgroundColor)}
-                            hoverBackgroundColor={themeService(userStyles.addButtonIconStyle.hoverBackground)}
-                            hoverBorder={themeService(userStyles.addButtonIconStyle.hoverBorder)}
-                        />
-                    </div>
-                </Col>
-            )}
+          {this.props.formType === "alertSetupForm" && (
+            <Col md={12}>
+              <div style={{ float: "right", marginRight: "21px", textAlign: "center" }}>
+                <div>{`${languageService("Add")} ${languageService("Alert")}`}</div>
+                <ButtonMain
+                  handleClick={this.addEntry}
+                  icon={withPlus}
+                  width="40px"
+                  iconSize={18}
+                  backgroundColor={themeService(userStyles.addButtonIconStyle.backgroundColor)}
+                  hoverBackgroundColor={themeService(userStyles.addButtonIconStyle.hoverBackground)}
+                  hoverBorder={themeService(userStyles.addButtonIconStyle.hoverBorder)}
+                />
+              </div>
+            </Col>
+          )}
 
           <Col md="12">
             <EditableTable
@@ -481,47 +492,49 @@ class AlertSetupForm extends Component {
 
         <Row>
           <Col md={12}>
-              {this.state.error.status && (
-                  <div style={{
-                      marginLeft: '16px',
-                      color: 'red'
-                  }} className={'error-info'}>
-                      {this.state.error.message}
-                  </div>
-              )}
+            {this.state.error.status && (
+              <div
+                style={{
+                  marginLeft: "16px",
+                  color: "red",
+                }}
+                className={"error-info"}
+              >
+                {this.state.error.message}
+              </div>
+            )}
 
-              {this.props.formType === 'alertSetupFormViewOnlyMode' ? (
-                  <div style={{ float: "right", marginRight: "21px", marginBottom: "-60px" }}>
-                      <button
-                          className="setPasswordButton"
-                          onClick={this.props.handleClose}
-                          type="button"
-                          style={themeService(ButtonStyle.commonButton)}
-                      >
-                          {languageService("Close")}
-                      </button>
-                  </div>
-              ) : (
-                  <div style={{ float: "right", marginRight: "21px", marginBottom: "-60px" }}>
-                      <button
-                          className="setPasswordButton"
-                          onClick={this.submitAlertForm}
-                          type="button"
-                          style={themeService(ButtonStyle.commonButton)}
-                      >
-                          {`${languageService("Save")} ${languageService("Alert")}`}
-                      </button>
-                      <button
-                          className="setPasswordButton"
-                          onClick={() => this.props.handleAction({ type: "cancel" })}
-                          type="button"
-                          style={themeService(ButtonStyle.commonButton)}
-                      >
-                          {languageService("Cancel")}
-                      </button>
-                  </div>
-              )}
-
+            {this.props.formType === "alertSetupFormViewOnlyMode" ? (
+              <div style={{ float: "right", marginRight: "21px" }}>
+                <button
+                  className="setPasswordButton"
+                  onClick={this.props.handleClose}
+                  type="button"
+                  style={themeService(ButtonStyle.commonButton)}
+                >
+                  {languageService("Close")}
+                </button>
+              </div>
+            ) : (
+              <div style={{ float: "right", marginRight: "21px" }}>
+                <button
+                  className="setPasswordButton"
+                  onClick={this.submitAlertForm}
+                  type="button"
+                  style={themeService(ButtonStyle.commonButton)}
+                >
+                  {`${languageService("Save")} ${languageService("Alert")}`}
+                </button>
+                <button
+                  className="setPasswordButton"
+                  onClick={() => this.props.handleAction({ type: "cancel" })}
+                  type="button"
+                  style={themeService(ButtonStyle.commonButton)}
+                >
+                  {languageService("Cancel")}
+                </button>
+              </div>
+            )}
           </Col>
         </Row>
       </React.Fragment>

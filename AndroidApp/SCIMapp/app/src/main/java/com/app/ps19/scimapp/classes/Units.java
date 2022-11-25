@@ -1,14 +1,16 @@
 package com.app.ps19.scimapp.classes;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.text.BoringLayout;
 import android.util.Log;
 
 import com.app.ps19.scimapp.Shared.DBHandler;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.IConvertHelper;
 import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.classes.ativ.ATIVDefect;
 import com.app.ps19.scimapp.classes.dynforms.DynForm;
-import com.app.ps19.scimapp.classes.dynforms.DynFormControl;
 import com.app.ps19.scimapp.classes.dynforms.DynFormList;
 import com.app.ps19.scimapp.classes.dynforms.defaultvalues.DynFormListDv;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,10 +20,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
+import static android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE;
 import static com.app.ps19.scimapp.Shared.Utilities.convertJsonArrayToHashMap;
 
 public class Units implements IConvertHelper {
@@ -47,6 +53,160 @@ public class Units implements IConvertHelper {
     private String startMarker;
     private String endMarker;
     private DynFormListDv defaultFormValues;
+    private ArrayList<UnitsTestOpt> testList = new ArrayList<>();
+    private ArrayList<UnitsDefectsOpt> defectsList;
+    private HashMap<String, DynForm> appFormListMap;
+    private boolean loadMinimum=false;
+    private boolean freeze=false;
+    private UnitsGroup unitsGroup;
+    private boolean visible=true;
+    private ArrayList<ATIVDefect> ativDefects;
+    private ArrayList<ATIVDefect> ativIssues;
+
+    public ArrayList<ATIVDefect> getAtivIssues() {
+        return ativIssues;
+    }
+
+    public void setAtivIssues(ArrayList<ATIVDefect> ativIssues) {
+        this.ativIssues = ativIssues;
+    }
+
+    public ArrayList<ATIVDefect> getAtivDefects() {
+        return ativDefects;
+    }
+
+    public void setAtivDefects(ArrayList<ATIVDefect> ativDefects) {
+        this.ativDefects = ativDefects;
+    }
+
+    public ArrayList<UnitsDefectsOpt> getDefectsList() {
+        return defectsList;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public String getAssetTypeDisplayName(){
+        String displayName =assetType;
+        if(assetTypeObj!=null){
+            displayName=assetTypeObj.getDisplayName().equals("")?assetType:assetTypeObj.getDisplayName();
+        }
+        return displayName;
+    }
+    public void setDefectsList(ArrayList<UnitsDefectsOpt> defectsList) {
+        this.defectsList = defectsList;
+    }
+
+    public Boolean hasDefectsList(){
+        return defectsList != null;
+    }
+
+    public ArrayList<UnitsTestOpt> getTestFormList() {
+        return testList;
+    }
+
+    public boolean isGroupMember(){
+        if(this.attributes !=null && !this.attributes.getGroup().equals("")){
+            return  true;
+        }
+        return false;
+    }
+
+    public void setUnitsGroup(UnitsGroup unitsGroup) {
+        this.unitsGroup = unitsGroup;
+    }
+
+    public UnitsGroup getUnitsGroup() {
+        return unitsGroup;
+    }
+
+    private JSONArray getUnitsDefectsJsonArray(){
+        JSONArray ja = new JSONArray();
+        for(int i = 0 ; i< defectsList.size(); i++){
+            try {
+                ja.put(i, defectsList.get(i).getJsonObject());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return ja;
+    }
+
+
+    public int getUnitColor(){
+        int retColor = Globals.COLOR_TEST_NOT_ACTIVE;
+
+        for(int i = 0 ; i< testList.size(); i++){
+            if(testList.get(i).getColor() == Globals.COLOR_TEST_EXPIRING) {
+                retColor = Globals.COLOR_TEST_EXPIRING;
+                break;
+            }else if(testList.get(i).getColor() != Globals.COLOR_TEST_NOT_ACTIVE){
+                retColor = testList.get(i).getColor();
+            }
+        }
+        return retColor;
+    }
+
+    private JSONArray getUnitsTestsJsonArray(){
+        JSONArray ja = new JSONArray();
+        for(int i = 0 ; i< testList.size(); i++){
+            try {
+                ja.put(i, testList.get(i).getJsonObject());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return ja;
+    }
+
+
+    private int unitColor = Color.parseColor("darkgray");
+    private int sortOrder=0;
+    private boolean linear=false;
+
+    public void setLinear(boolean linear) {
+        this.linear = linear;
+    }
+
+    public boolean isLinear() {
+        return linear;
+    }
+
+    public int getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(int sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
+    }
+
+    public void setUnitColor(int color) {
+
+        if(color == Globals.COLOR_TEST_EXPIRING){
+            this.unitColor = color;
+        }else if(color == Globals.COLOR_TEST_NOT_ACTIVE){
+            if(this.unitColor ==  Globals.COLOR_TEST_NOT_ACTIVE) {
+                this.unitColor = color;
+            }
+        }
+    }
+
+    public int getColor() {
+        return this.unitColor;
+    }
+
+    public Context getContext() {
+        return context;
+    }
 
     public void setDefaultFormValues(DynFormListDv defaultFormValues) {
         this.defaultFormValues = defaultFormValues;
@@ -181,6 +341,18 @@ public class Units implements IConvertHelper {
     public Units(){
         hmBackupValues=new HashMap<>();
     }
+    public Units(JSONObject jo,boolean loadMinimum) {
+        this.loadMinimum=loadMinimum;
+        this.trackId = jo.optString("track_id", "");
+        this.unitId = jo.optString("id", "");
+        this.description = jo.optString("unitId", "");
+        this.assetType = jo.optString("assetType","");
+        this.start = jo.optString("start", "-1");
+        this.end = jo.optString("end", "-1");
+        parseJsonObject(jo);
+        loadFormTemplate();
+    }
+
     public Units(JSONObject jo) {
         this.trackId = jo.optString("track_id", "");
         this.unitId = jo.optString("id", "");
@@ -301,67 +473,68 @@ public class Units implements IConvertHelper {
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
 
-        try{
-            hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
-            if(jsonObject.has("form-sel")){
-                hmBackupValues.put("form-sel",jsonObject.getJSONObject("form-sel"));
+        try {
+            hmBackupValues = Utilities.getHashMapJSONObject(jsonObject);
+            if (jsonObject.has("form-sel")) {
+                hmBackupValues.put("form-sel", jsonObject.getJSONObject("form-sel"));
             }
 
-            if(jsonObject.has("adjCoordinates")){
-                hmBackupValues.put("adjCoordinates",jsonObject.getJSONObject("adjCoordinates"));
+            if (jsonObject.has("adjCoordinates")) {
+                hmBackupValues.put("adjCoordinates", jsonObject.getJSONObject("adjCoordinates"));
             }
 
             //setTrackId(jsonObject.getString("track_id"));
-            setTrackId(jsonObject.optString("track_id",""));
+            setTrackId(jsonObject.optString("track_id", ""));
             //TODO: no value for id from loadInbox Globals file
             setUnitId(jsonObject.optString("id", ""));
             setDescription(jsonObject.optString("unitId", ""));
             setAssetType(jsonObject.getString("assetType"));
+            setFreeze(jsonObject.optBoolean("freeze",false));
             UnitAttributes attributes = new UnitAttributes();
-
-            if(jsonObject.has("attributes")){
+            attributes.setParent(this);
+            if (jsonObject.has("attributes")) {
                 attributes.parseJsonObject(jsonObject.getJSONObject("attributes"));
             }
             setAttributes(attributes);
-            if(jsonObject.optString("start","").equals("")){
+            if (jsonObject.optString("start", "").equals("")) {
                 setStart("-1");
             } else {
-                setStart(jsonObject.optString("start","-1"));
+                setStart(jsonObject.optString("start", "-1"));
             }
-            if(jsonObject.optString("end","").equals("")){
+            if (jsonObject.optString("end", "").equals("")) {
                 setEnd("-1");
             } else {
-                setEnd(jsonObject.optString("end","-1"));
+                setEnd(jsonObject.optString("end", "-1"));
             }
-            setParentId(jsonObject.optString("parent_id",""));
+            setParentId(jsonObject.optString("parent_id", ""));
             setStartMarker(jsonObject.optString("startMarker", ""));
             setEndMarker(jsonObject.optString("endMarker", ""));
-            JSONObject joForm=jsonObject.optJSONObject("form-sel");
+            JSONObject joForm = jsonObject.optJSONObject("form-sel");
             JSONArray jaCoordinates = jsonObject.optJSONArray("coordinates");
             ArrayList<LatLong> _coordinates = new ArrayList<>();
-            if(jaCoordinates !=null){
-                for(int i=0;i< jaCoordinates.length();i++){
-                    JSONArray  jaCord=jaCoordinates.optJSONArray(i);
-                    if(jaCord !=null) {
-                        if(!jaCord.getString(0).equals("") && !jaCord.getString(1).equals("")){
-                            _coordinates.add(new LatLong(jaCord.getString(0),jaCord.getString(1)));
+            if (jaCoordinates != null) {
+                for (int i = 0; i < jaCoordinates.length(); i++) {
+                    JSONArray jaCord = jaCoordinates.optJSONArray(i);
+                    if (jaCord != null) {
+                        if (!jaCord.getString(0).equals("") && !jaCord.getString(1).equals("")) {
+                            _coordinates.add(new LatLong(jaCord.getString(0), jaCord.getString(1)));
                         }
                     }
                 }
             }
-            this.coordinates=_coordinates;
+            this.coordinates = _coordinates;
 
-            Geometry _adjCoordinates=null ;
+            Geometry _adjCoordinates = null;
             JSONObject joAdjCoordinates = jsonObject.optJSONObject("adjCoordinates");
-            if(joAdjCoordinates !=null){
-                _adjCoordinates=new Geometry(joAdjCoordinates,"Point");
+            if (joAdjCoordinates != null) {
+                _adjCoordinates = new Geometry(joAdjCoordinates, "Point");
             }
-            this.coordinatesAdj=_adjCoordinates;
-            HashMap <String, String> _selection=new HashMap<>();
-            if(joForm !=null){
-                Iterator<String> keys= joForm.keys();
-                while(keys.hasNext()) {
-                    String key= keys.next();
+            this.coordinatesAdj = _adjCoordinates;
+            HashMap<String, String> _selection = new HashMap<>();
+            if (joForm != null) {
+                Iterator<String> keys = joForm.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
                     if (joForm.getString(key).equals("")) {
                     } else {
                         _selection.put(key, joForm.getString(key));
@@ -369,39 +542,152 @@ public class Units implements IConvertHelper {
                 }
             }
             setSelection(_selection);
-
-            JSONArray jaForms=jsonObject.optJSONArray("appForms");
-            this.appForms= DynFormList.getFormList(assetType);
-            if(jaForms !=null){
-                HashMap<String, DynForm> formListMap=new HashMap<>();
-                for(DynForm form:this.appForms){
-                    formListMap.put(form.getFormId(),form);
-                }
-                for(int i=0;i<jaForms.length();i++){
-                    try {
-                        JSONObject jo=jaForms.getJSONObject(i);
-                        String formId=jo.getString("id");
-                        JSONArray jaFormData=jo.optJSONArray("form");
-                        DynForm form =formListMap.get(formId);
-                        if(form !=null){
-                            form.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
+            if(!this.loadMinimum) {
+                JSONArray jaForms = jsonObject.optJSONArray("appForms");
+                this.appForms = DynFormList.getFormList(assetType);
+                if (this.appForms != null) {
+                    HashMap<String, DynForm> formListMap = new HashMap<>();
+                    for (DynForm form : this.appForms) {
+                        formListMap.put(form.getFormId(), form);
+                    }
+                    this.appFormListMap = formListMap;
+                    if(jaForms!=null) {
+                        for (int i = 0; i < jaForms.length(); i++) {
+                            try {
+                                JSONObject jo = jaForms.getJSONObject(i);
+                                if (jo.length() > 0) {
+                                    String formId = jo.getString("id");
+                                    JSONArray jaFormData = jo.optJSONArray("form");
+                                    DynForm form = formListMap.get(formId);
+                                    if (form != null) {
+                                        form.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
                     }
                 }
             }
 
-            JSONArray jaFormsDv=jsonObject.optJSONArray("defaultAppForms");
-            this.defaultFormValues=null;
-            if(jaFormsDv !=null){
-                this.defaultFormValues=new DynFormListDv(jaFormsDv);
+            //Parsing Tests here
+            JSONArray jaTests=jsonObject.optJSONArray("testForm");
+            if(jaTests!=null){
+
+                ArrayList<UnitsTestOpt> _testList=new ArrayList<>();
+                int clr=Globals.COLOR_TEST_NOT_ACTIVE;
+                int _sortOrder=100;
+                for(int i=0;i<jaTests.length();i++){
+                    UnitsTestOpt test=new UnitsTestOpt(jaTests.optJSONObject(i));
+                    test.setInspected(getInspectionStatus(test.getTestCode()));
+                    int testColor = test.getColor();
+                    if (testColor == Globals.COLOR_TEST_ACTIVE ||testColor == Globals.COLOR_TEST_EXPIRING) {
+                        _sortOrder=Math.min(_sortOrder,test.getSortOrder());
+                        clr = testColor;
+                    }
+                    if(DynFormList.isFormExists(assetType,test.getTestCode())){
+                        _testList.add(test);
+                    }
+                }
+
+                if(clr==Globals.COLOR_TEST_NOT_ACTIVE){
+                    setSortOrder(1000);
+                }else{
+                    setSortOrder(_sortOrder);
+                }
+                Collections.sort(_testList, new Comparator<UnitsTestOpt>() {
+                    @Override
+                    public int compare(UnitsTestOpt o1, UnitsTestOpt o2) {
+                        return o1.getSortOrder()- o2.getSortOrder();
+                    }
+                });
+                this.testList=_testList;
+            }
+            /*
+            //Parsing Defects here
+            JSONArray jaDefects = jsonObject.optJSONArray("issueDefects");
+
+            if (jaDefects != null) {
+                ArrayList<UnitsDefectsOpt> _defectsList = new ArrayList<>();
+
+                for (int i = 0; i < jaDefects.length(); i++) {
+                    UnitsDefectsOpt defect = new UnitsDefectsOpt(jaDefects.optJSONObject(i));
+                    _defectsList.add(defect);
+                }
+
+                this.defectsList = _defectsList;
+            }
+
+*/
+            /*get issue defects from template*/
+            /*
+            if(Globals.selectedJPlan !=null && Globals.selectedJPlan.getJpTemplate()!=null){
+                JourneyPlanOpt jpTemplate=Globals.selectedJPlan.getJpTemplate();
+                UnitsOpt unitsOpt=jpTemplate.getUnitOptById(unitId);
+                ArrayList<UnitsDefectsOpt> _defectList=new ArrayList<>();
+                if(unitsOpt!=null){
+                    if(unitsOpt.getDefectsList()!=null){
+                        _defectList.addAll(unitsOpt.getDefectsList());
+                        this.defectsList=_defectList;
+                    }
+                }
+            }*/
+            //parsing ATIV defects
+            JSONArray jaAtivDef = jsonObject.optJSONArray("ativ_defects");
+            if(jaAtivDef!=null){
+                ArrayList<ATIVDefect> _ativDefs=new ArrayList<>();
+                for(int i=0;i<jaAtivDef.length();i++){
+                    ATIVDefect _defect = new ATIVDefect(jaAtivDef.optJSONObject(i));
+                    _ativDefs.add(_defect);
+                }
+                setAtivDefects(_ativDefs);
+            }
+
+            JSONArray jaFormsDv = jsonObject.optJSONArray("defaultAppForms");
+            this.defaultFormValues = null;
+            if (jaFormsDv != null) {
+                this.defaultFormValues = new DynFormListDv(jaFormsDv);
+            }
+
+            if (getAssetTypeClassify().equals("linear")) {
+                setLinear(true);
+            } else {
+                setLinear(false);
             }
             return true;
         }catch (Exception e){
             e.printStackTrace();
             return  false;
         }
+    }
+
+    private boolean getInspectionStatus(String testCode) {
+        if(appFormListMap!=null){
+            DynForm form= this.appFormListMap.get(testCode);
+            if(form !=null){
+                HashMap<String, String> formValues=form.getCurrentValues();
+                if(formValues!=null){
+                    String formCompleteId=form.getFormCompleteId();
+                    if(!formCompleteId.equals("")){
+                        String value=formValues.get(formCompleteId);
+                        if(value!=null){
+                            if(value.equals("true")){
+                                return true;
+                            }else{
+                                return false;
+                            }
+
+                        }
+                    }
+                    String value=formValues.get("Inspected");
+                    if(value!=null && value.equals("true")){
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     @Override
@@ -426,6 +712,19 @@ public class Units implements IConvertHelper {
             jo.put("attributes", getAttributes().getJsonObject());
             jo.put("startMarker", getStartMarker());
             jo.put("endMarker", getEndMarker());
+            jo.put("testForm", getUnitsTestsJsonArray());
+            jo.put("freeze",isFreeze());
+            //jo.put("issueDefects", getUnitsDefectsJsonArray());
+            if(getAtivIssues()!=null){
+                JSONArray jaAIssues = new JSONArray();
+                for(ATIVDefect aDefect: getAtivIssues()){
+                    JSONObject joDefect = aDefect.getJsonObject();
+                    if(joDefect!=null){
+                        jaAIssues.put(joDefect);
+                    }
+                }
+                jo.put("ativ_defects",jaAIssues);
+            }
             if(this.appForms !=null){
                 JSONArray jaForms =new JSONArray();
                 for(DynForm form : this.appForms){
@@ -463,6 +762,7 @@ public class Units implements IConvertHelper {
             putJSONProperty(jo,"assetType",getAssetType());
             putJSONProperty(jo, "startMarker", getStartMarker());
             putJSONProperty(jo, "endMarker", getEndMarker());
+            putJSONProperty(jo,"freeze",isFreeze());
 
             JSONObject joFormSel=convertSelectionHM();
             if(joFormSel !=null && joFormSel.length()>0) {
@@ -476,6 +776,14 @@ public class Units implements IConvertHelper {
             if(joUnitAttr !=null && joUnitAttr.length()>0) {
                 jo.put( "attributes", joUnitAttr);
             }
+            /*
+            JSONArray jaDefects = getUnitsDefectsJsonArray();
+            if(jaDefects !=null && jaDefects.length()>0) {
+                jo.put( "issueDefects", jaDefects);
+            }*/
+            //jo.put("testForm", getUnitsTestsJsonArray());
+            //jo.put("issueDefects", getUnitsDefectsJsonArray());
+
             if(this.appForms !=null && this.appForms.size()>0){
                 JSONArray jaForms =new JSONArray();
                 //int prevSize=-1;
@@ -564,6 +872,7 @@ public class Units implements IConvertHelper {
         unit.setDescription(getDescription());
         unit.setStart( getStart());
         unit.setEnd(getEnd());
+        unit.setFreeze(isFreeze());
         unit.setAssetType(getAssetType());
         unit.setCoordinates(getCoordinates());
         unit.setParentId(getParentId());
@@ -584,5 +893,30 @@ public class Units implements IConvertHelper {
 
     public void setStartMarker(String startMarker) {
         this.startMarker = startMarker;
+    }
+    public DynForm getUnitForm(String formId){
+        DynForm form=null;
+        if(appFormListMap!=null) {
+            form = appFormListMap.get(formId);
+        }
+        return form;
+    }
+    public UnitsTestOpt getUnitTestOpt(String formId){
+        UnitsTestOpt unitsTestOpt=null;
+        List<UnitsTestOpt> unitTestList=getTestFormList();
+        for(UnitsTestOpt unitTest:unitTestList){
+            if(unitTest.getTestCode().equals(formId)){
+                return unitTest;
+            }
+        }
+        return unitsTestOpt;
+    }
+
+    public void setFreeze(boolean freeze) {
+        this.freeze = freeze;
+    }
+
+    public boolean isFreeze() {
+        return freeze;
     }
 }

@@ -1,10 +1,6 @@
 /* eslint eqeqeq: 0 */
 import React, { Component } from "react";
-import {
-  Row,
-  Col,
-  DropdownItem,
-} from "reactstrap";
+import { Row, Col, DropdownItem } from "reactstrap";
 import Radium from "radium";
 import propTypes from "prop-types";
 import ThisTable from "components/Common/ThisTable/index";
@@ -50,7 +46,7 @@ class GisFilters extends Component {
   }
 
   toggle() {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       dropdownOpen: !prevState.dropdownOpen,
     }));
   }
@@ -78,7 +74,7 @@ class GisFilters extends Component {
     //         this.handlePageSizeChange(option);
     //       }}
     //       key={option}
-    //       style={{ color: "rgba(64, 118, 179)", padding: ".25rem 0.75rem", border: "1px solid #ededed", borderRadius: "3px" }}
+    //       style={{ color: "var(--first)", padding: ".25rem 0.75rem", border: "1px solid #ededed", borderRadius: "3px" }}
     //     >
     //       {option}
     //     </DropdownItem>
@@ -100,8 +96,8 @@ class GisFilters extends Component {
                 <DropdownToggle
                   style={{
                     background: "#e3e9ef",
-                    color: "rgba(64, 118, 179)",
-                    borderColor: "rgba(64, 118, 179)",
+                    color: "var(--first)",
+                    borderColor: "var(--first)",
                     padding: "0.15rem 0.5rem",
                     fontSize: "12px",
                     height: "25px",
@@ -160,7 +156,7 @@ class GisFilters extends Component {
                   pagination={true}
                   onClickSelect={this.props.onClickSelect}
                   handleSelectedClick={this.props.handleSelectedClick}
-                  handlePageChange={page => {
+                  handlePageChange={(page) => {
                     if (this.props.handlePageSave) {
                       this.props.handlePageSave(page, this.state.pageSize);
                     }
@@ -184,18 +180,18 @@ let getStyles = (props, state) => {
   let borders = {
     allToday: {
       borderAllTop: "1px solid #e3e9ef",
-      borderHoverTopAll: "1px solid rgba(64, 118, 179)",
-      borderHoverTopToday: "1px solid rgba(64, 118, 179)",
+      borderHoverTopAll: "1px solid var(--first)",
+      borderHoverTopToday: "1px solid var(--first)",
       borderTodayTop: "1px solid #e3e9ef",
     },
   };
   if (state.allFilter) {
-    borders.allToday.borderAllTop = "3px solid rgba(64, 118, 179)";
-    borders.allToday.borderHoverTopAll = "3px solid rgba(64, 118, 179)";
+    borders.allToday.borderAllTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopAll = "3px solid var(--first)";
   }
   if (state.todayFilter) {
-    borders.allToday.borderTodayTop = "3px solid rgba(64, 118, 179)";
-    borders.allToday.borderHoverTopToday = "3px solid rgba(64, 118, 179)";
+    borders.allToday.borderTodayTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopToday = "3px solid var(--first)";
   }
 
   let commonStyle = {
@@ -203,7 +199,7 @@ let getStyles = (props, state) => {
     padding: "5px",
     margin: "0px 5px",
     fontSize: "12px",
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     cursor: "pointer",
 
     borderBottom: "1px solid #e3e9ef",
@@ -212,10 +208,10 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: "rgba(64, 118, 179)",
-    borderBottom: "1px solid rgba(64, 118, 179)",
-    borderLeft: "1px solid rgba(64, 118, 179)",
-    borderRight: "1px solid rgba(64, 118, 179)",
+    color: "var(--first)",
+    borderBottom: "1px solid var(--first)",
+    borderLeft: "1px solid var(--first)",
+    borderRight: "1px solid var(--first)",
   };
 
   // BORDERS
@@ -239,7 +235,7 @@ let getStyles = (props, state) => {
     },
     divider: {
       display: "inline-block",
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
     },
     pageSizeSelectorContainer: {
       display: "inline-block",

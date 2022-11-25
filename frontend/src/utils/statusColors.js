@@ -1,6 +1,6 @@
 import { colors } from "./colors";
 export function getStatusColor(status) {
-  let color = "#fff";
+  let color = "var(--fifth)";
   let activeTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : "default";
   if (activeTheme == "default") {
     color = getDefaultStatusColors(status, activeTheme);
@@ -8,12 +8,15 @@ export function getStatusColor(status) {
   if (activeTheme == "retro") {
     color = getRetroStatusColors(status, activeTheme);
   }
+  if (activeTheme == "electric") {
+    color = getRetroStatusColors(status, activeTheme);
+  }
 
   return color;
 }
 
 function getDefaultStatusColors(status, activeTheme) {
-  let color = "#fff";
+  let color = "var(--fifth)";
 
   switch (status) {
     case "Total Issues":
@@ -71,7 +74,7 @@ function getDefaultStatusColors(status, activeTheme) {
 }
 
 function getRetroStatusColors(status, activeTheme) {
-  let color = "#fff";
+  let color = "var(--fifth)";
   switch (status) {
     case "Total":
       color = colors[activeTheme].total;

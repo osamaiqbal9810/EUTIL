@@ -1,15 +1,19 @@
 package com.app.ps19.scimapp;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
+
+import com.app.ps19.scimapp.location.LocationUpdatesService;
+import com.app.ps19.scimapp.Shared.Utilities;
 import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
+
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +31,7 @@ import java.util.Date;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_NOT_STARTED_STATUS;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 
 public class TaskActivity extends AppCompatActivity {
     private static final int REQUEST_CODE_PERMISSION = 2;
@@ -67,9 +72,10 @@ public class TaskActivity extends AppCompatActivity {
     //TextView timeTxt;
 
     // GPSTracker class
-    GPSTracker gps;
+    //GPSTracker gps;
 
     //TODO: Display TASK start and end date and time
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,16 +100,16 @@ public class TaskActivity extends AppCompatActivity {
         Date date = new Date();
 
         timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(date));
-        titleTxt.setText(Globals.selectedTask.getTitle());
-        descTxt.setText(Globals.selectedTask.getDescription());
-        notesTxt.setText(Globals.selectedTask.getNotes());
+        titleTxt.setText(getSelectedTask().getTitle());
+        descTxt.setText(getSelectedTask().getDescription());
+        notesTxt.setText(getSelectedTask().getNotes());
         taskStartBtn = (Button) findViewById(R.id.taskStartBtn);
-        Globals.setUserInfoView(TaskActivity.this,userImage, userNameView);
+        //Globals.setUserInfoView(TaskActivity.this,userImage, userNameView);
 
-        if(!isGpsPermissionAvailable()){
-            requestPermission(this,mPermission,REQUEST_CODE_PERMISSION);
-        }
-        setTaskView(Globals.selectedTask.getStatus());
+//        if(!isGpsPermissionAvailable()){
+//            requestPermission(this,mPermission,REQUEST_CODE_PERMISSION);
+//        }
+        setTaskView(getSelectedTask().getStatus());
 
         taskViewBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +121,7 @@ public class TaskActivity extends AppCompatActivity {
         });
 
         taskStartBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(final View v) {
                 //Date now = new Date();
@@ -126,7 +133,7 @@ public class TaskActivity extends AppCompatActivity {
                         Globals.isTaskStarted = true;
                     }
                 }
-                if ((Globals.selectedTask.getStatus().equals(TASK_NOT_STARTED_STATUS) || Globals.selectedTask.getStatus().equals("")) && !Globals.isTaskStarted) {
+                if ((getSelectedTask().getStatus().equals(TASK_NOT_STARTED_STATUS) || getSelectedTask().getStatus().equals("")) && !Globals.isTaskStarted) {
                     if (getCurrentLocation().size() != 0) {
 
                         new AlertDialog.Builder(TaskActivity.this)
@@ -138,13 +145,13 @@ public class TaskActivity extends AppCompatActivity {
 
                                         Date now = new Date();
                                         //SimpleDateFormat _format = new SimpleDateFormat("hh:mm:ss aa");
-                                        Globals.selectedTask.setStatus(TASK_IN_PROGRESS_STATUS);
-                                        Globals.selectedTask.setStartTime(now.toString());
+                                        getSelectedTask().setStatus(TASK_IN_PROGRESS_STATUS);
+                                        getSelectedTask().setStartTime(now.toString());
                                         taskViewBtn.setVisibility(View.VISIBLE);
                                         Globals.isTaskStarted = true;
-                                        Globals.selectedTask.setStartLocation(getCurrentLocation().get(0) + "," + getCurrentLocation().get(1));
+                                        getSelectedTask().setStartLocation(getCurrentLocation().get(0) + "," + getCurrentLocation().get(1));
                                         startThread();
-                                        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(Globals.selectedTask.getStartTime()))); //TODO:Must test this format change
+                                        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(getSelectedTask().getStartTime()))); //TODO:Must test this format change
                                         endTaskLayout.setVisibility(LinearLayout.VISIBLE);
                                         taskStartBtn.setText(TASK_BTN_END_TEXT);
                                         taskStartBtn.setBackgroundColor(getResources().getColor(R.color.journey_button));
@@ -161,13 +168,14 @@ public class TaskActivity extends AppCompatActivity {
                         Snackbar.make(v, "Failed to get current location !", Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
                     }
-                } else if (Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
-                    if (gps.canGetLocation()) {
+                } else if (getSelectedTask().getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
+                    if (LocationUpdatesService.canGetLocation()) {
                         new AlertDialog.Builder(TaskActivity.this)
                                 .setTitle(TASK_VERIFICATION_TITLE)
                                 .setMessage(TASK_END_VERIFICATION_MSG)
                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                                     public void onClick(DialogInterface dialog, int whichButton) {
                                         //Toast.makeText(TaskActivity.this, "Successfully Started", Toast.LENGTH_SHORT).show();
                                         Date now = new Date();
@@ -175,11 +183,11 @@ public class TaskActivity extends AppCompatActivity {
                                         // SimpleDateFormat _format = new SimpleDateFormat("hh:mm:ss aa");
                                         endThread();
                                         if (getCurrentLocation().size() != 0) {
-                                            Globals.selectedTask.setEndLocation(getCurrentLocation().get(0) + "," + getCurrentLocation().get(1));
+                                            getSelectedTask().setEndLocation(getCurrentLocation().get(0) + "," + getCurrentLocation().get(1));
                                         }
-                                        Globals.selectedTask.setStatus(TASK_FINISHED_STATUS);
+                                        getSelectedTask().setStatus(TASK_FINISHED_STATUS);
                                         Globals.isTaskStarted = false;
-                                        Globals.selectedTask.setEndTime(now.toString());
+                                        getSelectedTask().setEndTime(now.toString());
                                         timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(now));
                                         //endTaskLayout.setVisibility(LinearLayout.INVISIBLE);
                                         taskStatusTxt.setText(TASK_END_TITLE);
@@ -193,11 +201,11 @@ public class TaskActivity extends AppCompatActivity {
                     } else {
                         Snackbar.make(v, GPS_UNAVAILABLE_MSG, Snackbar.LENGTH_LONG)
                                 .setAction("Action", null).show();
-                        gps.showSettingsAlert();
+                        Utilities.showSettingsAlert(TaskActivity.this);
                     }
 
 
-                } else if (Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+                } else if (getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
 
                 } else if (Globals.isTaskStarted) {
                     Snackbar.make(v, TASK_PARALLEL_RUNNING_MSG, Snackbar.LENGTH_LONG)
@@ -217,20 +225,24 @@ public class TaskActivity extends AppCompatActivity {
                     while (!gpsThread.isInterrupted()) {
                         Thread.sleep(1000);
                         runOnUiThread(new Runnable() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
                             public void run() {
                                 try {
-                                    if(isGpsPermissionAvailable()){
-                                        //gps.getLocation();
-                                        if (gps.canGetLocation()) {
-
-                                            double latitude = gps.getLatitude();
-                                            double longitude = gps.getLongitude();
-                                            longTxt.setText(String.valueOf(longitude));
-                                            latTxt.setText(String.valueOf(latitude));
-                                            gpsThread.isInterrupted();
-                                        }
+                                    // if(isGpsPermissionAvailable()){
+                                    //gps.getLocation();
+                                    if (LocationUpdatesService.canGetLocation()) {
+                                        Location loc = LocationUpdatesService.getLocation();
+                                        double latitude = loc.getLatitude();
+                                        double longitude = loc.getLongitude();
+                                        longTxt.setText(String.valueOf(longitude));
+                                        latTxt.setText(String.valueOf(latitude));
+                                        gpsThread.isInterrupted();
                                     }
+                                    else{
+                                        Utilities.showSettingsAlert(TaskActivity.this);
+                                    }
+
 
                                 } catch (Exception e){
                                     e.printStackTrace();
@@ -250,14 +262,15 @@ public class TaskActivity extends AppCompatActivity {
                     while (!thread.isInterrupted()) {
                         Thread.sleep(1000);
                         runOnUiThread(new Runnable() {
+                            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                             @Override
                             public void run() {
                                 try {
                                     //SimpleDateFormat _format = new SimpleDateFormat("hh:mm:ss aa");
-                                    if (Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
+                                    if (getSelectedTask().getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
                                         timeNow.setText(TASK_VIEW_DATE_FORMAT.format(new Date()));
                                         Date date1 = TASK_VIEW_DATE_FORMAT.parse(TASK_VIEW_DATE_FORMAT.format(new Date()));
-                                        Date date2 = TASK_VIEW_DATE_FORMAT.parse(TASK_VIEW_DATE_FORMAT.format(new Date(Globals.selectedTask.getStartTime())));
+                                        Date date2 = TASK_VIEW_DATE_FORMAT.parse(TASK_VIEW_DATE_FORMAT.format(new Date(getSelectedTask().getStartTime())));
                                         long mills = date1.getTime() - date2.getTime();
 
                                         int hours = (int) (mills / (1000 * 60 * 60));
@@ -265,12 +278,14 @@ public class TaskActivity extends AppCompatActivity {
                                         String diff;
                                         diff = hours + " h" + ":" + mins + " m"; // updated value every1 second
                                         elapsedTxt.setText(diff);
-                                        if (gps.canGetLocation()) {
-
-                                            double latitude = gps.getLatitude();
-                                            double longitude = gps.getLongitude();
+                                        if (LocationUpdatesService.canGetLocation()) {
+                                            Location loc = LocationUpdatesService.getLocation();
+                                            double latitude = loc.getLatitude();
+                                            double longitude = loc.getLongitude();
                                             longNowTxt.setText(String.valueOf(longitude));
                                             latNowTxt.setText(String.valueOf(latitude));
+                                        }else{
+                                            Utilities.showSettingsAlert(TaskActivity.this);
                                         }
 
 
@@ -326,52 +341,54 @@ public class TaskActivity extends AppCompatActivity {
         return diff;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public ArrayList<String> getCurrentLocation() {
         double latitude;
         double longitude;
-        ArrayList<String> loc = new ArrayList<>();
+        ArrayList<String> locStr = new ArrayList<>();
         // create class object
-        gps = new GPSTracker(TaskActivity.this);
-        try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-            } else if(!gps.canGetLocation) {
-                gps.showSettingsAlert();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+//            } else if(!gps.canGetLocation) {
+//                gps.showSettingsAlert();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
 
         // check if GPS enabled
-        if (gps.canGetLocation()) {
+        if (LocationUpdatesService.canGetLocation()) {
+            Location loc = LocationUpdatesService.getLocation();
+            latitude = loc.getLatitude();
+            longitude = loc.getLongitude();
 
-            latitude = gps.getLatitude();
-            longitude = gps.getLongitude();
+            locStr.add(String.valueOf(latitude));
+            locStr.add(String.valueOf(longitude));
 
-            loc.add(String.valueOf(latitude));
-            loc.add(String.valueOf(longitude));
-
-            return loc;
+            return locStr;
         } else {
+            Utilities.showSettingsAlert(TaskActivity.this);
             // can't get location
             // GPS or Network is not enabled
             // Ask user to enable GPS/network in settings
-            if(!isGpsPermissionAvailable()){
-                requestPermission(this,mPermission,REQUEST_CODE_PERMISSION);
-            } else {
-                gps.showSettingsAlert();
-            }
-            return loc;
+//            if(!isGpsPermissionAvailable()){
+//                requestPermission(this,mPermission,REQUEST_CODE_PERMISSION);
+//            } else {
+//               // gps.showSettingsAlert();
+//            }
+            return locStr;
         }
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void setTaskView(String status) {
 
         switch (status) {
@@ -389,61 +406,63 @@ public class TaskActivity extends AppCompatActivity {
                 break;
         }
     }
-    public boolean isGpsPermissionAvailable(){
-        try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
+//    public boolean isGpsPermissionAvailable(){
+//        try {
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);*/
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return  false;
+//    }
+//    public void requestPermission(Context context, String reqPermission, int permissionCode){
+//        ActivityCompat.requestPermissions((Activity) context, new String[]{reqPermission},
+//                permissionCode);
+//
+//    }
+//    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_CODE_PERMISSION: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                    if ((Globals.selectedTask.getStatus().equals(TASK_NOT_STARTED_STATUS) || Globals.selectedTask.getStatus().equals("")) && !Globals.isTaskStarted) {
+//                        if(getCurrentLocation().size()>0){
+//                            latTxt.setText(getCurrentLocation().get(0));
+//                            longTxt.setText(getCurrentLocation().get(1));
+//                        }
+//
+//                    } else if (Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
+//                        if(getCurrentLocation().size()>0) {
+//                            latNowTxt.setText(getCurrentLocation().get(0));
+//                            longNowTxt.setText(getCurrentLocation().get(1));
+//                        }
+//                    }
+//
+//                } else {
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+//
+//                }
+//                return;
+//            }
+//            // other 'case' lines to check for other
+//            // permissions this app might request
+//        }
+//    }
 
-                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);*/
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-                return false;
-            } else {
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  false;
-    }
-    public void requestPermission(Context context, String reqPermission, int permissionCode){
-        ActivityCompat.requestPermissions((Activity) context, new String[]{reqPermission},
-                permissionCode);
-
-    }
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_CODE_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if ((Globals.selectedTask.getStatus().equals(TASK_NOT_STARTED_STATUS) || Globals.selectedTask.getStatus().equals("")) && !Globals.isTaskStarted) {
-                        if(getCurrentLocation().size()>0){
-                            latTxt.setText(getCurrentLocation().get(0));
-                            longTxt.setText(getCurrentLocation().get(1));
-                        }
-
-                    } else if (Globals.selectedTask.getStatus().equals(TASK_IN_PROGRESS_STATUS)) {
-                        if(getCurrentLocation().size()>0) {
-                            latNowTxt.setText(getCurrentLocation().get(0));
-                            longNowTxt.setText(getCurrentLocation().get(1));
-                        }
-                    }
-
-                } else {
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-
-                }
-                return;
-            }
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void setInitTaskView() {
         Date _date = new Date();
         if (getCurrentLocation().size() != 0) {
@@ -459,6 +478,7 @@ public class TaskActivity extends AppCompatActivity {
         //taskStartBtn.setEnabled(true);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void setInProgressTaskView() {
         String[] locStartArray = getTaskStartLocation();
         startThread();
@@ -474,7 +494,7 @@ public class TaskActivity extends AppCompatActivity {
             latNowTxt.setText(getCurrentLocation().get(0));
             longNowTxt.setText(getCurrentLocation().get(1));
         }
-        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(Globals.selectedTask.getStartTime())));
+        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(getSelectedTask().getStartTime())));
         endTaskLayout.setVisibility(LinearLayout.VISIBLE);
         taskStatusTxt.setText(TASK_NOW_TITLE);
         taskStartBtn.setText(TASK_BTN_END_TEXT);
@@ -493,9 +513,9 @@ public class TaskActivity extends AppCompatActivity {
         endThread();
         taskStatusTxt.setText(TASK_END_TITLE);
         taskViewBtn.setVisibility(View.VISIBLE);
-        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(Globals.selectedTask.getStartTime())));
-        timeNow.setText(TASK_VIEW_DATE_FORMAT.format(new Date(Globals.selectedTask.getEndTime())));
-        elapsedTxt.setText(getElapsedTime(Globals.selectedTask.getStartTime()));
+        timeTxt.setText(TASK_VIEW_DATE_FORMAT.format(new Date(getSelectedTask().getStartTime())));
+        timeNow.setText(TASK_VIEW_DATE_FORMAT.format(new Date(getSelectedTask().getEndTime())));
+        elapsedTxt.setText(getElapsedTime(getSelectedTask().getStartTime()));
         endTaskLayout.setVisibility(LinearLayout.VISIBLE);
         //taskStartBtn.setEnabled(false);
         taskStartBtn.setText(TASK_BTN_FINISHED_TEXT);
@@ -503,10 +523,10 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     public String[] getTaskStartLocation() {
-        return Globals.selectedTask.getStartLocation().split(",");
+        return getSelectedTask().getStartLocation().split(",");
     }
 
     public String[] getTaskEndLocation() {
-        return Globals.selectedTask.getEndLocation().split(",");
+        return getSelectedTask().getEndLocation().split(",");
     }
 }

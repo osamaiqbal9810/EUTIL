@@ -1,0 +1,7 @@
+:root {
+  --first: var(--first); /*Theme Colors*/
+  --second: var(--eleventh); /*Theme Background Colors*/
+  --third: rgb(209, 209, 209); /*Theme Border Colors*/
+  --fourth: var(--fifth); /*Default color, Normal text color with Dark Background*/
+  --fifth: rgb(94, 141, 143);
+}

@@ -20,7 +20,7 @@ export default class UnAssignedAssetsModal extends Component {
       {
         Header: languageService("Asset"),
         id: "assetName",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.unitId} </div>;
         },
         minWidth: 100,
@@ -28,7 +28,7 @@ export default class UnAssignedAssetsModal extends Component {
       {
         Header: languageService("MP Start"),
         id: "mpStart",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.start} </div>;
         },
         minWidth: 100,
@@ -36,7 +36,7 @@ export default class UnAssignedAssetsModal extends Component {
       {
         Header: languageService("MP End"),
         id: "mpEnd",
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.end} </div>;
         },
         minWidth: 100,
@@ -44,13 +44,13 @@ export default class UnAssignedAssetsModal extends Component {
       {
         Header: languageService("Action"),
         id: "selectAction",
-        accessor: d => {
+        accessor: (d) => {
           return (
             <div style={{ marginRight: "8px", cursor: "pointer" }}>
               <CustomCheckbox
                 containerStyle={{ float: "right" }}
                 ch
-                handleCheckChange={checkVal => {
+                handleCheckChange={(checkVal) => {
                   this.handleAssetCheck(checkVal, d);
                 }}
                 disabled={props.disableCheckbox}
@@ -81,7 +81,7 @@ export default class UnAssignedAssetsModal extends Component {
     return (
       <div>
         <Modal
-          contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+          contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
           isOpen={this.props.modal}
           toggle={this.props.handleToggleModal}
           style={{ maxWidth: "98vw" }}
@@ -94,7 +94,7 @@ export default class UnAssignedAssetsModal extends Component {
               tableColumns={this.tableColumns}
               tableData={this.props.unassignedAssets}
               pageSize={this.props.unassignedAssets ? this.props.unassignedAssets.length : 0}
-              handlePageChange={page => {
+              handlePageChange={(page) => {
                 if (this.props.handlePageSave) {
                   this.props.handlePageSave(page, this.state.pageSize);
                 }
@@ -108,7 +108,7 @@ export default class UnAssignedAssetsModal extends Component {
             <MyButton
               style={themeService(ButtonStyle.commonButton)}
               type="button"
-              onClick={e => {
+              onClick={(e) => {
                 this.props.handleToggleModal(1, this.state.selectedAssetsToAdd);
               }}
             >
@@ -117,7 +117,7 @@ export default class UnAssignedAssetsModal extends Component {
             <MyButton
               style={themeService(ButtonStyle.commonButton)}
               type="button"
-              onClick={e => {
+              onClick={(e) => {
                 this.props.handleToggleModal();
               }}
             >

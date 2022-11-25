@@ -152,7 +152,8 @@ public class DataSyncProcessEx extends AsyncTask<Context,Integer,String>
                         Globals.serviceHandle = this.serviceHandle;
                         Globals.sendBroadcastMessage(Globals.OBSERVABLE_MESSAGE_NETWORK_PUSH,"");
                         raiseStatusChangeEvent(Globals.SERVICE_STATUS_PUSH);
-                        int dataSent=Globals.webUploadMessageLists(this.context,Globals.orgCode);
+                        //int dataSent=Globals.webUploadMessageLists(this.context,Globals.orgCode);
+                        int dataSent=Globals.webUploadMessageListsEx(this.context,Globals.orgCode);
                         //int dataSent=Globals.webUploadMessageLists(((DashboardActivity) context).getApplicationContext(),Globals.orgCode);
 
                        /* } else {

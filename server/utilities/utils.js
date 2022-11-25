@@ -40,7 +40,7 @@ class utils {
     return newstr;
   }
 
- mergeDeep(target, source) {
+  mergeDeep(target, source) {
     if (typeof target == "object" && typeof source == "object" && !(source instanceof Array)) {
       if (source["__replace"] && source["__replace"] == true) {
         target = _.cloneDeep(source);
@@ -53,6 +53,9 @@ class utils {
             if (sKey.charAt(0) == "*") {
               sKey = key.slice(1);
               target[sKey] = _.cloneDeep(source[key]);
+              // From source, remove the element with '*' prefix and add regular field without '*' with the same value
+              source[sKey] = target[sKey];
+              delete source[key];
             } else {
               if (!target[sKey]) target[sKey] = [];
               target[key] = this.mergeDeep(target[key], source[key]);
@@ -72,12 +75,15 @@ class utils {
           }
         }
       }
-    } 
-    else if(typeof source ==='number' || typeof source ==='boolean' || typeof source ==='bigint' || typeof source ==='symbol' || typeof source === 'string')
-    {
-       target = source;
-    }
-    else if (source instanceof Array) {
+    } else if (
+      typeof source === "number" ||
+      typeof source === "boolean" ||
+      typeof source === "bigint" ||
+      typeof source === "symbol" ||
+      typeof source === "string"
+    ) {
+      target = source;
+    } else if (source instanceof Array) {
       //if(target.length == source.length)
       let j = 0;
       for (var i = 0; i < source.length; i++) {
@@ -90,10 +96,8 @@ class utils {
         if (j >= 0) target[j] = this.mergeDeep(target[i], source[j]);
         j++;
       }
-    }
-    else
-    {
-      console.log('utils.mergeDeep.error: Encountered and unknown type.', typeof source);
+    } else {
+      console.log("utils.mergeDeep.error: Encountered and unknown type.", typeof source);
     }
     return target;
   }
@@ -117,6 +121,17 @@ class utils {
     }
     return difference;
   }
+  areObjectsEqual(obj1, obj2) {
+      try{
+        let str1 = JSON.stringify(obj1);
+        let str2 = JSON.stringify(obj2);
+        return str1===str2;
+      }catch(err){
+        console.log('utils.compareObjects.catch:', err);
+      }
+      return false;
+  }
+  
   toFixed(
     value,
     decimalPlaces = 2, // default percision nnnnn.nn
@@ -195,29 +210,22 @@ class utils {
     result = moment(moment(d1).format("YYYY-MM-DD")).isSame(moment(moment(d2).format("YYYY-MM-DD")));
     return result;
   }
-  getFilesList(path)
-  {
-    let fileslist=[];
-    try{
-     fileslist = fs.readdirSync(path);
-    }
-    catch(e)
-    {
-      console.log('utils.getFilesList.catch', e);
+  getFilesList(path) {
+    let fileslist = [];
+    try {
+      fileslist = fs.readdirSync(path);
+    } catch (e) {
+      console.log("utils.getFilesList.catch", e);
     }
     return fileslist;
   }
-  loadJson(fullPath)
-  {
-    let retVal={};
-    try
-    {
-    let data = fs.readFileSync(fullPath);
-    retVal = JSON.parse(data);
-    }
-    catch(e)
-    {
-      console.log('utils.loadJson.catch', e);
+  loadJson(fullPath) {
+    let retVal = {};
+    try {
+      let data = fs.readFileSync(fullPath);
+      retVal = JSON.parse(data);
+    } catch (e) {
+      console.log("utils.loadJson.catch", e);
     }
     return retVal;
   }

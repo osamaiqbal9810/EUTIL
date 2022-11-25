@@ -303,7 +303,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="9dp"
                     android:text="Use Single Clock"
-                    app:fontFamily="@font/cabin"/>
+                    app:fontFamily="@font/cabin" />
                 <Switch
                     android:id="@+id/sw_bypass_task_view"
                     android:layout_width="wrap_content"
@@ -446,6 +446,38 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_below="@id/sw_switch_inspection"
+                    android:background="@color/divider_hint" />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rl_audible_alert"
+                android:layout_width="match_parent"
+                android:layout_height="29dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tv_audible_alert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginTop="9dp"
+                    android:text="Allow audible alerts"
+                    app:fontFamily="@font/cabin" />
+
+                <Switch
+                    android:id="@+id/sw_audible_alert"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:paddingRight="15dp"
+                    android:text="" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@id/sw_audible_alert"
                     android:background="@color/divider_hint" />
             </RelativeLayout>
            <!-- <RelativeLayout

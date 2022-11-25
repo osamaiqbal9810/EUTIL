@@ -33,6 +33,5 @@ function isAuthenticated(req, res, next) {
             populate: { path: "permissions", select: ["resource", "action", "name"] },
         });
     });
-}
-
+}   
 module.exports = isAuthenticated;

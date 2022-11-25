@@ -50,9 +50,7 @@ class JourneyPlanList extends Component {
         id: "assignedUser",
         accessor: (d) => {
           let obj = "";
-
           if ((d.status == "Future Inspection" || d.status == "Overdue") && !noInline && permissionValue) {
-            // console.log(this.props.userList);
             obj = (
               <UserInLineEdit
                 key={d._id ? d._id : d.date + d.title}
@@ -99,7 +97,7 @@ class JourneyPlanList extends Component {
         minWidth: this.props.forDashboard ? 60 : 150,
       },
       {
-        Header: languageService("Last Inspection Date"),
+        Header: languageService("Next Inspection Date"),
         id: "Date",
 
         minWidth: this.props.forDashboard ? 90 : 160,
@@ -113,7 +111,7 @@ class JourneyPlanList extends Component {
           return <div style={{ fontSize: this.props.forDashboard ? "12px" : "auto" }}>{date}</div>;
         },
       },
-      {
+      /*{
         Header: languageService("Start Time"),
         id: "startTime",
         minWidth: 160,
@@ -138,8 +136,7 @@ class JourneyPlanList extends Component {
           }
           return date;
         },
-      },
-
+      },*/
       {
         Header: languageService("Status"),
         id: "Status",
@@ -154,7 +151,7 @@ class JourneyPlanList extends Component {
           return <div style={themeService(statusStyle.statusColorStyle(status, this.props))}>{languageService(status)}</div>;
         },
       },
-      {
+      /*{
         Header: languageService("Issues"),
         id: "issues",
         show: this.props.forDashboard ? false : true,
@@ -176,39 +173,39 @@ class JourneyPlanList extends Component {
 
         minWidth: 70,
       },
-      // {
-      //   Header: languageService("Include in FRA"),
-      //   id: "includeInFRAReport",
-      //   show: this.props.forDashboard ? false : true,
-      //   accessor: (d) => {
-      //     let issues = 0;
-      //     let tasks = d.tasks ? d.tasks : [];
-      //     if (tasks.length > 0 && ["weather", "special"].includes(tasks[0].inspectionTypeTag)) {
-      //       // issues = (<input onClick={() => {
-      //       //   let journeyPlanObj = _.cloneDeep(d);
-      //       //   journeyPlanObj.tasks[0].includeInFRAReport = !journeyPlanObj.tasks[0].includeInFRAReport;
-      //       //   this.props.handleUpdateIncludeInFRA(journeyPlanObj)
-      //       // }} type="checkbox" checked={!!tasks[0].includeInFRAReport}/>);
+      {
+        Header: languageService("Include in FRA"),
+        id: "includeInFRAReport",
+        show: this.props.forDashboard ? false : true,
+        accessor: (d) => {
+          let issues = 0;
+          let tasks = d.tasks ? d.tasks : [];
+          if (tasks.length > 0 && ["weather", "special"].includes(tasks[0].inspectionTypeTag)) {
+            // issues = (<input onClick={() => {
+            //   let journeyPlanObj = _.cloneDeep(d);
+            //   journeyPlanObj.tasks[0].includeInFRAReport = !journeyPlanObj.tasks[0].includeInFRAReport;
+            //   this.props.handleUpdateIncludeInFRA(journeyPlanObj)
+            // }} type="checkbox" checked={!!tasks[0].includeInFRAReport}/>);
 
-      //       issues = (
-      //         <StyledCheckBox
-      //           onClick={() => {
-      //             let journeyPlanObj = _.cloneDeep(d);
-      //             journeyPlanObj.tasks[0].includeInFRAReport = !journeyPlanObj.tasks[0].includeInFRAReport;
-      //             this.props.handleUpdateIncludeInFRA(journeyPlanObj);
-      //           }}
-      //           checked={!!tasks[0].includeInFRAReport}
-      //         />
-      //       );
-      //     }
-      //     if (!issues) {
-      //       issues = "";
-      //     }
-      //     return <div style={{ textAlign: "center", cursor: "pointer" }}> {issues} </div>;
-      //   },
+            issues = (
+              <StyledCheckBox
+                onClick={() => {
+                  let journeyPlanObj = _.cloneDeep(d);
+                  journeyPlanObj.tasks[0].includeInFRAReport = !journeyPlanObj.tasks[0].includeInFRAReport;
+                  this.props.handleUpdateIncludeInFRA(journeyPlanObj);
+                }}
+                checked={!!tasks[0].includeInFRAReport}
+              />
+            );
+          }
+          if (!issues) {
+            issues = "";
+          }
+          return <div style={{ textAlign: "center", cursor: "pointer" }}> {issues} </div>;
+        },
 
-      //   minWidth: 80,
-      // },
+        minWidth: 80,
+      },*/
       {
         Header: languageService("Actions"),
         id: "actions",
@@ -223,53 +220,18 @@ class JourneyPlanList extends Component {
           return (
             <div>
               {permissionCheck("WORKPLAN", "read") && (
-                <Link to={`${this.props.path}s/` + checkRealObj} className="linkStyleTable">
-                  <ButtonActionsTable
+                <ButtonActionsTable
                     handleClick={(e) => {
-                      this.props.handleViewClick(d, this.state.filterTodayOrAll, this.props.pageSize);
+                      this.props.handleViewModalClick("View", d);
                     }}
                     margin="0px 10px 0px 0px"
                     buttonText={languageService("View")}
                   />
-                </Link>
-              )}
-              {appFormsCHeck && (
-                <ButtonActionsTable
-                  handleClick={(e) => {
-                    this.showAppForms(d.tasks[0]);
-                  }}
-                  margin="0px 10px 0px 0px"
-                  buttonText={languageService("AppForms")}
-                />
-              )}
-              {/* {d.status !== "In Progress" && d.status !== "Finished" && permissionCheck("WORKPLAN", "update") && (
-                <ButtonActionsTable
-                  handleClick={e => {
-                    this.props.handleEditClick("Edit", d, this.state.filterTodayOrAll, this.props.pageSize);
-                  }}
-                  margin="0px 10px 0px 0px"
-                  buttonText={"Edit"}
-                />
-              )} */}
-              {/* {d.status !== 'In Progress' && d.status !== 'Finished' && permissionCheck('WORKPLAN', 'delete') && (
-                <ButtonActionsTable
-                  handleClick={e => {
-                    this.props.handleDeleteClick(d)
-                  }}
-                  margin="0px 10px 0px 0px"
-                  buttonText={'Delete'}
-                />
-              )} */}
+                  )}
             </div>
-          );
-        },
-        minWidth: 150,
-      },
-
-      // {
-      // 	Header: "Edit",
-      // 	Cell: ({ row }) => <div>AA</div>,
-      // },
+          )
+            }
+        }
     ];
 
     this.checkTodayAllFilter = this.checkTodayAllFilter.bind(this);

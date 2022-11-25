@@ -132,6 +132,8 @@ class JourneyPlanService {
 
         if (checkSubdiv) criteria.subdivision = subdivisionUser;
         criteria.workplanTemplateId = { $ne: "" };
+        let reportCrit = reportsCriteria(query.rId);
+        if (reportCrit) criteria = { ...criteria, ...reportCrit };
         let jPlans = await JourneyPlanModel.find(criteria).exec();
         let plans = [];
         if (jPlans) {
@@ -145,6 +147,7 @@ class JourneyPlanService {
             outPlan["inspectionType"] = plan.tasks[0].inspectionType;
             outPlan["inspectionTypeTag"] = plan.tasks[0].inspectionTypeTag;
             outPlan["status"] = plan.status;
+            outPlan["issues"] = filteredIssues(plan);
             if (plan.lineId) {
               let asset = await AssetModel.findOne({ _id: plan.lineId });
               if (asset) {
@@ -510,10 +513,23 @@ function checkReportDataExist(reportId, inspection) {
       // Line Inspection Report
     } else if (reportId == "2" || reportId == 2 || reportId == "3" || reportId == 3) {
       // Switch Inspection Form //  // Detailed Switch Inspection Form
-      let switchForms = _.filter(validTask.units, (unit) => {
-        return unit.appForms && unit.appForms.length > 0;
+      let validEntries = _.filter(validTask.units, (unit) => {
+        let validAtype =
+          unit.assetType === "Switch" ||
+          unit.assetType === "Side Track" ||
+          unit.assetType === "Switch LH" ||
+          unit.assetType === "Switch RH" ||
+          unit.assetType === "Customer Switch LH" ||
+          unit.assetType === "Customer Switch RH" ||
+          unit.assetType === "Turnout 2" ||
+          unit.assetType === "Turnout 3" ||
+          unit.assetType === "Customer Switch" ||
+          unit.assetType === "Turnout 4";
+
+        let appForm = validAtype && unit.appForms && unit.appForms.length > 0;
+        return validAtype && appForm;
       });
-      switchForms.length < 1 && (valid = false);
+      validEntries < 1 && (valid = false);
     } else if (reportId == "4" || reportId == 4) {
       // Track Disturbance Form
       let TrackDistForms = _.filter(validTask.appForms, (appForm) => {
@@ -524,4 +540,66 @@ function checkReportDataExist(reportId, inspection) {
   }
 
   return valid;
+}
+
+function reportsCriteria(reportId) {
+  let crit = {
+    6: { $or: [{ "tasks.units.assetType": "Bridge" }, { "tasks.units.assetType": "Culvert" }], "tasks.units.appForms.id": "etrBridgeForm" },
+    8: {
+      "tasks.units.assetType": {
+        $in: [
+          "Switch RH",
+          "Switch LH",
+          "Customer Switch LH",
+          "Customer Switch RH",
+          "Switch",
+          "Turnout",
+          "Turnout 2",
+          "Turnout 3",
+          "Turnout 4",
+          "Yard Switch",
+        ],
+      },
+      "tasks.units.appForms.id": { $in: ["etrRHSwitchForm", "etrLHSwitchForm", "onrTurnoutForm", "nopbSwitchForm"] },
+    },
+    9: { "jobBriefings.0": { $exists: true } },
+    10: {
+      "tasks.units.assetType": {
+        $in: [
+          "Switch RH",
+          "Switch LH",
+          "Customer Switch LH",
+          "Customer Switch RH",
+          "Switch",
+          "Turnout",
+          "Turnout 2",
+          "Turnout 3",
+          "Turnout 4",
+        ],
+      },
+      "tasks.units.appForms.id": { $in: ["monthlydetailedformONR"] },
+    },
+  };
+  return crit[reportId];
+}
+
+function filteredIssues(plan) {
+  let issues = [];
+  if (plan.tasks && plan.tasks[0] && plan.tasks[0].issues) {
+    for (let issue of plan.tasks[0].issues) {
+      if (issue && issue.issueId) {
+        issues.push({
+          issueId: issue.issueId,
+          defectCodes: issue.defectCodes,
+          unit: { assetType: issue.unit.assetType },
+          status: issue.status,
+        });
+      } else {
+        let logger = ServiceLocator.resolve("logger");
+        logger.error(`journeyPlan.service.js.filteredIssues.error: Empty issue found in plan ${plan._id.toString()}`);
+      }
+    }
+  }
+
+  return issues;
 }

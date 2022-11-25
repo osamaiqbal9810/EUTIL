@@ -2,6 +2,7 @@ package com.app.ps19.tipsapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -46,8 +47,10 @@ import java.util.List;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.app.ps19.tipsapp.Shared.Globals.addUpdateUserImgName;
 import static com.app.ps19.tipsapp.Shared.Globals.isInternetAvailable;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
+import static com.app.ps19.tipsapp.Shared.Globals.uploadMultipartImage;
 import static com.app.ps19.tipsapp.Shared.Globals.user;
 import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
 
@@ -74,6 +77,7 @@ public class ProfileActivity extends AppCompatActivity {
     CircularImageView imgAdd;
     IssueImage preSigImg = new IssueImage("",0,"");
     IssueImage preProImg = new IssueImage("",0,"");
+    ProgressDialog dialog =null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +96,7 @@ public class ProfileActivity extends AppCompatActivity {
         ivSigEdit = findViewById(R.id.iv_signature_edit);
         tvSignature = findViewById(R.id.tv_signature);
         imgAdd = findViewById(R.id.img_plus);
+        dialog=new ProgressDialog(this);
         /*ivSigThumb = findViewById(R.id.iv_signature_thumb);*/
 
         //setUserInfoView(ProfileActivity.this,ivPerson, null);
@@ -126,13 +131,13 @@ public class ProfileActivity extends AppCompatActivity {
         tvMobile.setText(user.getMobileNumber());
         tvPhone.setText(user.getPhoneNumber());
 
-        if(selectedJPlan == null){
+        /*if(selectedJPlan == null){
             imgAdd.setVisibility(GONE);
             ivSigEdit.setVisibility(GONE);
         } else {
             imgAdd.setVisibility(VISIBLE);
             ivSigEdit.setVisibility(VISIBLE);
-        }
+        }*/
 
         ivPassEdit.setOnClickListener(view -> {
             if(isInternetAvailable(ProfileActivity.this)){
@@ -154,11 +159,16 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
         ivSigEdit.setOnClickListener(view -> {
-            Globals.imageFileName = "";
-            Intent intent = new Intent(ProfileActivity.this, ScribbleNotesActivity.class);
-            Bundle b=new Bundle();
-            b.putString("filename","");
-            startActivityForResult(intent,REQ_CODE_SIGNATURE);
+            if(selectedJPlan != null || isInternetAvailable(ProfileActivity.this)){
+                Globals.imageFileName = "";
+                Intent intent = new Intent(ProfileActivity.this, ScribbleNotesActivity.class);
+                Bundle b=new Bundle();
+                b.putString("filename","");
+                startActivityForResult(intent,REQ_CODE_SIGNATURE);
+            } else {
+                Toast.makeText(ProfileActivity.this, R.string.please_connect_server, Toast.LENGTH_SHORT).show();
+            }
+
         });
         //ivSigEdit.setVisibility(View.GONE);
     }
@@ -201,6 +211,43 @@ public class ProfileActivity extends AppCompatActivity {
                     //user.setSignature(sigImage);
                     Globals.imageFileName = "";
                     tvSignature.setText(getString(R.string.view));
+                    user.setSignature(sigImage);
+                    if(selectedJPlan==null && isInternetAvailable(ProfileActivity.this)){
+                        if(!sigImage.getImgName().equals(preSigImg.getImgName())){
+                            if(!sigImage.getImgName().equals("")){
+                                showProgressDialog("Uploading", "Signature\nPlease wait...");
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(uploadMultipartImage(sigImage.getImgName())){
+                                            if(addUpdateUserImgName(sigImage,"signature")){
+                                                ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        sigImage = initImgObj();
+                                                        hideProgressDialog();
+                                                    }});
+                                            } else {
+                                                ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        hideProgressDialog();
+                                                        Toast.makeText(ProfileActivity.this, "Uploading signature failed. \nPlease try again!", Toast.LENGTH_SHORT).show();
+                                                    }});
+                                            }
+                                        } else {
+                                            ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    hideProgressDialog();
+                                                    Toast.makeText(ProfileActivity.this, "Uploading signature failed. \nPlease try again!", Toast.LENGTH_SHORT).show();
+                                                }});
+                                        }
+                                    }}).start();;
+                            }
+                        }
+                        updateUserInDb();
+                    }
                 }
             }
         }
@@ -214,9 +261,48 @@ public class ProfileActivity extends AppCompatActivity {
                     // loading profile image from local cache
                     loadProfile(uri.toString());
                     profImage.setImgName(uri.getLastPathSegment());
-                    //user.setProfImg(profImage);
+                    user.setProfImg(profImage);
 
                     copy(new File(uri.getPath()), new File(getImgPath(uri.getLastPathSegment()) ));
+                    if(selectedJPlan==null && isInternetAvailable(ProfileActivity.this)){
+                        if(!profImage.getImgName().equals(preProImg.getImgName())){
+                            if(!profImage.getImgName().equals("")){
+                                showProgressDialog("Uploading", "Profile photo \nPlease wait...");
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(uploadMultipartImage(profImage.getImgName())){
+                                            if(addUpdateUserImgName(profImage,"profile_img")){
+                                                ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        profImage = initImgObj();
+                                                        hideProgressDialog();
+                                                    }});
+                                            } else {
+                                                ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        hideProgressDialog();
+                                                        Toast.makeText(ProfileActivity.this, "Uploading profile photo failed. \nPlease try again!", Toast.LENGTH_SHORT).show();
+                                                    }});
+                                            }
+                                        } else {
+                                            ProfileActivity.this.runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    hideProgressDialog();
+                                                    Toast.makeText(ProfileActivity.this, "Uploading profile photo failed. \nPlease try again!", Toast.LENGTH_SHORT).show();
+                                                }});
+                                        }
+
+
+                                    }}).start();;
+                            }
+                        }
+                        updateUserInDb();
+                    }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -257,25 +343,30 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void onProfileImageClick(View view) {
-        Dexter.withActivity(this)
-                .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                .withListener(new MultiplePermissionsListener() {
-                    @Override
-                    public void onPermissionsChecked(MultiplePermissionsReport report) {
-                        if (report.areAllPermissionsGranted()) {
-                            showImagePickerOptions();
+        if(selectedJPlan != null || isInternetAvailable(ProfileActivity.this)){
+            Dexter.withActivity(this)
+                    .withPermissions(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .withListener(new MultiplePermissionsListener() {
+                        @Override
+                        public void onPermissionsChecked(MultiplePermissionsReport report) {
+                            if (report.areAllPermissionsGranted()) {
+                                showImagePickerOptions();
+                            }
+
+                            if (report.isAnyPermissionPermanentlyDenied()) {
+                                showSettingsDialog();
+                            }
                         }
 
-                        if (report.isAnyPermissionPermanentlyDenied()) {
-                            showSettingsDialog();
+                        @Override
+                        public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                            token.continuePermissionRequest();
                         }
-                    }
+                    }).check();
+        } else {
+            Toast.makeText(ProfileActivity.this, R.string.please_connect_server, Toast.LENGTH_SHORT).show();
+        }
 
-                    @Override
-                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
-                        token.continuePermissionRequest();
-                    }
-                }).check();
     }
 
     private void showImagePickerOptions() {
@@ -368,34 +459,7 @@ public class ProfileActivity extends AppCompatActivity {
                             }
                         }
                         selectedJPlan.update();
-
-                        List<StaticListItem> items= Globals.db.getListItems("user","","1");
-                        if(items.size() == 1){//current user
-                            String strParm2 = items.get(0).getOptParam2();
-                            JSONObject jo= null;
-                            try {
-                                boolean updated = false;
-                                jo = new JSONObject(strParm2);
-                                if(jo.optJSONObject("profile_img")!= null && !profImage.getImgName().equals("")){
-                                    profImage.setChangeOnly(false);
-                                    JSONObject joImg = profImage.getJsonObject();
-                                    jo.put("profile_img", joImg);
-                                    updated = true;
-                                }
-                                if(jo.optJSONObject("signature")!= null && !sigImage.getImgName().equals("")){
-                                    sigImage.setChangeOnly(false);
-                                    JSONObject joImg = sigImage.getJsonObject();
-                                    jo.put("signature", joImg);
-                                    updated = true;
-                                }
-                                if(updated) {
-                                    items.get(0).setOptParam2(jo.toString());
-                                    Globals.db.AddOrUpdateList("user", "", items.get(0));
-                                }
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
+                        updateUserInDb();
                     }
                     finish();
                 })
@@ -406,5 +470,52 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+    void showProgressDialog(String title,String message){
+        dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        dialog.setTitle(title);
+        dialog.setMessage(message);
+        dialog.setIndeterminate(true);
+        dialog.setCanceledOnTouchOutside(false);
+        dialog.show();
+    }
+    void hideProgressDialog(){
+        if(dialog!=null){
+            if(dialog.isShowing()){
+                dialog.dismiss();
+            }
+        }
+    }
+    private void updateUserInDb(){
+        List<StaticListItem> items= Globals.db.getListItems("user","","1");
+        if(items.size() == 1){//current user
+            String strParm2 = items.get(0).getOptParam2();
+            JSONObject jo= null;
+            try {
+                boolean updated = false;
+                jo = new JSONObject(strParm2);
+                if(!profImage.getImgName().equals("")){
+                    profImage.setChangeOnly(false);
+                    JSONObject joImg = profImage.getJsonObject();
+                    jo.put("profile_img", joImg);
+                    updated = true;
+                }
+                if( !sigImage.getImgName().equals("")){
+                    sigImage.setChangeOnly(false);
+                    JSONObject joImg = sigImage.getJsonObject();
+                    jo.put("signature", joImg);
+                    updated = true;
+                }
+                if(updated) {
+                    items.get(0).setOptParam2(jo.toString());
+                    Globals.db.AddOrUpdateList("user", "", items.get(0));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    private IssueImage initImgObj (){
+        return new IssueImage("",0,"");
     }
 }

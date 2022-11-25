@@ -178,7 +178,7 @@ class LineIndex extends Component {
                 fontFamily: "Myriad Pro",
                 fontSize: "24px",
                 letterSpacing: "0.5px",
-                color: " rgba(64, 118, 179)",
+                color: "var(--first)",
               }}
             >
               Lines
@@ -216,7 +216,7 @@ class LineIndex extends Component {
                   activeBorder="3px solid #e3e2ef "
                   iconStyle={{
                     color: "#c4d4e4",
-                    background: "#fff",
+                    background: "var(--fifth)",
                     borderRadius: "50%",
                     border: "3px solid ",
                   }}

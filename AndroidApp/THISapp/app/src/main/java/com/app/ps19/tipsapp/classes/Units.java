@@ -9,9 +9,11 @@ import com.app.ps19.tipsapp.Shared.DBHandler;
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
 import com.app.ps19.tipsapp.Shared.Utilities;
+import com.app.ps19.tipsapp.classes.ativ.ATIVDefect;
 import com.app.ps19.tipsapp.classes.dynforms.DynForm;
 import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
 import com.app.ps19.tipsapp.classes.dynforms.defaultvalues.DynFormListDv;
+import com.app.ps19.tipsapp.classes.equipment.Equipment;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
@@ -26,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
+import static android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE;
 import static com.app.ps19.tipsapp.Shared.Utilities.convertJsonArrayToHashMap;
 
 public class Units implements IConvertHelper {
@@ -55,10 +58,76 @@ public class Units implements IConvertHelper {
     private ArrayList<UnitsDefectsOpt> defectsList;
     private HashMap<String, DynForm> appFormListMap;
     private boolean loadMinimum=false;
+    private boolean freeze=false;
+    private UnitsGroup unitsGroup;
+    private boolean visible=true;
+    private ArrayList<ATIVDefect> ativDefects;
+    private ArrayList<ATIVDefect> ativIssues;
+    private ArrayList<Equipment> equipmentList;
+    private ArrayList<Units> children;
+    private ArrayList<DynForm> equipmentForms;
+    private HashMap<String, DynForm> equipmentFormsHM=new HashMap<>();
+    private int countFormWithTests=0;
+
+    public int getCountFormWithTests() {
+        return countFormWithTests;
+    }
+    public int getCountFormWithoutTests() {
+        int totalSize= appForms!=null ? appForms.size() : 0;
+        return totalSize- countFormWithTests;
+    }
+
+    public void setEquipmentList(ArrayList<Equipment> equipmentList) {
+        this.equipmentList = equipmentList;
+    }
+
+    public ArrayList<Units> getChildren() {
+        return children;
+    }
+
+    public void setChildren(ArrayList<Units> children) {
+        this.children = children;
+    }
+
+    public ArrayList<Equipment> getEquipmentList() {
+        return equipmentList;
+    }
+
+    public ArrayList<ATIVDefect> getAtivIssues() {
+        return ativIssues;
+    }
+
+    public void setAtivIssues(ArrayList<ATIVDefect> ativIssues) {
+        this.ativIssues = ativIssues;
+    }
+
+    public ArrayList<ATIVDefect> getAtivDefects() {
+        return ativDefects;
+    }
+
+    public void setAtivDefects(ArrayList<ATIVDefect> ativDefects) {
+        this.ativDefects = ativDefects;
+    }
+
     public ArrayList<UnitsDefectsOpt> getDefectsList() {
         return defectsList;
     }
 
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public String getAssetTypeDisplayName(){
+        String displayName =assetType;
+        if(assetTypeObj!=null){
+            displayName=assetTypeObj.getDisplayName().equals("")?assetType:assetTypeObj.getDisplayName();
+        }
+        return displayName;
+    }
     public void setDefectsList(ArrayList<UnitsDefectsOpt> defectsList) {
         this.defectsList = defectsList;
     }
@@ -71,7 +140,20 @@ public class Units implements IConvertHelper {
         return testList;
     }
 
+    public boolean isGroupMember(){
+        if(this.attributes !=null && !this.attributes.getGroup().equals("")){
+            return  true;
+        }
+        return false;
+    }
 
+    public void setUnitsGroup(UnitsGroup unitsGroup) {
+        this.unitsGroup = unitsGroup;
+    }
+
+    public UnitsGroup getUnitsGroup() {
+        return unitsGroup;
+    }
 
     private JSONArray getUnitsDefectsJsonArray(){
         JSONArray ja = new JSONArray();
@@ -437,8 +519,9 @@ public class Units implements IConvertHelper {
             setUnitId(jsonObject.optString("id", ""));
             setDescription(jsonObject.optString("unitId", ""));
             setAssetType(jsonObject.getString("assetType"));
+            setFreeze(jsonObject.optBoolean("freeze",false));
             UnitAttributes attributes = new UnitAttributes();
-
+            attributes.setParent(this);
             if (jsonObject.has("attributes")) {
                 attributes.parseJsonObject(jsonObject.getJSONObject("attributes"));
             }
@@ -490,6 +573,36 @@ public class Units implements IConvertHelper {
             }
             setSelection(_selection);
             if(!this.loadMinimum) {
+                JSONArray jaEquForms = jsonObject.optJSONArray("appFormsEquipment");
+                if(jaEquForms!=null){
+                    //DynForm form=DynFormList.formListMap.get()
+                    ArrayList<DynForm> _equipmentForms=new ArrayList<>();
+                    for (int i = 0; i < jaEquForms.length(); i++) {
+                        try {
+                            JSONObject jo = jaEquForms.getJSONObject(i);
+                            if (jo.length() > 0) {
+                                String formId = jo.getString("id");
+                                JSONArray jaFormData = jo.optJSONArray("form");
+                                String formCode=jo.optString("code");
+                                DynForm form = DynFormList.getFormListMap().get(formId);
+                                if (form != null && !formCode.equals("")) {
+                                            DynForm newForm = (DynForm) form.clone();
+                                            newForm.cloneFieldList(form.getFormControlList());
+                                            newForm.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
+                                            String key=formCode +"\n"+formId;
+
+                                    this.equipmentFormsHM.put(key,newForm);
+                                            _equipmentForms.add(newForm);
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                    this.equipmentForms=_equipmentForms;
+
+                }
                 JSONArray jaForms = jsonObject.optJSONArray("appForms");
                 this.appForms = DynFormList.getFormList(assetType);
                 if (this.appForms != null) {
@@ -516,6 +629,17 @@ public class Units implements IConvertHelper {
                         }
                     }
                 }
+                JSONArray jaEquipments=jsonObject.optJSONArray("equipments");
+                ArrayList<Equipment> _equipmentList=new ArrayList<>();
+                if(jaEquipments !=null){
+                    for(int i=0;i<jaEquipments.length();i++){
+                        JSONObject jo=jaEquipments.optJSONObject(i);
+                        if(jo !=null){
+                            _equipmentList.add(new Equipment(null,jo));
+                        }
+                    }
+                }
+                this.equipmentList=_equipmentList;
             }
 
             //Parsing Tests here
@@ -523,6 +647,7 @@ public class Units implements IConvertHelper {
             if(jaTests!=null){
 
                 ArrayList<UnitsTestOpt> _testList=new ArrayList<>();
+                HashMap<String, String> _testCodeHM=new HashMap<>();
                 int clr=Globals.COLOR_TEST_NOT_ACTIVE;
                 int _sortOrder=100;
                 for(int i=0;i<jaTests.length();i++){
@@ -533,7 +658,10 @@ public class Units implements IConvertHelper {
                         _sortOrder=Math.min(_sortOrder,test.getSortOrder());
                         clr = testColor;
                     }
-                    _testList.add(test);
+                    if(DynFormList.isFormExists(assetType,test.getTestCode())){
+                        _testList.add(test);
+                        _testCodeHM.put(test.getTestCode(),test.getTitle());
+                    }
                 }
 
                 if(clr==Globals.COLOR_TEST_NOT_ACTIVE){
@@ -548,6 +676,16 @@ public class Units implements IConvertHelper {
                     }
                 });
                 this.testList=_testList;
+                //get count for form with tests and without test
+                int cntFormWithTest = 0;
+                if(this.appForms!=null){
+                    for(DynForm form:this.appForms){
+                        if (_testCodeHM.get(form.getFormId()) != null) {
+                            cntFormWithTest++;
+                        }
+                    }
+                }
+                this.countFormWithTests=cntFormWithTest;
             }
             /*
             //Parsing Defects here
@@ -578,6 +716,17 @@ public class Units implements IConvertHelper {
                     }
                 }
             }*/
+            //parsing ATIV defects
+            JSONArray jaAtivDef = jsonObject.optJSONArray("ativ_defects");
+            if(jaAtivDef!=null){
+                ArrayList<ATIVDefect> _ativDefs=new ArrayList<>();
+                for(int i=0;i<jaAtivDef.length();i++){
+                    ATIVDefect _defect = new ATIVDefect(jaAtivDef.optJSONObject(i));
+                    _ativDefs.add(_defect);
+                }
+                setAtivDefects(_ativDefs);
+            }
+
             JSONArray jaFormsDv = jsonObject.optJSONArray("defaultAppForms");
             this.defaultFormValues = null;
             if (jaFormsDv != null) {
@@ -589,6 +738,7 @@ public class Units implements IConvertHelper {
             } else {
                 setLinear(false);
             }
+            this.children=new ArrayList<>();
             return true;
         }catch (Exception e){
             e.printStackTrace();
@@ -603,7 +753,7 @@ public class Units implements IConvertHelper {
                 HashMap<String, String> formValues=form.getCurrentValues();
                 if(formValues!=null){
                     String formCompleteId=form.getFormCompleteId();
-                    if(!formCompleteId.equals("")){
+                    if(formCompleteId!=null &&!formCompleteId.equals("")){
                         String value=formValues.get(formCompleteId);
                         if(value!=null){
                             if(value.equals("true")){
@@ -647,7 +797,29 @@ public class Units implements IConvertHelper {
             jo.put("startMarker", getStartMarker());
             jo.put("endMarker", getEndMarker());
             jo.put("testForm", getUnitsTestsJsonArray());
+            jo.put("freeze",isFreeze());
             //jo.put("issueDefects", getUnitsDefectsJsonArray());
+            if(getEquipmentList() !=null && getEquipmentList().size()>0){
+                JSONArray jaEquipments = new JSONArray();
+                for(Equipment equipment: getEquipmentList()){
+                    JSONObject joEquipment = equipment.getJsonObject();
+                    if(joEquipment!=null){
+                        jaEquipments.put(joEquipment);
+                    }
+                }
+                jo.put("equipments",jaEquipments);
+
+            }
+            if(getAtivIssues()!=null){
+                JSONArray jaAIssues = new JSONArray();
+                for(ATIVDefect aDefect: getAtivIssues()){
+                    JSONObject joDefect = aDefect.getJsonObject();
+                    if(joDefect!=null){
+                        jaAIssues.put(joDefect);
+                    }
+                }
+                jo.put("ativ_defects",jaAIssues);
+            }
             if(this.appForms !=null){
                 JSONArray jaForms =new JSONArray();
                 for(DynForm form : this.appForms){
@@ -657,6 +829,16 @@ public class Units implements IConvertHelper {
                     }
                 }
                 jo.put("appForms",jaForms);
+            }
+            if(this.equipmentForms !=null){
+                JSONArray jaForms =new JSONArray();
+                for(DynForm form : this.equipmentForms){
+                    JSONObject jsonObject=form.getJsonObject();
+                    if(jsonObject!=null) {
+                        jaForms.put(jsonObject);
+                    }
+                }
+                jo.put("appFormsEquipment",jaForms);
             }
             if(this.coordinatesAdj!=null){
                 jo.put("adjCoordinates",this.coordinatesAdj.getJsonObject());
@@ -685,6 +867,7 @@ public class Units implements IConvertHelper {
             putJSONProperty(jo,"assetType",getAssetType());
             putJSONProperty(jo, "startMarker", getStartMarker());
             putJSONProperty(jo, "endMarker", getEndMarker());
+            putJSONProperty(jo,"freeze",isFreeze());
 
             JSONObject joFormSel=convertSelectionHM();
             if(joFormSel !=null && joFormSel.length()>0) {
@@ -749,6 +932,23 @@ public class Units implements IConvertHelper {
                 }
                 */
             }
+            if(this.equipmentForms !=null){
+                JSONArray jaForms =new JSONArray();
+                boolean dataExists=false;
+                for(DynForm form : this.equipmentForms){
+                    form.setChangeOnly(changeOnly);
+                    JSONObject jsonObject=form.getJsonObject();
+                    if(jsonObject!=null) {
+                        jaForms.put(jsonObject);
+                        dataExists=true;
+                    }else{
+                        jaForms.put(new JSONObject());
+                    }
+                }
+                if(dataExists){
+                    jo.put("appFormsEquipment", jaForms);
+                }
+            }
             if(this.coordinatesAdj!=null){
                 Geometry geometry=getCoordinatesAdj();
                 putJSONProperty(jo,"adjCoordinates",geometry.getJsonObject());
@@ -794,6 +994,7 @@ public class Units implements IConvertHelper {
         unit.setDescription(getDescription());
         unit.setStart( getStart());
         unit.setEnd(getEnd());
+        unit.setFreeze(isFreeze());
         unit.setAssetType(getAssetType());
         unit.setCoordinates(getCoordinates());
         unit.setParentId(getParentId());
@@ -832,5 +1033,36 @@ public class Units implements IConvertHelper {
         }
         return unitsTestOpt;
     }
+    public DynForm getEquipmentForm(Equipment equipment,String formId){
+        String formCode=equipment.getId();
+        String key=equipment.getId() +"\n"+formId;
+        DynForm _form =this.equipmentFormsHM.get(key);
 
+        if(_form==null){
+            DynForm form = DynFormList.getFormListMap().get(formId);
+            if (form != null && !formCode.equals("")) {
+                try {
+                    DynForm newForm = (DynForm) form.clone();
+                    newForm.cloneFieldList(form.getFormControlList());
+                    //form.setCurrentValues(convertJsonArrayToHashMap(jaFormData));
+                    this.equipmentFormsHM.put(key, newForm);
+                    if(equipmentForms==null){
+                        equipmentForms=new ArrayList<>();
+                    }
+                    this.equipmentForms.add(newForm);
+                    _form=newForm;
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+        return _form;
+    }
+    public void setFreeze(boolean freeze) {
+        this.freeze = freeze;
+    }
+
+    public boolean isFreeze() {
+        return freeze;
+    }
 }

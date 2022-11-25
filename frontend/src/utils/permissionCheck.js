@@ -20,5 +20,5 @@ export default function permissionCheck (resource, action) {
       }
     }
   }
-  return check
+  return check;
 }

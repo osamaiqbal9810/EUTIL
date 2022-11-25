@@ -1,6 +1,6 @@
 /* eslint eqeqeq: 0 */
-import React  from "react";
-import {Col, Row } from "reactstrap";
+import React from "react";
+import { Col, Row } from "reactstrap";
 import { CardTypeOne, CardTypeThree } from "components/Common/Cards";
 import { languageService } from "../../Language/language.service";
 import { themeService } from "../../theme/service/activeTheme.service";
@@ -9,7 +9,7 @@ import { commonStylesDashboard } from "./styles/commonStylesDashboard";
 import { getStatusColor } from "utils/statusColors";
 import moment from "moment";
 
-export const IssuesSummaryDefault = props => {
+export const IssuesSummaryDefault = (props) => {
   let summaryDesc = props.descriptions ? props.descriptions : {};
   let summaryVals = props.values ? props.values : {};
   let assigned = props.assignedToMe ? props.assignedToMe : {};
@@ -21,7 +21,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypeRightPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.first, "issuereports");
           }}
         >
@@ -29,7 +29,7 @@ export const IssuesSummaryDefault = props => {
             //<Link to={{ pathname: "/issuereports", fromDashboard: "first" }}>
             <CardTypeOne
               number={summaryVals.total}
-              numberColor={"rgb(64, 118, 179)"}
+              numberColor={"var(--first)"}
               topRight={assigned.first}
               text={summaryDesc.first}
               styles={{ cursor: "pointer" }}
@@ -41,7 +41,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypLeftPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.second, "issuereports");
           }}
         >
@@ -63,7 +63,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypeRightPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.third, "issuereports");
           }}
         >
@@ -83,7 +83,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypLeftPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.fourth, "issuereports");
           }}
         >
@@ -105,7 +105,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypeRightPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.fifth, "issuereports");
           }}
         >
@@ -125,7 +125,7 @@ export const IssuesSummaryDefault = props => {
           md="6"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cardTypLeftPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryDesc.sixth, "issuereports");
           }}
         >
@@ -146,7 +146,7 @@ export const IssuesSummaryDefault = props => {
   );
 };
 
-export const IssuesSummaryLinear = props => {
+export const IssuesSummaryLinear = (props) => {
   let summaryDesc = props.descriptions ? props.descriptions : {};
   let summaryVals = props.values ? props.values : {};
   let summaryLbl = props.summaryLabels ? props.summaryLabels : {};
@@ -161,7 +161,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.first, "issuereports");
           }}
         >
@@ -181,7 +181,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.second, "issuereports");
           }}
         >
@@ -202,7 +202,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.third, "issuereports");
           }}
         >
@@ -222,7 +222,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.fourth, "issuereports");
           }}
         >
@@ -242,7 +242,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.fifth, "issuereports");
           }}
         >
@@ -263,7 +263,7 @@ export const IssuesSummaryLinear = props => {
           md="2"
           sm="6"
           style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-          onClick={e => {
+          onClick={(e) => {
             props.handleSummaryClick(summaryLbl.sixth, "issuereports");
           }}
         >

@@ -196,6 +196,7 @@ class GITestAssetTypes extends React.Component {
       let findform = _.find(this.state.appFormsTests, { code: configObj.test });
       if (findform) {
         let form = _.cloneDeep(findform);
+        if (configObj.assetsList) form.assetsList = configObj.assetsList;
         if (this.state.formMode == "Add") {
           form.opt2.config.push({
             id: guid(),
@@ -280,7 +281,7 @@ class GITestAssetTypes extends React.Component {
 
         <Row style={{ margin: "0px" }}>
           <Col md={12}>
-            <div style={{ background: "#fff", borderRadius: "5px", paddingBottom: "30px" }}>
+            <div style={{ background: "var(--fifth)", borderRadius: "5px", paddingBottom: "30px" }}>
               <Row style={{ ...{ margin: "0px" }, ...themeService(GITestStyle.TopRowStyle) }}>
                 <Col md={8} style={themeService(GITestStyle.ListHeadingStyle)}>
                   {languageService("Asset Types Tests")}

@@ -351,8 +351,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@color/bottom_sheet_indicator"/>
-
+        </LinearLayout>
             <LinearLayout
+                android:id="@+id/ll_traverse_by"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/issue_row_background"
@@ -394,6 +395,14 @@
                             android:fontFamily="@font/cabin"
                             android:tag="Walking"
                             android:text="@string/traverse_by_walking" />
+                        <RadioButton
+                            android:id="@+id/rb_action_class3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:fontFamily="@font/cabin"
+                            android:tag="train"
+                            android:text="@string/traverse_by_train" />
                     </RadioGroup>
                 </LinearLayout>
                 <View
@@ -401,7 +410,6 @@
                     android:layout_height="2dp"
                     android:background="@color/bottom_sheet_indicator"/>
             </LinearLayout>
-        </LinearLayout>
         <LinearLayout
             android:id="@+id/ll_weather_conditions"
             android:layout_width="match_parent"
@@ -418,6 +426,15 @@
                 android:textSize="@dimen/btn_font_size"
                 android:textStyle="bold"
                 android:text="@string/weather_condition_title"/>
+            <Spinner
+                android:id="@+id/sp_weather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="@dimen/dp5"
+                android:paddingTop="@dimen/dp5"
+                android:entries="@array/weather_values"
+                android:fontFamily="@font/cabin"
+                android:prompt="@string/temp_prompt" />
             <EditText
                 android:id="@+id/et_weather_conditions"
                 android:layout_width="match_parent"

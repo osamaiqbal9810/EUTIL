@@ -10,7 +10,7 @@ class CheckRowElements extends Component {
         <DataRow
           key={row[this.props.keyPropInObj]}
           text={row[this.props.textPropInObj]}
-          handleClick={e => {
+          handleClick={(e) => {
             this.props.onRowClick(row);
           }}
           value={row.showDataOf}
@@ -33,7 +33,7 @@ class DataRow extends Component {
           name={this.props.text}
           checked={this.props.value}
         />
-        <label style={{ fontSize: "14px", verticalAlign: "top", color: " rgba(64, 118, 179)" }}>{this.props.text} </label>
+        <label style={{ fontSize: "14px", verticalAlign: "top", color: "var(--first)" }}>{this.props.text} </label>
       </div>
     );
   }

@@ -29,6 +29,7 @@ class InputDateField extends React.Component {
   handleOkClick(dateRange) {
     this.onToggle();
     let validFrom = moment(dateRange.from).isValid();
+
     let dRange = dateRange;
     let today = moment();
 
@@ -48,7 +49,13 @@ class InputDateField extends React.Component {
   render() {
     return (
       <React.Fragment>
-        <DateRangeSelector modal={this.state.dateModal} toggle={this.onToggle} handleOkClick={this.handleOkClick} />
+        <DateRangeSelector
+          disabledDays={this.props.disabledDays}
+          modal={this.state.dateModal}
+          toggle={this.onToggle}
+          handleOkClick={this.handleOkClick}
+          minReportDate={this.props.minReportDate}
+        />
         <div
           onClick={(e) => {
             this.onToggle();
@@ -66,7 +73,7 @@ function endDateVal(dateRange) {
   let ret = "";
   if (moment(moment(dateRange.from).format("YYYY-MM-DD")).isSame(moment(dateRange.to).format("YYYY-MM-DD"))) {
   } else {
-    ret = " to " + moment(dateRange.to).format("MM/DD/YYYY");
+    ret = " " + "  to " + " " + moment(dateRange.to).format("MM/DD/YYYY");
   }
   return ret;
 }

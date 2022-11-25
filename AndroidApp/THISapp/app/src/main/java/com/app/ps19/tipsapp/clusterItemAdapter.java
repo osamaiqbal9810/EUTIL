@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.FragmentActivity;
@@ -28,6 +29,12 @@ public class clusterItemAdapter extends ArrayAdapter<LocItem> implements View.On
         TextView txtName;
         TextView txtType;
         TextView txtAddress;
+        LinearLayout llNewMap;
+        LinearLayout llOldMap;
+        TextView tvAssetName;
+        TextView tvAssetType;
+        TextView tvAssetTestCount;
+        TextView tvOpMsg;
         //ImageView info;
     }
 
@@ -63,11 +70,30 @@ public class clusterItemAdapter extends ArrayAdapter<LocItem> implements View.On
         if (convertView == null) {
 
             viewHolder = new ViewHolder();
-            LayoutInflater inflater = LayoutInflater.from(getContext());
+            LayoutInflater inflater = LayoutInflater.from(mContext);
             convertView = inflater.inflate(R.layout.cluster_row, parent, false);
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.tv_cluster_asset_name);
             viewHolder.txtType = (TextView) convertView.findViewById(R.id.tv_cluster_asset_type);
-            viewHolder.txtAddress = (TextView) convertView.findViewById(R.id.tv_cluster_asset_address);
+            viewHolder.llNewMap = convertView.findViewById(R.id.ll_new_details);
+            viewHolder.llOldMap = convertView.findViewById(R.id.ll_old_details);
+            viewHolder.tvAssetName = convertView.findViewById(R.id.tv_asset_name);
+            viewHolder.tvAssetType = convertView.findViewById(R.id.tv_asset_type);
+            viewHolder.tvAssetTestCount = convertView.findViewById(R.id.tv_asset_test_count);
+            viewHolder.tvOpMsg = convertView.findViewById(R.id.tv_long_click_msg);
+
+            boolean isNewMap = false;
+            if(isNewMap){
+                viewHolder.llNewMap.setVisibility(View.VISIBLE);
+                viewHolder.llOldMap.setVisibility(View.GONE);
+                viewHolder.tvOpMsg.setVisibility(View.GONE);
+                viewHolder.tvAssetName.setText(dataModel.getmTag().getUnit().getDescription());
+                viewHolder.tvAssetType.setText(dataModel.getmTag().getUnit().getAssetTypeDisplayName());
+                if(dataModel.getmTag().getUnit().getTestFormList()!=null){
+                    viewHolder.tvAssetTestCount.setText(String.valueOf(dataModel.getmTag().getUnit().getTestFormList().size()));
+                }
+
+            }
+            //viewHolder.txtAddress = (TextView) convertView.findViewById(R.id.tv_cluster_asset_address);
             //viewHolder.info = (ImageView) convertView.findViewById(R.id.item_info);
 
             result = convertView;
@@ -77,14 +103,14 @@ public class clusterItemAdapter extends ArrayAdapter<LocItem> implements View.On
             result = convertView;
         }
 
-        Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
-        result.startAnimation(animation);
+        //Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
+        //result.startAnimation(animation);
         lastPosition = position;
         String[] details = dataModel.getSnippet().split(",");
         String _type = details[0].replace(mContext.getString(R.string.string_type), "");
         String _name = details[1].replace(mContext.getString(R.string.description_title), "");
         final String[] _address = new String[1];
-        new Thread(new Runnable() {
+        /*new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -102,7 +128,7 @@ public class clusterItemAdapter extends ArrayAdapter<LocItem> implements View.On
                 });
 
             }
-        }).start();
+        }).start();*/
 
         viewHolder.txtName.setText(_name);
         viewHolder.txtType.setText(_type);

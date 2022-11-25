@@ -13,55 +13,74 @@
     android:paddingBottom="3dp"
 
     >
-
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="65dp"
-        android:orientation="horizontal"
-        android:background="@color/color_inspection_row"
-        android:weightSum="1">
+        android:layout_height="match_parent">
 
-    <View android:background="@drawable/circle_gray"
-        android:id="@+id/viewParent"
-        android:layout_width="23dp"
-        android:layout_height="23dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_gravity="center_vertical"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:orientation="horizontal"
+            android:background="@color/color_inspection_row"
+            android:weightSum="1">
 
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="5dp" />
+            <View android:background="@drawable/circle_gray"
+                android:id="@+id/viewParent"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center_vertical"
 
-    <TextView
-        android:id="@+id/tvParent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Parent"
-        android:fontFamily="@font/cabin"
-        android:paddingLeft="5dp"
-        android:layout_gravity="center_vertical"
-        android:layout_weight="1"
-        android:textSize="16dp"
-        android:textStyle="bold"
-        android:textColor="@color/title_text"
-        android:paddingStart="5dp" />
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="5dp" />
 
-    <ImageView
-        android:id="@+id/img_issue_add_iupi"
-        android:layout_width="55dp"
-        android:layout_height="wrap_content"
-        app:tint="#5c5c5c"
-        android:layout_marginEnd="@dimen/dp10"
-        android:layout_marginRight="@dimen/dp10"
-        android:padding="10dp"
-        
-        android:background="?android:attr/selectableItemBackground"
+            <TextView
+                android:id="@+id/tvParent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Parent"
+                android:fontFamily="@font/cabin"
+                android:paddingLeft="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:textColor="@color/title_text"
+                android:paddingStart="5dp" />
 
-        app:srcCompat="@drawable/inspection_plus"
-         />
-    </LinearLayout>
+            <ImageView
+                android:id="@+id/img_issue_add_iupi"
+                android:layout_width="55dp"
+                android:layout_height="wrap_content"
+                app:tint="#5c5c5c"
+                android:layout_marginEnd="@dimen/dp10"
+                android:layout_marginRight="@dimen/dp10"
+                android:padding="10dp"
+
+                android:background="?android:attr/selectableItemBackground"
+
+                app:srcCompat="@drawable/inspection_plus"
+                />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_inspection_tile"
+            android:layout_width="40dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginLeft="4dp"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/pin_light_gray"
+
+
+            android:visibility="visible" />
+    </FrameLayout>
+
+
+
     <View
         android:layout_width="match_parent"
         android:layout_height="2dp"/>
@@ -156,7 +175,7 @@
                 android:contentDescription="Start MP" />
 
             <TextView
-                android:id="@+id/tvMilPostStart"
+                android:id="@+id/tvGroupRow"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -175,7 +194,7 @@
                 android:contentDescription="Start MP" />
 
             <TextView
-                android:id="@+id/tvMilPostEnd"
+                android:id="@+id/tvGroupColumn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -209,7 +228,7 @@
             android:id="@+id/ll_issues_counts"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight=".5"
             android:layout_gravity="center_vertical|center_horizontal"
             android:gravity="start"
             android:layout_marginLeft="0dp"
@@ -252,9 +271,58 @@
                 android:text="0"
                 android:textSize="10sp"
                 />
+            </FrameLayout></LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_ativ_issues_counts"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:gravity="start"
+            android:layout_marginLeft="0dp"
+            android:background="?android:attr/selectableItemBackground"
+            android:orientation="horizontal"
+            android:layout_marginStart="0dp"
+            >
+            <FrameLayout
+                android:id="@+id/fl_ativ_defects"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:layout_gravity="center_vertical|left"
+                android:layout_weight="0"
+                android:paddingRight="10dp"
+                >
+
+
+
+                <ImageView
+                    android:id="@+id/iv_ativ_defects_list"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ativ_icon"
+
+                    />
+                <TextView
+
+                    android:id="@+id/ativ_issue_count_new"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="right|end|top"
+                    android:layout_marginEnd="-1dp"
+                    android:layout_marginRight="-1dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@drawable/badge_background"
+                    android:gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@android:color/white"
+                    android:text="3"
+                    android:textSize="10sp"
+                    />
             </FrameLayout>
             <TextView
-                
+
                 android:layout_gravity="center"
 
                 android:layout_width="wrap_content"
@@ -280,17 +348,16 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center_vertical"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
             android:background="?android:attr/selectableItemBackground"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
-            android:paddingRight="5dp"
-            android:paddingBottom="5dp"
-            
-            android:layout_marginRight="10dp"
 
-            app:srcCompat="@drawable/img_observing"
-            android:layout_marginEnd="10dp"
-            />
+            android:paddingRight="5dp"
+
+            android:paddingBottom="5dp"
+            app:srcCompat="@drawable/img_observing" />
 
         <ImageView
             android:id="@+id/imgTraverse"
@@ -321,6 +388,18 @@
             android:paddingBottom="5dp"
             android:src="@drawable/edit_location_btn_selector"
             android:drawableTint="@android:color/black" />
-
+        <ImageView
+            android:id="@+id/imgEquipmentList"
+            android:layout_width="42dp"
+            android:layout_height="40dp"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="1dp"
+            android:paddingLeft="5dp"
+            android:paddingTop="5dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="5dp"
+            android:src="@drawable/icons8_hut_64"
+            android:drawableTint="@android:color/black" />
     </LinearLayout>
 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.app.ps19.tipsapp.Shared;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -18,6 +19,7 @@ import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -27,6 +29,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.TextureView;
@@ -37,6 +40,8 @@ import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
@@ -54,10 +59,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.text.DateFormat;
@@ -477,6 +484,28 @@ public class Utilities {
             ex.printStackTrace();
             return "";
         }
+    }
+    public static String getShortDate(String longDate) {
+        String sourceFormat="EEE MMM dd HH:mm:ss Z yyyy";
+        SimpleDateFormat sourDateFormat=new SimpleDateFormat(sourceFormat,Locale.US);
+        String myFormat = "dd/MM/yy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        try {
+            Date sourceDate=sourDateFormat.parse(longDate);
+            DateFormat df = DateFormat.getDateInstance();
+
+            String  _day=((String)android.text.format.DateFormat.format( "dd",sourceDate));
+            String  _month=((String)android.text.format.DateFormat.format( "MM",sourceDate));
+            String  _year=((String)android.text.format.DateFormat.format( "yy",sourceDate));
+            Date date=sdf.parse(new StringBuilder()
+                    .append(_day).append("/").append(_month).append("/").append(_year).append("").toString());
+            SimpleDateFormat sdfOut=new SimpleDateFormat("MMM, dd, yyyy");
+            //_editText.setText(sdfOut.format(date));
+            return sdfOut.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public static String getShortTimeFromNumberDate(String dateValue)
     {
@@ -937,6 +966,14 @@ public class Utilities {
         return getDBContext().getExternalFilesDir(null).getAbsolutePath() + "/" + Globals.voiceFolderName
                 + "/" + name;
     }
+    public static String getLogPath(String name) {
+        File sdCard = getDBContext().getExternalFilesDir(null);
+        File dir = new File(sdCard.getAbsolutePath() + "/" + Globals.logFolderName);
+        if (!dir.exists())
+            dir.mkdirs();
+        return getDBContext().getExternalFilesDir(null).getAbsolutePath() + "/" + Globals.logFolderName
+                + "/" + name;
+    }
 
     public static String getDocumentPath(String name) {
         File sdCard = getDBContext().getExternalFilesDir(null);
@@ -951,7 +988,7 @@ public class Utilities {
     public static boolean makeImageAvailable(String imgName) {
         String imgPath = getImgPath(imgName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/applicationresources/" + imgName;
+        String url = Globals.getWsDomain() + "/applicationresources/" + imgName;
         if (!dir.exists()) {
 
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -979,7 +1016,7 @@ public class Utilities {
     public static boolean makeImageAvailableEx(Context context,ImageView thumbImage,String imgName) {
         String imgPath = getImgPath(imgName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/applicationresources/" + imgName;
+        String url = Globals.getWsDomain() + "/applicationresources/" + imgName;
         if (!dir.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
 
@@ -1005,7 +1042,7 @@ public class Utilities {
     public static boolean makeVoiceAvailableEx(Context context,String voiceName) {
         String imgPath = getVoicePath(voiceName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/audio/" + voiceName;
+        String url = Globals.getWsDomain() + "/audio/" + voiceName;
         if (!dir.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
 
@@ -1020,7 +1057,7 @@ public class Utilities {
     public static boolean makeDocAvailableEx(Context context,String docName) {
         String documentPath = getDocumentPath(docName);
         File f1 = new File(documentPath);
-        String url = Globals.wsDomain + "/giTestForms/" + docName;
+        String url = Globals.getWsDomain() + "/giTestForms/" + docName;
         if (!f1.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
             new DocDownloaderTask(url,nameOfFile, context).execute("");
@@ -1404,10 +1441,14 @@ public class Utilities {
             if(!targetArray.isNull(i)){
                 Object value=targetArray.get(i);
                 if(value instanceof JSONObject){
-                    JSONObject mainObject=mainArray.getJSONObject(i);
-                    JSONObject targetObject=targetArray.getJSONObject(i);
-                    mainObject=mergeObject(mainObject,targetObject);
-                    mainArray.put(i,mainObject);
+                    if(mainArray.optJSONObject(i)!=null) {
+                        JSONObject mainObject = mainArray.getJSONObject(i);
+                        JSONObject targetObject = targetArray.getJSONObject(i);
+                        mainObject = mergeObject(mainObject, targetObject);
+                        mainArray.put(i, mainObject);
+                    }else{
+                        mainArray.put(i, new JSONObject());
+                    }
                 }else {
                     mainArray.put(i, targetArray.get(i));
                 }
@@ -1581,6 +1622,17 @@ public class Utilities {
         SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
         return  sdf.format(date);
     }
+    public static Date parseMomentDate(String date,String timeZone){
+        SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
+        sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+        Date date1= null;
+        try {
+            date1 = sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  date1;
+    }
 
     public static Date parseMomentDate(String date){
         SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
@@ -1634,6 +1686,7 @@ public static int getFilteredNewIssues(String id){
 
         if(selectedJPlan!=null){
             for (Report issue: selectedJPlan.getTaskList().get(0).getReportList()){
+                //TODO: Add null check for issue
                 if(issue.getUnit().getUnitId().equals(id)){
                     count++;
                 }
@@ -1654,5 +1707,88 @@ public static int getFilteredNewIssues(String id){
         InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
+    public static TextView createATextView(Context context,int layout_widh, int layout_height, int align,
+                                    String text, int fontSize, int margin, int padding) {
+
+        TextView textView_item_name = new TextView(context);
+
+        // LayoutParams layoutParams = new LayoutParams(
+        // LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        // layoutParams.gravity = Gravity.LEFT;
+        RelativeLayout.LayoutParams _params = new RelativeLayout.LayoutParams(
+                layout_widh, layout_height);
+
+        _params.setMargins(margin, margin, margin, margin);
+        _params.addRule(align);
+        textView_item_name.setGravity(Gravity.CENTER);
+        textView_item_name.setLayoutParams(_params);
+
+        textView_item_name.setText(text);
+        textView_item_name.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+        textView_item_name.setTextColor(Color.parseColor("#000000"));
+        // textView1.setBackgroundColor(0xff66ff66); // hex color 0xAARRGGBB
+        textView_item_name.setPadding(padding, padding, padding, padding);
+
+        return textView_item_name;
+
+    }
+    public static boolean isGPSEnabled(Context context){
+        final LocationManager locManager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
+        return locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    public static String removeSpaces(String value){
+        if(!value.equals("")){
+            return value.replaceAll("\\s+","");
+        }
+        return "";
+    }
+    public static float tryParseFloat(String value){
+        float retValue=0.0f;
+        try {
+            retValue = Float.parseFloat(value);
+        }catch (Exception e){
+
+        }
+        return retValue;
+    }
+    public static int getScreenHeight(Context context){
+        return context.getResources().getDisplayMetrics().heightPixels;
+    }
+    public static String removeSpacesForUrl(String name){
+        if(!name.equals("")){
+            name = name.replaceAll(" ", "%20");
+        }
+        return name;
+    }
+    public static void appendLog(String text)
+    {
+        File logFile = new File(getLogPath("log.txt"));
+        if (!logFile.exists())
+        {
+            try
+            {
+                logFile.createNewFile();
+            }
+            catch (IOException e)
+            {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        try
+        {
+            //BufferedWriter for performance, true to set append to file flag
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append(text);
+            buf.newLine();
+            buf.close();
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
+
 }
 

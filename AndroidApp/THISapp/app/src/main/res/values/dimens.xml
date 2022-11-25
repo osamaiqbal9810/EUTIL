@@ -54,4 +54,7 @@
     <dimen name="ic_plus_width">28dp</dimen>
     <dimen name="dp50">50</dimen>
     <dimen name="dp55">55</dimen>
+    <dimen name="dimen24dp">24dp</dimen>
+    <dimen name="dimen5dp">5dp</dimen>
+    <dimen name="dimen20sp">20sp</dimen>
 </resources>

@@ -14,13 +14,18 @@ import { CommonFormStyle } from "./style/index";
 import { themeService } from "theme/service/activeTheme.service";
 
 import { userStyles } from "../style/userStyles";
-
+import CommonModal from "../../Common/CommonModal";
+import HosView from "./hosView.jsx";
+import { versionInfo } from "../../MainPage/VersionInfo";
+import eventBus from "../../../utils/eventBus";
 
 class UserForm extends Component {
   constructor(props) {
     super(props);
 
     this.state = this.getInitialState();
+    this.state["departments"] = [];
+    this.state["isSite"] = versionInfo.isSITE();
     this.showPermissionView = this.showPermissionView.bind(this);
     this.hidePermissionView = this.hidePermissionView.bind(this);
     this.updatePermissonsHandle = this.updatePermissonsHandle.bind(this);
@@ -34,6 +39,15 @@ class UserForm extends Component {
     this.handleConfirmation = this.handleConfirmation.bind(this);
     this.handleConfirmationToggle = this.handleConfirmationToggle.bind(this);
     this.handleUserGeoLocLoggingCheck = this.handleUserGeoLocLoggingCheck.bind(this);
+    this.showPreview = this.showPreview.bind(this);
+    this.setModalOpener = this.setModalOpener.bind(this);
+    this.versionLoaded = this.versionLoaded.bind(this);
+
+    eventBus.on("versionLoaded", this.versionLoaded);
+  }
+
+  versionLoaded(vInfo) {
+    this.setState({ isSite: vInfo.isSITE() });
   }
 
   componentDidMount() {
@@ -41,14 +55,16 @@ class UserForm extends Component {
     this.loadUserData(this.props.userIdToFetch, isAddMode);
   }
   componentDidUpdate(prevProps, prevState) {
+    if (
+      prevProps.userDetailActionType !== this.props.userDetailActionType &&
+      this.props.userDetailActionType === "USER_WITH_DETAIL_SUCCESS"
+    ) {
+      this.setUserData(this.props.userDetail.user);
+    }
 
-      if (prevProps.userDetailActionType !== this.props.userDetailActionType && this.props.userDetailActionType === 'USER_WITH_DETAIL_SUCCESS')  {
-        this.setUserData(this.props.userDetail.user);
-      }
-
-      if (prevProps.userActionType !== this.props.userActionType && this.props.userActionType === 'USER_CREATE_SUCCESS')  {
-          this.setState({isAddMode: false});
-      }
+    if (prevProps.userActionType !== this.props.userActionType && this.props.userActionType === "USER_CREATE_SUCCESS") {
+      this.setState({ isAddMode: false });
+    }
   }
   getLocalUser() {
     const loggedInUser = localStorage.getItem("loggedInUser");
@@ -105,7 +121,7 @@ class UserForm extends Component {
       isAdminLoggedOn: false,
       levelList: [],
       userLoggingValue: false,
-      deleteConfirmMessage: 'Are you sure you want to delete ?',
+      deleteConfirmMessage: "Are you sure you want to delete ?",
     };
   }
   setUserData(userData) {
@@ -118,7 +134,7 @@ class UserForm extends Component {
       deleteBtn = !this.props.isAddMode && currentUser._id !== userData._id;
       this.setState({
         user: {
-            ...userData
+          ...userData,
         },
         userId: userData._id,
         isDeleteBtnEnable: deleteBtn,
@@ -148,8 +164,8 @@ class UserForm extends Component {
   handleSubmit(e) {
     let { password } = e;
     if (!this.state.isAddMode) {
-        let userObj = Object.assign({}, this.state.user);
-        Object.assign(userObj, e);
+      let userObj = Object.assign({}, this.state.user);
+      Object.assign(userObj, e);
       if (password) {
         this.props.passwordUpdate(password, this.state.userId);
       }
@@ -158,8 +174,8 @@ class UserForm extends Component {
         this.props.updateUser(userObj, this.state.userId);
       }
     } else {
-      if ('_id' in e) {
-          delete e._id;
+      if ("_id" in e) {
+        delete e._id;
       }
 
       this.props.createUser(e);
@@ -204,20 +220,23 @@ class UserForm extends Component {
     e.preventDefault();
 
     let deleteConfirmMessage = "Are you sure you want to delete ?";
-    if (this.state.user.group_id === 'supervisor' && this.state.user.team && this.state.user.team.length) {
+    if (this.state.user.group_id === "supervisor" && this.state.user.team && this.state.user.team.length) {
       // TeamLead
-      deleteConfirmMessage = `${this.state.user.name} ${languageService('is currently leading a Team. If you delete this user, team will no longer exist and team members will need to be re-assigned to a new team')}`;
+      deleteConfirmMessage = `${this.state.user.name} ${languageService(
+        "is currently leading a Team. If you delete this user, team will no longer exist and team members will need to be re-assigned to a new team",
+      )}`;
     } else if (this.state.user.group_id === "inspector") {
       if (this.state.user.teamLead) {
-        deleteConfirmMessage = `${this.state.user.name} ${languageService('is currently assigned to a Team. If you delete this user, this team member will be removed from current team')}.`;
+        deleteConfirmMessage = `${this.state.user.name} ${languageService(
+          "is currently assigned to a Team. If you delete this user, this team member will be removed from current team",
+        )}.`;
       }
     }
 
     this.setState({
       confirmationDialog: true,
-      deleteConfirmMessage
+      deleteConfirmMessage,
     });
-
   }
   handleConfirmationToggle() {
     this.setState({
@@ -249,7 +268,6 @@ class UserForm extends Component {
         this.setState({ isAddMode: nextProps.isAddMode });
       }
     }
-
   }
 
   handleUserGeoLocLoggingCheck(checkVal) {
@@ -257,7 +275,12 @@ class UserForm extends Component {
       userLoggingValue: checkVal,
     });
   }
-
+  showPreview(code) {
+    this.openModelMethod();
+  }
+  setModalOpener(method) {
+    this.openModelMethod = method;
+  }
   render() {
     const { isAddMode, userId, levelList, user, isAdminLoggedOn } = this.state;
     let filteredLevelList;
@@ -280,10 +303,25 @@ class UserForm extends Component {
 
           <Row style={themeService(CommonFormStyle.formStyle)}>
             {!isAddMode ? (
-              <UserProfileViewAvatar ProfileName={this.state.user.name} email={this.state.user.email} />
+              <UserProfileViewAvatar
+                userGroup={this.state.user.group_id}
+                ProfileName={this.state.user.name}
+                email={this.state.user.email}
+                showPreview={this.showPreview}
+                isSite={this.state.isSite}
+              />
             ) : (
               <UserCreateProfileViewAvatar />
             )}
+            <CommonModal
+              className="hos-view"
+              setModalOpener={this.setModalOpener}
+              receiveToggleMethod={this.receiveToggleMethod}
+              headerText={languageService("Hours Of Service")}
+              modalStyle={{ maxWidth: "60vw", maxHeight: "80vh" }}
+            >
+              <HosView user={this.state.user} />
+            </CommonModal>
           </Row>
 
           <Row className="row-eq-height" style={themeService(CommonFormStyle.formStyle)}>
@@ -319,7 +357,7 @@ class UserForm extends Component {
     return (
       <Row
         style={{
-          backgroundColor: "#fff",
+          backgroundColor: "var(--fifth)",
           boxShadow: " 3px 3px 5px #cfcfcf",
           borderRadius: "5px",
         }}

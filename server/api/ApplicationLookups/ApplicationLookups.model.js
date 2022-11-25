@@ -6,8 +6,10 @@ let ServiceLocator = require('../../framework/servicelocator');
 let ApplicationLookupsSchema = new Schema({
   tenantId: String,
   listName: String,
+  assetType: String,
   code: String,
   description: String,
+  inspection_type:String,
   opt1: {},
   opt2: {},
   createdAt: { type: Date, default: Date.now },

@@ -31,7 +31,7 @@ class AddRunRange extends Component {
     };
 
     this.multiSelectStyle = {
-      control: styles => ({
+      control: (styles) => ({
         ...styles,
         fontSize: "12px",
         backgroundColor: "white",
@@ -40,7 +40,7 @@ class AddRunRange extends Component {
       }),
       option: (base, state) => ({
         ...base,
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       }),
     };
@@ -92,7 +92,7 @@ class AddRunRange extends Component {
     }
   }
 
-  mapSelectedRangeToFormFields = range => {
+  mapSelectedRangeToFormFields = (range) => {
     let { formFields } = this.state;
 
     let tracks = [];
@@ -105,7 +105,7 @@ class AddRunRange extends Component {
 
       if (key === "tracks") {
         if (this.props.tracks) {
-          this.props.tracks.forEach(asset => {
+          this.props.tracks.forEach((asset) => {
             if (range[key] && range[key].includes(asset._id)) {
               tracks.push({ value: asset._id, label: asset.unitId });
             }
@@ -156,7 +156,7 @@ class AddRunRange extends Component {
       }
 
       if (tracks) {
-        rangeLine.tracks = tracks.map(track => track.value);
+        rangeLine.tracks = tracks.map((track) => track.value);
       }
 
       this.props.addRun(rangeLine, this.props.modalState);
@@ -176,11 +176,11 @@ class AddRunRange extends Component {
     this.setState({ [stateVarName]: data });
   };
 
-  handleChangeTracks = tracks => {
+  handleChangeTracks = (tracks) => {
     this.setState({ tracks });
   };
 
-  formFieldsChangeHandler = newState =>
+  formFieldsChangeHandler = (newState) =>
     this.setState({
       ...newState,
       message: {
@@ -195,7 +195,7 @@ class AddRunRange extends Component {
       <Modal
         isOpen={this.props.modal}
         toggle={this.props.toggle}
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
       >
         <div className={"commonform"}>
           {this.props.modalState === "Add" && (

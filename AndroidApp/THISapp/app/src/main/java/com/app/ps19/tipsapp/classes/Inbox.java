@@ -154,7 +154,7 @@ public class Inbox {
     public static JourneyPlan loadJourneyPlanTemplate(Context context,String code) {
         JourneyPlan journeyPlan = null;
         DBHandler dbHandler = Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, code, "code='" + code + "'");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, code, "code='" + code + "'");
         //dbHandler.close();
         if (items.size() == 1) {
             try {
@@ -173,7 +173,14 @@ public class Inbox {
     public static JourneyPlan loadJourneyPlan(Context context,String code){
         JourneyPlan journeyPlan=null;
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode, code,"code='"+code +"'");
+        boolean isLocalKey=isLocalJPCode(code);
+        List<StaticListItem> items = new ArrayList<>();
+        if(isLocalKey){
+            items = Globals.db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode, code,"description='"+code +"'");
+        } else {
+            items = Globals.db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode, code,"code='"+code +"'");
+        }
+
         //dbHandler.close();
         if(items.size()==1){
             try {
@@ -209,7 +216,7 @@ public class Inbox {
 
     public JourneyPlanOpt getWorkPlanTemplate(String templateId,boolean loadCompletion, boolean loadUnitList,boolean loadAllUnits){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code='"+templateId+"'");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code='"+templateId+"'");
         //dbHandler.close();
         ArrayList<JSONObject> _journeyPlans = new ArrayList<>();
         JourneyPlanOpt jpTemplate=null;
@@ -258,17 +265,25 @@ public class Inbox {
     public  ArrayList<UnitsDefectsOpt> getDefectsList() { return  this.defectsList; }
 
     public ArrayList<JourneyPlanOpt> loadWokPlanTemplateListEx(){
-        DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        //DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
 
-        byte [] currHash = getWPLANMessageDigest(items);
+        //List<StaticListItem> items = dbHandler.getListItemsA(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        //byte [] currHash = getWPLANMessageDigest(items);
 
-        if (Arrays.equals(prev_WorkPlanDataMessageDigest ,currHash) && this.jpoWorkPlanTemplates != null) {
-            return this.jpoWorkPlanTemplates;
+        //if (Arrays.equals(prev_WorkPlanDataMessageDigest ,currHash) && this.jpoWorkPlanTemplates != null) {
+         //   return this.jpoWorkPlanTemplates;
 
+        //}
+        if(items.size() == 0){
+            Log.d("DB data:", "array is empty");
         }
-
-        locationsOpt.clear();
+        Log.d("","items: "+items.size());
+        try {
+            locationsOpt.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         for (StaticListItem item : items) {
             try {
                 JSONObject jo = new JSONObject(item.getOptParam1());
@@ -280,10 +295,10 @@ public class Inbox {
                 Log.e(TAG, e.toString());
             }
         }
-        prev_WorkPlanDataMessageDigest = currHash;
+        //prev_WorkPlanDataMessageDigest = currHash;
         locationsOpt.SortArray();
         this.jpoWorkPlanTemplates = locationsOpt.getJourneyPlanListByLocation("ALL");
-
+        Log.d("","jpoWorkPlanTemplates"+this.jpoWorkPlanTemplates.size());
 //       Collections.sort(_journeyPlans, new Comparator<JourneyPlanOpt>() {
 //            @Override
 //            public int compare(JourneyPlanOpt o1, JourneyPlanOpt o2) {
@@ -299,7 +314,7 @@ public class Inbox {
 
     public ArrayList<JSONObject> loadWokPlanTemplateList(Context context){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
         //dbHandler.close();
         ArrayList<JSONObject> _journeyPlans = new ArrayList<>();
         for (StaticListItem item : items) {
@@ -322,7 +337,7 @@ public class Inbox {
     }
     public void loadWorkPlanTemplates(Context context){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
         //dbHandler.close();
         ArrayList<JourneyPlan> _journeyPlans = new ArrayList<>();
         for (StaticListItem item : items) {
@@ -343,7 +358,12 @@ public class Inbox {
             context=Globals.mainActivity;
         }
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems("JourneyPlan", Globals.orgCode, "", "code<>''");
+        //TODO:need to review before commit
+       /* if(dbHandler == null){
+            Globals.setDbContext(context.getApplicationContext());
+            dbHandler =Globals.db;
+        }*/
+        List<StaticListItem> items = Globals.db.getListItems("JourneyPlan", Globals.orgCode, "", "code<>''");
         //dbHandler.close();
 
         //List<StaticListItem> items = dbHandler.getListItems(Globals.ROUTE_PLAN_LIST_NAME,Globals.orgCode,Globals.empCode);
@@ -420,7 +440,7 @@ public class Inbox {
     }
     public void loadMaintenance(){
         DBHandler dbHandler=Globals.db;
-        List<StaticListItem> mItems = dbHandler.getListItems(MAINTENANCE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> mItems = Globals.db.getListItems(MAINTENANCE_LIST_NAME, Globals.orgCode, "", "code<>''");
         Globals.maintenanceList= new MaintenanceList(mItems);
     }
     public void loadFromDB(Context context){

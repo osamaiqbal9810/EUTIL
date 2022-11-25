@@ -10,7 +10,7 @@ export const MyPlanningTableStyle = {
       padding: "5px",
       margin: "15px",
       borderRadius: "2px",
-      color: "#fff",
+      color: "var(--fifth)",
     },
   },
 };

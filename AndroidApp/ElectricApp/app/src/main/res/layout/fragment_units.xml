@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:srcComp="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingBottom="2dp"
+    tools:context=".UnitsFragment">
+    <!-- TODO: Update blank fragment layout -->
+    <LinearLayout
+        android:id="@+id/ll_form_frame"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/rl_gi_form_title"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/title_background"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_form_title"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_web_asset_gray_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_form_title"
+                android:fontFamily="@font/cabin"
+                android:text="@string/forms"
+                android:textColor="@color/title_text" />
+        </RelativeLayout>
+
+        <FrameLayout
+            android:id="@+id/form_fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_trackDist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/title_background"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            >
+            <ImageView
+                android:id="@+id/iv_form_title1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_web_asset_gray_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_form_title1"
+                android:fontFamily="@font/cabin"
+                android:text="@string/trackForms"
+                android:textColor="@color/title_text" />
+        </LinearLayout>
+        <FrameLayout
+            android:id="@+id/form_fragment_container_vg1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/ll_gi_instructions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_gi_instruction_title"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/title_background"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_linear_title"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_web_asset_gray_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_linear_title"
+                android:fontFamily="@font/cabin"
+                android:text="GI / SCP"
+                android:textColor="@color/title_text" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <ListView
+                android:id="@+id/lv_tests"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_asset_info_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.6"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/rl_asset_instruction_title"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="@color/title_background"
+            android:visibility="visible">
+
+            <ImageView
+                android:id="@+id/iv_asset_info"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_web_asset_gray_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_asset_info"
+                android:fontFamily="@font/cabin"
+                android:text="@string/asset_info"
+                android:textColor="@color/title_text" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvUnitTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cabin"
+                android:paddingLeft="10dp"
+                android:paddingTop="10dp"
+                android:text="213.233 Track Inspections"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="5dp">
+
+                <!--<TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="15dp"
+                        android:paddingTop="13dp"
+                        android:text="@string/assets"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+                    <!--<Spinner
+                            android:id="@+id/spAssetTypes"
+                            android:padding="15dp"
+                            android:paddingLeft="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1.6"/>-->
+
+                    <!--<ImageButton
+                            android:id="@+id/ib_unit_list"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".2"
+                            android:src="@drawable/ic_list_blue_24dp" />-->
+                    <!--<ImageButton
+                            android:id="@+id/ib_unit_list_map"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight=".2"
+                            android:src="@drawable/ic_location_on_black_24dp" />-->
+                </LinearLayout>
+
+
+                <!--<View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:background="@android:color/darker_gray" />-->
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/cabin"
+                    android:paddingLeft="15dp"
+                    android:paddingTop="15dp"
+                    android:text="@string/instructions"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvInstructions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/form_background"
+                        android:fontFamily="@font/cabin"
+                        android:paddingLeft="15dp"
+                        android:paddingTop="10dp"
+                        android:textSize="16sp" />
+                </ScrollView>
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

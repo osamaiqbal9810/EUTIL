@@ -72,7 +72,7 @@ class RunNumber extends Component {
     this.setState({ modals });
   };
 
-  handleConfirmation = response => {
+  handleConfirmation = (response) => {
     if (response) {
       console.log(this.state.modals.data._id);
       this.props.deleteRunNumber({ _id: this.state.modals.data._id });
@@ -167,7 +167,7 @@ class RunNumber extends Component {
                     <ButtonCirclePlus
                       iconSize={50}
                       icon={withPlus}
-                      handleClick={e => {
+                      handleClick={(e) => {
                         this.handleAddRunClick("Add");
                       }}
                       {...themeService(commonSummaryStyle.addButtonStyle(this.props))}
@@ -181,14 +181,14 @@ class RunNumber extends Component {
               )}
 
               {/*<div style={{ float: "right", padding: "15px 0px" }}>*/}
-              {/*<div style={{ color: "rgba(64, 118, 179)" }}>{languageService("Add Run")}</div>*/}
+              {/*<div style={{ color: "var(--first)" }}>{languageService("Add Run")}</div>*/}
               {/*<div*/}
               {/*style={{*/}
               {/*cursor: "pointer",*/}
               {/*padding: "5px 0px",*/}
               {/*margin: "auto",*/}
               {/*width: "50%",*/}
-              {/*color: "rgba(64, 118, 179)",*/}
+              {/*color: "var(--first)",*/}
               {/*}}*/}
               {/*>*/}
               {/*<SvgIcon*/}

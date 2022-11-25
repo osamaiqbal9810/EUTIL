@@ -19,23 +19,83 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-<!--    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-<!--    <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"--> />
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
+        android:name=".LampApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launcher_timps_foreground"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_launcher_timps_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,InnerclassSeparator">
-        <activity android:name=".inspection.InspectionActivity"
+        <activity
+            android:name=".safetyBriefing.DynBriefingFormActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".safetyBriefing.MultiSelectionActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
+        <activity
+            android:name=".unitsGroup.UnitsGroupInspectionActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".EquipmentActivity"
+            android:exported="false" />
+        <activity android:name=".CameraIntentActivity" />
+        <activity
+            android:name=".ativ.ATIVDefectDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ativ.ATIVMapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ativ.ATIVDefectsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_ativdefects"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DebugActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SendLogTo"
+            android:exported="false"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="com.app.ps19.tipsapp.SEND_LOG_TO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MaintenanceActivity"
+            android:exported="false"
+            android:label="@string/maintenances_activity_title"
+            android:screenOrientation="portrait" />
+        <activity android:name=".hos.HosActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".reports.ReportShowActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".inspection.InspectionActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
@@ -47,9 +107,11 @@
             android:name=".defects.PreviousDefectsMapActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-
-        <activity android:name=".InspectionStartActivity" />
-        <activity android:name=".DashActivity"
+        <activity android:name=".InspectionStartActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".DashActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" /> <!-- uCrop cropping activity -->
         <activity
@@ -66,7 +128,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".ImagePickerActivity"
+        <activity
+            android:name=".ImagePickerActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
@@ -137,6 +200,7 @@
         <activity
             android:name=".AppFormActivity"
             android:label=""
+            android:screenOrientation="portrait"
             android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -194,6 +258,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".LoginActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -319,28 +384,36 @@
             android:resource="@array/preloaded_fonts" />
 
         <receiver
-            
-android:name=".geofencing.providers.GeofencingProvider"
+            android:name=".geofencing.providers.GeofencingProvider"
             android:enabled="true"
             android:exported="true" /> <!-- Foreground services in Q+ require type. -->
         <service
-            
-android:name=".location.LocationUpdatesService"
+            android:name=".location.LocationUpdatesService"
             android:enabled="true"
             android:exported="true"
             android:foregroundServiceType="location" />
-
-<!--        <receiver
+        <!--
+        <receiver
 
 android:name=".activity.providers.DeviceActivityDetector"
             android:enabled="true"
             
 android:exported="false" 
-/>-->
-
+/>
+        -->
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

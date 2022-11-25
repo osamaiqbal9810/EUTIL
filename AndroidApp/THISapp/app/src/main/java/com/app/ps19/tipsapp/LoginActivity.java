@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -28,6 +29,9 @@ import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 
 import com.app.ps19.tipsapp.Shared.DataSyncProcessEx;
+import com.app.ps19.tipsapp.classes.error.ErrorObject;
+import com.app.ps19.tipsapp.classes.version.VersionInfo;
+import com.app.ps19.tipsapp.classes.hos.Hos;
 import com.app.ps19.tipsapp.location.LocationUpdatesService;
 import com.app.ps19.tipsapp.Shared.Utilities;
 import com.google.android.material.snackbar.Snackbar;
@@ -49,6 +53,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -90,12 +96,24 @@ import static android.Manifest.permission.READ_CONTACTS;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_CUSTOM_SERVER;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SELECTED_PORT;
 import static com.app.ps19.tipsapp.Shared.Globals.PREFS_KEY_SELECTED_SERVER;
+import static com.app.ps19.tipsapp.Shared.Globals.app;
+import static com.app.ps19.tipsapp.Shared.Globals.appName;
 import static com.app.ps19.tipsapp.Shared.Globals.dayStarted;
+import static com.app.ps19.tipsapp.Shared.Globals.dbContext;
+import static com.app.ps19.tipsapp.Shared.Globals.demoId;
+import static com.app.ps19.tipsapp.Shared.Globals.demoPass;
 import static com.app.ps19.tipsapp.Shared.Globals.getLanguageSettingIndex;
 import static com.app.ps19.tipsapp.Shared.Globals.getPingAddress;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionInfo;
+import static com.app.ps19.tipsapp.Shared.Globals.getVersionUrl;
 import static com.app.ps19.tipsapp.Shared.Globals.initConfigs;
+import static com.app.ps19.tipsapp.Shared.Globals.isDemoUser;
 import static com.app.ps19.tipsapp.Shared.Globals.isMaintainerRole;
+import static com.app.ps19.tipsapp.Shared.Globals.loadVersionInfo;
+import static com.app.ps19.tipsapp.Shared.Globals.mPrefs;
 import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
+import static com.app.ps19.tipsapp.Shared.Globals.setUrls;
+import static com.app.ps19.tipsapp.Shared.Globals.setVersionInfo;
 import static com.app.ps19.tipsapp.Shared.Globals.wsDomainName;
 import static com.app.ps19.tipsapp.Shared.Globals.wsPort;
 import static com.app.ps19.tipsapp.Shared.Globals.user;
@@ -120,25 +138,29 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            if (mService == null) {
-                LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-                mService = binder.getService();
+            try {
+                if (mService == null) {
+                    LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+                    mService = binder.getService();
 
-                if (!LocationUpdatesService.canGetLocation()) {
-                    Utilities.showSettingsAlert(LoginActivity.this);
+                    if (!LocationUpdatesService.canGetLocation()) {
+                        Utilities.showSettingsAlert(LoginActivity.this);
+                    }
+
+                    try {
+                        mService.requestLocationUpdates();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
-
-                try {
+                else{
                     mService.requestLocationUpdates();
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
-            else{
-                mService.requestLocationUpdates();
-            }
 
-            mBound = true;
+                mBound = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -273,11 +295,19 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
     DataSyncProcessEx dataSyncProcessEx=null;
     Intent dashIntent;
     ProgressDialog dialog =null;
+    TextView tvContractName;
+    ImageView ivMainImage;
+    TextView tvAppDescription;
+    ImageView ivAppLogo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setLocale(this);
+
+        Globals.setDbContext(getApplicationContext());
+        mPrefs = new SharedPref(dbContext);
+        setUrls();
+        setLocale(dbContext);
 /*
         String languageToLoad  = "ur-rPK"; // your language
         Locale locale = new Locale(languageToLoad);
@@ -288,21 +318,21 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                 getBaseContext().getResources().getDisplayMetrics());
 */
         //Globals.dbContext=getApplicationContext();
-        Globals.setDbContext(getApplicationContext());
-        if(Globals.dataSyncProcessEx ==null){
-            StartDataSyncService();
-        }
+
 
         Globals.checkLanguage(this);
         Globals.loginContext = this;
         Globals.geocoder = new Geocoder(LoginActivity.this.getApplicationContext(), Locale.getDefault());
         //For initializing configs depends on the App
         initConfigs();
+        if(Globals.dataSyncProcessEx ==null){
+            StartDataSyncService();
+        }
 
         //setContentView(R.layout.activity_login);
         setContentView(R.layout.login_new_theme);
         dialog=new ProgressDialog(this);
-        pref = new SharedPref(this);
+        pref = new SharedPref(dbContext);
         if (pref.getBoolean(PREFS_KEY_CUSTOM_SERVER)) {
             wsDomainName = pref.getString(PREFS_KEY_SELECTED_SERVER);
             wsPort = pref.getString(PREFS_KEY_SELECTED_PORT);
@@ -315,9 +345,30 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         Globals.loadLoginData(LoginActivity.this);
         //Retrieving last known location
         Globals.lastKnownLocation = Globals.retrieveLastLocFromPref(pref);
+        tvContractName = findViewById(R.id.tv_contract_name);
+        if (isInternetAvailable()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    VersionInfo ver = loadVersionInfo();
+                    if (ver != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvContractName.setText(ver.getDisplayData().getDisplayName());
+                                setVersionInfo(ver);
+                            }
+                        });
+                    }
+                }
+            }).start();
+        }
             /*Intent intent = new Intent(LoginActivity.this, IssuesActivity.class);
             startActivity(intent);*/
         // serverInfo = (ImageButton) findViewById(R.id.btServerSettings);
+        ivAppLogo = findViewById(R.id.iv_app_logo);
+        tvAppDescription = findViewById(R.id.tv_app_description);
+        ivMainImage = findViewById(R.id.iv_login_main);
         welUserTxt = (TextView) findViewById(R.id.welcomeTxt);
         tvVersion = (TextView) findViewById(R.id.versionTxt);
         welUserImg = (ImageView) findViewById(R.id.welcomeUserImg);
@@ -330,6 +381,9 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         btnLanguage = findViewById(R.id.btn_language);
         btnSettings = findViewById(R.id.btn_settings);
         dashIntent = new Intent(LoginActivity.this, DashboardActivity.class);
+        if(getVersionInfo()!=null){
+            tvContractName.setText(getVersionInfo().getDisplayData().getDisplayName());
+        }
         //dashIntent = new Intent(LoginActivity.this, MainActivity.class);
         btnLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -345,7 +399,29 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                     Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
                     startActivity(intent);
                 } else {
-
+                    /*
+                    String errorString="E/AndroidRuntime: FATAL EXCEPTION: main\n" +
+                    "Process: com.app.ps19.tipsapp, PID: 11181\n"+
+                    "java.lang.ArithmeticException: divide by zero\n"+
+                    "at com.app.ps19.tipsapp.LoginActivity$4.onClick(LoginActivity.java:378)\n"+
+                    "at android.view.View.performClick(View.java:7448)\n"+
+                    "at android.view.View.performClickInternal(View.java:7425)\n"+
+                    "at android.view.View.access$3600(View.java:810)\n"+
+                    "at android.view.View$PerformClick.run(View.java:28305)\n"+
+                    "at android.os.Handler.handleCallback(Handler.java:938)\n"+
+                    "at android.os.Handler.dispatchMessage(Handler.java:99)\n"+
+                    "at android.os.Looper.loop(Looper.java:223)\n"+
+                    "at android.app.ActivityThread.main(ActivityThread.java:7656)\n"+
+                    "at java.lang.reflect.Method.invoke(Native Method)\n"+
+                    "at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)\n"+
+                    "at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)";
+                    ErrorObject errorObject=new ErrorObject(errorString);
+                    JSONObject joError=errorObject.getJsonObject();
+                    Intent intent = new Intent ();
+                    intent.setAction ("com.app.ps19.tipsapp.SEND_LOG_TO"); // see step 5.
+                    intent.setFlags (Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
+                    intent.putExtra(Intent.EXTRA_TEXT, joError.toString());
+                    startActivity(intent);*/
                     // testLocationService();
                     Snackbar.make(getWindow().getDecorView().getRootView(), getString(R.string.log_out_first_server_info), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -453,6 +529,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             public void onClick(View v) {
                 isProceed = true;
                 if(isNetworkAvailable()){
+                    //testHosFunction();
                     new ServerAsyncTask().execute();
                 } else {
                     isProceed = false;
@@ -468,6 +545,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                new tryLogout().execute();
             }
         });
+        setAppView();
         /*serverInfo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -481,6 +559,56 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
 
             }});*/
 
+    }
+
+    private void setAppView() {
+        if(appName.equals(Globals.AppName.TIMPS)){
+            tvAppDescription.setText(getResources().getText(R.string.track_inspection_maintenance_and_planning_system));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.logo_timps, getApplicationContext().getTheme()));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.login_screen_image, getApplicationContext().getTheme()));
+            } else {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.logo_timps));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.login_site_screen_image));
+            }
+        } else if(appName.equals(Globals.AppName.SCIM)){
+            tvAppDescription.setText(getResources().getText(R.string.site_inspection_maintenance_and_planning_system));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.site_logo_dash, getApplicationContext().getTheme()));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.login_site_screen_image, getApplicationContext().getTheme()));
+            } else {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.site_logo_dash));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.login_site_screen_image));
+            }
+        } else if(appName.equals(Globals.AppName.EUIS)){
+            tvAppDescription.setText(getResources().getText(R.string.euis_inspection_maintenance_and_planning_system));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.euis_u_logo, getApplicationContext().getTheme()));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.euis_login_img, getApplicationContext().getTheme()));
+            } else {
+                ivAppLogo.setImageDrawable(getResources().getDrawable(R.drawable.euis_u_logo));
+                ivMainImage.setImageDrawable(getResources().getDrawable(R.drawable.euis_login_img));
+            }
+        }
+    }
+
+    public void showHidePass(View view){
+        if(view.getId()==R.id.iv_show_password){
+
+            if(mPasswordView.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24_blue);
+
+                //Show Password
+                mPasswordView.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            }
+            else{
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24_blue);
+
+                //Hide Password
+                mPasswordView.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+            mPasswordView.setSelection(mPasswordView.getText().length());
+        }
     }
 
     private void populateAutoComplete() {
@@ -575,6 +703,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_READ_CONTACTS) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 populateAutoComplete();
@@ -671,7 +800,13 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             // form field with an error.
             focusView.requestFocus();
         } else {
-            new ServerAsyncTask().execute();
+            // For PlayStore review
+            if(email.equals(demoId)&&password.equals(demoPass)){
+                isDemoUser = true;
+                startActivity(dashIntent);
+            } else {
+                new ServerAsyncTask().execute();
+            }
             }
     }
     public void onLoginRequest(){
@@ -691,12 +826,12 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                                     , Toast.LENGTH_SHORT).show();
                         }
                     });
-                    //return;
+                    return;
                 }
                 if (Globals.webLogin(LoginActivity.this, Globals.orgCode, email, password)) {
                     JSONArray jaUser = new JSONArray();
                     //String url = "http://" + wsDomainName + ":"+ wsPort + "/api/List/user/300";
-                    String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+                    String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
                     try {
                         if(userString != null){
                             jaUser = new JSONArray(userString);
@@ -1044,6 +1179,29 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             userFormLayout.setVisibility(LinearLayout.VISIBLE);
             userProceedLayout.setVisibility(LinearLayout.INVISIBLE);
         }
+        if(getVersionInfo()!=null){
+            setVersionInfo(getVersionInfo());
+            if(tvContractName!=null){
+                tvContractName.setText(getVersionInfo().getDisplayData().getDisplayName());
+            }
+        } else {
+            if(isInternetAvailable()){
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VersionInfo ver = loadVersionInfo();
+                        if(ver!=null){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvContractName.setText(ver.getDisplayData().getDisplayName());
+                                    setVersionInfo(ver);
+                                }});
+                        }
+                    }
+                }).start();
+            }
+        }
 
         if (!mBound) {
             bindService(new Intent(LoginActivity.this, LocationUpdatesService.class), mServiceConnection,
@@ -1053,6 +1211,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                     new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         }
 
+        isDemoUser = false;
     }
 
     @Override
@@ -1294,7 +1453,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             // Parse response data
             JSONArray jaUser = new JSONArray();
             //String url = "http://" + wsDomainName + ":"+ wsPort + "/api/List/user/300";
-            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
             try {
                 if(userString != null){
                     jaUser = new JSONArray(userString);
@@ -1435,7 +1594,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             // Parse response data
             JSONArray jaUser = new JSONArray();
             //String url = "http://" + server + ":"+ port + "/api/List/JourneyPlan/pull";
-            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
             try {
                 if (userString != null) {
                     jaUser = new JSONArray(userString);
@@ -1478,18 +1637,22 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        userFormLayout.setVisibility(LinearLayout.VISIBLE);
-                        userProceedLayout.setVisibility(LinearLayout.GONE);
-                        welUserTxt.setText(getResources().getText(R.string.welcome_text));
-                        welUserImg.setImageResource(R.drawable.avatar);
-                        loginLayout.refreshDrawableState();
-                        logOutBtn.setVisibility(View.GONE);
-                        Globals.safetyBriefing = null;
-                        Globals.listViews = new HashMap<Integer, View>();
-                        Globals.userLoggedOff(LoginActivity.this);
+                        onLogOutExecute();
                     }
                 })
                 .setNegativeButton(R.string.btn_cancel, null).show();
+    }
+
+    private void onLogOutExecute() {
+        userFormLayout.setVisibility(LinearLayout.VISIBLE);
+        userProceedLayout.setVisibility(LinearLayout.GONE);
+        welUserTxt.setText(getResources().getText(R.string.welcome_text));
+        welUserImg.setImageResource(R.drawable.avatar);
+        loginLayout.refreshDrawableState();
+        logOutBtn.setVisibility(View.GONE);
+        Globals.safetyBriefing = null;
+        Globals.listViews = new HashMap<Integer, View>();
+        Globals.userLoggedOff(LoginActivity.this);
     }
 
     private  void StartDataSyncService(){
@@ -1516,6 +1679,12 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             task.execute(context);
     }
 
-
+    private void testHosFunction(){
+        //Hos.load();
+        //Hos.addTodaySession();
+        //Hos.addYesterdaySession();
+        //Hos.sendToServer(Hos.getYesterday().getSlots().get(0));
+        //Hos.update();
+    }
 
 }

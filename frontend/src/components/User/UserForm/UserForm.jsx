@@ -539,7 +539,6 @@ class UForm extends Component {
         />
 
         <FormFields basicFields={this.state.basicFields} change={this.updateFormState} fieldTitle={"basicFields"} />
-
         {!isAddMode && ((permissionCheck("USER", "update") && this.props.user.email !== "") || this.selfUserCheck()) && (
           <Field>
             <Button type="button" size="sm" onClick={this.toggleSetPassword.bind(this)} style={themeService(ButtonStyle.commonButton)}>

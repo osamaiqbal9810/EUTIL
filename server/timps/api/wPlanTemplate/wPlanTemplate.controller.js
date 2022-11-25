@@ -3,10 +3,10 @@ let JourneyPlan = require("./wPlanTemplate.model");
 let ServiceLocator = require("../../../framework/servicelocator");
 const { uniqueId } = require("lodash");
 const moment = require("moment");
-
+let wPlan = require("./GetAssetInspectionStatus");
 exports.all = async function (req, res, next) {
   let workPlanTemplateService = ServiceLocator.resolve("WorkPlanTemplateService");
-  let result = await workPlanTemplateService.getWorkplanTemplates(req.user);
+  let result = await workPlanTemplateService.getWorkplanTemplates(req.user, req.query);
   res.status(result.status);
   if (result.errorVal && result.status == 500) {
     return res.send(result.errorVal);
@@ -18,7 +18,7 @@ exports.all = async function (req, res, next) {
   if (result.value && result.value.length) {
     for (let template of result.value) {
       template = template.toObject();
-      let alerts = await alertService.fetchAlertsByModelId(template._id, {isClone: {$not: {$eq:true}}});
+      let alerts = await alertService.fetchAlertsByModelId(template._id, { isClone: { $not: { $eq: true } } });
       if (alerts && alerts.length) {
         let alertRules = await alertService.getAlertJsonObjectFiltered(alerts);
         template.alertRules = alertRules;
@@ -58,9 +58,12 @@ exports.find = function (req, res, next) {
     res.json(plan);
   });
 };
-
+exports.getWorkPlans = async function(req,res,next) {
+  wPlan.GetAssetInspectionStatus();
+}
 exports.create = async function (req, res, next) {
   let jPlan = req.body.workPlanTemplate;
+  console.log("12");
   if (jPlan.type == 1) {
     let newJourneyPlan = new JourneyPlan(req.body.workPlanTemplate);
     newJourneyPlan.supervisor = req.user._id;
@@ -77,19 +80,29 @@ exports.create = async function (req, res, next) {
       return res.send(result.errorVal);
     }
     let template = result.value;
+    //console.log(template);
     // we calculate short schedule time period for getting next due and expiry date fields in template and update the template
     if (template && template.inspectionFrequencies && template.inspectionFrequencies.length > 0) {
       let scheduleService = ServiceLocator.resolve("scheduleService");
       let freqPeriod;
+      let freqDataMap = {
+        NA: 0,
+        one_Year: 1,
+        three_Years: 3,
+        five_Years: 5
+      }
       freqPeriod = {
-        recurNumber: template.inspectionFrequencies[0].recurNumber && parseInt(template.inspectionFrequencies[0].recurNumber),
+        recurNumber: template.inspection_freq && parseInt(freqDataMap[template.inspection_freq]),
         recurPeriod: template.inspectionFrequencies[0].recurTimeFrame,
       };
+      //console.log(freqPeriod);
       let dateRange = {
         from: moment(template.startDate),
         today: moment.utc().startOf("d"),
-        to: moment(template.startDate).add(freqPeriod.recurNumber * 2, freqPeriod.recurPeriod),
+        to: moment(template.startDate).add(freqPeriod.recurNumber, freqPeriod.recurPeriod),
       };
+      //to: moment(template.startDate).add(freqPeriod.recurNumber * 2, freqPeriod.recurPeriod),
+      // console.log(dateRange);
       let startDate = template.startDate;
       let workingDays = { holidays: [], weekOffDays: [] };
       let timezoneMethodService = ServiceLocator.resolve("timezoneMethodService");
@@ -133,14 +146,15 @@ exports.create = async function (req, res, next) {
 
     // *** End of Alert logic *** //
 
-    let dashboardService = ServiceLocator.resolve("DashboardService");
-    dashboardService.reCalculateDashboardV1Data();
+    //  let dashboardService = ServiceLocator.resolve("DashboardService");
+    // dashboardService.reCalculateDashboardV1Data();
     res.json(result.value);
   }
 };
 
 exports.update = async function (req, res, next) {
   let plan = await JourneyPlan.findOne({ _id: req.params.id }).exec();
+
   plan.user = req.body.user;
   plan.title = req.body.title;
   plan.dayFreq = req.body.dayFreq;
@@ -158,6 +172,9 @@ exports.update = async function (req, res, next) {
   plan.lineName = req.body.lineName;
   plan.subdivision = req.body.subdivision;
   plan.inspectionAssets = req.body.inspectionAssets;
+  plan.inspectionFormInfo = req.body.inspectionFormInfo;
+  plan.inspection_date = req.body.inspection_date;
+
   if (plan.startDate != req.body.startDate) {
     // if startDate is changed, change the nextInspectionDate as well
     plan.startDate = req.body.startDate;
@@ -165,6 +182,7 @@ exports.update = async function (req, res, next) {
   }
   if (req.body.maxAllowable) plan.maxAllowable = req.body.maxAllowable;
   let workPlanTemplateService = ServiceLocator.resolve("WorkPlanTemplateService");
+
   let result = await workPlanTemplateService.createWorkplanTemplate(plan, req.body.startDate);
   res.status(result.status);
   if (result.errorVal && result.status == 500) {

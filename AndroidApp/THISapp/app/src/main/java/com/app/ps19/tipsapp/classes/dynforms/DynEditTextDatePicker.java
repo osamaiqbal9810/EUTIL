@@ -7,6 +7,8 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 
+import com.app.ps19.tipsapp.R;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -22,6 +24,24 @@ public class  DynEditTextDatePicker  implements View.OnClickListener, DatePicker
     private int _month;
     private int _year;
     private Context _context;
+    private long minimumDate;
+    private boolean onlyDate;
+
+    public long getMinimumDate() {
+        return minimumDate;
+    }
+
+    public void setMinimumDate(long minimumDate) {
+        this.minimumDate = minimumDate;
+    }
+
+    public boolean isOnlyDate() {
+        return onlyDate;
+    }
+
+    public void setOnlyDate(boolean onlyDate) {
+        this.onlyDate = onlyDate;
+    }
 
     public DynEditTextDatePicker(Context context, EditText editTextViewID)
     {
@@ -47,6 +67,10 @@ public class  DynEditTextDatePicker  implements View.OnClickListener, DatePicker
         DatePickerDialog dialog = new DatePickerDialog(_context, this,
                 year,month,
                 dayOfMonth);
+        if(minimumDate>0){
+            dialog.getDatePicker().setMinDate(minimumDate);
+        }
+
         dialog.show();
 
     }
@@ -60,7 +84,8 @@ public class  DynEditTextDatePicker  implements View.OnClickListener, DatePicker
                     .append(_day).append("/").append(_month+1).append("/").append(_year).append("").toString());
             SimpleDateFormat sdfOut=new SimpleDateFormat("MMM, dd, yyyy");
             //_editText.setText(sdfOut.format(date));
-            _editText.setText(date.toString());
+            _editText.setText(this.onlyDate?sdfOut.format(date): date.toString());
+            _editText.setTag(R.id.TAG_DATE_ID,date.toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }

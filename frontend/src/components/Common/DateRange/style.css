@@ -1,0 +1,8 @@
+.rep-filter-select {
+    display: inline-block;
+}
+span.rep-filter-title {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+}

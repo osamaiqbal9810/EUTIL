@@ -1,29 +1,34 @@
 package com.app.ps19.scimapp;
 
+import static com.app.ps19.scimapp.Shared.Globals.markerItemsMap;
+
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 
 import com.app.ps19.scimapp.classes.LocItem;
+import com.app.ps19.scimapp.classes.ativ.ATIVDefect;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.LocationSource;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
 
-class AssetMarkerRender extends DefaultClusterRenderer<LocItem> {
+public class AssetMarkerRender extends DefaultClusterRenderer<LocItem> {
     private final Context mContext;
     private final IconGenerator mClusterIconGenerator;/* = new IconGenerator(getApplicationContext());*/
     public AssetMarkerRender(Context context, GoogleMap map, ClusterManager clusterManager) {
         super(context, map, clusterManager);
         mContext = context;
         mClusterIconGenerator = new IconGenerator(mContext);
+    }
+    @Override
+    protected void onClusterItemRendered(LocItem clusterItem, Marker marker) {
+        ATIVDefect aDefect = clusterItem.getaDefect();
+        if(aDefect!=null){
+            markerItemsMap.put(marker.getId(),clusterItem);
+        }
+
     }
    /* @Override
     protected void onBeforeClusterItemRendered(LocItem item, MarkerOptions markerOptions) {

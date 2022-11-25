@@ -31,9 +31,8 @@ class MonthlySwitchInspection extends React.Component {
     };
   }
   componentDidMount() {
-    this.calculateData(this.props.reportData, this.props.inspectionData);
+    this.props.reportData && this.calculateData(this.props.reportData, this.props.inspectionData);
   }
-
   calculateData(data, inspectionData) {
     // TO MAP DATA HERE
 
@@ -69,7 +68,7 @@ class MonthlySwitchInspection extends React.Component {
         >
           <Row>
             <Col md={2}>
-              <img src={themeService(iconToShow)} alt="Logo" style={themeService(switchReportStyle.logoStyle)} />
+              <img src={themeService(iconToShow)} alt="Logo" style={{ width: "100%" }} />
             </Col>
             <Col md={8}>
               <h2 style={{ ...themeService(switchReportStyle.headingStyle), transform: "translateX(-21px)", color: "#0070c0" }}>
@@ -127,7 +126,7 @@ class MonthlySwitchInspection extends React.Component {
                   <span
                     style={{ color: "#000", width: "250px", display: "inline-block", borderBottom: "2px solid #000", textAlign: "center" }}
                   >
-                    {moment(this.props.inspectionData && this.props.inspectionData.date).format("MM/DD/YYYY")}
+                    {this.props.inspectionData && moment(this.props.inspectionData.date).format("MM/DD/YYYY")}
                   </span>
                 </div>
               </h2>
@@ -168,7 +167,6 @@ class MonthlySwitchInspection extends React.Component {
                     <th colSpan="5" style={{ width: "50px", borderBottom: "transparent" }}></th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr>
                     <td colSpan="4" rowSpan="3" style={{ width: "40px" }}>
@@ -334,7 +332,6 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.pointecolle1 === "BON ÉTAT" ? "X" : ""}
                     </td>
                     <td colSpan="1" style={{ width: "10px" }}>
-                      {" "}
                       {this.reportData && this.reportData.pointecolle1 === "AJUSTER" ? "X" : ""}
                     </td>
                     <td colSpan="1" style={{ width: "10px" }}>
@@ -344,10 +341,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.avis1}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.description1}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       POINTE COLLE BIEN EN POSITION RENVERSÉE
@@ -367,7 +363,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description2}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       SURÉLÉVATION DE LA POINTE (1/4") C/E - C/N
@@ -385,10 +381,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis1}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc1}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       SURÉLÉVATION DE LA POINTE (1/4") C/O - C/S
@@ -406,10 +401,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis2}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc2}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONDITION DE LA POINTE C/O - C/S
@@ -429,7 +423,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description3}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONDITION DE LA POINTE C/E - C/N
@@ -449,7 +443,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description4}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS TALON DE LA POINTE C/O - C/S (HEEL-BLOCK BOLTS)
@@ -467,10 +461,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis3}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc3}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS TALON DE LA POINTE C/E - C/N (HEEL-BLOCK BOLTS)
@@ -488,15 +481,13 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis4}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc4}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       NIVELLEMENT TALON DE LA POINTE C/O - C/S (HEEL-BLOCK)
                     </td>
-
                     <td colSpan="1" style={{ width: "10px" }}>
                       {this.reportData && this.reportData.anivell1 === "BON ÉTAT" ? "X" : ""}
                     </td>
@@ -510,10 +501,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis5}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc5}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       NIVELLEMENT TALON DE LA POINTE C/E - C/N (HEEL-BLOCK)
@@ -531,10 +521,9 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.aavis6}
                     </td>
                     <td colSpan="11" style={{ width: "120px" }}>
-                      {" "}
                       {this.reportData && this.reportData.adesc6}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-FICHE C/O - C/S (BRACE-BLOCK)
@@ -554,7 +543,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description5}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-FICHE C/E - C/N (BRACE-BLOCK)
@@ -574,7 +563,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description6}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DE CONTRE-FICHE C/O - C/S (BRACE-BLOCK BOLTS)
@@ -594,7 +583,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description6a}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DE CONTRE-FICHE C/E - C/N (BRACE-BLOCK BOLTS)
@@ -614,7 +603,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description6b}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-AIGUILLE C/O - C/S (STOCK-RAIL)
@@ -634,7 +623,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description7}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-AIGUILLE C/E - C/N (STOCK-RAIL)
@@ -654,7 +643,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description8}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       TRINGLES D'ÉCARTEMENT (RODS)
@@ -674,7 +663,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description9}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DES TRINGLES D'ÉCARTEMENT (RODS BOLTS)
@@ -694,7 +683,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description10}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       GOUPILLES
@@ -714,7 +703,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description11}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       SELLES DE GLISSEMENT (PLATES)
@@ -734,7 +723,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description12}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONDITION DES DORMANTS (TIES)
@@ -754,7 +743,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description13}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CRAMPONS ET SYSTÈME D'ATTACHE
@@ -814,7 +803,6 @@ class MonthlySwitchInspection extends React.Component {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
@@ -835,7 +823,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description16}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DU CŒUR DE CROISSEMENT
@@ -855,7 +843,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description17}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       ROUES TOUCHES CÔTÉ POINTE
@@ -875,7 +863,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description18}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       ROUES TOUCHES CÔTÉ AILES
@@ -892,7 +880,6 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="2" style={{ width: "35px" }}>
                       {this.reportData && this.reportData.avis19}
                     </td>
-
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description19}
                     </td>
@@ -916,7 +903,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description20}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CRAMPONS, SYSTÈME D'ATTACHE
@@ -936,7 +923,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description21}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-RAIL C/O - C/S (GUARD-RAIL)
@@ -956,7 +943,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description22}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONTRE-RAIL C/E - C/N (GUARD-RAIL)
@@ -976,7 +963,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description23}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       AJUSTER COTE DE PROTECTION C/O - C/S
@@ -996,7 +983,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description24}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       AJUSTER COTE DE PROTECTION C/E - C/N
@@ -1016,7 +1003,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description25}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DU CONTRE-RAIL C/O - C/S (GUARD-RAIL)
@@ -1036,7 +1023,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description26}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       BOULONS DU CONTRE-RAIL C/E - C/N (GUARD-RAIL)
@@ -1056,7 +1043,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description27}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONDITION DES DORMANTS (TIES)
@@ -1076,7 +1063,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description28}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       NIVELLEMENT ET ALIGNEMENT
@@ -1096,7 +1083,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description29}
                     </td>
-                  </tr>{" "}
+                  </tr>
                 </tbody>
               </table>
             </Col>
@@ -1113,7 +1100,6 @@ class MonthlySwitchInspection extends React.Component {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
@@ -1134,7 +1120,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description30}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       NIVELLEMENT ET ALIGNEMENT (DONNÉES DU 454)
@@ -1154,7 +1140,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc7}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       CONDITION DES DORMANTS (TIES)
@@ -1174,7 +1160,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description31}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/O - C/S
@@ -1194,11 +1180,10 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="2" style={{ width: "35px" }}>
                       {this.reportData && this.reportData.avis32}
                     </td>
-
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description32}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/E - C/N
@@ -1218,7 +1203,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description33}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/O - C/S
@@ -1241,7 +1226,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description34}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/E - C/N
@@ -1261,7 +1246,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description35}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VE C/O - C/S
@@ -1281,7 +1266,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description37}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VE C/E - C/N
@@ -1301,7 +1286,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description38}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/O - C/S
@@ -1321,7 +1306,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description39}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       JOINTS ISOLÉS VP C/E - C/N
@@ -1341,7 +1326,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description40}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       RAIL
@@ -1361,7 +1346,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description41}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       RAIL
@@ -1381,7 +1366,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description42}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       RAIL
@@ -1401,7 +1386,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description43}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       RAIL
@@ -1421,7 +1406,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description44}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       AUTRES COMPOSANTES
@@ -1441,7 +1426,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description44a}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td
                       colSpan="20"
@@ -1471,7 +1456,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.description45}
                     </td>
-                  </tr>{" "}
+                  </tr>
                 </tbody>
               </table>
             </Col>
@@ -1488,7 +1473,6 @@ class MonthlySwitchInspection extends React.Component {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
@@ -1509,7 +1493,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc8}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       V/E À L'ENTRETOISE DU TALON
@@ -1529,7 +1513,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc9}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       V/E AU POINT MÉDIAN DU RAIL INTERMÉDIAIRE
@@ -1549,7 +1533,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc10}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       V/E APRÈS LE CŒUR DE CROISEMENT
@@ -1569,7 +1553,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc11}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       V/E 20 PIEDS APRÈS LE CŒUR DE CROISEMENT
@@ -1589,7 +1573,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc12}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="background-golden">
                     <td colSpan="20" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
                       V/E 40 PIEDS APRÈS LE CŒUR DE CROISEMENT
@@ -1609,7 +1593,7 @@ class MonthlySwitchInspection extends React.Component {
                     <td colSpan="11" style={{ width: "120px" }}>
                       {this.reportData && this.reportData.adesc13}
                     </td>
-                  </tr>{" "}
+                  </tr>
                 </tbody>
               </table>
             </Col>
@@ -1626,7 +1610,6 @@ class MonthlySwitchInspection extends React.Component {
                     </th>
                   </tr>
                 </thead>
-
                 <tbody>
                   <tr>
                     <td colSpan="36" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}>
@@ -1635,35 +1618,33 @@ class MonthlySwitchInspection extends React.Component {
                         {this.reportData && this.reportData.comments1}
                       </pre>
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="36" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}></td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="36" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}></td>
-                  </tr>{" "}
+                  </tr>
                   <tr>
                     <td colSpan="36" style={{ width: "190px", textAlign: "left", paddingLeft: "10px" }}></td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="main-heading">
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px", backgroundColor: "#d9d9d9" }}>
                       <span style={{ paddingLeft: "10px", fontSize: "26px", fontWeight: "700", textAlign: "left" }}>BM #</span>
                     </td>
                     <td colSpan="26">
-                      {" "}
                       {this.reportData && this.reportData.bm1} {this.reportData && this.reportData.abm1}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="main-heading">
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px", backgroundColor: "#d9d9d9" }}>
                       <span style={{ paddingLeft: "10px", fontSize: "26px", fontWeight: "700", textAlign: "left" }}> CODE DU BM :</span>
                     </td>
                     <td colSpan="26">
-                      {" "}
                       {this.reportData && this.reportData.codedubm}
                       {this.reportData && this.reportData.acodedubm}
                     </td>
-                  </tr>{" "}
+                  </tr>
                   <tr className="main-heading">
                     <td colSpan="10" style={{ width: "190px", textAlign: "left", paddingLeft: "10px", backgroundColor: "#d9d9d9" }}>
                       <span style={{ paddingLeft: "10px", fontSize: "26px", fontWeight: "700", textAlign: "left" }}> DATE DU BM :</span>
@@ -1672,7 +1653,7 @@ class MonthlySwitchInspection extends React.Component {
                       {this.reportData && this.reportData.datedubm}
                       {this.reportData && this.reportData.adatedubm}
                     </td>
-                  </tr>{" "}
+                  </tr>
                 </tbody>
               </table>
             </Col>
@@ -1681,9 +1662,13 @@ class MonthlySwitchInspection extends React.Component {
             <Col md={12}>
               <Row className="border-wrapper">
                 <Col md={4}>
-                  <div className="media-image" style={{ textAlign: "center" }}>
+                  <div className="media-image" style={{ textAlign: "center", overflow: "hidden" }}>
                     <span className="spacer"></span>
-                    <img src={themeService(iconToShow)} alt="Logo" style={{ display: "inline-block", paddgin: "", margin: "0 auto" }} />
+                    <img
+                      src={themeService(iconToShow)}
+                      alt="Logo"
+                      style={{ display: "inline-block", paddgin: "", margin: "0 auto", width: "100%" }}
+                    />
                   </div>
                 </Col>
                 <Col md={8}>
@@ -1733,5 +1718,4 @@ class MonthlySwitchInspection extends React.Component {
     );
   }
 }
-
 export default MonthlySwitchInspection;

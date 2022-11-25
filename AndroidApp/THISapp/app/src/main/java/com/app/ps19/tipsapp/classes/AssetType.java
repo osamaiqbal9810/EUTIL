@@ -60,6 +60,24 @@ public class AssetType implements IConvertHelper {
     private Context context;
     private Form form;
     private boolean isInspectable = false;
+    private String displayName="";
+    private boolean configurationAsset;
+
+    public boolean isConfigurationAsset() {
+        return configurationAsset;
+    }
+
+    public void setConfigurationAsset(boolean configurationAsset) {
+        this.configurationAsset = configurationAsset;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 
     public boolean isPlanable() {
         return isPlanable;
@@ -122,6 +140,8 @@ public class AssetType implements IConvertHelper {
             setPlanable(jsonObject.optBoolean("plannable", false));
             setMarkerMilepost(jsonObject.optBoolean("markerMilepost", false));
             setAssetTypeClassify(jsonObject.optString("assetTypeClassify",""));
+            setDisplayName(jsonObject.optString("displayName",""));
+            setConfigurationAsset(jsonObject.optBoolean("configurationAsset",false));
             if(jsonObject.optJSONObject("defectCodesObj") !=null) {
                 defectCodes = new DefectCode(jsonObject.optJSONObject("defectCodesObj"));
             }else{

@@ -23,8 +23,22 @@ import GI305Report from "./maintenance-305a";
 import GI303BatteryMaintenance from "./batteryMaintenance";
 import GI303B12B24BatteryTestReports from "./batteryTestReportsB12&B24.jsx";
 import SudNicmanReport from "./sudNicman";
-import DefaultReport from "./defaultReport";
-import {versionInfo} from "../../MainPage/VersionInfo";
+import DefaultReport from "./Default/fRADefaultReport";
+import { versionInfo } from "../../MainPage/VersionInfo";
+import RelayTest from "./relayTest";
+import InsulationResistance from "./insulationResistance";
+
+import HighWayCrossing from "./highWayCrossingCombined/highWayCrossing";
+import CrossingWarning from "./ontario/crossingWarning";
+import DateRangeControl from "../../Common/DateRange/DateRangeControl";
+import { updateFilterState } from "reduxRelated/actions/filterStateAction";
+import { getCurrentReportStateFilters, TEMPLATE_REPORT_FILTERS } from "./HelperFunctions/stateRetentionManagement";
+import FRACrossingReport from "./FRA_Crossing/FRA_CrossingReport";
+import { calculateCombineSets } from "./CombineMethods/CombineMethods";
+import SFRTA_MonthlySwitchTestsAndInspectionsReport from "../SFRTA/MonthlySwitchTestsAndInspectionsReport";
+import SFRTA_QuarterlySwitchTestsAndInspectionsReport from "../SFRTA/QuarterlySwitchTestsAndInspectionsReport";
+import SFRTA_LockingTestsAndInspectionsReport from "../SFRTA/LockingTestsAndInspectionsReport";
+import SFRTA_BridgeTestsAndInspectionReport from "../SFRTA/BridgeTestsAndInspectionReport";
 
 const defaultReportNames = {
   gi329f: "GI329",
@@ -46,11 +60,13 @@ const InputObj = {
 class testReportFilter extends Component {
   constructor(props) {
     super(props);
+    this.reportSRFilter = getCurrentReportStateFilters(this.props.reportSRFilter);
     this.state = {
       assetTypeOptions: [],
       locationOptions: [],
       testsOptions: [],
       selectedAsset: "",
+      selectedAssetId: null,
       assetTestEntries: [],
       showReport: false,
       dateRange: {
@@ -64,6 +80,8 @@ class testReportFilter extends Component {
       reportCode: "",
       spinnerLoading: false,
       testSchedules: [],
+
+      ...this.reportSRFilter,
     };
     this.changeHandler = this.changeHandler.bind(this);
     this.updateDateRange = this.updateDateRange.bind(this);
@@ -72,6 +90,15 @@ class testReportFilter extends Component {
     this.handleClick = this.handleClick.bind(this);
     this.isApp = this.isApp.bind(this);
     this.renderReportDisplay = this.renderReportDisplay.bind(this);
+    this.handleUpdateFilterState = this.handleUpdateFilterState.bind(this);
+  }
+  handleUpdateFilterState(propertiesToUpdate) {
+    let reportSRFilter = this.props.reportSRFilter ? this.props.reportSRFilter : {};
+
+    this.props.updateFilterState("reportSRFilter", {
+      ...reportSRFilter,
+      ...propertiesToUpdate,
+    });
   }
   isApp = () => localStorage.getItem("source");
   getRangeDataFromServer(range, additionalQuery) {
@@ -114,22 +141,32 @@ class testReportFilter extends Component {
     });
     return assetReports;
   }
-  updateDateRange(dateRange) {
+  updateDateRange(dateRange, stateRange) {
     this.setState({
+      dateRange: dateRange,
+      ...stateRange,
+    });
+    this.handleUpdateFilterState({
       dateRange: dateRange,
     });
     this.getRangeDataFromServer(dateRange);
   }
 
   componentDidMount() {
-    this.getRangeDataFromServer(this.state.dateRange);
+    this.state.pRange && this.state.submit && this.getRangeDataFromServer(this.state.dateRange);
   }
   handleBack() {
     this.setState({
       showReport: false,
       selectedAsset: "",
+      selectedAsset: null,
       reportDetailData: [],
     });
+    // this.handleUpdateFilterState({
+    //   showReport: false,
+    //   selectedAsset: "",
+    //   //reportDetailData: [],
+    // });
   }
   printReport() {
     document.title = this.state.reportCode.toUpperCase();
@@ -140,15 +177,34 @@ class testReportFilter extends Component {
     //};
   }
 
+  checkCombinedStoredSet(combinedStoredSets, item) {
+    let found = null;
+    for (let sets of combinedStoredSets) {
+      if (!found) found = _.find(sets, { id: item.id });
+    }
+    return found;
+  }
   handleClick(item) {
-    let additionalQuery = "&assetId=" + item.assetId + "&testCode=" + item.testCode;
-    this.getRangeDataFromServer(this.state.dateRange, additionalQuery);
+    let additionalQuery = "&assetId=" + item.assetId + "&status=exec";
+    let combineItemFound = this.checkCombinedStoredSet(this.state.combinedSets, item);
+    let dateRange = this.state.dateRange;
+    if (combineItemFound) {
+      for (let code of combineItemFound.testCodes) {
+        additionalQuery = additionalQuery + "&testCodes=" + code;
+      }
+    } else {
+      additionalQuery = additionalQuery + "&testCode=" + item.testCode;
+    }
+
+    this.getRangeDataFromServer(dateRange, additionalQuery);
     this.setState({
       showReport: true,
       reportCode: item.testCode,
       selectedAsset: item.assetName,
+      selectedAssetId: item.assetId,
     });
   }
+
   componentDidUpdate(prevProps, prevState) {
     if (this.props.actionType == "TESTSCHEDULES_READ_REQUEST" && this.props.actionType !== prevProps.actionType) {
       this.setState({
@@ -173,10 +229,13 @@ class testReportFilter extends Component {
       });
     }
   }
-  calculateFilterData(testSchedules) {
+  calculateFilterData(testSchedulesData) {
     let locationOptions = [];
     let assetTypeOptions = [];
     let testsOptions = [];
+    let combinedSets = calculateCombineSets(testSchedulesData);
+
+    let testSchedules = combinedSets.remainingTestScheds;
     if (testSchedules && _.isArray(testSchedules)) {
       locationOptions.push({ val: "All", text: "All" });
       assetTypeOptions.push({ val: "All", text: "All" });
@@ -198,6 +257,7 @@ class testReportFilter extends Component {
         },
         testSchedules: _.cloneDeep(testSchedules),
         spinnerLoading: false,
+        combinedSets: combinedSets.combinedSet,
       });
     } else {
       this.setState({
@@ -206,26 +266,7 @@ class testReportFilter extends Component {
     }
   }
   renderReportDisplay(param) {
-    switch (param) {
-      case "formFicheB12B24":
-        return <GI303B12B24BatteryTestReports reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />;
-      case "formGI303":
-        return <GI303BatteryMaintenance reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />;
-      case "formFicheB12":
-        return <GI303Report reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />;
-      case "formFicheB24":
-        return <GI305Report reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />;
-      case "suivimargingi335":
-        return <SudNicmanReport reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />;
-      default:
-        return (
-          <DefaultReport
-            reportName={defaultReportNames[param]}
-            reportData={this.state.reportDetailData}
-            selectedAsset={this.state.selectedAsset}
-          />
-        );
-    }
+    return siteReportSelctor(param, this.state.reportDetailData, this.state.selectedAsset, this.state.selectedAssetId);
   }
   render() {
     //console.log(this.state.reportDetailData);
@@ -249,11 +290,20 @@ class testReportFilter extends Component {
                     <h2 style={{ ...themeService(trackReportStyle.headingStyle), transform: "none", fontSize: "22px" }}>
                       {languageService("Fixed Assets Tests Reports")}
                     </h2>
-
-                    <label style={themeService(trackReportStyle.labelStyle)}>{languageService("Select a Date Range")}</label>
+                    <span>
+                      <DateRangeControl
+                        dateRangeChanged={this.updateDateRange}
+                        handleUpdateFilterState={this.handleUpdateFilterState}
+                        iPeriod={this.state.iPeriod}
+                        year={this.state.year}
+                        pRange={this.state.pRange}
+                        submit={this.state.submit}
+                      />
+                    </span>
+                    {/* <label style={themeService(trackReportStyle.labelStyle)}>{languageService("Select a Date Range")}</label>
                     <span style={themeService(trackReportStyle.dateStyle)}>
                       <InputDateField updateDateRange={this.updateDateRange} defaultDate={this.state.dateRange} />
-                    </span>
+                    </span> */}
                     {this.state.locationOptions && this.state.locationOptions.length > 0 && (
                       <SelectField
                         inputFieldProps={{ name: "location", label: "Location" }}
@@ -319,56 +369,6 @@ class testReportFilter extends Component {
               )}
             </div>
             {this.state.reportCode && this.renderReportDisplay(this.state.reportCode)}
-            {/* {this.state.reportCode == "formFicheB12B24" && (
-              <GI303B12B24BatteryTestReports reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "formGI303" && (
-              <GI303BatteryMaintenance reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "formFicheB12" && (
-              <GI303Report reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "formFicheB24" && (
-              <GI305Report reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi329fa" && (
-              <DefaultReport reportName="GI 329" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi329fb" && (
-              <DefaultReport reportName="GI 329" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi329fc" && (
-              <DefaultReport reportName="GI 329" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi329fd" && (
-              <DefaultReport reportName="GI 329" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi313f" && (
-              <DefaultReport reportName="GI 329" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "gi334f" && (
-              <DefaultReport
-                reportName="GI 334 Inspection des détecteurs de chute de rochers"
-                reportData={this.state.reportDetailData}
-                selectedAsset={this.state.selectedAsset}
-              />
-            )}
-            {this.state.reportCode == "scp901f" && (
-              <DefaultReport reportName="SCP-901" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "scp902f" && (
-              <DefaultReport reportName="SCP-902" reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )}
-            {this.state.reportCode == "scp907f" && (
-              <DefaultReport
-                reportName="SCP-907 Inspection du détecteur des boîtes chaudes Voestalpine"
-                reportData={this.state.reportDetailData}
-                selectedAsset={this.state.selectedAsset}
-              />
-            )}
-            {this.state.reportCode == "suivimargingi335" && (
-              <SudNicmanReport reportData={this.state.reportDetailData} selectedAsset={this.state.selectedAsset} />
-            )} */}
           </React.Fragment>
         )}
       </React.Fragment>
@@ -376,16 +376,20 @@ class testReportFilter extends Component {
   }
 }
 
-let variables = {};
+let variables = {
+  filterStateReducer: {
+    reportSRFilter: null,
+  },
+};
 
 let actionOptions = {
   create: false,
   update: false,
   read: true,
   delete: false,
-  others: {},
+  others: { updateFilterState },
 };
-const testReportFilterContainer = CRUDFunction(testReportFilter, "testSchedule", actionOptions, variables, []);
+const testReportFilterContainer = CRUDFunction(testReportFilter, "testSchedule", actionOptions, variables, ["filterStateReducer"]);
 
 export default testReportFilterContainer;
 
@@ -394,4 +398,32 @@ function checkFilledPush(field, existingArray, text, val) {
   if (!fieldFilled) {
     existingArray.push({ val: val ? val : field, text: text ? text : field });
   }
+}
+
+function siteReportSelctor(param, reportDetailData, selectedAsset, selectedAssetId) {
+  const obj = {
+    formFicheB12B24: <GI303B12B24BatteryTestReports reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    formGI303: <GI303BatteryMaintenance reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    formFicheB12: <GI303Report reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    formFicheB24: <GI305Report reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    suivimargingi335: <SudNicmanReport reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    relayTestForm: <RelayTest reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    insulationResistance: <InsulationResistance reportData={reportDetailData} selectedAsset={selectedAsset} />,
+    CrossingHighwayReport: (
+      <HighWayCrossing reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />
+    ),
+    GradeCrossingWarningReport: (
+      <CrossingWarning reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />
+    ),
+    HighwayGradeCrossing: (
+      <FRACrossingReport reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />
+    ),
+    sfrtaSwitchMTests: <SFRTA_MonthlySwitchTestsAndInspectionsReport reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />,
+    sfrtaSwitchQTests: <SFRTA_QuarterlySwitchTestsAndInspectionsReport reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />,
+    sfrtaInterLockingTests: <SFRTA_LockingTestsAndInspectionsReport reportData={reportDetailData} selectedAsset={selectedAsset} selectedAssetId={selectedAssetId} />,
+    sfrtaHotBoxDefectDetectorTests: "Hot Box Defect Detector Report",
+    sfrtaBridgeLockingForm: <SFRTA_BridgeTestsAndInspectionReport />,
+  };
+
+  return obj[param] ? obj[param] : null;
 }

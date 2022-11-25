@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TekTrackingCore.UnitControl"
+             xmlns:local="clr-namespace:TekTrackingCore.ViewModels">
+    <CollectionView  ItemsSource="{Binding AllUnits}">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <Frame BorderColor="Gray"
+                        CornerRadius="0" HeightRequest="90">
+                    <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center">
+
+                        <Label Text="{Binding UnitId}" Margin="0,0,0,0" />
+                        <Button  Padding="10" Text=">" TextColor="Black" BackgroundColor="BurlyWood" CornerRadius="100" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=TestCommand}" CommandParameter="{Binding .}"/>
+                    </FlexLayout>
+                </Frame>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+    </CollectionView>
+</ContentView>

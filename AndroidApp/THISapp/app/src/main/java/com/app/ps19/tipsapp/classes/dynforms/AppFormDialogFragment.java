@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
@@ -15,11 +16,13 @@ import com.app.ps19.tipsapp.R;
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.classes.Units;
 import com.app.ps19.tipsapp.classes.UnitsTestOpt;
+import com.app.ps19.tipsapp.classes.equipment.Equipment;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static com.app.ps19.tipsapp.Shared.Globals.app;
 import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedForm;
 
@@ -29,6 +32,8 @@ public class AppFormDialogFragment extends DialogFragment {
     private Units unit;
     private String mParam2;
     private String mParam3="";
+    private Equipment equipment;
+    private boolean onlyTestForms =true;
     private HashMap<String, String> testCodeHM;
     public  AppFormDialogFragment(){
         unit=Globals.getSelectedUnit();
@@ -41,23 +46,54 @@ public class AppFormDialogFragment extends DialogFragment {
         mParam3="1";
         fillFormList();
     }
-
+    public  AppFormDialogFragment(boolean trackForms,boolean onlyTestForms){
+        unit=Globals.getSelectedUnit();
+        mParam2=unit.getAssetType();
+        mParam3="";
+        this.onlyTestForms=onlyTestForms;
+        fillFormList();
+    }
+    public  AppFormDialogFragment(Equipment equipment){
+        unit=Globals.getSelectedUnit();
+        this.equipment=equipment;
+        mParam2="";//unit.getAssetType();
+        fillFormList();
+    }
+    private boolean isEquipmentFormList(){
+        if(equipment!=null){
+            return true;
+        }
+        return false;
+    }
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         //CharSequence[] charSequenceItems = (CharSequence[])formList.toArray(new CharSequence[formList.size()]);
-        CharSequence[] charSequencesItems=new CharSequence[this.formListObj.size()];
-        int count=0;
+        List<DynForm> _formListObjWTest=new ArrayList<DynForm>();
+        List<DynForm> _formListObjNoTest=new ArrayList<DynForm>();
         for(DynForm form:this.formListObj){
-            String testTitle=form.getFormName();
-            if(testCodeHM.get(form.getFormId())!=null) {
+            if(testCodeHM.get(form.getFormId())!=null){
+                _formListObjWTest.add(form);
+            }else{
+                _formListObjNoTest.add(form);
+            }
+        }
+        int size= onlyTestForms?_formListObjWTest.size():_formListObjNoTest.size();
+        CharSequence[] charSequencesItems=new CharSequence[size];
+        int count=0;
+        List<DynForm> _formListObj=onlyTestForms?_formListObjWTest:_formListObjNoTest;
+        for (DynForm form :  _formListObj) {
+            String testTitle = form.getFormName();
+            if (testCodeHM.get(form.getFormId()) != null) {
                 testTitle = testCodeHM.get(form.getFormId());
             }
-            charSequencesItems[count]=testTitle;
+            charSequencesItems[count] = testTitle;
             count++;
         }
+        this.formListObj=_formListObj;
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(getString(R.string.select_a_form))
+        String title=isEquipmentFormList()?("Forms for "+equipment.getName()):getString(R.string.select_a_form);
+        builder.setTitle(title)
                 .setItems(charSequencesItems, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -68,15 +104,25 @@ public class AppFormDialogFragment extends DialogFragment {
                         Globals.selectedUnit=unit;
                         if(unit !=null && !unit.getUnitId().equals(Globals.selectedUnit)){
                             Globals.selectedUnit=unit;
-                            selectedForm=Globals.selectedUnit.getUnitForm(formObj.getFormId());
-                            UnitsTestOpt unitTest=unit.getUnitTestOpt(formObj.getFormId());
-                            if(selectedForm==null || unitTest==null){
-                                return;
+                            if(isEquipmentFormList()){
+                                if(Globals.selectedUnit.getEquipmentForm(equipment,formObj.getFormId()) == null){
+                                    Toast.makeText(getActivity(),equipment.getEquipmentType().getEquipmentType() + " parameter is missing", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                                selectedForm=Globals.selectedUnit.getEquipmentForm(equipment,formObj.getFormId());
+                            }else{
+                                selectedForm=Globals.selectedUnit.getUnitForm(formObj.getFormId());
+                                UnitsTestOpt unitTest=unit.getUnitTestOpt(formObj.getFormId());
+                                if(selectedForm==null /*|| unitTest==null*/){
+                                    return;
+                                }
+                                selectedForm.setUnitsTestOpt(unitTest);
                             }
                             selectedForm.setSelectedUnit(Globals.selectedUnit);
-                            selectedForm.setUnitsTestOpt(unitTest);
+                            if(isEquipmentFormList()){
+                                selectedForm.setSelectedEquipment(equipment);
+                            }
                         }
-
 
                         Intent intent = new Intent(getActivity(), AppFormActivity.class);
                         intent.putExtra("assetType","");
@@ -108,20 +154,30 @@ public class AppFormDialogFragment extends DialogFragment {
             ArrayList<DynForm> _formList=null;
             if(!mParam2.equals("")){
                 if(Globals.selectedUnit !=null){
-                    _formList=unit.getAppForms();
+                    _formList=sortListByTests(unit.getAppForms());
+                    //rayList<UnitsTestOpt> testList = selected.getUnit().getTestFormList();
                 }else{
                     return;
                 }
             }else{
-                _formList=getSelectedTask().getAppForms();
+                if(isEquipmentFormList()){
+                    _formList=equipment.getEquipmentType().getFormList();
+                }else {
+                    _formList = getSelectedTask().getAppForms();
+                }
             }
             ArrayList<DynForm> _formFilterList=new ArrayList<>();
             List<String> _formListText=new ArrayList<String>();
             String viewGroup=mParam3 !=null?mParam3:"";
             for(DynForm form:_formList){
-                if(mParam2.equals("")) {
+                if(mParam2.equals("") && !isEquipmentFormList()) {
                     //if (!form.isAssetTypeExists()) {
-                    if ((form.getFormSettings() == null && viewGroup.equals("")) || (form.getFormSettings() !=null && form.getFormSettings().getTarget().equals("task") && form.getFormSettings().getViewGroup().equals(viewGroup)) ) {
+                    if ((form.getFormSettings() == null && viewGroup.equals("")) ||
+                            (form.getFormSettings() !=null
+                                    && form.getFormSettings().getTarget().equals("task")
+                                    && form.getFormSettings().getViewGroup().equals(viewGroup))
+
+                    ) {
                         _formFilterList.add(form);
                         _formListText.add(form.getFormName());
                     }
@@ -147,5 +203,29 @@ public class AppFormDialogFragment extends DialogFragment {
             //DynFormList.loadFormList();
             //this.formList = DynFormList.getFormList();
         }
+    }
+
+    private ArrayList<DynForm> sortListByTests(ArrayList<DynForm> appForms) {
+        ArrayList<UnitsTestOpt> testList= unit.getTestFormList();
+        HashMap<String, DynForm> formHashMap=new HashMap<>();
+        ArrayList<DynForm> formList=new ArrayList<>();
+        for(DynForm form:appForms)
+        {
+            formHashMap.put(form.getFormId(),form);
+        }
+        for(int i=0;i<testList.size();i++)
+        {
+            DynForm form= formHashMap.get(testList.get(i).getTestCode());
+            if(form !=null){
+                formList.add(form);
+                formHashMap.remove(testList.get(i).getTestCode());
+            }
+        }
+        if(formHashMap.size()>0) {
+            for (String key : formHashMap.keySet()) {
+                formList.add(formHashMap.get(key));
+            }
+        }
+        return formList;
     }
 }

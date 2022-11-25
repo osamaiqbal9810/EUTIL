@@ -6,7 +6,7 @@ import { languageService } from "Language/language.service";
 import { TabWrapperStyle } from "./style/TabsWrapper";
 import { themeService } from "theme/service/activeTheme.service";
 
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class TabsWrapperV2 extends Component {
   constructor(props) {
     super(props);
@@ -80,6 +80,10 @@ class TabsWrapperV2 extends Component {
               retro: {
                 paddingTop: this.props.defaultMenuState ? "10px" : "10px",
                 borderBottom: this.props.defaultMenuState ? "3px solid " + retroColors.first : "3px solid " + retroColors.fourth,
+              },
+              electric: {
+                paddingTop: this.props.defaultMenuState ? "10px" : "10px",
+                borderBottom: this.props.defaultMenuState ? "3px solid " + electricColors.first : "3px solid " + electricColors.fourth,
               },
             }),
           }}

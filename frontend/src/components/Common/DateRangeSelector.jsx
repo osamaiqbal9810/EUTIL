@@ -8,7 +8,7 @@ import "components/Common/commonform.css";
 import { getLanguageLocal, languageService } from "../../Language/language.service";
 import { MyButton } from "./Forms/formsMiscItems";
 import { CommonFormStyle } from "components/SetupPage/User/UserForm/style";
-import { retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
 class DateRangeSelector extends Component {
@@ -25,8 +25,13 @@ class DateRangeSelector extends Component {
   }
   handleDayClick(day) {
     //console.log(day);
-    const range = DateUtils.addDayToRange(day, this.state.dateRange);
-    this.setState({ dateRange: range });
+    let d = new Date(this.props.minReportDate);
+    let validMinCheck = d instanceof Date && !isNaN(d) ? true : false;
+    let condition = validMinCheck ? d <= day : true;
+    if (condition) {
+      const range = DateUtils.addDayToRange(day, this.state.dateRange);
+      this.setState({ dateRange: range });
+    }
   }
   handleResetClick() {
     this.setState({ dateRange: { from: undefined, to: undefined } });
@@ -58,6 +63,7 @@ class DateRangeSelector extends Component {
               locale={getLanguageLocal()}
               localeUtils={MomentLocaleUtils}
               className="retro"
+              disabledDays={this.props.disabledDays}
             />
           </Row>
           <Row>

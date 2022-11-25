@@ -18,7 +18,7 @@ class LineDocumentsArea extends Component {
         if (index > 0) {
           return (
             <div style={{ display: "inline-block", margin: "0 3% 0 0", cursor: "pointer" }} key={doc + index}>
-              <DocumentComp docName={doc} borderStyle={"1px solid rgba(64, 118, 179)"} width={"100%"} />
+              <DocumentComp docName={doc} borderStyle={"1px solid var(--first)"} width={"100%"} />
             </div>
           );
         }
@@ -27,7 +27,7 @@ class LineDocumentsArea extends Component {
     return (
       <Row>
         <Col md={12}>
-          <h5 style={{ padding: "10px 0px", font: "18px sans-serif", color: "rgba(64, 118, 179)" }}> Documents</h5>
+          <h5 style={{ padding: "10px 0px", font: "18px sans-serif", color: "var(--first)" }}> Documents</h5>
         </Col>
         <Col md={10}>
           <div className="scrollbarHor" style={{ overflow: "auto", whiteSpace: "nowrap", padding: "10px 0px 5px 0px" }}>
@@ -35,7 +35,7 @@ class LineDocumentsArea extends Component {
           </div>
         </Col>
         <Col md={2} style={{ padding: "0px" }}>
-          <div style={{ padding: "15px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)", cursor: "pointer" }}>
+          <div style={{ padding: "15px 0px", margin: "auto", width: "50%", color: "var(--first)", cursor: "pointer" }}>
             <SvgIcon icon={plus} size={20} />
           </div>
         </Col>
@@ -49,7 +49,7 @@ export default LineDocumentsArea;
 class DocumentComp extends Component {
   render() {
     return (
-      <div style={{ padding: "5px 5px", border: this.props.borderStyle ? this.props.borderStyle : "3px solid rgba(64, 118, 179)" }}>
+      <div style={{ padding: "5px 5px", border: this.props.borderStyle ? this.props.borderStyle : "3px solid var(--first)" }}>
         {this.props.docName}
       </div>
     );

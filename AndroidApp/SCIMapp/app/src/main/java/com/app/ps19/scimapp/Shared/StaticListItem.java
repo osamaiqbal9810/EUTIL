@@ -2,17 +2,17 @@ package com.app.ps19.scimapp.Shared;
 
 import android.util.Log;
 
+import com.app.ps19.scimapp.classes.IssueImage;
+import com.app.ps19.scimapp.classes.IssueVoice;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import com.app.ps19.scimapp.classes.IssueImage;
-import com.app.ps19.scimapp.classes.IssueVoice;
-import com.app.ps19.scimapp.classes.JourneyPlan;
 
 import static android.content.ContentValues.TAG;
 import static com.app.ps19.scimapp.Shared.Utilities.isImageExist;
@@ -22,7 +22,7 @@ import static com.app.ps19.scimapp.Shared.Utilities.isVoiceExist;
  * Created by Ajaz Ahmad Qureshi on 6/19/2017.
  */
 
-public class StaticListItem {
+public class StaticListItem implements Serializable {
     private String orgCode;
     private String listName;
     private  String code;
@@ -224,6 +224,27 @@ public class StaticListItem {
                     JSONObject jp=jPlanObject;
                     JSONArray tasks=jp.optJSONArray("tasks");
                     JSONObject joSB=jp.optJSONObject("safetyBriefing");
+                    JSONObject joUser=jp.optJSONObject("user");
+                    //User Signature and Profile Picture
+                    if(joUser!=null){
+                        JSONObject joSignature=joUser.optJSONObject("signature");
+                        JSONObject joProfileImg=joUser.optJSONObject("profile_img");
+                        if(joSignature!=null){
+                            String imgName=joSignature.optString("imgName","");
+                            int status1=joSignature.optInt("status",-1);
+                            if(!imgName.equals("") && status1>-1 && status1==status){
+                                items.add(new IssueImage(joSignature));
+                            }
+                        }
+                        if(joProfileImg!=null){
+                            String imgName=joProfileImg.optString("imgName","");
+                            int status1=joProfileImg.optInt("status",-1);
+                            if(!imgName.equals("") && status1>-1 && status1==status){
+                                items.add(new IssueImage(joProfileImg));
+                            }
+                        }
+
+                    }
 
                     if(tasks!=null){
                         for(int i=0;i<tasks.length();i++){
@@ -326,7 +347,31 @@ public class StaticListItem {
                     JSONObject jp=new JSONObject(getOptParam1());
                     JSONArray tasks=jp.optJSONArray("tasks");
                     JSONObject joSB=jp.optJSONObject("safetyBriefing");
-
+                    JSONObject joUser=jp.optJSONObject("user");
+                    if(joUser!=null){
+                        JSONObject joSignature=joUser.optJSONObject("signature");
+                        JSONObject joProfileImg=joUser.optJSONObject("profile_img");
+                        if(joSignature!=null){
+                            String imgName=joSignature.getString("imgName");
+                            int status=joSignature.getInt("status");
+                            if (finalItems.containsKey(imgName)) {
+                                if (finalItems.get(imgName) != status) {
+                                    joSignature.put("status", finalItems.get(imgName));
+                                    blnDataChanged = true;
+                                }
+                            }
+                        }
+                        if(joProfileImg!=null){
+                            String imgName=joProfileImg.getString("imgName");
+                            int status=joProfileImg.getInt("status");
+                            if (finalItems.containsKey(imgName)) {
+                                if (finalItems.get(imgName) != status) {
+                                    joProfileImg.put("status", finalItems.get(imgName));
+                                    blnDataChanged = true;
+                                }
+                            }
+                        }
+                    }
                     if(tasks!=null){
                         for(int i=0;i<tasks.length();i++){
                             JSONObject task=tasks.getJSONObject(i);
@@ -730,4 +775,7 @@ public class StaticListItem {
 
     }
     */
+    public boolean isEqual(StaticListItem item){
+        return this.orgCode.equals(item.orgCode) && this.listName.equals(item.listName) && this.code.equals(item.code);
+    }
 }

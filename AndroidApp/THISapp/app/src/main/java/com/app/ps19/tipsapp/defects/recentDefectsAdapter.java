@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import java.util.Locale;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.app.ps19.tipsapp.Shared.Globals.appName;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
@@ -232,13 +232,17 @@ public class recentDefectsAdapter extends BaseExpandableListAdapter {
         if(issue.getUnit().getAssetTypeObj().isMarkerMilepost()){
             llMarkerContainer.setVisibility(VISIBLE);
             llMpContainer.setVisibility(GONE);
-            tvMarkerStart.setText(issue.getStartMarker());
-            tvMarkerEnd.setText(issue.getEndMarker());
+            tvMarkerStart.setText(getPrefixMp(issue.getStartMarker()));
+            tvMarkerEnd.setText(getPrefixMp(issue.getEndMarker()));
         } else {
             llMarkerContainer.setVisibility(GONE);
             llMpContainer.setVisibility(VISIBLE);
-            tvStartMP.setText(issue.getStartMp());
-            tvEndMP.setText(issue.getEndMp());
+            tvStartMP.setText(getPrefixMp(issue.getStartMp()));
+            tvEndMP.setText(getPrefixMp(issue.getEndMp()));
+        }
+        if(appName.equals(Globals.AppName.EUIS)){
+            llMarkerContainer.setVisibility(GONE);
+            llMpContainer.setVisibility(GONE);
         }
 
         tvTitle.setText(issue.getTitle());

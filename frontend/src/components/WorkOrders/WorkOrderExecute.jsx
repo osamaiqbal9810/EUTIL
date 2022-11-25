@@ -10,7 +10,7 @@ import moment from "moment";
 import { languageService } from "../../Language/language.service";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 
 class WorkOrderExecute extends React.Component {
   constructor(props) {
@@ -19,7 +19,7 @@ class WorkOrderExecute extends React.Component {
     this.state = { planFields: efs };
   }
 
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = (newState) => this.setState({ ...newState });
 
   submitForm = () => {
     this.setState({
@@ -46,7 +46,7 @@ class WorkOrderExecute extends React.Component {
     return (
       <div>
         <Modal
-          contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+          contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
           isOpen={this.props.modal}
           toggle={this.props.toggle}
         >
@@ -56,18 +56,20 @@ class WorkOrderExecute extends React.Component {
           <ModalBody style={themeService(CommonModalStyle.body)}>
             <div
               style={themeService({
-                default: { color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" },
+                default: { color: "var(--first)", fontSize: "14px", paddingBottom: "1em" },
                 retro: { color: retroColors.second, fontSize: "14px", paddingBottom: "1em" },
+                electric: { color: electricColors.second, fontSize: "14px", paddingBottom: "1em" },
               })}
             >
               {" "}
               {this.props.workOrder.mwoNumber}
             </div>
-            {/* <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.workOrderNumber} </div> */}
+            {/* <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.workOrderNumber} </div> */}
             <div
               style={themeService({
-                default: { color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" },
+                default: { color: "var(--first)", fontSize: "14px", paddingBottom: "1em" },
                 retro: { color: retroColors.second, fontSize: "14px", paddingBottom: "1em" },
+                electric: { color: retroColors.second, fontSize: "14px", paddingBottom: "1em" },
               })}
             >
               {" "}
@@ -75,8 +77,9 @@ class WorkOrderExecute extends React.Component {
             </div>
             <div
               style={themeService({
-                default: { color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" },
+                default: { color: "var(--first)", fontSize: "14px", paddingBottom: "1em" },
                 retro: { color: retroColors.second, fontSize: "14px", paddingBottom: "1em" },
+                electric: { color: electricColors.second, fontSize: "14px", paddingBottom: "1em" },
               })}
             >
               {" "}

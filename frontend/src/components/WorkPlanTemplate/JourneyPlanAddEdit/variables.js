@@ -49,8 +49,10 @@ export const inspectionFields = {
     ..._.cloneDeep(defaultFieldSchema),
     element: "select",
     labelText: "Assign To",
-    config: { name: "user", type: "text", options: [] },
+    config: { name: "user", type: "text", options: [], disabled: false },
+    hide: false
   },
+  
   // startDate: {
   //   ..._.cloneDeep(defaultFieldSchema),
   //   element: "date",
@@ -192,38 +194,39 @@ export const inspectionRunRelatedFields = {
     labelText: "Location",
     config: { name: "lineId", type: "text", options: [] },
   },
-  inspectionRun: {
-    ..._.cloneDeep(defaultFieldSchema),
-    element: "inputSelect",
-    labelText: "Run/Range",
-    config: {
-      name: "inspectionRun",
-      type: "text",
-      options: [],
-    },
-    customFieldComp: null,
-  },
-  runStart: {
-    ..._.cloneDeep(defaultFieldSchema),
-    element: "input",
-    value: "",
-    labelText: "Start",
+  // inspectionRun: {
+  //   ..._.cloneDeep(defaultFieldSchema),
+  //   element: "inputSelect",
+  //   labelText: "Run/Range",
+  //   config: {
+  //     name: "inspectionRun",
+  //     type: "text",
+  //     options: [],
+  //   },
+  //   customFieldComp: null,
+  // },
+  // runStart: {
+  //   ..._.cloneDeep(defaultFieldSchema),
+  //   element: "input",
+  //   value: "",
+  //   labelText: "Start",
 
-    config: { name: "runStart", type: "number", placeholder: "Run Start" },
-  },
-  runEnd: {
-    ..._.cloneDeep(defaultFieldSchema),
-    element: "input",
-    value: "",
-    labelText: "End",
+  //   config: { name: "runStart", type: "number", placeholder: "Run Start" },
+  // },
+  // runEnd: {
+  //   ..._.cloneDeep(defaultFieldSchema),
+  //   element: "input",
+  //   value: "",
+  //   labelText: "End",
 
-    config: { name: "runEnd", type: "number", placeholder: "Run End" },
-  },
+  //   config: { name: "runEnd", type: "number", placeholder: "Run End" },
+  // },
   inspectionAssets: {
     ..._.cloneDeep(defaultFieldSchema),
     element: "AssetSelection",
     value: [],
     labelText: "Assets",
     config: { name: "inspectionAssets", type: "text", options: [] },
+    hide:false
   },
 };

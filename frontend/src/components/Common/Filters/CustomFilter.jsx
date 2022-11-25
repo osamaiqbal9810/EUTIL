@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Radium from "radium";
 import { languageService } from "Language/language.service";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 class CustomFilter extends Component {
   constructor(props) {
@@ -38,7 +38,7 @@ class CustomFilter extends Component {
       <div
         style={styles.filterStyle}
         key={this.props.filter.id}
-        onClick={e => {
+        onClick={(e) => {
           this.handleFilterClick(this.props.filter, this.props.index);
         }}
       >
@@ -62,6 +62,7 @@ let getStyles = (props, state) => {
     default: basicColors.first,
 
     retro: retroColors.second,
+    electric: electricColors.second,
   });
   if (state.active) {
     borders.borderTop = "3px solid  " + borderColorObj;
@@ -83,7 +84,7 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: themeService({ default: "rgba(64, 118, 179)", retro: retroColors.second }),
+    color: themeService({ default: "var(--first)", retro: retroColors.second, electric: electricColors.second }),
     borderBottom: "1px solid  " + borderColorObj,
     borderLeft: "1px solid  " + borderColorObj,
     borderRight: "1px solid  " + borderColorObj,

@@ -187,9 +187,9 @@ public class WorkerFragment extends Fragment {
     }
 
     void initDataGroup(){
-        if(Globals.selectedJPlan.getSafetyBriefingForm()!= null){
-            //Globals.safetyBriefing = Globals.selectedJPlan.getSafetyBriefingForm();
-        }
+if(Globals.selectedJPlan.getSafetyBriefingForm()!= null){
+    //Globals.safetyBriefing = Globals.selectedJPlan.getSafetyBriefingForm();
+}
         listDataGroup.clear();
         if(Globals.safetyBriefing.getWorkers() != null && Globals.safetyBriefing.getWorkers().size() > 0 ){
             for (int i = 0 ; i < Globals.safetyBriefing.getWorkers().size(); i++){

@@ -1,21 +1,67 @@
 .table-report table th {
   text-align: center;
+  white-space: pre-wrap;
 }
-.table-report table td {
+
+.table-report table td,
+.table-report.bridge table th {
   border: 1px solid black !important;
   height: 40px;
   text-align: center;
 }
+
+.table-report.bridge table th.table-heading span {
+  transform: rotate(-90deg);
+  display: block;
+  white-space: nowrap;
+  margin: 0 0 30px 10px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  font-family: verdana;
+}
+
+.table-report.bridge table tr:nth-child(1) th {
+  height: 105px;
+}
+
+.table-report.bridge table tr:nth-child(2) th {
+  height: 270px;
+}
+
+.table-report.bridge table tr:nth-child(2) th.main-table-heading,
+.table-report.bridge table tr:nth-child(2) th.sub-table-heading {
+  vertical-align: middle;
+}
+
+.table-report.bridge table tr:nth-child(2) th.sub-table-heading {
+  font-weight: 500;
+}
+
+.table-report.bridge table tr th.table-heading {
+  vertical-align: bottom;
+}
+
 .table-report table td.switch-no-border {
   border-right: none !important;
   border-left: none !important;
 }
+
 .sud-nicman-report.table-report table th {
   border: 1px solid black !important;
 }
+
 .table-report.switch-side-track table.table-selection tbody tr:nth-child(odd) {
   background-color: #dee2e6;
 }
+
+.report-selection.table-report.switch-side-track table.table-selection tbody tr {
+  transition: all 0.3s ease-in-out;
+}
+
+.report-selection.table-report.switch-side-track table.table-selection tbody tr:hover {
+  background: var(--first);
+}
+
 .table-bordered.switch-side-track td,
 .table-bordered.switch-side-track th {
   border-top: 2px solid #000 !important;
@@ -23,12 +69,13 @@
   border-left: 2px solid #000 !important;
   border-bottom: 2px solid #000;
 }
+
 .table-bordered.switch-side-track .main-heading th span {
   display: block;
   text-align: left;
-  font-size: 20px;
-  height: 80px;
-  font-weight: 700;
+  font-size: 15px;
+  /* height: 80px; */
+  font-weight: 800;
 }
 
 .table-bordered.monthly-switch-Report .main-heading th span {
@@ -38,15 +85,18 @@
   background-color: #d9d9d9;
   -webkit-print-color-adjust: exact;
 }
+
 span.spacer {
   width: 100%;
   display: block;
   height: 30px;
+  border-color: #fff !important;
 }
+
 ul.menu-tabs li {
   display: inline-block;
   margin-right: 4px;
-  background-color: #fff;
+  background-color: var(--fifth);
   padding: 8px 20px;
   cursor: pointer;
   border-bottom: 4px solid rgb(177, 177, 177);
@@ -57,41 +107,353 @@ ul.menu-tabs li {
   font-size: 12px;
   letter-spacing: 0.35px;
 }
+
 /* ul.menu-tabs li:hover {
   -webkit-box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
   -moz-box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
   box-shadow: 4px 4px 26px -6px rgba(0, 0, 0, 0.75);
 } */
 ul.menu-tabs li.active {
-  border-bottom: 4px solid rgb(64, 118, 179);
+  border-bottom: 4px solid "var(--first)";
   font-weight: bold;
 }
+
 ul.menu-tabs {
   text-align: left;
   margin-top: 31px;
   padding: 0 0 0 15px;
 }
+
 .disturbance-report span {
   display: inline-block;
   border-bottom: 2px solid;
-  height: 28px;
+  min-height: 28px;
   margin: 0 5px;
   font-style: italic;
+  height: auto;
 }
+
+.table-report.disturbance-report span {
+  text-align: center;
+}
+
+.table-report.job-briefing span {
+  text-align: left !important;
+  padding-left: 16px;
+}
+
 .disturbance-report em {
   width: 50px;
   display: inline-block;
 }
+
 .blank_row {
   height: 40px !important;
 }
+
 .blank_row th {
   border: transparent;
 }
+
 .card .DayPickerInput input {
   border-width: 2px;
   width: 250px;
 }
+
 .table-bordered.monthly-switch-Report thead tr.main-heading th.span {
   border: 1px solid #000;
+}
+
+@media only screen and (max-width: 600px) {
+  .is-app ul.menu-tabs li {
+    display: block;
+    margin-bottom: 5px;
+    width: 100%;
+  }
+
+  .report-selection table.table-selection {
+    width: 500px;
+  }
+
+  .modal-dialog {
+    min-width: 97vw;
+  }
+
+  .report-filter {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+
+  .report-filter label {
+    min-width: 140px;
+  }
+
+  .report-filter span {
+    margin: 0 !important;
+  }
+
+  .report-filter select {
+    min-width: 100px;
+  }
+}
+
+.table-report.txn table th {
+  border: 1px solid #000;
+  vertical-align: bottom;
+  font-size: 12px;
+}
+
+.table-report.txn span.footer-links {
+  cursor: pointer;
+  margin: 5px;
+}
+
+.table-report.Crossing hr,
+.table-report.Culvert hr {
+  margin-top: 0px;
+  border: 1px solid #000;
+}
+
+.table-report.Crossing table td,
+.table-report.Crossing table th,
+.table-report.Culvert table td,
+.table-report.Culvert table th {
+  border: none !important;
+}
+
+.table-report.Crossing span.rpt-title,
+.table-report.Culvert span.rpt-title {
+  text-align: left;
+  display: block;
+}
+
+.table-report.Crossing span.rpt-value,
+.table-report.Culvert span.rpt-value {
+  display: block;
+  border-bottom: 1px solid #000;
+}
+
+.table-report.Crossing span.lbl-text,
+.table-report.Culvert span.lbl-text {
+  text-align: right;
+  display: block;
+}
+
+.table-report.Crossing span.insp-value,
+.table-report.Crossing span.insp-value,
+.table-report.Culvert span.insp-value,
+.table-report.Culvert span.insp-value {
+  display: block;
+  text-align: left;
+  margin-left: 10px;
+}
+
+.table-report.Crossing span.lbl-box,
+.table-report.Culvert span.lbl-box {
+  border: 1px solid #000;
+  height: 32px;
+  width: 32px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 5px;
+}
+
+.table-report.Crossing span.lbl-option,
+.table-report.Culvert span.lbl-option {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.table-report.Crossing p,
+.table-report.Culvert p {
+  min-height: 60px;
+  text-align: left;
+  border: 1px solid #ccc;
+  width: 450px;
+}
+
+.table-report.Culvert .small-title-culvert {
+  display: block;
+  text-align: right;
+}
+
+.table-report.Culvert p.main-comm {
+  height: 200px;
+  border: 1px solid #000;
+  background: #fff;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.table-report.job-briefing-ontario .title-in-report {
+  font-size: 20px;
+  font-weight: 600;
+  padding-left: 10px;
+}
+
+.table-report.job-briefing-ontario .title-in-report p.work-description {
+  display: inline-block;
+  font-weight: 100;
+}
+
+.table-report.job-briefing-ontario .title-small-report {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-report.job-briefing-ontario td.dark-bg {
+  background-color: #000;
+  color: #fff;
+}
+
+.table-report.job-briefing-ontario td.dark-bg span.main-heading-in-rpt {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.table-report.job-briefing-ontario td.dark-bg span.main-heading-in-rpt.na {
+  /* text-decoration: line-through; */
+}
+.table-report.job-briefing-ontario span.haeading-na {
+  display: inline-block;
+  float: left;
+  background: #fff;
+  color: #000;
+  font-weight: 900;
+  padding: 5px 10px;
+  margin: 7px;
+}
+
+.table-report.job-briefing-ontario td.dark-bg small {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.table-report.job-briefing-ontario table.table-bordered tr th {
+  border: 1px solid #000;
+}
+
+.table-report.job-briefing-ontario table.table-bordered.background-dark.values-circle {
+  background: #b9b9b9;
+}
+
+.table-report.job-briefing-ontario table.table-bordered.values-circle tbody tr td {
+  text-align: center;
+}
+
+.table-report.job-briefing-ontario span.selection-char {
+  display: inline-block;
+  width: 0px;
+  margin-left: 10px;
+  visibility: hidden;
+}
+
+.table-report.job-briefing-ontario span.active.selection-char {
+  visibility: visible;
+  width: 25px;
+  font-weight: bolder;
+  font-size: 18px;
+}
+
+.table-report.job-briefing-ontario tr.small-font small {
+  font-size: 16px;
+}
+
+.table-report.job-briefing-ontario span.rpt-values {
+  font-weight: 100;
+}
+
+.table-report.job-briefing-ontario table.table-bordered.values-circle tr td {
+  font-size: 18px;
+}
+
+.table-report.job-briefing-ontario table.table-bordered.background-light.values-circle {
+  background-color: #e2e2e2;
+}
+
+.table-report.job-briefing-ontario span.signature-heading-in-table {
+  background: #000;
+  color: #fff;
+  padding: 2px 5px;
+  display: inline-block;
+}
+
+.table-report.job-briefing-ontario.safety-watch table.table-bordered.lone-worker tr td {
+  font-weight: 600;
+}
+
+.table-report.job-briefing-ontario.safety-watch table.table-bordered.lone-worker tr td:last-child {
+  text-align: left;
+  padding-left: 10px;
+}
+
+.table-report.job-briefing-ontario.safety-watch table.table-bordered.safety-watch tbody tr td:nth-child(2) {
+  text-align: left;
+  padding-left: 15px;
+  font-size: 16px;
+  font-weight: 600;
+  border-right: 2px solid #000;
+}
+
+.table-report.job-briefing-ontario.safety-watch table.table-bordered.safety-watch tbody tr td:nth-child(1) {
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  border-right: 2px solid #000;
+}
+
+.table-report.daily-tract-inspection {
+  padding: 30px;
+  overflow: hidden;
+  background: var(--fifth);
+  break-after: page;
+}
+
+.table-report.daily-tract-inspection .bg-dark {
+  background-color: #d8cfce !important;
+}
+
+.table-report.daily-tract-inspection thead th {
+  border: 1px solid #000;
+}
+
+.table-report.daily-tract-inspection tbody tr td,
+.table-report.daily-tract-inspection tbody tr {
+  height: auto;
+  color: #000;
+}
+
+.table-report.daily-tract-inspection tbody:nth-last-child() tr td {
+  text-align: left;
+}
+
+table.table-bordered.special-work td.dark-bg {
+  background-color: #ccc;
+}
+
+table.table-bordered.special-work td.dark-bg span {
+  font-weight: bold;
+  overflow-wrap: break-word;
+  hyphens: manual;
+  display: block;
+  inline-size: 100%;
+}
+
+table.table-bordered.special-work p.Comments-rpt {
+  min-height: 250px;
+}
+
+.table-report.turnout-specialwork span.comment-text {
+  display: inline-block;
+  margin-left: 22px;
+}
+
+.multi-signatures {
+  position: relative;
+  overflow: hidden;
+}
+
+.multi-signatures .signature-image {
+  position: initial;
+  display: inline-block;
 }

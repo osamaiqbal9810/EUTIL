@@ -411,7 +411,7 @@ class Track extends Component {
                 fontFamily: "Myriad Pro",
                 fontSize: "24px",
                 letterSpacing: "0.5px",
-                color: " rgba(64, 118, 179)",
+                color: "var(--first)",
               }}
             >
               Asset Groups

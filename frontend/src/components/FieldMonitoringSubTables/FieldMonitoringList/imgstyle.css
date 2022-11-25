@@ -5,7 +5,6 @@
   transition-duration: 0.4s;
   background-color: inherit;
   margin: 0px 2px 0px 2px;
-    
 }
 
 /* Style the images inside the grid */
@@ -30,5 +29,5 @@
 .fullWidth {
   width: 100%;
   font-size: 14px;
-  color: rgba(64, 118, 179);
+  color: var(--first);
 }

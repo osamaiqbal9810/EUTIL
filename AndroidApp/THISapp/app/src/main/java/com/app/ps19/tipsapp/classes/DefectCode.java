@@ -26,16 +26,41 @@ public class DefectCode implements IConvertHelper {
     }
 
     public List<DefectCode> getDetails() {
-        return details;
+        if(filterText.equals("")){
+            return details;
+        }
+        return filterDetails;
     }
+    private void applyFilter(){
+        ArrayList<DefectCode> _details=new ArrayList<>();
+        for(DefectCode d:details){
+            String code=d.getCode().toLowerCase().replaceAll("[-,.]+", "");
+            if(d.getTitle().toLowerCase().contains(filterText) || d.getCode().toLowerCase().contains(filterText) || code.contains(filterText)){
+                _details.add(d);
+            }
+        }
+        this.filterDetails=_details;
 
+    }
     public void setDetails(List<DefectCode> details) {
         this.details = details;
+        applyFilter();
     }
 
     private String code="";
     private String title ="";
     private List<DefectCode> details;
+    private List<DefectCode> filterDetails;
+    private String filterText="";
+
+    public void setFilterText(String filterText) {
+        this.filterText = filterText;
+        applyFilter();
+    }
+
+    public String getFilterText() {
+        return filterText;
+    }
 
     public DefectCode(JSONObject jo){
         parseJsonObject(jo);

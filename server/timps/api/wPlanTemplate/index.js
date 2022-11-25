@@ -9,7 +9,7 @@ let router = express.Router();
 let isAllowed = require("../../../middlewares/validatePermission");
 
 //var  permitTypes =require('../../config/permissions').default;
-
+router.get("/wp", controller.getWorkPlans);
 router.get("/", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], controller.all);
 router.get("/userstemplate/:users", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], controller.usersTemplate);
 router.get("/:id", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], controller.find);

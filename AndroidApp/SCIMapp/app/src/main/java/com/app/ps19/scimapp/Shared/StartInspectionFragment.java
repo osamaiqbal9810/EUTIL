@@ -10,6 +10,8 @@ import android.location.Location;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -48,14 +50,15 @@ import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
 import static com.app.ps19.scimapp.Shared.Globals.NEARBY_ASSETS_LIST_SIZE;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.angleOffset;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.isInspectionTypeReq;
 import static com.app.ps19.scimapp.Shared.Globals.isMpReq;
 import static com.app.ps19.scimapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.scimapp.Shared.Globals.isUseDefaultAsset;
 import static com.app.ps19.scimapp.Shared.Globals.isWConditionReq;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedTraverseBy;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.showNearByAssets;
 import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
 import static com.app.ps19.scimapp.Shared.Utilities.selectFirstVisibleRadioButton;
@@ -140,12 +143,12 @@ public class StartInspectionFragment extends DialogFragment {
         //final View mView = getLayoutInflater().inflate(R.layout.fragment_start_inspection, null);
         mView = _mView;
         context = mView.getContext();
-        if(selectedTask == null){
+        if(getSelectedTask() == null){
             if(selectedJPlan.getTaskList().size()==1){
-                selectedTask = selectedJPlan.getTaskList().get(0);
+                setSelectedTask(selectedJPlan.getTaskList().get(0));
             } else{
                 //just for handling error
-                selectedTask = selectedJPlan.getTaskList().get(0);
+                setSelectedTask(selectedJPlan.getTaskList().get(0));
             }
         }
 
@@ -180,7 +183,7 @@ public class StartInspectionFragment extends DialogFragment {
         String startTitle;
         String startMsg;
         final ArrayList<Units> tracks = new ArrayList<>();
-        for(Units _track: selectedTask.getWholeUnitList()){
+        for(Units _track: getSelectedTask().getWholeUnitList()){
             if(_track.getAssetType().equals("track")){
                 tracks.add(_track);
             }
@@ -193,10 +196,10 @@ public class StartInspectionFragment extends DialogFragment {
         spAssetsBehind.setOnTouchListener(spBehindOnTouch);
 
         if(location != null){
-            fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(location.getLatitude(), location.getLongitude()));
+            fixedAssetsList =getSelectedTask().getUnitList(new LatLng(location.getLatitude(), location.getLongitude()));
             listUpdate(location);
         } else {
-            fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
+            fixedAssetsList = getSelectedTask().getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
             listUpdate(Globals.lastKnownLocation);
         }
         spAssetsBehind.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -241,11 +244,11 @@ public class StartInspectionFragment extends DialogFragment {
             tvTempPrefix.setText(Globals.selectedTempSign);
         }
         if(!Globals.selectedPostSign.equals("")){
-            tvMpRange.setText(Html.fromHtml(lineName + "<br> " + "<b>" + Globals.selectedPostSign + " " + "</b> " + selectedTask.getMpStart() + " to " + "<b>" + Globals.selectedPostSign + " " + "</b> " + selectedTask.getMpEnd()));
+            tvMpRange.setText(Html.fromHtml(lineName + "<br> " + "<b>" + Globals.selectedPostSign + " " + "</b> " + getSelectedTask().getMpStart() + " to " + "<b>" + Globals.selectedPostSign + " " + "</b> " + getSelectedTask().getMpEnd()));
             startTitle = getString(R.string.start_title) +" "+ Globals.selectedPostSign + ":";
             startMsg = getString(R.string.mp_req_msg_1) + Globals.selectedPostSign + getString(R.string.mp_req_msg_2);
         } else {
-            tvMpRange.setText(Html.fromHtml(lineName + "<br> " +"<b>"+"MP "+"</b> " + selectedTask.getMpStart() + " to " + "<b>"+"MP "+"</b> " + selectedTask.getMpEnd()));
+            tvMpRange.setText(Html.fromHtml(lineName + "<br> " +"<b>"+"MP "+"</b> " + getSelectedTask().getMpStart() + " to " + "<b>"+"MP "+"</b> " + getSelectedTask().getMpEnd()));
             startTitle = getString(R.string.start_mp_msg_title);
             startMsg = getString(R.string.start_mp_req_for_inspection_msg);
         }
@@ -254,7 +257,7 @@ public class StartInspectionFragment extends DialogFragment {
         spTemperature.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedTask.setTemperature(parent.getItemAtPosition(position).toString());
+                getSelectedTask().setTemperature(parent.getItemAtPosition(position).toString());
                 //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
             }
             @Override
@@ -264,7 +267,7 @@ public class StartInspectionFragment extends DialogFragment {
         spTracks.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                selectedTask.setTraverseTrack(tracks.get(position).getUnitId());
+                getSelectedTask().setTraverseTrack(tracks.get(position).getUnitId());
                 //Toast.makeText(TaskDashboardActivity.this, tracks.get(position).getDescription(), Toast.LENGTH_SHORT).show();
             }
             @Override
@@ -312,8 +315,8 @@ public class StartInspectionFragment extends DialogFragment {
         }
 
         try {
-            selectedTask.setLocationUnit(Globals.selectedPostSign);
-            selectedTask.setTemperatureUnit(Globals.selectedTempSign);
+            getSelectedTask().setLocationUnit(Globals.selectedPostSign);
+            getSelectedTask().setTemperatureUnit(Globals.selectedTempSign);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -338,23 +341,23 @@ public class StartInspectionFragment extends DialogFragment {
                     }
                 }
                 if(isMpReq){
-                    double startMp = Double.parseDouble(selectedTask.getMpStart());
+                    double startMp = Double.parseDouble(getSelectedTask().getMpStart());
 
                     if(etStartMp.getText().toString().equals("")){
                         Toast.makeText(context, R.string.milepost_required_msg, Toast.LENGTH_SHORT).show();
-                    } else if (!isInRange(Double.parseDouble(selectedTask.getMpStart()), Double.parseDouble(selectedTask.getMpEnd()), Double.parseDouble(etStartMp.getText().toString()))) {
+                    } else if (!isInRange(Double.parseDouble(getSelectedTask().getMpStart()), Double.parseDouble(getSelectedTask().getMpEnd()), Double.parseDouble(etStartMp.getText().toString()))) {
                         Toast.makeText(context, getResources().getText(R.string.toast_start_milepost), Toast.LENGTH_LONG).show();
                         //return;
                     } else {
-                        selectedTask.setUserStartMp(etStartMp.getText().toString());
+                        getSelectedTask().setUserStartMp(etStartMp.getText().toString());
                         if(Globals.isTraverseReq){
                             int genid= rgType.getCheckedRadioButtonId();
                             RadioButton radioButton = (RadioButton) mView.findViewById(genid);
                             String traverseBy =radioButton.getText().toString();
-                            selectedTask.setTraverseBy(traverseBy);
+                            getSelectedTask().setTraverseBy(traverseBy);
                         }
                         if(isWConditionReq){
-                            selectedTask.setWeatherConditions(etWeatherConditions.getText().toString());
+                            getSelectedTask().setWeatherConditions(etWeatherConditions.getText().toString());
                         }
                         if(isInspectionTypeReq){
                             int genid= rgInspectionType.getCheckedRadioButtonId();
@@ -362,21 +365,21 @@ public class StartInspectionFragment extends DialogFragment {
                             int rbIndex = rgInspectionType.indexOfChild(radioButton);
                             switch (rbIndex) {
                                 case 0:
-                                    selectedTask.setInspectionTypeTag("required");
+                                    getSelectedTask().setInspectionTypeTag("required");
                                     break;
                                 case 1:
-                                    selectedTask.setInspectionTypeTag("weather");
+                                    getSelectedTask().setInspectionTypeTag("weather");
                                     break;
                                 case 2:
-                                    selectedTask.setInspectionTypeTag("special");
+                                    getSelectedTask().setInspectionTypeTag("special");
                                     break;
                             }
                             String _inspectionType =radioButton.getText().toString();
-                            selectedTask.setInspectionType(_inspectionType);
-                            selectedTask.setInspectionTypeDescription(etInspectionTypeDescription.getText().toString());
+                            getSelectedTask().setInspectionType(_inspectionType);
+                            getSelectedTask().setInspectionTypeDescription(etInspectionTypeDescription.getText().toString());
                         } else {
                             //If config is set false then "required" set by default
-                            selectedTask.setInspectionTypeTag("required");
+                            getSelectedTask().setInspectionTypeTag("required");
                         }
                         /*f(isBypassTaskView && selectedJPlan.getTaskList().size() == 1){
                             startTask();
@@ -393,15 +396,15 @@ public class StartInspectionFragment extends DialogFragment {
                         dismiss();
                     }
                 } else{
-                    selectedTask.setUserStartMp(etStartMp.getText().toString());
+                    getSelectedTask().setUserStartMp(etStartMp.getText().toString());
                     if(Globals.isTraverseReq){
                         int genid= rgType.getCheckedRadioButtonId();
                         RadioButton radioButton = (RadioButton) mView.findViewById(genid);
                         String traverseBy =radioButton.getText().toString();
-                        selectedTask.setTraverseBy(traverseBy);
+                        getSelectedTask().setTraverseBy(traverseBy);
                     }
                     if(isWConditionReq){
-                        selectedTask.setWeatherConditions(etWeatherConditions.getText().toString());
+                        getSelectedTask().setWeatherConditions(etWeatherConditions.getText().toString());
                     }
                     if(isInspectionTypeReq){
                         int genid= rgInspectionType.getCheckedRadioButtonId();
@@ -409,21 +412,21 @@ public class StartInspectionFragment extends DialogFragment {
                         int rbIndex = rgInspectionType.indexOfChild(radioButton);
                         switch (rbIndex) {
                             case 0:
-                                selectedTask.setInspectionTypeTag("required");
+                                getSelectedTask().setInspectionTypeTag("required");
                                 break;
                             case 1:
-                                selectedTask.setInspectionTypeTag("weather");
+                                getSelectedTask().setInspectionTypeTag("weather");
                                 break;
                             case 2:
-                                selectedTask.setInspectionTypeTag("special");
+                                getSelectedTask().setInspectionTypeTag("special");
                                 break;
                         }
                         String _inspectionType =radioButton.getText().toString();
-                        selectedTask.setInspectionType(_inspectionType);
-                        selectedTask.setInspectionTypeDescription(etInspectionTypeDescription.getText().toString());
+                        getSelectedTask().setInspectionType(_inspectionType);
+                        getSelectedTask().setInspectionTypeDescription(etInspectionTypeDescription.getText().toString());
                     } else {
                         //If config is set false then "required" set by default
-                        selectedTask.setInspectionTypeTag("required");
+                        getSelectedTask().setInspectionTypeTag("required");
                     }
                     try {
                         startTask();
@@ -466,7 +469,7 @@ public class StartInspectionFragment extends DialogFragment {
     }
     private void startTask(){
         Date now = new Date();
-        String selTaskId = Globals.selectedTask.getTaskId();
+        String selTaskId =getSelectedTask().getTaskId();
         for (Task task: Globals.selectedJPlan.getTaskList()){
             if(task.getTaskId().equals(selTaskId)){
                 task.setStatus(TASK_IN_PROGRESS_STATUS);
@@ -481,17 +484,17 @@ public class StartInspectionFragment extends DialogFragment {
         Globals.selectedTask.setStartLocation(latitude + "," + longitude);*/
 
         if(Globals.selectedUnit == null){
-            if(Globals.selectedTask.getWholeUnitList().size() == 0){
+            if(getSelectedTask().getWholeUnitList().size() == 0){
                 Toast.makeText(context,getResources().getText(R.string.asset_available), Toast.LENGTH_SHORT).show();
             } else{
                 if(isUseDefaultAsset){
-                    for(Units unit: selectedTask.getWholeUnitList()){
+                    for(Units unit: getSelectedTask().getWholeUnitList()){
                         if(unit.getAttributes().isPrimary()){
                             Globals.selectedUnit = unit;
                         }
                     }
                 }else {
-                    Globals.selectedUnit = Globals.selectedTask.getWholeUnitList().get(0);
+                    Globals.selectedUnit = getSelectedTask().getWholeUnitList().get(0);
                 }
 
             }
@@ -550,8 +553,8 @@ public class StartInspectionFragment extends DialogFragment {
     }
     private String getLineName(){
         String lineName = "";
-        if(selectedTask!=null){
-            for(Units unit: selectedTask.getWholeUnitList()){
+        if(getSelectedTask()!=null){
+            for(Units unit: getSelectedTask().getWholeUnitList()){
                 if(unit.getUnitId().equals(selectedJPlan.getLineId())){
                     lineName = unit.getDescription();
                     return lineName;
@@ -594,9 +597,9 @@ public class StartInspectionFragment extends DialogFragment {
             double startOffset;
             double endOffset;
             if(mLocation != null){
-                fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
+                fixedAssetsList =getSelectedTask().getUnitList(new LatLng(mLocation.getLatitude(), mLocation.getLongitude()));
             } else {
-                fixedAssetsList = Globals.selectedTask.getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
+                fixedAssetsList = getSelectedTask().getUnitList(new LatLng(Globals.lastKnownLocation.getLatitude(), Globals.lastKnownLocation.getLongitude()));
             }
             for (Iterator<DUnit> it = fixedAssetsList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {

@@ -14,6 +14,7 @@ class TestScheduleService {
     if (query.status) {
       status = query.status;
     }
+
     let criteria = [
       {
         $match: {
@@ -39,13 +40,31 @@ class TestScheduleService {
       { $unwind: { path: "$title" } },
     ];
     try {
-      if (query.testCode && query.assetId && dateRange) {
+      if ((query.testCodes || query.testCode) && query.assetId && dateRange) {
+        let testCodesMultipe = Array.isArray(query.testCodes) ? query.testCodes : [query.testCodes];
+        let testCodeMatch = query.testCodes ? { $in: testCodesMultipe } : query.testCode;
+        let statusCrit = query.status === "exec" ? { status: null } : {};
+        let matchCriteria = [
+          {
+            $match: {
+              date: { $gte: new Date(dateRange.from), $lte: new Date(dateRange.to) },
+              assetId: query.assetId,
+              testCode: testCodeMatch,
+              ...statusCrit,
+            },
+          },
+        ];
+        //criteria[0]["$match"] = { ...criteria[0]["$match"], ...{ assetId: query.assetId, testCode: query.testCode } };
+        let testsData = await testSchedulesModel.aggregate(matchCriteria);
+        resultObj = { status: 200, value: testsData };
+      } else if (query.testCode && query.assetId && dateRange) {
         let matchCrit = [
           {
             $match: {
               date: { $gte: new Date(dateRange.from), $lte: new Date(dateRange.to) },
               assetId: query.assetId,
               testCode: query.testCode,
+              status: null,
             },
           },
         ];

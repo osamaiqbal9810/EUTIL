@@ -49,7 +49,7 @@ class Level4Conditions extends Component {
     // });
     return (
       <React.Fragment>
-        <div className="table-report electric-utility level-4">
+        <div className="table-report electric-utility level-4" id="mainContent">
           <Row>
             <Col md={12}>
               <Row>

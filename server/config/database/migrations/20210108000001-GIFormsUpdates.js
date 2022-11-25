@@ -30,4 +30,5 @@ module.exports = {
     //   formB12.
     // }
   },
+  attributes:{applicationType: "SITE", customer: "Iron Ore Canada"},
 };

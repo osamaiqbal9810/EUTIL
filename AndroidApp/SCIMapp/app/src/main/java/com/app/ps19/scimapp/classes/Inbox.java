@@ -1,6 +1,7 @@
 package com.app.ps19.scimapp.classes;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import com.app.ps19.scimapp.R;
@@ -14,16 +15,21 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
 import static com.app.ps19.scimapp.Shared.Globals.MAINTENANCE_LIST_NAME;
-import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.WORK_PLAN_IN_PROGRESS_STATUS;
 
 public class Inbox {
@@ -38,6 +44,16 @@ public class Inbox {
         return journeyPlans;
     }
     public ArrayList<JourneyPlan> getWorkPlanTemplates(){return workPlanTemplates;}
+    public static byte[] prev_WorkPlanDataMessageDigest = new byte[16];
+    private static LocationsOpt locationsOpt = new LocationsOpt();
+
+    public void setDefectsList(ArrayList<UnitsDefectsOpt> defectsList) {
+        this.defectsList = defectsList;
+    }
+
+    private ArrayList<UnitsDefectsOpt> defectsList;
+
+    private boolean intiJP= false;
 
     public void setJourneyPlanOpts(ArrayList<JourneyPlanOpt> journeyPlanOpts) {
         this.journeyPlanOpts = journeyPlanOpts;
@@ -89,6 +105,7 @@ public class Inbox {
         }
         return null;
     }
+
     public JourneyPlan getLastJourneyPlan(){
         //Only one Journey plan
 /*        if(journeyPlans !=null){
@@ -113,6 +130,7 @@ public class Inbox {
         }
         return null;
     }
+
     public JourneyPlan getTodaysJourneyPlan(){
         for(JourneyPlan jp:journeyPlans){
             String strDate=jp.getDate();
@@ -132,10 +150,11 @@ public class Inbox {
         }
         return  null;
     }
+
     public static JourneyPlan loadJourneyPlanTemplate(Context context,String code) {
         JourneyPlan journeyPlan = null;
         DBHandler dbHandler = Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, code, "code='" + code + "'");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, code, "code='" + code + "'");
         //dbHandler.close();
         if (items.size() == 1) {
             try {
@@ -147,12 +166,14 @@ public class Inbox {
             }
 
         }
+
         return journeyPlan;
     }
+
     public static JourneyPlan loadJourneyPlan(Context context,String code){
         JourneyPlan journeyPlan=null;
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode, code,"code='"+code +"'");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode, code,"code='"+code +"'");
         //dbHandler.close();
         if(items.size()==1){
             try {
@@ -185,9 +206,10 @@ public class Inbox {
         }
         return journeyPlan;
     }
+
     public JourneyPlanOpt getWorkPlanTemplate(String templateId,boolean loadCompletion, boolean loadUnitList,boolean loadAllUnits){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code='"+templateId+"'");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code='"+templateId+"'");
         //dbHandler.close();
         ArrayList<JSONObject> _journeyPlans = new ArrayList<>();
         JourneyPlanOpt jpTemplate=null;
@@ -203,47 +225,89 @@ public class Inbox {
         }
         return jpTemplate;
     }
+
     public JourneyPlanOpt getWorkPlanTemplate(String templateId){
         return getWorkPlanTemplate(templateId,true,false,false);
     }
-    public ArrayList<JourneyPlanOpt> loadWokPlanTemplateListEx(Context context){
-        DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
-        //dbHandler.close();
-        ArrayList<JourneyPlanOpt> _journeyPlans = new ArrayList<>();
+
+
+    public byte[] getWPLANMessageDigest(List<StaticListItem> data){
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = null;
+        try {
+            oos = new ObjectOutputStream(bos);
+            oos.writeObject(data);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        byte[] bytes = bos.toByteArray();
+
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return md.digest(bytes);
+    }
+
+    public LocationsOpt getJPLocationOpts(){
+        return locationsOpt;
+    }
+
+    public  ArrayList<UnitsDefectsOpt> getDefectsList() { return  this.defectsList; }
+
+    public ArrayList<JourneyPlanOpt> loadWokPlanTemplateListEx(){
+        //DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+
+        //List<StaticListItem> items = dbHandler.getListItemsA(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        //byte [] currHash = getWPLANMessageDigest(items);
+
+        //if (Arrays.equals(prev_WorkPlanDataMessageDigest ,currHash) && this.jpoWorkPlanTemplates != null) {
+        //   return this.jpoWorkPlanTemplates;
+
+        //}
+        if(items.size() == 0){
+            Log.d("DB data:", "array is empty");
+        }
+        Log.d("","items: "+items.size());
+        try {
+            locationsOpt.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         for (StaticListItem item : items) {
             try {
                 JSONObject jo = new JSONObject(item.getOptParam1());
                 JourneyPlanOpt jp=new JourneyPlanOpt(jo,false,true);
-                /*
-                JSONObject jo = new JSONObject(item.getOptParam1());
-                JSONObject jp=new JSONObject();
-                jp.put("code",item.getCode());
-                jp.put("title",jo.optString("title"));
-                jp.put("lastInspection",jo.optString("lastInspection"));
-                jp.put("nextDueDate",jo.optString("nextDueDate"));
-
-                 */
-                _journeyPlans.add(jp);
+                locationsOpt.addJourneyPlan(jp);
+                // setDefectsList(jp.getUnitList().);
 
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
             }
         }
-        Collections.sort(_journeyPlans, new Comparator<JourneyPlanOpt>() {
-            @Override
-            public int compare(JourneyPlanOpt o1, JourneyPlanOpt o2) {
-                return o1.getSortOrder()-o2.getSortOrder();
-            }
-        });
-        this.jpoWorkPlanTemplates=_journeyPlans;
-        return _journeyPlans;
+        //prev_WorkPlanDataMessageDigest = currHash;
+        locationsOpt.SortArray();
+        this.jpoWorkPlanTemplates = locationsOpt.getJourneyPlanListByLocation("ALL");
+        Log.d("","jpoWorkPlanTemplates"+this.jpoWorkPlanTemplates.size());
+//       Collections.sort(_journeyPlans, new Comparator<JourneyPlanOpt>() {
+//            @Override
+//            public int compare(JourneyPlanOpt o1, JourneyPlanOpt o2) {
+//                return o1.getSortOrder()-o2.getSortOrder();
+//            }
+//        });
+//
+//        this.jpoWorkPlanTemplates=_journeyPlans;
+        return this.jpoWorkPlanTemplates;
 
     }
 
+
     public ArrayList<JSONObject> loadWokPlanTemplateList(Context context){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
         //dbHandler.close();
         ArrayList<JSONObject> _journeyPlans = new ArrayList<>();
         for (StaticListItem item : items) {
@@ -266,7 +330,7 @@ public class Inbox {
     }
     public void loadWorkPlanTemplates(Context context){
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
         //dbHandler.close();
         ArrayList<JourneyPlan> _journeyPlans = new ArrayList<>();
         for (StaticListItem item : items) {
@@ -287,7 +351,12 @@ public class Inbox {
             context=Globals.mainActivity;
         }
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
-        List<StaticListItem> items = dbHandler.getListItems("JourneyPlan", Globals.orgCode, "", "code<>''");
+        //TODO:need to review before commit
+       /* if(dbHandler == null){
+            Globals.setDbContext(context.getApplicationContext());
+            dbHandler =Globals.db;
+        }*/
+        List<StaticListItem> items = Globals.db.getListItems("JourneyPlan", Globals.orgCode, "", "code<>''");
         //dbHandler.close();
 
         //List<StaticListItem> items = dbHandler.getListItems(Globals.ROUTE_PLAN_LIST_NAME,Globals.orgCode,Globals.empCode);
@@ -301,7 +370,7 @@ public class Inbox {
                 }
                 //JourneyPlan jp = new JourneyPlan(context,jo);
                 //jp.setId(item.getCode());
-//TODO Data changing here
+                //TODO Data changing here
                 //List<StaticListItem> msgItems = dbHandler.getMsgListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"code='"+item.getCode()+"'");
                 //List<StaticListItem> msgItems = dbHandler.getMsgListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"description='"+item.getCode()+"'");
                 List<StaticListItem> msgItems = dbHandler.getMsgListItems(Globals.JPLAN_LIST_NAME
@@ -364,7 +433,7 @@ public class Inbox {
     }
     public void loadMaintenance(){
         DBHandler dbHandler=Globals.db;
-        List<StaticListItem> mItems = dbHandler.getListItems(MAINTENANCE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> mItems = Globals.db.getListItems(MAINTENANCE_LIST_NAME, Globals.orgCode, "", "code<>''");
         Globals.maintenanceList= new MaintenanceList(mItems);
     }
     public void loadFromDB(Context context){

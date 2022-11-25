@@ -24,7 +24,8 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
+import static com.app.ps19.tipsapp.Shared.Globals.appName;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
 
 public class previousDefectsAdapter extends BaseExpandableListAdapter {
 
@@ -147,13 +148,17 @@ public class previousDefectsAdapter extends BaseExpandableListAdapter {
         if(issue.getStartMP().equals("") && issue.getEndMP().equals("")){
             llMarkerContainer.setVisibility(VISIBLE);
             llMpContainer.setVisibility(GONE);
-            tvMarkerStart.setText(issue.getStartMarker());
-            tvMarkerEnd.setText(issue.getEndMarker());
+            tvMarkerStart.setText(getPrefixMp(issue.getStartMarker()));
+            tvMarkerEnd.setText(getPrefixMp(issue.getEndMarker()));
         } else {
             llMarkerContainer.setVisibility(GONE);
             llMpContainer.setVisibility(VISIBLE);
-            tvStartMP.setText(issue.getStartMP());
-            tvEndMP.setText(issue.getEndMP());
+            tvStartMP.setText(getPrefixMp(issue.getStartMP()));
+            tvEndMP.setText(getPrefixMp(issue.getEndMP()));
+        }
+        if(appName.equals(Globals.AppName.EUIS)){
+            llMarkerContainer.setVisibility(GONE);
+            llMpContainer.setVisibility(GONE);
         }
         //tvStartMP.setText(issue.getStartMP());
         //tvEndMP.setText(issue.getEndMP());

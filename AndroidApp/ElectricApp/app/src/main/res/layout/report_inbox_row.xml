@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dp"
+    android:orientation="horizontal">
+
+    <!--  ListRow Left sied Thumbnail image -->
+
+    <!--
+            android:layout_alignTop="@+id/reportThumbnail"
+            android:layout_toRightOf="@+id/reportThumbnail"-->
+
+    <ImageView
+        android:id="@+id/list_image"
+        android:layout_width="110dp"
+        android:layout_height="80dp"
+        android:padding="3dp"
+        android:paddingTop="10dp"
+        android:src="@drawable/report_gps_icon" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/reportTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
+            android:text="Time and GPS Report"
+            android:textColor="#040404"
+            android:textSize="18sp"
+            android:textStyle="normal"
+            android:fontFamily="@font/cabin"
+            android:typeface="sans" />
+
+        <TextView
+            android:id="@+id/reportDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
+            android:text="Monday Oct 15, 2018"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="14sp"
+            android:padding="5dp"
+            android:textStyle="normal"
+            android:fontFamily="@font/cabin"
+            android:typeface="sans" />
+
+        <TextView
+            android:id="@+id/reportReportDetails"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
+            android:text="Report will show your all day time sheet along with GPS coordinates"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            android:fontFamily="@font/cabin"
+            android:textStyle="normal"
+            android:typeface="sans" />
+
+
+    </LinearLayout>
+
+    <!-- Title Of Song-->
+    <!--<TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/reportThumbnail"
+        android:layout_toRightOf="@+id/reportThumbnail"
+        android:text="Rihanna Love the way lie"
+        android:textColor="#040404"
+        android:typeface="sans"
+        android:textSize="15dip"
+        android:textStyle="bold"/>
+
+    &lt;!&ndash; Artist Name &ndash;&gt;
+    <TextView
+        android:id="@+id/artist"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:textColor="#343434"
+        android:textSize="10dip"
+        android:layout_marginTop="1dip"
+        android:layout_toRightOf="@+id/reportThumbnail"
+        android:text="Just gona stand there and ..." />
+
+    &lt;!&ndash; Rightend Duration &ndash;&gt;
+    <TextView
+        android:id="@+id/duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/title"
+        android:gravity="right"
+        android:text="5:45"
+        android:layout_marginRight="5dip"
+        android:textSize="10dip"
+        android:textColor="#10bcc9"
+        android:textStyle="bold"/>
+
+    &lt;!&ndash; Rightend Arrow &ndash;&gt;
+    <ImageView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:srcCompat="@drawable/ic_chevron_right_black_24dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"/>-->
+
+</LinearLayout>

@@ -1,0 +1,45 @@
+.toggle-button-flex {
+  display: inline-flex;
+  border: 1px solid;
+  border-radius: 5px;
+  background-color: var(--fifth);
+  transition: all 0.3s ease-in-out;
+  margin: 5px;
+  cursor: pointer;
+}
+.toggle-button-flex.disabled {
+  cursor: default;
+  box-shadow: none;
+  transition: all 0.3s ease-in-out;
+  opacity: 0.2;
+}
+.toggle-button-flex .left-border {
+  border-left: 1px solid;
+}
+.toggle-button-flex .right-border {
+  border-right: 1px solid;
+}
+.toggle-button-flex .option {
+  padding: 2px 20px;
+  transition: all 0.3s ease-in-out;
+}
+.toggle-button-flex .option:hover {
+  box-shadow: 0px 0px 7px 2px var(--first);
+  transition: all 0.3s ease-in-out;
+}
+.toggle-button-flex .option:active {
+  box-shadow: none !important;
+  transition: all 0.3s ease-in-out;
+}
+.toggle-button-flex .selected {
+  background-color: var(--first);
+  color: var(--fifth);
+  cursor: default;
+  box-shadow: none !important;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
+}
+
+.toggle-button-flex {
+  font-size: 14px;
+}

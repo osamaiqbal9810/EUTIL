@@ -11,13 +11,14 @@ export function uploadDocuments (document, uploadPathFolder) {
   } else {
     apiPath = apiPath + pathUpload
   }
+  formData.append('saveby', document.originalname);
   formData.append('file', document);
   const options = {
     headers: {
       processData: 'false',
       contentType: 'false',
       dataType: 'json',
-      Accept: '*/*'
+      Accept: '*/*',
     },
     method: 'POST',
     body: formData
@@ -44,6 +45,23 @@ export function loadAllDocuments (pathImgs) {
       endpoint: pathFinal,
       authenticated: true,
       types: [types.DOCUMENTS_LOAD_REQUEST, types.DOCUMENTS_LOAD_SUCCESS, types.DOCUMENTS_LOAD_FAILURE],
+      config: options
+    }
+  }
+}
+
+export function downloadFileFromServer (filepath) {
+  let [, ...remaining] = filepath.split('_');
+  const options = { headers: { 
+    'Content-disposition': 'attachment; filename=' + remaining.join('_') ,
+    'Content-Type': 'application/octet-stream'
+  }, method: 'GET' };
+  
+  return {
+    [CALL_API]: {
+      endpoint: `applicationresources/assetEquipmentData/${filepath}`,
+      authenticated: true,
+      types: [types.FILE_DOWNLOAD_REQUEST, types.FILE_DOWNLOAD_SUCCESS, types.FILE_DOWNLOAD_FAILURE],
       config: options
     }
   }

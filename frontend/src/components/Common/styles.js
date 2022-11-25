@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 
 export const fontStyleHeadings2 = {
   default: {
@@ -14,6 +14,12 @@ export const fontStyleHeadings2 = {
     fontSize: "18px",
     fontWeight: 600,
   },
+  electric: {
+    letterSpacing: "0.95px",
+    color: electricColors.second,
+    fontSize: "18px",
+    fontWeight: 600,
+  },
 };
 
 export const ModalStyles = {
@@ -23,12 +29,13 @@ export const ModalStyles = {
       border: "0px",
     },
     retro: { color: retroColors.firsts, fontWeight: 600, fontSize: "18px" },
+    electric: { color: electricColors.firsts, fontWeight: 600, fontSize: "18px" },
   },
   footerButtonsContainer: {
     border: "0px",
   },
   modalBodyColor: {
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "12px",
   },
 };

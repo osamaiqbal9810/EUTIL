@@ -21,6 +21,7 @@ export const commonFields = {
     valid: true,
     touched: false,
     validationMessage: "",
+    hide:false
   },
   assetType: {
     element: "select",
@@ -31,7 +32,7 @@ export const commonFields = {
     config: {
       name: "assetType",
       type: "text",
-      placeholder: "Asset Type",
+      placeholder: "Location",
       disabled: false,
       options: [],
     },
@@ -257,20 +258,18 @@ export const locationMilepostFields = {
     element: "input",
     value: 0,
     label: true,
-    labelText: "Milepost Start",
+    labelText: "Latitude",
     containerConfig: {
       col: 12,
     },
     config: {
       name: "start",
-      type: "number",
+      type: "text",
       step: "0.01",
       placeholder: "Start",
     },
     validation: {
       required: true,
-      min: MILEPOST_VARS.MIN,
-      max: MILEPOST_VARS.MAX,
     },
     valid: true,
     touched: false,
@@ -280,20 +279,18 @@ export const locationMilepostFields = {
     element: "input",
     value: 0,
     label: true,
-    labelText: "Milepost End",
+    labelText: "Logitude",
     containerConfig: {
       col: 12,
     },
     config: {
       name: "end",
-      type: "number",
+      type: "text",
       step: "0.01",
       placeholder: "End",
     },
     validation: {
       required: true,
-      min: MILEPOST_VARS.MIN,
-      max: MILEPOST_VARS.MAX,
     },
     valid: true,
     touched: false,

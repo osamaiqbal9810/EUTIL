@@ -31,7 +31,7 @@ import { FORM_MODES } from "../../../utils/globals";
 import ImageSlider from "../../Common/ImageSlider";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import EstimateListEditable from "./EstimateListEditable";
 import { commonPageStyle } from "../../Common/Summary/styles/CommonPageStyle";
 import permissionCheck from "../../../utils/permissionCheck";
@@ -39,7 +39,7 @@ import { curdActions } from "reduxCURD/actions";
 import moment from "moment";
 import ConfirmationDialog from "../../Common/ConfirmationDialog";
 
-const MyButton = props => (
+const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
   </button>
@@ -95,7 +95,7 @@ class AddMaintenance extends Component {
     ) {
       let maintenanceFields = _.cloneDeep(this.state.maintenanceFields);
 
-      maintenanceFields.maintenanceType.config.options = this.props.maintenanceTypes.map(mt => {
+      maintenanceFields.maintenanceType.config.options = this.props.maintenanceTypes.map((mt) => {
         return { val: mt, text: mt };
       });
       maintenanceFields.maintenanceType.value = maintenanceFields.maintenanceType.config.options[0].val;
@@ -110,7 +110,7 @@ class AddMaintenance extends Component {
         let locationMPFields = _.cloneDeep(locationMilepostFields);
 
         if (this.props.lineAssets && this.props.lineAssets.length) {
-          mafs.lineId.config.options = this.props.lineAssets.map(ln => {
+          mafs.lineId.config.options = this.props.lineAssets.map((ln) => {
             return { val: ln._id.toString(), text: ln.unitId };
           });
           mafs.lineId.value = this.props.lineAssets && this.props.lineAssets[0] ? this.props.lineAssets[0]._id : "";
@@ -151,7 +151,7 @@ class AddMaintenance extends Component {
         let mfs = _.cloneDeep(state.maintenanceFields);
         let lmpfs = _.cloneDeep(state.locationMilepostFields);
 
-        mfs.lineId.config.options = props.lineAssets.map(ln => {
+        mfs.lineId.config.options = props.lineAssets.map((ln) => {
           return { val: ln._id.toString(), text: ln.unitId };
         });
 
@@ -238,8 +238,8 @@ class AddMaintenance extends Component {
     }
     maintenanceFields.lineId.config.disabled = true;
 
-    let imageList = selectedMaintenance.images.map(item => item.imgName);
-    let documentList = selectedMaintenance.documents.map(item => item);
+    let imageList = selectedMaintenance.images.map((item) => item.imgName);
+    let documentList = selectedMaintenance.documents.map((item) => item);
 
     this.updateFrom({
       maintenanceFields,
@@ -252,7 +252,7 @@ class AddMaintenance extends Component {
     });
   };
 
-  mapLocationFieldsToState = location => {
+  mapLocationFieldsToState = (location) => {
     let gps,
       milepost,
       marker = false;
@@ -261,7 +261,7 @@ class AddMaintenance extends Component {
     let disabled = this.props.selectedMaintenance.sourceType === "app-issue"; // do not allow change in location if the source is app
 
     if (location.length > 0) {
-      location.map(item => {
+      location.map((item) => {
         if (item.type === "GPS") {
           gps = true;
           lgpsfs.start_lat.value = item.start.lat;
@@ -330,7 +330,7 @@ class AddMaintenance extends Component {
 
   addLineLimitsToCaptionsAndValidations(lineId, locationMilepostFields1, setInitialValues = false) {
     if (locationMilepostFields1 && lineId && this.props.lineAssets) {
-      let line = this.props.lineAssets.find(l => {
+      let line = this.props.lineAssets.find((l) => {
         return l._id === lineId;
       });
       if (line) {
@@ -360,7 +360,7 @@ class AddMaintenance extends Component {
     return locationMilepostFields1;
   }
 
-  updateFrom = newState => {
+  updateFrom = (newState) => {
     if (
       newState &&
       newState.maintenanceFields &&
@@ -389,7 +389,7 @@ class AddMaintenance extends Component {
     this.setState(updatedState);
   }
 
-  submitForm = e => {
+  submitForm = (e) => {
     e.preventDefault();
     let location = [];
     let { maintenanceFields, message, historyFields } = this.state;
@@ -403,7 +403,7 @@ class AddMaintenance extends Component {
       modelName: "locationMilepostFields",
     };
 
-    if (this.props.modalState === "Add" || this.props.selectedMaintenance.location.findIndex(ol => ol.type === "Milepost") !== -1) {
+    if (this.props.modalState === "Add" || this.props.selectedMaintenance.location.findIndex((ol) => ol.type === "Milepost") !== -1) {
       location = this.mapLocationStateToSubmitData(location, item);
       processFromFields(this.state["locationMilepostFields"]);
       formIsValid = checkFormIsValid(this.state["locationMilepostFields"]) && formIsValid;
@@ -427,15 +427,15 @@ class AddMaintenance extends Component {
 
     this.setFormValidation(this.state["locationMilepostFields"], "locationMilepostFields");
 
-    let line = this.props.lineAssets.find(ln => {
+    let line = this.props.lineAssets.find((ln) => {
       return ln._id === dataToSubmit.lineId;
     });
     dataToSubmit.lineName = line.unitId;
 
     let { imageList, documentList } = this.state;
-    let images = imageList.map(image => ({ imgName: image }));
+    let images = imageList.map((image) => ({ imgName: image }));
     let estimate = this.state.estimate || [];
-    estimate = estimate.map(est => {
+    estimate = estimate.map((est) => {
       delete est.editMode;
 
       return est;
@@ -526,9 +526,9 @@ class AddMaintenance extends Component {
     return location;
   };
 
-  addMaintenanceStateHandler = newState => this.setState({ ...newState });
+  addMaintenanceStateHandler = (newState) => this.setState({ ...newState });
 
-  addSelectedImage = imgName => {
+  addSelectedImage = (imgName) => {
     if (imgName) {
       const { imageList } = this.state;
       this.setState({
@@ -542,7 +542,7 @@ class AddMaintenance extends Component {
     }
   };
 
-  locationTypeSelectionHandler = e => {
+  locationTypeSelectionHandler = (e) => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
   };
@@ -573,7 +573,7 @@ class AddMaintenance extends Component {
     }));
   };
 
-  addSelectedDocument = docName => {
+  addSelectedDocument = (docName) => {
     if (docName) {
       this.setState(({ documentList }) => ({ documentList: [...documentList, docName], formModes: FORM_MODES.BASE }));
     } else {
@@ -604,7 +604,7 @@ class AddMaintenance extends Component {
     }
   }
 
-  handleConfirmationChangeMRResponse = response => {
+  handleConfirmationChangeMRResponse = (response) => {
     if (response) {
       let dataToSubmit = this.state.confirmCloseMR.dataToSubmit;
       let workOrderNumber = "";
@@ -638,7 +638,7 @@ class AddMaintenance extends Component {
   render() {
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
         isOpen={this.props.modal}
         toggle={this.props.toggle}
         style={{ maxWidth: "98vw" }}
@@ -749,12 +749,21 @@ class AddMaintenance extends Component {
                         <Col md={12}>
                           <div
                             style={themeService({
-                              default: { padding: "15px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)", cursor: "pointer" },
+                              default: { padding: "15px 0px", margin: "auto", width: "50%", color: "var(--first)", cursor: "pointer" },
                               retro: {
                                 padding: "15px 0px",
                                 margin: "auto",
                                 width: "50%",
                                 color: retroColors.second,
+                                cursor: "pointer",
+                                float: "right",
+                                textAlign: "right",
+                              },
+                              electric: {
+                                padding: "15px 0px",
+                                margin: "auto",
+                                width: "50%",
+                                color: electricColors.second,
                                 cursor: "pointer",
                                 float: "right",
                                 textAlign: "right",
@@ -801,12 +810,21 @@ class AddMaintenance extends Component {
                         <Col md={12}>
                           <div
                             style={themeService({
-                              default: { padding: "15px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)", cursor: "pointer" },
+                              default: { padding: "15px 0px", margin: "auto", width: "50%", color: "var(--first)", cursor: "pointer" },
                               retro: {
                                 padding: "15px 0px",
                                 margin: "auto",
                                 width: "50%",
                                 color: retroColors.second,
+                                cursor: "pointer",
+                                float: "right",
+                                textAlign: "right",
+                              },
+                              electric: {
+                                padding: "15px 0px",
+                                margin: "auto",
+                                width: "50%",
+                                color: electricColors.second,
                                 cursor: "pointer",
                                 float: "right",
                                 textAlign: "right",
@@ -829,7 +847,7 @@ class AddMaintenance extends Component {
                                   {languageService("Is this Historical Data")}?
                                 </span>
                                 <span
-                                  style={{ background: "rgb(64, 118, 179)",textDecoration:"capitalize" }}
+                                  style={{ background: "var(--first)", textDecoration: "capitalize" }}
                                   onClick={this.historyDataHandler}
                                   className={"btn btn-primary"}
                                 >

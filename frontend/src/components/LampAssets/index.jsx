@@ -52,8 +52,13 @@ import AssetBuilder from "./AssetBuilder/AssetBuilder";
 import { plus } from "react-icons-kit/icomoon/plus";
 import SvgIcon from "react-icons-kit";
 import { road } from "react-icons-kit/icomoon/road";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
+import { versionInfo } from "../MainPage/VersionInfo";
+import { LocPrefixService } from "../LocationPrefixEditor/LocationPrefixService";
 import * as turf from "@turf/turf";
+import AssetEquipmentTreeView from "../AssetEquipmentTreeView";
+import { uploadDocuments, downloadFileFromServer } from "reduxRelated/actions/documentUpload.js";
+import { getServerEndpoint } from "utils/serverEndpoint";
 
 const defaultMenuItem = "All";
 const tableData = [
@@ -173,9 +178,12 @@ class AssetsLamp extends Component {
       displayMenuAll: true,
       tempAssets: [],
       addModalTrack: false,
+      openEquipmentDialog: false,
+      inspections: 0
     };
-    this.assetsByLine = [];
 
+    this.assetsByLine = [];
+    this.equipmentTypes = [];
     this.handleAddEditModalClick = this.handleAddEditModalClick.bind(this);
     this.addAssetToParent = this.addAssetToParent.bind(this);
     this.handleExpandClick = this.handleExpandClick.bind(this);
@@ -207,11 +215,15 @@ class AssetsLamp extends Component {
     this.handleSubmitFormTrackSetup = this.handleSubmitFormTrackSetup.bind(this);
     this.handleSubmitForm = this.handleSubmitForm.bind(this);
     this.handleAddEditModalClickTrackSetup = this.handleAddEditModalClickTrackSetup.bind(this);
+    this.openEquipmentView = this.openEquipmentView.bind(this);
+    this.openRelayView = this.openRelayView.bind(this);
+    this.updateEquipmentData = this.updateEquipmentData.bind(this);
     //this.calculateAssetMarkerToShow = this.calculateAssetMarkerToShow.bind(this);
 
     // this.assetTypeFilter = <div onClick={this.handleAssetTypeFilterClick}> I am Button</div>
 
     this.loggedInUser = null;
+
   }
 
   componentDidMount() {
@@ -252,6 +264,8 @@ class AssetsLamp extends Component {
     }, true);
     //console.log(this.props.assets);
     this.setState({ tempAssets: this.props.assets });
+
+    this.props.getApplookups(["assetEquipmentTypes"]);
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -288,6 +302,7 @@ class AssetsLamp extends Component {
       if (this.loggedInUser) {
         // let assetsToShow = this.assetsToShowOnReceivingFromServer(assetGroupByParent, assetGroupsByAssetTypes);
         //console.log(this.props.assets);
+        
         this.setState({
           assetTree: assetTree,
           // assetListToShow: assetsToShow,
@@ -320,12 +335,15 @@ class AssetsLamp extends Component {
       });
       this.showToastSuccess(languageService("Asset Added Successfully"));
     }
-    if (this.props.assetHelperActionType === "CREATE_MULTIPLE_ASSETS_SUCCESS" && this.props.assetHelperActionType !== prevProps.assetHelperActionType) {
+    if (
+      this.props.assetHelperActionType === "CREATE_MULTIPLE_ASSETS_SUCCESS" &&
+      this.props.assetHelperActionType !== prevProps.assetHelperActionType
+    ) {
       this.props.getAssets();
       this.setState({
         spinnerLoading: true,
       });
-     // this.showToastSuccess(languageService("Asset Added Successfully"));
+      // this.showToastSuccess(languageService("Asset Added Successfully"));
     }
     if (this.props.actionType == "ASSET_UPDATE_SUCCESS" && this.props.actionType !== prevProps.actionType) {
       this.props.getAssets();
@@ -356,6 +374,13 @@ class AssetsLamp extends Component {
         assetsDataToShow: assetsDataToShow,
         showMultiLineData: true,
       });
+    }
+    if (this.props.applookupActionType === "APPLOOKUPS_READ_SUCCESS" && this.props.applookupActionType !== prevProps.applookupActionType) {
+      this.equipmentTypes = this.props.applookups
+        .filter((f) => f.listName === "assetEquipmentTypes")
+        .map((al) => {
+          return { id: al._id, type: al.description, schema: al.opt1.schema, iconGroup: al.opt1.iconGroup };
+        });
     }
   }
   showToastSuccess(message) {
@@ -517,6 +542,30 @@ class AssetsLamp extends Component {
         1000,
       );
     }
+  }
+
+  openEquipmentView(open, asset) {
+    this.setState({ openEquipmentDialog: open, selectedAsset: asset });
+  }
+  openRelayView(open, asset) {
+    this.setState({ openEquipmentDialog: open, selectedAsset: asset });
+  }
+  updateEquipmentData(equipments, files) {
+    // todo: Amir - update equipments on backend
+    // console.log({equipments, files});
+    let { selectedAsset } = this.state;
+    let asset  = { ...selectedAsset, equipments };
+    // console.log({asset});
+    this.props.updateAsset(asset);
+
+    if(files && files.length) {
+      for(let file of files) {
+      const filename = file["url-rel"];
+      file.file.originalname = filename;
+      this.props.uploadDocuments(file.file, "uploadequipmentdata");
+      }
+    }
+
   }
   handleAddEditModalClick(modalState, asset) {
     //console.log(modalState)
@@ -913,7 +962,8 @@ class AssetsLamp extends Component {
       assetTypes = assetTypes.filter((at) => {
         return !at.location;
       }); // do not mix locations and asset types
-      assetTypeFilterComp = assetTypes.map((assetType, index) => {
+      let sortedATypes = _.sortBy(assetTypes, "sortOrder");
+      assetTypeFilterComp = sortedATypes.map((assetType, index) => {
         //   assetType.filterState = true
         return (
           <div style={{ display: "inline-block" }} key={assetType._id}>
@@ -1024,7 +1074,7 @@ class AssetsLamp extends Component {
     this.props.getMultiLineData(lines, apiCallName);
   }
 
-  makePopupMsg(asset) {
+  makePopupMsg(asset, prefix) {
     let textcolor = "black",
       color = "black";
     let checkedMs = [];
@@ -1050,7 +1100,7 @@ class AssetsLamp extends Component {
       "#546E7A",
     ]; //['black', 'green', 'red', 'blue','cyan', 'magenta'];
     let textStyle = {
-      color: "rgb(64, 118, 179)",
+      color: "var(--first)",
       fontSize: "12px",
       fontFamily: "Arial",
       letterSpacing: "0.3px",
@@ -1060,7 +1110,7 @@ class AssetsLamp extends Component {
       fontFamily: "Arial",
       fontSize: "18px",
       letterSpacing: "0.95px",
-      color: "rgb(64, 118, 179)",
+      color: "var(--first)",
       borderBottom: "1px solid rgb(209, 209, 209)",
       display: "block",
       width: "100%",
@@ -1073,7 +1123,7 @@ class AssetsLamp extends Component {
           attributes.push(<div key={asset.unitId + k.toString()}>{k.toString() + ": " + asset.attributes[k].toString()}</div>);
       }
     }
-
+    let endShown = asset.end ? " to " : "";
     return (
       <div key={asset.unitId}>
         <h4 style={headingStyle}>{asset.name ? asset.name : asset.unitId}</h4>
@@ -1083,14 +1133,13 @@ class AssetsLamp extends Component {
           </div>
           <div>{attributes}</div>
           <div>
-            <strong>{languageService("Location")}:</strong>{" "}
-            {asset.start && !isNaN(parseFloat(asset.start)) ? asset.start.toFixed(2) : "0.00"}{" "}
-            {asset.end ? (" to " + !isNaN(parseFloat(asset.end)) ? asset.end.toFixed(2) : "") : ""}
+            <strong>{languageService("Location")}:</strong> {(prefix.startPrefix ? prefix.startPrefix : "") + asset.start}
+            {endShown ? endShown + (prefix.endPrefix ? prefix.endPrefix : "") + asset.end : ""}
           </div>
           <div style={{ maxWidth: "200px", marginBottom: "10px", textAlign: "justify" }}>{asset.description ? asset.description : ""}</div>
 
           {/* <Link style={{ float: "right", textDecoration: "none" }} to={url}><span style={{
-              color: "rgb(64, 118, 179)",
+              color: "var(--first)",
               fontSize: "12px",
               fontFamily: "Arial",
               letterSpacing: "0.3px"
@@ -1099,7 +1148,7 @@ class AssetsLamp extends Component {
       </div>
     );
   }
-   getChildAssets(assetId, allAssets) {
+  getChildAssets(assetId, allAssets) {
     let tn = findTreeNode(allAssets.assetTree, assetId);
     let childrenIds = treeToArray(tn);
     let childAssets = allAssets.assetsList.filter((a) => {
@@ -1158,7 +1207,6 @@ class AssetsLamp extends Component {
       Switch: true,
       Crossing: true,
       Station: true,
-      Pole: true,
       other: true,
     };
 
@@ -1180,8 +1228,7 @@ class AssetsLamp extends Component {
       Switch: "switch-both.png",
       Crossing: "crossing.png",
       Station: "station-low.png",
-      Pole: "Pole.png",
-      other: "Pole1.png",
+      other: "train1.png",
     };
 
     //, '#00ACC1', '#00897B','#43A047', '#7CB342', '#C0CA33', '#FDD835', '#FFB300', '#FB8C00', '#F4511E', '#6D4C41', '#757575', '#546E7A'};
@@ -1206,6 +1253,8 @@ class AssetsLamp extends Component {
         }
         // if baseLine data is valid
         for (let a1 of assets) {
+          let startPrefix = LocPrefixService.getPrefixMp(a1.start, a1.lineId);
+          let endPrefix = LocPrefixService.getPrefixMp(a1.end, a1.lineId);
           let visible = visibleTypes["other"];
           if (visibleTypes[a1.assetType]) visible = visibleTypes[a1.assetType];
           if (!visible) continue; // hide some asset types
@@ -1238,7 +1287,7 @@ class AssetsLamp extends Component {
             //   typeMap.set(a1.assetType, -atOffset);
             // }
             // let offset = (typeMap.size * atOffset) / 2;
-            let msg = this.makePopupMsg(a1);
+            let msg = this.makePopupMsg(a1, { startPrefix: startPrefix, endPrefix: endPrefix });
             // console.log('asset', a1.unitId, 'offset', offset, atOffset, typeMap.size);
             let assetData = {
               start: a1.start,
@@ -1247,6 +1296,7 @@ class AssetsLamp extends Component {
               text: a1.unitId,
               visible: true,
               _id: a1._id,
+
               // offset: offset,
               msg: msg,
             };
@@ -1274,7 +1324,7 @@ class AssetsLamp extends Component {
             let img = imagesByType["other"];
             if (imagesByType[a1.assetType]) img = imagesByType[a1.assetType];
 
-            let msg = this.makePopupMsg(a1);
+            let msg = this.makePopupMsg(a1, { startPrefix: startPrefix, endPrefix: endPrefix });
             let assetdata = {
               start: a1.start,
               end: a1.end ? a1.end : a1.start,
@@ -1289,12 +1339,6 @@ class AssetsLamp extends Component {
             if (a1 && a1.attributes && a1.attributes.adjCoordinates) {
               let geoJsonObj = { geometry: swapLatLon(a1.attributes.adjCoordinates), properties: {}, type: "Feature" };
               assetdata = { ...assetdata, ...{ geoJsonObj } };
-            }
-            else if(a1.coordinates && a1.coordinates.length==2) // if lat, lon added to the asset
-            {
-              let geoJsonObj = { geometry: { type:"Point", coordinates:[parseFloat(a1.coordinates[1]), parseFloat(a1.coordinates[0])]}, properties:{}};
-
-              assetdata = {...assetdata, ...{ geoJsonObj } };
             }
 
             // if this asset doesn't have a GIS and its parent has a linear GIS then extract position from parent
@@ -1582,6 +1626,7 @@ class AssetsLamp extends Component {
     //console.log("assetsToShow", assetsToShow);
     //console.log("locationFilter", locations);
   }
+
   render() {
     const { path } = this.props.match;
     let modelRendered = <SpinnerLoader spinnerLoading={this.state.spinnerLoading} />;
@@ -1612,14 +1657,16 @@ class AssetsLamp extends Component {
           }
           headerText={languageService("Confirm Deletion")}
         />
-        <AssetBuilder
-          modal={this.state.addModalTrack}
-          modalState={this.state.modalState}
-          toggle={this.handleAddEditModalClickTrackSetup}
-          handleSubmitForm={this.handleSubmitFormTrackSetup}
-          assets={this.props.assets}
-          parentAsset={this.state.parentAssetSelected}
-        />
+        {versionInfo.isTIMPS() && (
+          <AssetBuilder
+            modal={this.state.addModalTrack}
+            modalState={this.state.modalState}
+            toggle={this.handleAddEditModalClickTrackSetup}
+            handleSubmitForm={this.handleSubmitFormTrackSetup}
+            assets={this.props.assets}
+            parentAsset={this.state.parentAssetSelected}
+          />
+        )}
         <AddAssets
           modal={this.state.addModal}
           modalState={this.state.modalState}
@@ -1631,8 +1678,20 @@ class AssetsLamp extends Component {
           assets={this.props.assets}
           parentAsset={this.state.parentAssetSelected}
           plannableLocations={this.state.plannableLocations}
+          //osama iqbal
+          assetsList={this.props.assets.assetsList}
+          showMap={true}
         />
         <ViewAssetDetail modal={this.state.viewModal} toggle={this.viewAssetDetail} selectedAsset={this.state.selectedAssetToDetailView} />
+        {this.state.openEquipmentDialog && (
+            <AssetEquipmentTreeView
+              selectedAsset={this.state.selectedAsset}
+              equipmentTypes={this.equipmentTypes}
+              openEquipmentView={this.openEquipmentView}
+              downloadFile={this.props.downloadFileFromServer}
+              updateEquipmentData={this.updateEquipmentData}
+            />
+          )}
         <Row style={themeService(commonStyles.pageBorderRowStyle)}>
           <Col md="10" style={{ paddingLeft: "0px" }}>
             <div style={themeService(commonStyles.pageTitleStyle)}>{languageService("Assets")}</div>
@@ -1661,7 +1720,7 @@ class AssetsLamp extends Component {
         {this.state.listViewDataToShow === LIST_VIEW_SELECTION_TYPES.AssetsView && (
           <div style={{ margin: "0px 15px 30px" }}>
             <Row>
-              <Col md={11}>
+              <Col md={10}>
                 <AllFilter
                   assetType={this.state.defaultFilter}
                   filterState={this.state.defaultFilter.filterState}
@@ -1685,12 +1744,12 @@ class AssetsLamp extends Component {
                 filterState={this.state.defaultFilter.filterState}
                 handleAssetTypeFilterClick={this.handleAssetTypeFilterClick}
               />
-              <div style={{ display: "inline-block", color: "rgba(64, 118, 179)" }}> | </div>
+              <div style={{ display: "inline-block", color: "var(--first)" }}> | </div>
             </div>
             <div style={{ display: "inline-block", padding: "15px" }}> {this.state.assetTypeFilterComponent}</div>
           </Col> */}
 
-              <Col md="1">
+              <Col md="2">
                 {/* <AssetsSummary
               descriptions={this.state.summaryDesc}
               values={this.state.summaryValue}
@@ -1702,7 +1761,7 @@ class AssetsLamp extends Component {
               addToolTipId="Asset"
               buttonTitleText="Asset"
             /> */}
-                <div>
+                <div style={{ textAlign: "right" }}>
                   {/* <div id={"toolTipAddAsset"} style={{ minHeight: "86px" }}>
                     {permissionCheck("ASSET", "create") && (
                       <ButtonCirclePlus
@@ -1718,25 +1777,47 @@ class AssetsLamp extends Component {
                   </div> */}
                   {permissionCheck("ASSET", "create") && (
                     <React.Fragment>
+                      {versionInfo.isTIMPS() && (
+                        <React.Fragment>
+                          <div
+                            id={"toolTipAddTrack"}
+                            style={{ display: "inline-block", marginRight: "15px", verticalAlign: "top" }}
+                            onClick={(e) => {
+                              this.handleAddEditModalClickTrackSetup();
+                            }}
+                          >
+                            {/* <SvgIcon icon={road} size={25} /> */}
+
+                            <ButtonCirclePlus
+                              iconSize={30}
+                              icon={road}
+                              customClassName={"road"}
+                              backgroundColor="#e3e9ef"
+                              margin="5px 0px 0px 0px"
+                              borderRadius="50%"
+                              hoverBackgroundColor="#e3e2ef"
+                              hoverBorder="0px"
+                              activeBorder="3px solid #e3e2ef "
+                              iconStyle={{
+                                color: "#c4d4e4",
+                                background: "var(--fifth)",
+                                borderRadius: "50%",
+                                border: "3px solid ",
+                              }}
+                            />
+                          </div>
+                          <Tooltip
+                            isOpen={this.state.tooltipOpen.addTrack}
+                            target={"toolTipAddTrack"}
+                            toggle={(e) => {
+                              this.toggleTooltip("addTrack");
+                            }}
+                          >
+                            {languageService("Setup Tracks")}
+                          </Tooltip>{" "}
+                        </React.Fragment>
+                      )}
                       {/* <div
-                        id={"toolTipAddTrack"}
-                        style={{ color: retroColors.second, textAlign: "center", display: "inline-block" }}
-                        onClick={(e) => {
-                          this.handleAddEditModalClickTrackSetup();
-                        }}
-                      >
-                        <SvgIcon icon={road} size={25} />
-                      </div>
-                      <Tooltip
-                        isOpen={this.state.tooltipOpen.addTrack}
-                        target={"toolTipAddTrack"}
-                        toggle={(e) => {
-                          this.toggleTooltip("addTrack");
-                        }}
-                      >
-                        {languageService("Setup Tracks")}
-                      </Tooltip> */}
-                      <div
                         id={"toolTipAddAsset"}
                         style={{ color: retroColors.second, textAlign: "center", display: "inline-block", marginLeft: "10px" }}
                         onClick={(e) => {
@@ -1744,6 +1825,33 @@ class AssetsLamp extends Component {
                         }}
                       >
                         <SvgIcon icon={plus} size={25} />
+                      </div> */}
+                      <div
+                        id={"toolTipAddAsset"}
+                        style={{ display: "inline-block", margin: "0 20% 0 0" }}
+                        onClick={(e) => {
+                          this.handleAddEditModalClick("Add");
+                        }}
+                      >
+                        <ButtonCirclePlus
+                          iconSize={50}
+                          icon={withPlus}
+                          backgroundColor="#e3e9ef"
+                          margin="5px 0px 0px 0px"
+                          borderRadius="50%"
+                          hoverBackgroundColor="#e3e2ef"
+                          hoverBorder="0px"
+                          activeBorder="3px solid #e3e2ef "
+                          iconStyle={{
+                            color: "#c4d4e4",
+                            background: "var(--fifth)",
+                            borderRadius: "50%",
+                            border: "3px solid ",
+                          }}
+                          handleClick={(e) => {
+                            this.handleAddEditModalClick("Add");
+                          }}
+                        />
                       </div>
                       <Tooltip
                         isOpen={this.state.tooltipOpen.addAsset}
@@ -1781,6 +1889,9 @@ class AssetsLamp extends Component {
                   manual={false}
                   defaultPageSize={15}
                   currentAssetFilter={this.state.currentAssetFilter}
+                  openEquipmentView = {this.openEquipmentView}
+                  openRelayView = {this.openRelayView}
+                 inspectionTypes = {() => this.props.getApplookups(["inspectionTypes"])}
                 />
               </Col>
             </Row>
@@ -1842,7 +1953,7 @@ class AssetsLamp extends Component {
                     mapState={this.state.listViewDataToShow}
                     selectedAssetGISInfo={this.state.gisSelectedAssetInfo}
                   />
-                  {this.state.gisLegendData && this.state.gisLegendData.length && this.state.gisLegendData.length > 1 && <GISLegend legendData={this.state.gisLegendData}></GISLegend>}
+                  <GISLegend legendData={this.state.gisLegendData}></GISLegend>
                 </React.Fragment>
               )}
             </Col>
@@ -1858,7 +1969,7 @@ let actionOptions = {
   update: true,
   read: true,
   delete: true,
-  others: { getAppMockupsTypes, savePageNum, clearPageNum, getMultiLineData, updateFilterState },
+  others: { getAppMockupsTypes, savePageNum, clearPageNum, getMultiLineData, updateFilterState, uploadDocuments, downloadFileFromServer },
 };
 
 let variables = {
@@ -1880,14 +1991,25 @@ let variables = {
   filterStateReducer: {
     assetsFilter: null,
   },
-  assetHelperReducer:{
-    a:[]
-  }
+  assetHelperReducer: {
+    a: [],
+  },
 };
-const customsReducers = ["diagnosticsReducer", "utilReducer", "assetGroupHelperReducer", "lineSelectionReducer", "filterStateReducer", "assetHelperReducer"];
+const customsReducers = [
+  "diagnosticsReducer",
+  "utilReducer",
+  "assetGroupHelperReducer",
+  "lineSelectionReducer",
+  "filterStateReducer",
+  "assetHelperReducer",
+];
 let customItems = [
   {
     name: "assetTree",
+  },
+  {
+    name: "applookup",
+    apiName: "applicationlookups",
   },
 ];
 let AssetsLampult = CRUDFunction(AssetsLamp, "asset", actionOptions, variables, customsReducers, null, customItems);

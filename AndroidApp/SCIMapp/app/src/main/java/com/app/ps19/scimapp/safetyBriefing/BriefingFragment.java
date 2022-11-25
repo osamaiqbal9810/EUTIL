@@ -245,7 +245,7 @@ public class BriefingFragment extends Fragment {
             switch (i) {
                 case 0:
                     childDataList.add("date");
-                    // childDataList.add("time");
+                   // childDataList.add("time");
                     break;
                 case 1:
                 case 2:
@@ -265,10 +265,10 @@ public class BriefingFragment extends Fragment {
                     break;
                 case 7:
                     childDataList.add("cb-ITD");
-                    // childDataList.add("cb-Foul Time");
+                   // childDataList.add("cb-Foul Time");
                     //childDataList.add("cb-TAW");
-                    // childDataList.add("cb-Work Zone");
-                    // childDataList.add("cb-OOS");
+                   // childDataList.add("cb-Work Zone");
+                   // childDataList.add("cb-OOS");
                     break;
                 case 8:
                     childDataList.add("time");

@@ -236,7 +236,7 @@ public class LocationUpdatesService extends Service implements
 /*            activityDetection.requestActivityUpdates();*/
             smartLocationManager.location(fallbackLocationProvider).start(this);
             geofencingProvider.addGeofences(geofenceModelList);
-            geofencingProvider.start(this);
+            //geofencingProvider.start(this);
 
 
 

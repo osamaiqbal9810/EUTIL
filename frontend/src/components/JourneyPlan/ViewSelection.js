@@ -16,7 +16,7 @@ let getListView = () => {
   return {
     LIST: "List",
     Calendar: "Calendar",
-    // LinearView: "LinearView",
+    LinearView: "LinearView",
     // SwitchStatusView: "SwitchStatusView",
     AssetCalendar: "AssetCalendar",
     //  ...singalControl,
@@ -53,14 +53,14 @@ let getListSelectionTIMPS = () => {
         text: languageService("Calendar of Inspections"),
       },
     },
-    // {
-    //   title: LIST_VIEW_SELECTION_TYPES.LinearView,
-    //   icon: road,
-    //   tooltip: {
-    //     show: false,
-    //     text: languageService("Track Inspection Status"),
-    //   },
-    // },
+    {
+      title: LIST_VIEW_SELECTION_TYPES.LinearView,
+      icon: road,
+      tooltip: {
+        show: false,
+        text: languageService("Track Inspection Status"),
+      },
+    },
     {
       title: LIST_VIEW_SELECTION_TYPES.AssetCalendar,
       icon: calendarCheckO,
@@ -112,7 +112,14 @@ let getListSelectionSITE = () => {
         text: languageService("Track Inspection Status"),
       },
     },
-
+    {
+      title: LIST_VIEW_SELECTION_TYPES.AssetCalendar,
+      icon: calendarCheckO,
+      tooltip: {
+        show: false,
+        text: languageService("Asset Inspection Calendar"),
+      },
+    },
     ...signalAppSelectionItem,
   ];
 };

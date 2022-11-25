@@ -10,6 +10,11 @@ import { ButtonStyle } from "../../../style/basic/commonControls";
 import { GITestStyle } from "./style/GITestStyle";
 import MomentLocaleUtils from "react-day-picker/moment";
 import _ from "lodash";
+import CommonModal from "../../Common/CommonModal";
+import { reportsPreview } from "./reportsPreview";
+import AssetTestContainer from "../../AssetTests/AssetTests";
+import AssetTestCreateConfigContainer from "./AssetTestCreateConfigContainer";
+
 const defaultFormVal = {
   name: "",
   inspectionFreq: { ...freqObj },
@@ -33,10 +38,20 @@ export default class AddTestsForm extends Component {
       testsOptions: [],
       instructionOptions: [],
       allValid: true,
+      previewOption: false,
+      previewCode: "",
+      assetsList: null,
     };
     this.changeHandler = this.changeHandler.bind(this);
     this.frequenciesChangeHandler = this.frequenciesChangeHandler.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.showPreview = this.showPreview.bind(this);
+    this.setModalOpener = this.setModalOpener.bind(this);
+    this.setConfigAssetsModalOpener = this.setConfigAssetsModalOpener.bind(this);
+    this.setAddAssetTestConfig = this.setAddAssetTestConfig.bind(this);
+    this.receiveToggleMethod = this.receiveToggleMethod.bind(this);
+    this.setAssetsConfigLIst = this.setAssetsConfigLIst.bind(this);
+    this.setLocationOptions = this.setLocationOptions.bind(this);
   }
   changeHandler(e, blur) {
     let formField = { ...this.state.formField };
@@ -47,11 +62,15 @@ export default class AddTestsForm extends Component {
       instructionOptions = [];
       let selectedForm = _.find(appFormsTests, { code: e.target.value });
       if (selectedForm) {
+        this.setState({ previewOption: reportsPreview(selectedForm.code) ? true : false, previewCode: selectedForm.code });
+        //this.setState({ previewOption: true, previewCode: selectedForm.code });
         selectedForm.opt2.allowedInstruction &&
           selectedForm.opt2.allowedInstruction.forEach((instruc) => {
             instructionOptions.push({ text: instruc, val: instruc });
             instructionOptions[0] && (formField.instructionFile = instructionOptions[0].val);
           });
+      } else {
+        this.setState({ previewOption: false, previewCode: "" });
       }
     }
     // if (e.target.name == "startDate") {
@@ -62,11 +81,16 @@ export default class AddTestsForm extends Component {
     } else {
       // TODO : basic validation
     }
+    let assetsListChange = e.target.name === "startDate" ? { assetsList: null } : {};
     this.setState({
       formField: formField,
       instructionOptions: instructionOptions,
       allValid: true,
+      ...assetsListChange,
     });
+  }
+  showPreview(code) {
+    this.openModelMethod && this.openModelMethod();
   }
 
   frequenciesChangeHandler(newFreqRowObj, index, remove) {
@@ -118,6 +142,16 @@ export default class AddTestsForm extends Component {
         //   formField.inspectionType == "traversed";
         // }
       }
+      this.setState({
+        previewOption: reportsPreview(selectedTest.code) ? true : false,
+        previewCode: selectedTest.code,
+        showCurentAssetTests: true,
+        assetsList: null,
+      });
+
+      //this.setState({ previewOption: true, previewCode: selectedTest.code });
+    } else {
+      this.setState({ previewOption: false, previewCode: "", showCurentAssetTests: false, assetsList: null });
     }
     appFormsTests &&
       appFormsTests.forEach((form, index) => {
@@ -147,6 +181,7 @@ export default class AddTestsForm extends Component {
       let formField = { ...this.state.formField };
       formField.instructionFile = [formField.instructionFile];
       formField.inspectionFreq.startDate = formField.startDate;
+      formField.assetsList = this.state.assetsList;
       this.props.handleAddEditTest(formField);
     }
   }
@@ -172,12 +207,45 @@ export default class AddTestsForm extends Component {
     });
     return allValid;
   }
+  setModalOpener(method) {
+    this.openModelMethod = method;
+  }
+  setConfigAssetsModalOpener(method) {
+    this.openAssetConfigModel = method;
+    //console.log("::" + this.state.formField.name);
+  }
+  setAddAssetTestConfig(method) {
+    this.openAddAssetConfigModel = method;
+  }
+  receiveToggleMethod(state, field) {
+    let stateObj = {};
+    stateObj[field] = state;
+    if (state === false) {
+      this.setState(stateObj);
+    }
+  }
+  setAssetsConfigLIst(assetsList) {
+    this.setState({
+      assetsList: assetsList,
+    });
+  }
+  setLocationOptions(locations) {
+    this.setState({ locations: locations });
+  }
   render() {
     return (
       <div className="card" style={{ margin: " 0 10px 0 0" }}>
-        <div className="card-header " style={themeService(GITestStyle.cardBodyHeader)}>
-          {languageService("Add") + " " + "Tests"}
-        </div>
+        <AddAssetTestHeader
+          showCurentAssetTests={true}
+          openAssetConfigModel={this.props.formMode == "Add" ? this.openAddAssetConfigModel : this.openAssetConfigModel}
+          showConfigSetState={
+            this.props.formMode === "Add"
+              ? (state) => this.setState({ showCreateAssetTestConfig: state })
+              : (state) => this.setState({ showConfigAssetsModel: state })
+          }
+          disabled={this.props.formMode === "Add" && !this.state.formField.startDate}
+        />
+
         <div className="card-body">
           <LabelWithFieldWrapper label={languageService("Name") + " *"}>
             <InputField
@@ -195,6 +263,9 @@ export default class AddTestsForm extends Component {
               changeHandler={this.changeHandler}
               value={this.state.formField.test}
               validation={this.state.validationMsgs.test}
+              previewOption={this.state.previewOption}
+              previewCode={this.state.previewCode}
+              showPreview={this.showPreview}
             />
           </LabelWithFieldWrapper>
           <LabelWithFieldWrapper label={languageService("Instruction File")}>
@@ -237,15 +308,80 @@ export default class AddTestsForm extends Component {
         <div className="card-footer" style={{ ...themeService(GITestStyle.cardBodyHeader), textAlign: "right" }}>
           {!this.state.allValid && (
             <span style={{ fontSize: "12px", color: "red" }}> {languageService("Validation failed , please fill required fields")} </span>
-          )}{" "}
-          <MyButton onClick={this.handleSubmit} type="submit" style={themeService(ButtonStyle.commonButton)}>
+          )}
+          <MyButton
+            onClick={(e) => {
+              this.handleSubmit();
+            }}
+            type="submit"
+            style={themeService(ButtonStyle.commonButton)}
+          >
             {this.props.formMode == "Add" ? languageService("Add") : languageService("Update")}
           </MyButton>
         </div>
+        <CommonModal className="report-view" setModalOpener={this.setModalOpener} modalStyle={{ maxWidth: "80vw" }}>
+          {reportsPreview(this.state.previewCode)}
+        </CommonModal>
+        <CommonModal
+          setModalOpener={this.setConfigAssetsModalOpener}
+          className="report-view"
+          receiveToggleMethod={(state) => this.receiveToggleMethod(state, "showConfigAssetsModel")}
+          modalStyle={{ maxWidth: "50vw", maxHeight: "70vh" }}
+          headerText={languageService("Assets Tests Configuration")}
+          footerCancelText={"Close"}
+        >
+          {this.state.showConfigAssetsModel && (
+            <AssetTestContainer assetType={this.props.selectedAssetType} testCode={this.props.selectedTest} />
+          )}
+        </CommonModal>
+        <CommonModal
+          setModalOpener={this.setAddAssetTestConfig}
+          className="report-view"
+          receiveToggleMethod={(state) => this.receiveToggleMethod(state, "showCreateAssetTestConfig")}
+          modalStyle={{ maxWidth: "50vw", maxHeight: "70vh" }}
+          headerText={languageService("Assets Tests Configuration")}
+          footerCancelText={"Close"}
+          handleCancelClick={() => {
+            this.receiveToggleMethod(false, "showCreateAssetTestConfig");
+          }}
+        >
+          {this.state.showCreateAssetTestConfig && (
+            <AssetTestCreateConfigContainer
+              startDate={this.state.formField.startDate}
+              assetType={this.props.selectedAssetType}
+              testCode={this.state.formField.test}
+              assetsList={this.state.assetsList}
+              setAssetsConfigLIst={this.setAssetsConfigLIst}
+              locations={this.state.locations}
+              setLocationOptions={this.setLocationOptions}
+            />
+          )}
+        </CommonModal>
       </div>
     );
   }
 }
+
+const AddAssetTestHeader = (props) => {
+  return (
+    <div className="card-header " style={themeService(GITestStyle.cardBodyHeader)}>
+      {languageService("Add") + " " + "Tests"}
+      {props.showCurentAssetTests && (
+        <span style={{ float: "right" }}>
+          <MyButton
+            onClick={(e) => {
+              props.openAssetConfigModel && props.openAssetConfigModel();
+              props.showConfigSetState && props.showConfigSetState(true);
+            }}
+            disabled={props.disabled}
+          >
+            {languageService("Configure Assets")}
+          </MyButton>
+        </span>
+      )}
+    </div>
+  );
+};
 
 const InputField = (props) => {
   return (
@@ -267,7 +403,7 @@ const InputField = (props) => {
   );
 };
 
-const SelectField = (props) => {
+export const SelectField = (props) => {
   return (
     <div style={{ ...themeService(formFeildStyle.feildStyle) }}>
       {props.label && (
@@ -290,6 +426,11 @@ const SelectField = (props) => {
             </option>
           ))}
       </select>
+      {props.previewOption && (
+        <span style={{ color: "var(--first)", cursor: "pointer", marginLeft: "10px" }} onClick={() => props.showPreview(props.previewCode)}>
+          Preview...
+        </span>
+      )}
     </div>
   );
 };
@@ -305,7 +446,7 @@ const LabelWithFieldWrapper = (props) => {
   );
 };
 
-const DateField = (props) => {
+export const DateField = (props) => {
   return (
     <DayPickerInput
       inputProps={{ readOnly: true, disabled: props.disabled || false }}
@@ -319,7 +460,7 @@ const DateField = (props) => {
       onDayChange={(day) => {
         props.changeHandler({ target: { name: props.inputFieldProps.name, value: day } });
       }}
-      style={{ ...themeService(formFeildStyle.inputStyle) }}
+      style={props.style ? props.style : { ...themeService(formFeildStyle.inputStyle) }}
     />
   );
 };

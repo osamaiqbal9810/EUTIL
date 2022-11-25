@@ -2,8 +2,9 @@ import React, { Component } from "react";
 import { CRUDFunction } from "../../reduxCURD/container";
 
 import { duplicateFieldsCheck } from "../../utils/duplicateFieldChecker";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { curdActions } from "../../reduxCURD/actions";
+import { Row, Col } from "reactstrap";
 class TestForms extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +13,7 @@ class TestForms extends Component {
       valid: "",
       invalidKeys: [],
       selected: "",
+      formName: "",
     };
     this.handleValidCheck = this.handleValidCheck.bind(this);
   }
@@ -23,6 +25,7 @@ class TestForms extends Component {
         valid: false,
         showValididty: true,
         selected: appForm.code,
+        formName: appForm.description,
       });
     } else {
       this.setState({
@@ -30,6 +33,7 @@ class TestForms extends Component {
         valid: true,
         showValididty: true,
         selected: appForm.code,
+        formName: appForm.description,
       });
     }
   }
@@ -43,7 +47,7 @@ class TestForms extends Component {
       this.props.applicationlookupss &&
       this.props.applicationlookupss.map((appForm) => {
         return (
-          <div key={appForm._id} style={{ background: "#fff", padding: "7.5px 25px" }}>
+          <div key={appForm._id} style={{ background: "var(--fifth)", padding: "7.5px 25px" }}>
             <div style={{ minWidth: "200px", display: "inline-block", fontSize: "14px", color: retroColors.second }}>{appForm.code}</div>
             <button
               style={{ marginLeft: "10px" }}
@@ -63,26 +67,34 @@ class TestForms extends Component {
       });
     return (
       <div style={{ padding: "25px" }}>
-        {forms}
-        <div
-          style={{
-            padding: "15px",
-            marginTop: "20px",
-            background: "#fff",
-            fontSize: "14px",
-            fontWeight: 600,
-            color: retroColors.second,
-            lineHeight: 2,
-          }}
-        >
-          Form : {this.state.selected}
-          {this.state.showValididty && <div> Validity : {this.state.valid == true ? "True" : "False"}</div>}
-          {this.state.showValididty && this.state.valid == false && (
-            <div>
-              Invlid Keys : <div>{invalidKeysComps}</div>
+        <Row>
+          <Col md={4}>
+            <div style={{ overflow: "scroll", height: "80vh" }}>{forms}</div>
+          </Col>
+          <Col md={8}>
+            <div
+              style={{
+                padding: "15px",
+
+                background: "var(--fifth)",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: retroColors.second,
+                lineHeight: 2,
+                display: "inline-block",
+              }}
+            >
+              Form : {this.state.selected}
+              Form Name : {this.state.formName}
+              {this.state.showValididty && <div> Validity : {this.state.valid == true ? "True" : "False"}</div>}
+              {this.state.showValididty && this.state.valid == false && (
+                <div>
+                  Invlid Keys : <div>{invalidKeysComps}</div>
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </Col>
+        </Row>
       </div>
     );
   }

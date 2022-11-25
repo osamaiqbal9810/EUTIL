@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Row, Col } from "reactstrap";
 import { Table } from "reactstrap";
 import { languageService } from "../../../Language/language.service";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 
 class DropDownMonths extends Component {
@@ -60,7 +60,7 @@ class DropDownMonths extends Component {
         style={{
           position: "absolute",
           top: this.props.top,
-          background: "#fff",
+          background: "var(--fifth)",
           zIndex: this.props.zIndex,
           borderBottom: borderStyle,
           opacity: this.props.opacity,
@@ -79,7 +79,7 @@ class DropDownMonths extends Component {
 
 export default DropDownMonths;
 
-export const TableCell = props => {
+export const TableCell = (props) => {
   let borderRight = props.rightBorder ? borderStyle : null;
   return (
     <td
@@ -88,9 +88,9 @@ export const TableCell = props => {
         borderLeft: borderStyle,
         borderRight: borderRight,
         cursor: "pointer",
-        color: themeService({ default: basicColors.first, retro: retroColors.second }),
+        color: themeService({ default: basicColors.first, retro: retroColors.second, electric: electricColors.second }),
       }}
-      onClick={e => {
+      onClick={(e) => {
         props.handleMonthClick(props.index, props.mnth);
       }}
     >
@@ -99,7 +99,7 @@ export const TableCell = props => {
   );
 };
 
-export const TableRow = props => {
+export const TableRow = (props) => {
   return <tr>{props.cols}</tr>;
 };
 

@@ -1,5 +1,34 @@
 package com.app.ps19.tipsapp;
 
+import static android.view.View.GONE;
+import static com.app.ps19.tipsapp.Shared.Globals.ADAPTER_REFRESH_MSG;
+import static com.app.ps19.tipsapp.Shared.Globals.DEFECT_TYPE;
+import static com.app.ps19.tipsapp.Shared.Globals.DEFICIENCY_TYPE;
+import static com.app.ps19.tipsapp.Shared.Globals.appName;
+import static com.app.ps19.tipsapp.Shared.Globals.defectSelection;
+import static com.app.ps19.tipsapp.Shared.Globals.defectSelectionCopy;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMpOnly;
+import static com.app.ps19.tipsapp.Shared.Globals.getSelectedEquipment;
+import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
+import static com.app.ps19.tipsapp.Shared.Globals.isDisableRActionByRule;
+import static com.app.ps19.tipsapp.Shared.Globals.isHideRule213;
+import static com.app.ps19.tipsapp.Shared.Globals.isIssueUpdateAllowed;
+import static com.app.ps19.tipsapp.Shared.Globals.isUseRailDirection;
+import static com.app.ps19.tipsapp.Shared.Globals.lastKnownLocation;
+import static com.app.ps19.tipsapp.Shared.Globals.newReport;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedCode;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedReport;
+import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
+import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
+import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
+import static com.app.ps19.tipsapp.Shared.Globals.tempIssueImgList;
+import static com.app.ps19.tipsapp.Shared.Globals.tempIssueVoiceList;
+import static com.app.ps19.tipsapp.Shared.ListMap.LIST_CATEGORY;
+import static com.app.ps19.tipsapp.Shared.ListMap.LIST_PRIORITY;
+import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
+import static com.app.ps19.tipsapp.Shared.Utilities.getVoicePath;
+import static java.lang.String.format;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -17,14 +46,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.speech.RecognizerIntent;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -56,19 +77,29 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.ListMap;
-import com.app.ps19.tipsapp.location.LocationUpdatesService;
+import com.app.ps19.tipsapp.Shared.MD5;
 import com.app.ps19.tipsapp.Shared.Res;
 import com.app.ps19.tipsapp.Shared.StaticListItem;
 import com.app.ps19.tipsapp.Shared.Utilities;
-import com.app.ps19.tipsapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.tipsapp.classes.DimensionConverter;
 import com.app.ps19.tipsapp.classes.IssueImage;
 import com.app.ps19.tipsapp.classes.IssueVoice;
 import com.app.ps19.tipsapp.classes.LocationMarkers;
 import com.app.ps19.tipsapp.classes.RemedialActionItem;
 import com.app.ps19.tipsapp.classes.Report;
 import com.app.ps19.tipsapp.classes.Task;
+import com.app.ps19.tipsapp.classes.dynforms.DynEditTextDatePicker;
+import com.app.ps19.tipsapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.tipsapp.location.LocationUpdatesService;
 import com.google.common.collect.ArrayListMultimap;
 
 import org.json.JSONArray;
@@ -87,33 +118,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import static android.view.View.GONE;
-import static com.app.ps19.tipsapp.Shared.Globals.ADAPTER_REFRESH_MSG;
-import static com.app.ps19.tipsapp.Shared.Globals.DEFECT_TYPE;
-import static com.app.ps19.tipsapp.Shared.Globals.DEFICIENCY_TYPE;
-import static com.app.ps19.tipsapp.Shared.Globals.appName;
-import static com.app.ps19.tipsapp.Shared.Globals.defectSelection;
-import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
-import static com.app.ps19.tipsapp.Shared.Globals.isIssueUpdateAllowed;
-import static com.app.ps19.tipsapp.Shared.Globals.isUseRailDirection;
-import static com.app.ps19.tipsapp.Shared.Globals.defectSelectionCopy;
-import static com.app.ps19.tipsapp.Shared.Globals.lastKnownLocation;
-import static com.app.ps19.tipsapp.Shared.Globals.selectedCode;
-import static com.app.ps19.tipsapp.Shared.Globals.selectedReport;
-import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
-import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
-import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
-import static com.app.ps19.tipsapp.Shared.Globals.tempIssueImgList;
-import static com.app.ps19.tipsapp.Shared.Globals.tempIssueVoiceList;
-import static com.app.ps19.tipsapp.Shared.ListMap.LIST_CATEGORY;
-import static com.app.ps19.tipsapp.Shared.ListMap.LIST_PRIORITY;
-import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
-import static com.app.ps19.tipsapp.Shared.Utilities.getVoicePath;
-import static java.lang.String.format;
-
 public class ReportAddActivity extends AppCompatActivity implements
         OnLocationUpdatedListener
-       //, SharedPreferences.OnSharedPreferenceChangeListener
+        //, SharedPreferences.OnSharedPreferenceChangeListener
 {
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     TextView tvAssetName;
@@ -121,6 +128,7 @@ public class ReportAddActivity extends AppCompatActivity implements
     ImageButton ibCapturePic;
     private Boolean isMarked = false;
     private ArrayList<String> _priorityList;
+    private Boolean isNsOptionInRA = true;
 
     EditText etDescription;
     Button btSave;
@@ -152,7 +160,7 @@ public class ReportAddActivity extends AppCompatActivity implements
     ArrayAdapter<String> remedialActionAdapter;
     ArrayList<RemedialActionItem> remedialActionItems;
     public Boolean isEditMode = false;
-   //GPSTrackerEx gps;
+    //GPSTrackerEx gps;
     Location cLocation;
     TextView tvAssetType;
     TextView tvDefectCodes;
@@ -234,17 +242,24 @@ public class ReportAddActivity extends AppCompatActivity implements
     EditText etMarkerStart;
     EditText etMarkerEnd;
     ArrayList<String> markersList = new ArrayList<>();
+    TextView tvRemedialActionTitle;
+    RelativeLayout rlLocInfo;
+    LinearLayout llLocInfo;
+    TextView tvStartMpPrefix;
+    TextView tvEndMpPrefix;
+    String locId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLocale(this);
         setContentView(R.layout.activity_report_add);
+        locId = getIntent().getStringExtra("locId");
 
         //Listen to location Updates
         LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         //-------------------GPS Code--------------
-       // myReceiver = new MyReceiver();
+        // myReceiver = new MyReceiver();
         // Check that the user hasn't revoked permissions by going to Settings.
 //        if (Utils.requestingLocationUpdates(this)) {
 //           /* if (!checkPermissions()) {
@@ -265,6 +280,11 @@ public class ReportAddActivity extends AppCompatActivity implements
         btSave = (Button) findViewById(R.id.saveBtn);
         toolbar.setBackgroundColor(res.getColor(R.color.action_bar_background));
         tvAssetType = (TextView) findViewById(R.id.assetTypeTxt);
+        tvRemedialActionTitle = findViewById(R.id.tv_remedial_actions);
+        rlLocInfo = findViewById(R.id.rl_location_info_title);
+        llLocInfo = findViewById(R.id.ll_location_info_main_container);
+        tvStartMpPrefix = findViewById(R.id.tv_startmp_prefix);
+        tvEndMpPrefix = findViewById(R.id.tv_endmp_prefix);
         //TODO: GPS HERE
 //        if (gps == null) {
 //            gps = new GPSTrackerEx(ReportAddActivity.this);
@@ -406,6 +426,11 @@ public class ReportAddActivity extends AppCompatActivity implements
 
         //---------- Remedial Actions
         spRemedialActions = (Spinner) findViewById(R.id.spinnerRemedialActions);
+        if(appName.equals(Globals.AppName.EUIS)){
+            isNsOptionInRA=false;
+            //spRemedialActions.setEnabled(false);
+        }
+
         llRemedialActionForm = (LinearLayout) findViewById(R.id.remedialActionsForm);
         loadRemedialActions();
         setTitle(R.string.def_codes_1);
@@ -434,8 +459,10 @@ public class ReportAddActivity extends AppCompatActivity implements
                         cbRule.setChecked(false);
                         // Code to display your message.
                     } else {
-                        spRemedialActions.setEnabled(true);
-                        setEnableRemedialViews(true);
+                        if(isDisableRActionByRule){
+                            spRemedialActions.setEnabled(true);
+                            setEnableRemedialViews(true);
+                        }
                         iBtnCaptureAfterFix.setEnabled(true);
                         //cbRule.setChecked(false);
                     }
@@ -455,15 +482,20 @@ public class ReportAddActivity extends AppCompatActivity implements
                 isLongPressed = true;
                 if (cbRule.isChecked()) {
                     cbRule.setChecked(false);
-                    spRemedialActions.setEnabled(true);
-                    setEnableRemedialViews(true);
+                    if(isDisableRActionByRule){
+                        spRemedialActions.setEnabled(true);
+                        setEnableRemedialViews(true);
+                    }
                     iBtnCaptureAfterFix.setEnabled(true);
                     System.out.println("Apply Rule Un-Checked");
                 } else {
                     cbRule.setChecked(true);
-                    spRemedialActions.setEnabled(false);
-                    setEnableRemedialViews(false);
-                    iBtnCaptureAfterFix.setEnabled(false);
+                    if(isDisableRActionByRule){
+                        spRemedialActions.setEnabled(false);
+                        setEnableRemedialViews(false);
+                        iBtnCaptureAfterFix.setEnabled(false);
+                    }
+
                     System.out.println("Apply Rule Checked");
                 }
                 return true;
@@ -614,7 +646,7 @@ public class ReportAddActivity extends AppCompatActivity implements
             }
         });
         //Log.d("ERROR_PS19",Globals.wsImgURL.toString());
-        String selectedType = Globals.selectedUnit.getAssetType();
+        String selectedType = Globals.selectedUnit.getAssetTypeDisplayName();
         tvAssetType.setText(selectedType);
         //Populating Spinners
         ListMap.loadList(LIST_CATEGORY);
@@ -700,6 +732,10 @@ public class ReportAddActivity extends AppCompatActivity implements
         }
         if (Globals.newReport == null) {
             //Activity in edit mode
+            //Setting Equipment
+            if(getSelectedEquipment()!=null){
+                selectedReport.setEquipment(getSelectedEquipment());
+            }
             if (isIssueUpdateAllowed) {
 
                 try {
@@ -850,6 +886,10 @@ public class ReportAddActivity extends AppCompatActivity implements
                 }
                 etStartMp.setText(Globals.selectedReport.getStartMp());
                 etEndMp.setText(Globals.selectedReport.getEndMp());
+
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp()));
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp()));
+
                 if (Globals.selectedReport.getIssueType().equals(DEFICIENCY_TYPE)) {
                     cbDeficiency.setChecked(true);
                 }
@@ -908,7 +948,7 @@ public class ReportAddActivity extends AppCompatActivity implements
                 spMarkerStart.setVisibility(GONE);
                 spMarkerEnd.setVisibility(GONE);
 
-                tvAssetType.setText(selectedReport.getUnit().getAssetType());
+                tvAssetType.setText(selectedReport.getUnit().getAssetTypeDisplayName());
                 tvAssetName.setText(selectedReport.getUnit().getDescription());
                 if (isUseRailDirection) {
                     if (selectedReport.getUnit().getAttributes().isShowDirection()) {
@@ -1025,6 +1065,11 @@ public class ReportAddActivity extends AppCompatActivity implements
             //lyVoices.setVisibility(View.GONE);
             //lyPictures.setVisibility(View.GONE);
 
+            //Setting Equipment
+            if(getSelectedEquipment()!=null){
+                newReport.setEquipment(getSelectedEquipment());
+            }
+
             if (Globals.selectedUnit.getAssetTypeClassify().equals(ASSET_TYPE_LINEAR)) {
                 setLinearAssetMode();
             } else if (Globals.selectedUnit.getAssetTypeClassify().equals(ASSET_TYPE_FIXED)) {
@@ -1113,6 +1158,7 @@ public class ReportAddActivity extends AppCompatActivity implements
         });
         //description.addTextChangedListener(inputTextWatcher);
         etStartMp.addTextChangedListener(mpTextWatcher);
+        etEndMp.addTextChangedListener(endMpTw);
         /*etStartMp.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -1206,7 +1252,7 @@ public class ReportAddActivity extends AppCompatActivity implements
                     }*/
                 if (appName.equals(Globals.AppName.TIMPS)) {
                     if (!cbDeficiency.isChecked() && !cbRule.isChecked()) {
-                        if (spRemedialActions.getSelectedItemPosition() == 0) {
+                        if (isNsOptionInRA && spRemedialActions.getSelectedItemPosition() == 0) {
                             Toast.makeText(ReportAddActivity.this, getString(R.string.select_remedial_action), Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -1224,16 +1270,18 @@ public class ReportAddActivity extends AppCompatActivity implements
                         return;
                     }
                 } else {
-                    if (spRemedialActions.getSelectedItemPosition() != 0) {
-                        ra = remedialActions.get(spRemedialActions.getSelectedItemPosition() - 1);
+                    if ((isNsOptionInRA && spRemedialActions.getSelectedItemPosition() != 0) ||(!isNsOptionInRA )) {
+                        ra = remedialActions.get(spRemedialActions.getSelectedItemPosition() - (isNsOptionInRA?1:0));
                         remedialAction = spRemedialActions.getSelectedItem().toString();
                         rItems = ra.getRemedialActionItems();
                     }
                 }
                 // if rule is applied
                 if(cbRule.isChecked()){
-                    rItems = null;
-                    remedialAction = "";
+                    if(isDisableRActionByRule){
+                        rItems = null;
+                        remedialAction = "";
+                    }
                 }
                 //String priority = prioritySpinner.getSelectedItem().toString();
                 //Setting priority empty as requested by client
@@ -1304,6 +1352,10 @@ public class ReportAddActivity extends AppCompatActivity implements
                     report.setRuleApplied(cbRule.isChecked());
                     report.setLocationUnit(Globals.selectedPostSign);
                     report.setVoiceNotes(etSpeechToText.getText().toString());
+                    if(getSelectedEquipment()!=null){
+                        report.setEquipment(getSelectedEquipment());
+                        report.setEquipmentId(getSelectedEquipment().getId());
+                    }
                     if (cbDeficiency.isChecked()) {
                         report.setIssueType(Globals.DEFICIENCY_TYPE);
                     } else {
@@ -1496,7 +1548,15 @@ public class ReportAddActivity extends AppCompatActivity implements
                 }*/
                 Globals.currentImageTag = TAG_BEFORE_FIX;
                 //Intent intent = new Intent(ReportAddActivity.this, CameraActivity.class);
-                Intent intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                Intent intent=null;
+                switch (Globals.cameraType){
+                    case IntentType:
+                        intent = new Intent(ReportAddActivity.this, CameraIntentActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                }
+                //Intent intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
                 startActivityForResult(intent, REQ_CODE_CAMERA);
             }
         });
@@ -1505,7 +1565,14 @@ public class ReportAddActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 Globals.currentImageTag = TAG_AFTER_FIX;
-                Intent intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                Intent intent = null;//new Intent(ReportAddActivity.this, Camera2Activity.class);
+                switch (Globals.cameraType){
+                    case IntentType:
+                        intent = new Intent(ReportAddActivity.this, CameraIntentActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                }
                 startActivityForResult(intent, REQ_CODE_CAMERA);
                 //startActivity(intent);
             }
@@ -1547,6 +1614,18 @@ public class ReportAddActivity extends AppCompatActivity implements
         });*/
         //ListMap.getList(ListMap.LIST_REM_ACTIONS)
         updateViewAsOfApp();
+        if(appName.equals(Globals.AppName.EUIS)){
+            tvRemedialActionTitle.setText(R.string.category_priority_title);
+            rlLocInfo.setVisibility(GONE);
+            llLocInfo.setVisibility(GONE);
+        }
+        if(isHideRule213){
+            rlRuleTitle.setVisibility(GONE);
+            llRuleContainer.setVisibility(GONE);
+        } else {
+            rlRuleTitle.setVisibility(View.VISIBLE);
+            llRuleContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateViewAsOfApp() {
@@ -1669,6 +1748,17 @@ public class ReportAddActivity extends AppCompatActivity implements
                                     item.setValue(checkBox.isChecked() ? "true" : "false");
 
                                 }
+                            } else if (fieldType.equals("label")){
+
+                            } else if(fieldType.equals("date")){
+                                EditText et = layout.findViewWithTag(fieldId);
+                                if (et != null) {
+                                    String text = et.getTag(R.id.TAG_DATE_ID).toString();//et.getText().toString();
+                                    if (text.equals("") && required) {
+                                        this.errorMessage = fieldName + " is required";
+                                    }
+                                    item.setValue(text);
+                                }
                             }
                             items.add(item);
                         }
@@ -1683,7 +1773,7 @@ public class ReportAddActivity extends AppCompatActivity implements
 
     private void selectRemedialAction(int i) {
         if (remedialActions.size() > 0) {
-            int index = 1;
+            int index = isNsOptionInRA ?1:0;
             for (RemedialActions item : remedialActions) {
                 if (index == i) {
                     if (item.layout != null) {
@@ -1726,8 +1816,10 @@ public class ReportAddActivity extends AppCompatActivity implements
             remedialActions = new ArrayList<>();
             remedialActionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
             remedialActionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            remedialActionAdapter.add("<Not Selected>");
-            int index = 1;
+            if(isNsOptionInRA) {
+                remedialActionAdapter.add("<Not Selected>");
+            }
+            int index = isNsOptionInRA?1:0;
             for (String key : itemsList) {
                 String strItem = items.get(key);
                 if (strItem != "") {
@@ -1793,10 +1885,12 @@ public class ReportAddActivity extends AppCompatActivity implements
                 String fieldName = jsonObject.optString("fieldName", "undefined");
                 String fieldId = jsonObject.optString("id", "undefined");
                 String defaultValue = jsonObject.optString("default", "");
+                String fontSize = jsonObject.optString("fontSize", "");
                 boolean enabled=jsonObject.optBoolean("enabled", true);
                 boolean visible=jsonObject.optBoolean("visible", true);
                 JSONArray jaOptions = jsonObject.optJSONArray("options");
                 boolean required = jsonObject.optBoolean("required", false);
+
                 String currentValue = "";
                 if (currentValues != null) {
                     currentValue = currentValues.get(fieldId);
@@ -1812,6 +1906,21 @@ public class ReportAddActivity extends AppCompatActivity implements
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     setPadding(tvName, 10, 10, 0, 0);
                     tvName.setVisibility(visible?View.VISIBLE:View.GONE);
+
+                    if(fieldType.equals("label")){
+                        if(!fontSize.equals("")){
+                            try {
+                                tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, DimensionConverter.stringToDimension(fontSize,getResources().getDisplayMetrics()));
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        } else {
+                            // Setting default font size for label
+                            String _fontSize = "8dp";
+                            tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, DimensionConverter.stringToDimension(_fontSize,getResources().getDisplayMetrics()));
+                        }
+
+                    }
                     layout.addView(tvName);
                 }
                 if (fieldType.equals("text")) {
@@ -1914,6 +2023,44 @@ public class ReportAddActivity extends AppCompatActivity implements
                         }
                     }
                     layout.addView(checkBox);
+                }else if (fieldType.equals("date")){
+                    EditText etDate=new EditText(this);
+                    etDate.setTag(fieldId);
+                    etDate.setFocusable(false);
+                    etDate.setClickable(true);
+                    etDate.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    setPadding(etDate, 10, 10, 10, 10);
+                    DynEditTextDatePicker datePicker =new DynEditTextDatePicker(ReportAddActivity.this,etDate);
+                    datePicker.setMinimumDate((new Date()).getTime());
+                    datePicker.setOnlyDate(true);
+                    if (Globals.newReport == null) {
+                        if (!isIssueUpdateAllowed) {
+                            if(currentValue!=null ){
+                                String dtOut=Utilities.getShortDate(currentValue);
+                                if(dtOut!=null){
+                                    etDate.setText(dtOut);
+                                }else{
+                                    etDate.setText("---------");
+                                }
+
+                            }
+                            etDate.setEnabled(false);
+                        }
+                    }
+                    layout.addView(etDate);
+                    /*
+                    DatePicker datePicker=new DatePicker(this);
+                    datePicker.setTag(fieldId);
+                    datePicker.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    setPadding(datePicker, 10, 10, 10, 10);
+                    datePicker.setCalendarViewShown(true);
+                    datePicker.setMinDate((new Date()).getTime());
+                    datePicker.setVisibility(visible?View.VISIBLE:View.GONE);
+                    layout.addView(datePicker);*/
                 }
             } catch (Exception e) {
                 Log.e("getLayout", e.toString());
@@ -2063,7 +2210,7 @@ public class ReportAddActivity extends AppCompatActivity implements
     }
 
     public void setVoiceAdapter(ArrayList<IssueVoice> attachments) {
-        voiceAdapter = new reportVoiceAdapter(this, attachments);
+        voiceAdapter = new reportVoiceAdapter(this, attachments, ReportAddActivity.this.getLocalClassName());
 
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvVoiceNotes.setLayoutManager(horizontalLayoutManager);
@@ -2115,11 +2262,25 @@ public class ReportAddActivity extends AppCompatActivity implements
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvStartMpPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
+    TextWatcher endMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvEndMpPrefix.setText(getPrefixMpOnly(s.toString()));
         }
     };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         try {
             if (requestCode == 0) {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -2219,9 +2380,10 @@ public class ReportAddActivity extends AppCompatActivity implements
                             if (defectSelection.size() > 0) {
                                 //defectSelectionCopy = ArrayListMultimap.create(defectSelection);
 
+                                boolean isNonFRACodes=Globals.versionInfo.isNonFRACodes();
                                 String _title = defectSelection.keySet().toArray()[0].toString();
                                 String[] titleArray = _title.split(Globals.defectDivider);
-                                String title = titleArray[0] + " - " + titleArray[1];
+                                String title =isNonFRACodes?titleArray[1]: titleArray[0] + " - " + titleArray[1];
                                 String _desc = "";
 
                                 defectSelection.get(defectSelection.keySet().toArray()[0].toString());
@@ -2418,7 +2580,8 @@ public class ReportAddActivity extends AppCompatActivity implements
     }*/
     public void updateImgList() {
         if (Globals.currentImageTag.equals(TAG_BEFORE_FIX)) {
-            beforeImgs.add(new IssueImage(Globals.imgFile.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED, TAG_BEFORE_FIX));
+            String md5String=MD5.calculateMD5(Globals.imgFile);
+            beforeImgs.add(new IssueImage(Globals.imgFile.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED, TAG_BEFORE_FIX,md5String));
             issueImgAdapter = new reportImgAdapter(this, beforeImgs, TAG_BEFORE_FIX);
             /*attachmentImgs.add(new IssueImage(f.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED));
             horizontalAdapter = new reportImgAdapter(this, attachmentImgs);*/
@@ -2502,7 +2665,7 @@ public class ReportAddActivity extends AppCompatActivity implements
             /*longTxt.setText(String.valueOf(longitude));
             latTxt.setText(String.valueOf(latitude));*/
 
-            // \n is for new line
+        // \n is for new line
             /*if(cLocation!=null){
                 Toast.makeText(getApplicationContext(), "Your Location is - \nLat: "
                         + latitude + "\nLong: " + longitude + "From Provider: " + cLocation.getProvider(), Toast.LENGTH_LONG).show();
@@ -2512,9 +2675,9 @@ public class ReportAddActivity extends AppCompatActivity implements
             }*/
 
 
-          //  return String.valueOf(latitude) + "," + String.valueOf(longitude);
-       // } //else gps.showSettingsAlert();//TODO: GPS HERE
-    //    return "";
+        //  return String.valueOf(latitude) + "," + String.valueOf(longitude);
+        // } //else gps.showSettingsAlert();//TODO: GPS HERE
+        //    return "";
     }
 
     private static int getCurrentReportIndex() {
@@ -2708,7 +2871,7 @@ public class ReportAddActivity extends AppCompatActivity implements
         try {
             //Remove Location Updates
             LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
-           // LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+            // LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
             super.onPause();
         } catch (Exception e) {
             e.printStackTrace();
@@ -2755,7 +2918,7 @@ public class ReportAddActivity extends AppCompatActivity implements
                 stopRecording();
                 ViewGroup.LayoutParams layoutParams = btVoiceRecord.getLayoutParams();
 
-               // unbindService(mServiceConnection);
+                // unbindService(mServiceConnection);
                 layoutParams.width = (int) dpToPixel(44);
                 layoutParams.height = (int) dpToPixel(44);
                 btVoiceRecord.setLayoutParams(layoutParams);
@@ -2796,12 +2959,31 @@ public class ReportAddActivity extends AppCompatActivity implements
         etEndMp.setHint(Globals.selectedUnit.getEnd());
         etStartMp.setText(Globals.selectedReport.getStartMp());
         etEndMp.setText(Globals.selectedReport.getEndMp());
+        if(locId!=null){
+            tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp(), locId));
+            tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp(), locId));
+        }else {
+            tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp()));
+            tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp()));
+        }
+
         //Setting Placeholder if saved value is empty in any case
         if (Globals.selectedReport.getStartMp().equals("")) {
             etStartMp.setHint(Globals.selectedUnit.getStart());
+            if(locId!=null){
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart(), locId));
+            } else {
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart()));
+            }
         }
         if (Globals.selectedReport.getEndMp().equals("")) {
             etEndMp.setHint(Globals.selectedUnit.getEnd());
+            if(locId!=null){
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd(), locId));
+            } else {
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd()));
+            }
+
         }
         //etStartMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
         //etEndMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
@@ -2812,12 +2994,19 @@ public class ReportAddActivity extends AppCompatActivity implements
         llEndMp.setVisibility(GONE);
         tvStartMp.setText(getString(R.string.msg_milepost));
         etStartMp.setText(Globals.selectedReport.getStartMp());
+        if(locId!=null){
+            tvStartMpPrefix.setText(getPrefixMpOnly(selectedReport.getStartMp(), locId));
+        }else {
+            tvStartMpPrefix.setText(getPrefixMpOnly(selectedReport.getStartMp()));
+        }
         etStartMp.setEnabled(false);
     }
 
     private void setLinearAssetMode() {
         etStartMp.setHint(Globals.selectedUnit.getStart());
         etEndMp.setHint(Globals.selectedUnit.getEnd());
+        tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart()));
+        tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd()));
         //etStartMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
         //etEndMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
     }
@@ -2826,6 +3015,7 @@ public class ReportAddActivity extends AppCompatActivity implements
         llEndMp.setVisibility(GONE);
         tvStartMp.setText(getString(R.string.msg_milepost));
         etStartMp.setText(Globals.selectedUnit.getStart());
+        tvStartMpPrefix.setText(getPrefixMpOnly(selectedUnit.getStart()));
         etStartMp.setEnabled(false);
     }
 
@@ -2877,13 +3067,13 @@ public class ReportAddActivity extends AppCompatActivity implements
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     // The BroadcastReceiver used to listen from broadcasts from the service.
-   // private MyReceiver myReceiver;
+    // private MyReceiver myReceiver;
 
     // A reference to the service used to get location updates.
-  //  private LocationUpdatesService mService = null;
+    //  private LocationUpdatesService mService = null;
 
     // Tracks the bound state of the service.
-   // private boolean mBound = false;
+    // private boolean mBound = false;
 
     void showConfirmationDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)

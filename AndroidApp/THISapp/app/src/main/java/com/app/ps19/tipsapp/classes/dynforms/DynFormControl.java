@@ -13,18 +13,18 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-enum DynControlType{
-    Text,
-    Checkbox,
-    List,
-    RadioList,
-    Table,
-    Label,
-    Divider,
-    Date,
-    Number
-
-}
+//public enum DynControlType{
+//    Text,
+//    Checkbox,
+//    List,
+//    RadioList,
+//    Table,
+//    Label,
+//    Divider,
+//    Date,
+//    Number
+//
+//}
 
 public class DynFormControl implements IConvertHelper,Cloneable,IViewController {
     private String fieldName;
@@ -40,9 +40,81 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
     private String originalValue;
     private boolean numberDecimal=false;
     private boolean numberSigned=false;
+    private String numberMin="" ;
+    private String numberMax="" ;
     private boolean fieldEnabled=true;
     private boolean changeOnly=false;
     private String tag;
+    private boolean active=false;
+    private boolean visible=true;
+    private DynControlBinding binding=null;
+    private String groupId="";
+    private String groupVisibility="";
+    private DynControlLookup lookup=null;
+
+    public void setLookup(DynControlLookup lookup) {
+        this.lookup = lookup;
+    }
+
+    public DynControlLookup getLookup() {
+        return lookup;
+    }
+
+    public String getGroupVisibility() {
+        return groupVisibility;
+    }
+
+    public void setGroupVisibility(String groupVisibility) {
+        this.groupVisibility = groupVisibility;
+    }
+
+    public String getNumberMax() {
+        return numberMax;
+    }
+
+    public void setNumberMax(String numberMax) {
+        this.numberMax = numberMax;
+    }
+
+    public String getNumberMin() {
+        return numberMin;
+    }
+
+    public void setNumberMin(String numberMin) {
+        this.numberMin = numberMin;
+    }
+
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public void setBinding(DynControlBinding binding) {
+        this.binding = binding;
+    }
+
+    public DynControlBinding getBinding() {
+        return binding;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public void setTag(String tag) {
         this.tag = tag;
@@ -161,6 +233,7 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
     }
     public void setCurrentValue(String currentValue) {
         this.currentValue = currentValue;
+        if(binding != null) binding.valueChanged(currentValue);
         if(this.fieldType==DynControlType.Table){
             //Table Data in string format
             try{
@@ -181,15 +254,28 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
                         form.setFormName(this.getFieldName());
                         form.setChangeEventListener(listener);
                         form.setParentControl(this);
+                        form.setParentForm(this.parentControl);
                         this.formTable.getFormData().add(form);
 
                     }
+                }else{
+                    this.formTable.getFormData().clear();
                 }
             }catch (Exception e){
                 e.printStackTrace();
             }
 
         }
+    }
+    public void setCurrentValueFromTable(){
+        JSONArray jaFormData=new JSONArray();
+        for(DynForm dynForm:getFormTable().getFormData()){
+            jaFormData.put(dynForm.getJsonObject());
+        }
+        if(this.parentControl!=null){
+            this.parentControl.controlValueChanged(getId(),jaFormData.toString());
+        }
+        //setCurrentValue(jaFormData.toString());
     }
     public DynFormControl(JSONObject jsonObject){
         parseJsonObject(jsonObject);
@@ -220,6 +306,8 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
                 return DynControlType.Divider;
             case "date":
                 return DynControlType.Date;
+            case "time":
+                return DynControlType.DateTime;
             case "number":
                 return DynControlType.Number;
             default:
@@ -229,6 +317,27 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
     protected Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
+    public void cloneFieldList() {
+        if(formTable!=null){
+            try {
+                formTable = (DynFormTable) formTable.clone();
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+            formTable.cloneFieldList();
+            formTable.setParentControl(this);
+        }
+        if(binding!=null){
+            try {
+                binding= (DynControlBinding) binding.clone();
+                binding.setTarget(null);
+                binding.setSource(null);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
@@ -243,10 +352,18 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
             boolean _numberDecimal=jsonObject.optBoolean("numberDecimal",false);
             boolean _numberSigned=jsonObject.optBoolean("numberSigned",false);
             boolean _fieldEnabled=jsonObject.optBoolean("enabled",true);
+            setVisible(jsonObject.optBoolean("visible",true));
+            setGroupId(jsonObject.optString("groupId",""));
+            setGroupVisibility(jsonObject.optString("groupVisibility",""));
+            setNumberMin(jsonObject.optString("numberMin",""));
+            setNumberMax(jsonObject.optString("numberMax",""));
             if(this.fieldType==DynControlType.Table){
                 value=jsonObject.optJSONArray("value").toString();
             }
-
+            if(jsonObject.optJSONObject("lookup") != null){
+                DynControlLookup _lookup=new DynControlLookup(jsonObject.optJSONObject("lookup"));
+                setLookup(_lookup);
+            }
             JSONArray jaOptions=jsonObject.optJSONArray("options");
             boolean required=jsonObject.optBoolean("required",false);
             this.fieldName=fieldName;
@@ -275,6 +392,14 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
                     _cols.add(_control);
                 }
                 this.cols=_cols;
+            }
+            /*"binding" : {
+                "property" : "value",
+                        "target" : "Part Number",
+                        "targetProperty" : "visible"
+            }*/
+            if(jsonObject.optJSONObject("binding")!=null){
+                setBinding(new DynControlBinding(jsonObject.optJSONObject("binding")));
             }
 
         }catch (Exception e){

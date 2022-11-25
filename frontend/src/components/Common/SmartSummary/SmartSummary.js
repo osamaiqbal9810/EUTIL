@@ -14,7 +14,7 @@ import { ic_expand_more } from "react-icons-kit/md/ic_expand_more";
 import { iconShowHideStyle, summeryStyle } from "./styles/SmartSummaryStyle";
 import { getStatusColor } from "../../../utils/statusColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { languageService } from "../../../Language/language.service";
 
 class SmartSummary extends Component {
@@ -148,7 +148,7 @@ class SmartSummary extends Component {
               <Col md="1">
                 {permissionValue && (
                   <div style={{ padding: "4px 0px" }}>
-                    <div id={"toolTipAdd" + this.props.addToolTipId} style={themeService({ default: { margin: "auto", color: "rgba(64, 118, 179)", cursor: "pointer" }, retro: { margin: "auto", color: retroColors.second, cursor: "pointer" } })}>
+                    <div id={"toolTipAdd" + this.props.addToolTipId} style={themeService({ default: { margin: "auto", color: "var(--first)", cursor: "pointer" }, retro: { margin: "auto", color: retroColors.second, cursor: "pointer" }, electric: { margin: "auto", color: electricColors.second, cursor: "pointer" } })}>
                       <SvgIcon
                         size={24}
                         icon={plus}

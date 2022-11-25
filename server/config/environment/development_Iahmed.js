@@ -6,6 +6,6 @@ module.exports = {
 		//uri: 'mongodb://iahmed/test',
 		//uri: 'mongodb://sa:welcome@ds021289.mlab.com:21289/railgroup-dev'
 	},
-	seedDB: false,
+	seedDB: true,
 
 };

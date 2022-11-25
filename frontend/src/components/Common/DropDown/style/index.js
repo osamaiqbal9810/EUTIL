@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 
 export const DropDownStyle = {
     lblDropDown: {
@@ -14,6 +14,12 @@ export const DropDownStyle = {
 
 
         },
+        electric: {
+            marginBottom: "0",
+            cursor: "pointer",
+
+
+        }
     },
     iconStyle: {
         default: {
@@ -21,6 +27,10 @@ export const DropDownStyle = {
 
         },
         retro: {
+            verticalAlign: "middle", marginRight: "10px", display: "inline-block", width: "15px",
+
+        },
+        electric: {
             verticalAlign: "middle", marginRight: "10px", display: "inline-block", width: "15px",
 
         }
@@ -37,5 +47,11 @@ export const DropDownStyle = {
             ":hover": { backgroundColor: retroColors.first }
 
         },
+
+        electric: {
+            backgroundColor: electricColors.fifth,
+            ":hover": { backgroundColor: electricColors.first }
+
+        }
     }
 }

@@ -5,7 +5,7 @@ import { ic_arrow_back } from "react-icons-kit/md/ic_arrow_back";
 import SvgIcon from "react-icons-kit";
 import _ from "lodash";
 import { themeService } from "../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 class IssueFixedOnSiteDetail extends Component {
   constructor(props) {
     super(props);
@@ -31,7 +31,7 @@ class IssueFixedOnSiteDetail extends Component {
   render() {
     let imgSelect = null;
     if (this.props.issue) {
-      let imgs = _.filter(this.props.issue.imgList, img => {
+      let imgs = _.filter(this.props.issue.imgList, (img) => {
         return img.tag == "after";
       });
       let imgComp = imgs.map((img, index) => {
@@ -39,7 +39,7 @@ class IssueFixedOnSiteDetail extends Component {
         if (img) {
           imgName = img.imgName;
         }
-        let paths = "http://" + getServerEndpoint() + "thumbnails/" + imgName;
+        let paths = getServerEndpoint() + "thumbnails/" + imgName;
         //  console.log(paths)
         return (
           <div className="colsImgs" key={index}>
@@ -51,7 +51,7 @@ class IssueFixedOnSiteDetail extends Component {
                 marginRight: "auto",
               }}
               alt={imgName}
-              onClick={e => {
+              onClick={(e) => {
                 this.handleSingleImgFromMultiple(imgName);
               }}
             />
@@ -70,7 +70,7 @@ class IssueFixedOnSiteDetail extends Component {
           }}
         >
           <img
-            src={"http://" + getServerEndpoint() + "applicationresources/" + this.state.selectedImg}
+            src={getServerEndpoint() + "applicationresources/" + this.state.selectedImg}
             style={{
               display: "block",
               marginLeft: "auto",
@@ -89,58 +89,55 @@ class IssueFixedOnSiteDetail extends Component {
     }
 
     if (this.props.issue.marked) {
-        return (
-            <React.Fragment>
-                <React.Fragment>
-                    <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService("Fix Type")}: </div>
+      return (
+        <React.Fragment>
+          <React.Fragment>
+            <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService("Fix Type")}: </div>
 
-                    <div style={{ ...defaultStyle, fontSize: "12px", padding: "5px 5px 0px", display: "inline-block" }}>
-                        {this.props.issue.fixType}
-                    </div>
-                </React.Fragment>
-                <React.Fragment>
-                    <div>
-                        <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService("Fix Images")}</div>
-                        {this.state.showBackButton && (
-                            <div style={{ ...defaultStyle, display: "inline-block" }} onClick={this.handleBackButton}>
-                                <SvgIcon
-                                    size={25}
-                                    icon={ic_arrow_back}
-                                    style={{
-                                        marginRight: "5px",
-                                        marginLeft: "5px",
-                                        verticalAlign: "middle",
-                                        cursor: "pointer",
-                                    }}
-                                />
-                            </div>
-                        )}
-                    </div>
+            <div style={{ ...defaultStyle, fontSize: "12px", padding: "5px 5px 0px", display: "inline-block" }}>
+              {this.props.issue.fixType}
+            </div>
+          </React.Fragment>
+          <React.Fragment>
+            <div>
+              <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService("Fix Images")}</div>
+              {this.state.showBackButton && (
+                <div style={{ ...defaultStyle, display: "inline-block" }} onClick={this.handleBackButton}>
+                  <SvgIcon
+                    size={25}
+                    icon={ic_arrow_back}
+                    style={{
+                      marginRight: "5px",
+                      marginLeft: "5px",
+                      verticalAlign: "middle",
+                      cursor: "pointer",
+                    }}
+                  />
+                </div>
+              )}
+            </div>
 
-                    {imgSelect}
-                </React.Fragment>
-            </React.Fragment>
-        );
+            {imgSelect}
+          </React.Fragment>
+        </React.Fragment>
+      );
     }
 
     return (
-        <React.Fragment>
-            {this.props.issue.remedialActionItems.map(ra => (
-                <React.Fragment key={ra.id}>
-                    <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService(ra.desc)}: </div>
-
-                    <div style={{ ...defaultStyle, fontSize: "12px", padding: "5px 5px 0px", display: "inline-block" }}>
-                        {ra.value}
-                    </div> <br/>
-                </React.Fragment>
-            ))}
-
-        </React.Fragment>
-    )
+      <React.Fragment>
+        {this.props.issue.remedialActionItems.map((ra) => (
+          <React.Fragment key={ra.id}>
+            <div style={{ ...defaultStyle, padding: "15px 0px", display: "inline-block" }}>{languageService(ra.desc)}: </div>
+            <div style={{ ...defaultStyle, fontSize: "12px", padding: "5px 5px 0px", display: "inline-block" }}>{ra.value}</div> <br />
+          </React.Fragment>
+        ))}
+      </React.Fragment>
+    );
   }
 }
 let defaultStyle = themeService({
   default: { fontSize: "14px", color: basicColors.first },
   retro: { fontSize: "14px", color: retroColors.second },
+  electric: { fontSize: "14px", color: electricColors.second },
 });
 export default IssueFixedOnSiteDetail;

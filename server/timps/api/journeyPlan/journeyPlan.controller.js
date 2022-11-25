@@ -110,14 +110,15 @@ exports.find = function (req, res, next) {
       return res.send("Plan not found");
     }
     res.status(200);
+    console.log(plan);
     return res.json(plan._doc);
   });
 };
 
 exports.create = function (req, res, next) {
-  console.log(req.body.journeyPlan);
-  let newJourneyPlan = new JourneyPlan(req.body.journeyPlan);
-  newJourneyPlan.supervisor = req.user._id;
+  let newJourneyPlan = new JourneyPlan(req.body);
+  console.log(newJourneyPlan);
+  //newJourneyPlan.supervisor = req.user._id;
   newJourneyPlan.save(function (err, plan) {
     if (err) return handleError(res, err);
     res.status(200);
@@ -132,7 +133,7 @@ exports.update = function (req, res, next) {
     plan.user = req.body.user;
     plan.date = req.body.date;
     plan.title = req.body.title;
-    // plan.tasks = req.body.tasks;
+    // plan.tasks = req.body.tasks;y
     plan.subdivision = req.body.subdivision;
     if (plan.tasks && plan.tasks.length > 0 && req.body.tasks && req.body.tasks.length > 0) {
       plan.tasks[0].includeInFRAReport = req.body.tasks[0].includeInFRAReport;
@@ -161,7 +162,19 @@ function handleError(res, err) {
   res.status(500);
   return res.send(err);
 }
-
+exports.updateMultiIssue = async function (req, res, next) {
+  let joureyPlanService = ServiceLocator.resolve("JourneyPlanService");
+  let issues = req.body;
+  let result = {};
+  for (let issue of issues) {
+    result = await joureyPlanService.updateIssue(issue.issuesReport, req.user);
+  }       
+  res.status(result.status);
+  if (result.errorVal && result.status == 500) {
+    return res.send(result.errorVal);
+  }
+  res.json({});
+};
 exports.updateIssue = async function (req, res, next) {
   let joureyPlanService = ServiceLocator.resolve("JourneyPlanService");
   let result = await joureyPlanService.updateIssue(req.body.issuesReport, req.user);

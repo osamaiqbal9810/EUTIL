@@ -9,6 +9,9 @@
     <item
         android:id="@+id/mnuForms"
         android:title="@string/forms"/>
+    <item
+        android:id="@+id/mnuFormsTests"
+        android:title=  "@string/forms_tests"/>
 
     <item
         android:id="@+id/mnuPrevDefectsMap"
@@ -18,4 +21,9 @@
         android:id="@+id/mnuIssues"
         android:title="@string/def_codes"/>
 
+    <item
+        android:id="@+id/mnuSessionReport"
+        android:title="@string/mnu_session_rpt"
+        android:visible="false"
+        />
 </menu>

@@ -1,5 +1,5 @@
 /* eslint eqeqeq: 0 */
-import React  from "react";
+import React from "react";
 import { Col, Row } from "reactstrap";
 import { CardTypeOne, CardTypeThree } from "components/Common/Cards.jsx";
 import { languageService } from "../../Language/language.service";
@@ -9,7 +9,7 @@ import { themeService } from "../../theme/service/activeTheme.service";
 import { getStatusColor } from "../../utils/statusColors";
 import moment from "moment";
 
-export const PlanningSummaryDefault = props => {
+export const PlanningSummaryDefault = (props) => {
   let summaryDesc = props.descriptions ? props.descriptions : {};
   let summaryVals = props.values ? props.values : {};
   let assigned = props.assignedToMe ? props.assignedToMe : {};
@@ -22,13 +22,13 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.first, "inspection");
             }}
           >
             <CardTypeOne
               number={summaryVals.total}
-              numberColor="rgba(64, 118, 179)"
+              numberColor="var(--first)"
               topRight={assigned.first}
               text={summaryDesc.first}
               styles={{ cursor: "pointer" }}
@@ -40,7 +40,7 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.second, "inspection");
             }}
           >
@@ -60,7 +60,7 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.third, "inspection");
             }}
           >
@@ -78,7 +78,7 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.sixth, "inspection");
             }}
           >
@@ -98,7 +98,7 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.fifth, "inspection");
             }}
           >
@@ -116,7 +116,7 @@ export const PlanningSummaryDefault = props => {
             md="6"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(summaryDesc.fourth, "inspection");
             }}
           >
@@ -134,21 +134,23 @@ export const PlanningSummaryDefault = props => {
   );
 };
 
-export const PlanningSummaryLinear = props => {
+export const PlanningSummaryLinear = (props) => {
   let summaryDesc = props.descriptions ? props.descriptions : {};
   let summaryVals = props.values ? props.values : {};
   let assigned = props.assignedToMe ? props.assignedToMe : {};
 
   return (
     <Col md="12" style={themeService(commonStylesDashboard.zeroPaddingCol)}>
-      <Row style={themeService(commonStylesDashboard.summaryHeading)}>{languageService("Inspections Summary")} - {moment().format('MMMM YYYY')}</Row>
+      <Row style={themeService(commonStylesDashboard.summaryHeading)}>
+        {languageService("Inspections Summary")} - {moment().format("MMMM YYYY")}
+      </Row>
       <Row style={themeService(commonStylesDashboard.zeroMarginRow)}>
         {summaryDesc.first && (
           <Col
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.first, "inspection");
             }}
           >
@@ -167,7 +169,7 @@ export const PlanningSummaryLinear = props => {
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.second, "inspection");
             }}
           >
@@ -186,7 +188,7 @@ export const PlanningSummaryLinear = props => {
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.third, "inspection");
             }}
           >
@@ -204,7 +206,7 @@ export const PlanningSummaryLinear = props => {
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.fourth, "inspection");
             }}
           >
@@ -222,7 +224,7 @@ export const PlanningSummaryLinear = props => {
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.fifth, "inspection");
             }}
           >
@@ -241,7 +243,7 @@ export const PlanningSummaryLinear = props => {
             md="2"
             sm="6"
             style={themeService(PlanningAndIssuesSummaryLinearStyle.cartTypeBothPaddingStyle)}
-            onClick={e => {
+            onClick={(e) => {
               props.handleSummaryClick(props.summaryLabels.sixth, "inspection");
             }}
           >

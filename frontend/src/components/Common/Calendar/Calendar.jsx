@@ -9,19 +9,12 @@ class CalendarView extends Component {
     super(props);
     this.state = {
       currentMonthName: this.props.calendarMonth ? this.props.calendarMonth : moment.months()[moment().month()],
-      monthIndex: this.props.calendarMonth
-        ? parseInt(
-            moment()
-              .month(this.props.calendarMonth)
-              .format("M"),
-            10,
-          ) - 1
-        : moment().month(),
+      monthIndex: this.props.calendarMonth ? parseInt(moment().month(this.props.calendarMonth).format("M"), 10) - 1 : moment().month(),
       months: moment.months(),
       currentYear: this.props.calendarYear ? this.props.calendarYear : moment().year(),
       data: {},
     };
-    console.log(this.state.monthIndex);
+
     this.setCurrentDateCalender = this.setCurrentDateCalender.bind(this);
     this.updateDataCalender = this.updateDataCalender.bind(this);
     this.props.reCalculateDataCaller(this.updateDataCalender);
@@ -38,12 +31,9 @@ class CalendarView extends Component {
 
   updateDataCalender(data, dateProperty) {
     let data_obj = {};
-    data.forEach(d => {
+    data.forEach((d) => {
       let date = moment(d[dateProperty]).format("YYYYMMDD");
-      this.props.dateWithoutConversion &&
-        (date = moment(d[dateProperty])
-          .parseZone()
-          .format("YYYYMMDD"));
+      this.props.dateWithoutConversion && (date = moment(d[dateProperty]).parseZone().format("YYYYMMDD"));
       if (data_obj[date]) {
         data_obj[date].push(d);
       } else {
@@ -71,7 +61,7 @@ class CalendarView extends Component {
 
   render() {
     return (
-      <div style={themeService(calenderStyle.calender)}>
+      <div style={{ ...themeService(calenderStyle.calender), overflow: "auto" }}>
         {!this.props.getDateControls && (
           <CalendarControls
             setCurrentMonth={this.setCurrentDateCalender}

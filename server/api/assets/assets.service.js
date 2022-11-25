@@ -366,66 +366,69 @@ class AssetsService {
     }
     return resultObj;
   }
-  async createMultipleAssets( multipleAssets ) {
-    let resultObj = {}, AssetsModel;
-    let utils = ServiceLocator.resolve('utils');
-    
-    AssetsModel = ServiceLocator.resolve('AssetsModel');
-    
-    try {
-      if(!multipleAssets || !multipleAssets.length )
-        return {status: 400, errorVal:'Assets list missing'};
-      if(!multipleAssets[0] || !multipleAssets[0].parentAsset)
-        return {status: 400, errorVal:{message: 'All assets must have a parent.'}}
+  async createMultipleAssets(multipleAssets) {
+    let resultObj = {},
+      AssetsModel;
+    let utils = ServiceLocator.resolve("utils");
 
-      const parentAssetId =  multipleAssets[0].parentAsset;
+    AssetsModel = ServiceLocator.resolve("AssetsModel");
+
+    try {
+      if (!multipleAssets || !multipleAssets.length) return { status: 400, errorVal: "Assets list missing" };
+      if (!multipleAssets[0] || !multipleAssets[0].parentAsset)
+        return { status: 400, errorVal: { message: "All assets must have a parent." } };
+
+      const parentAssetId = multipleAssets[0].parentAsset;
       const parentAsset = await AssetsModel.findById(parentAssetId).exec();
       // console.log('assets.service.createMultipleAssets: parent id:', parentAssetId);
 
       for (let asset of multipleAssets) {
-        if(asset.parentAsset !== parentAssetId) {
+        if (asset.parentAsset !== parentAssetId) {
           // console.log('Different parent asset:', asset );
-          return {status: 400, errorVal: {message: 'All asssets must have same parent.'}}
+          return { status: 400, errorVal: { message: "All asssets must have same parent." } };
         }
       }
-      
-      for(let asset of multipleAssets) {
 
-        if(asset.start) asset.start = utils.toFixed(asset.start);
-        if(asset.end) asset.end = utils.toFixed(asset.end);
-        if(asset.assetLength) asset.assetLength = utils.toFixed(asset.assetLength);
-          else asset.assetLength = utils.toFixed(asset.end - asset.start);
+      for (let asset of multipleAssets) {
+        if (asset.start) asset.start = utils.toFixed(asset.start);
+        if (asset.end) asset.end = utils.toFixed(asset.end);
+        if (asset.assetLength) asset.assetLength = utils.toFixed(asset.assetLength);
+        else asset.assetLength = utils.toFixed(asset.end - asset.start);
         // console.log('asset start, end, length:', asset.start, asset.end, asset.assetLength);
+
         let newAsset = new AssetsModel(asset);
-        newAsset.levels = { 1: null, 2: null, 3: null, currentLevel: null } // Todo: Execute actual level calculation if required
-        
+        newAsset.levels = { 1: null, 2: null, 3: null, currentLevel: null }; // Todo: Execute actual level calculation if required
+        if (!newAsset.attributes) newAsset.attributes = {};
+
         if (parentAsset.assetType == "track") {
           newAsset.trackId = parentAsset._id;
         } else {
           newAsset.trackId = parentAsset.trackId;
         }
+
         let savedAsset = await newAsset.save();
+
         parentAsset.childAsset.push(savedAsset._id);
-        
-        // todo optimize the test creation logic 
+
+        // todo optimize the test creation logic
         // await this.assetCreateAssetTests(savedAsset);
       }
-      
+
       // pushed asset ids to the children list of the parent, so save
       parentAsset.markModified("childAsset");
       let savedParent = await parentAsset.save();
-      
+
       let AssetsTreeService = ServiceLocator.resolve("AssetsTreeService");
       await AssetsTreeService.createHierarchyTree();
       resultObj = { value: savedParent, status: 200 };
-    } catch(error) {
-       console.log(error);
+    } catch (error) {
+      console.log(error);
       resultObj = { errorVal: error, status: 500 };
     }
-    
+
     return resultObj;
   }
-  async createAssetsLamp(asset) {
+  async createAssetsLamp(asset, ignoreTreeCreation) {
     let resultObj, AssetsModel, adminCheck, subdivisionUser, assetsList;
     resultObj = {};
     AssetsModel = ServiceLocator.resolve("AssetsModel");
@@ -459,7 +462,7 @@ class AssetsService {
         }
 
         let finalSavedAsset = await savedAsset.save();
-        await AssetsTreeService.createHierarchyTree();
+        !ignoreTreeCreation && (await AssetsTreeService.createHierarchyTree());
 
         resultObj = { value: finalSavedAsset, status: 200 };
       } else {
@@ -597,34 +600,180 @@ class AssetsService {
     }
     return resultObj;
   }
+  async validateAssetUpdateAction(oldAsset, asset, changes) {
+    let vr = { valid: true },
+      assetId = asset._id,
+      validationsToRun = [],
+      dataValidationService = ServiceLocator.resolve("DataValidationService"),
+      VALIDATION_TYPES = ServiceLocator.resolve("VALIDATION_TYPES"),
+      COLLECTIONS_TO_LOOK_INTO = [
+        { collection: "WorkPlanTemplate", fields: ["inspectionAssets", "tasks.units.id"] },
+        { collection: "JourneyPlan", fields: ["tasks.units.id"] },
+      ];
+
+    if (changes.locationChange || changes.assetTypeChange) {
+      validationsToRun.push({
+        type: VALIDATION_TYPES.VALIDATE_VALUE_NOT_EXIST,
+        params: { value: assetId, into: COLLECTIONS_TO_LOOK_INTO },
+      });
+
+      // If location is being changed and the asset has children then also validate that all children are also allowed to be edited.
+      if (changes.locationChange && asset.childAsset && asset.childAsset.length > 0)
+        for (let child of asset.childAsset)
+          validationsToRun.push({
+            type: VALIDATION_TYPES.VALIDATE_VALUE_NOT_EXIST,
+            params: { value: child, into: COLLECTIONS_TO_LOOK_INTO },
+          });
+
+      // If location is being changed, validate that the asset is a top level asset (i.e. an immidiate child of a plannable location)
+      // Validate that the asset type is an immediate child of a "plannable", "location"
+      if (changes.locationChange)
+        validationsToRun.push({
+          type: VALIDATION_TYPES.VALIDATE_FILED_MUST_EXIST,
+          params: {
+            id: asset.parentAsset,
+            field: "assetType",
+            sourceModel: "Assets",
+            findInModel: "AssetTypes",
+            findField: "assetType",
+            additionalCriteria: { plannable: true, location: true },
+          },
+        });
+
+      // console.log('Asset parent:', JSON.stringify(asset.parentAsset, null, 4));
+
+      vr = await dataValidationService.validate(validationsToRun);
+    }
+
+    return vr;
+  }
+  async getParentAndImmediateChildren(parentId, parentOut, childrenOut) {
+    let AssetsModel = ServiceLocator.resolve("AssetsModel"),
+      whoelFamily = await AssetsModel.find({ $or: [{ _id: parentId }, { parentAsset: parentId }] });
+    parentOut = wholeFamily.find((a) => {
+      return a._id === parentId;
+    });
+    childrenOut = wholeFamily.filter((a) => {
+      return a._id !== parentId;
+    });
+
+    return { parent: parent, children: children };
+  }
+  async getImmediateChildren(parentId, childrenOut) {
+    let AssetsModel = ServiceLocator.resolve("AssetsModel");
+    childrenOut = await AssetsModel.find({ parentAsset: parentId });
+
+    return childrenOut;
+  }
+  /** 
+    Get the list of Ids for all children in the hierarchy
+
+    Todo: Get the children from assetTree instead of issuing database calls
+   */
+  async getTreeIds(parentId, idsOut) {
+    let children = [];
+    await this.getImmediateChildren(parentId, children);
+    if (children && children.length) {
+      for (let child of children) {
+        idsOut.push(child._id);
+        await this.getTreeIds(child._id, idsOut);
+      }
+    }
+  }
+  async updateChildrenTreeLineId(parentId, lineId) {
+    let childrenIds = [];
+    this.getTreeIds(parentId, childrenIds);
+
+    if (childrenIds && childrenIds.length) {
+      let criteria = {
+        $or: childrenIds.map((id) => {
+          return { _id: id };
+        }),
+      };
+      let AssetsModel = ServiceLocator.resolve("AssetsModel");
+      AssetsModel.updateMany(criteria, { lineId: lineId });
+    }
+  }
+
+  async updateTopLevelAssetsParent(asset, parentId) {
+    // If location is changed recalculate and update parentAsset, locationName fields if lineId is changed.
+    // only support changing parent for an immediate child of a plannable location.
+    asset.parentAsset = parentId;
+
+    //asset.locationName =
+    await this.updateChildrenTreeLineId(parentId, asset.lineId);
+  }
+
   async updateAsset(asset) {
-    let resultObj, AssetsModel;
+    //console.log(asset);
+    let resultObj = { status: 404 },
+      AssetsModel;
     AssetsModel = ServiceLocator.resolve("AssetsModel");
     let assetTreeService = ServiceLocator.resolve("AssetsTreeService");
     let assetTestsService = ServiceLocator.resolve("AssetTestsService");
     let utils = ServiceLocator.resolve("utils");
     try {
-      let query = { _id: asset._id };
-
       if (asset.start) asset.start = utils.toFixed(asset.start);
-
       if (asset.end) asset.end = utils.toFixed(asset.end);
-
       if (asset.assetLength) asset.assetLength = utils.toFixed(asset.assetLength);
-
-      let testRecreateCheck = AssetsModel.findOne({ ...query, $or: [{ start: { $ne: asset.start } }, { end: { $ne: asset.end } }] });
-      let savedAsset = await AssetsModel.findOneAndUpdate(query, asset, {
-        upsert: true,
-        new: true,
-      }).exec();
-      await assetTreeService.createHierarchyTree();
-      if (testRecreateCheck) {
-        this.assetCreateAssetTests(savedAsset);
+      let query = { _id: asset._id },
+        vr = { valid: true },
+        oldAsset = await AssetsModel.findOne(query);
+      if (!oldAsset) return resultObj;
+      asset.locationId = asset.lineId;
+      let changesType = {
+        locationChange: oldAsset.lineId !== asset.lineId,
+        assetTypeChange: oldAsset.assetType !== asset.assetType,
+        equipmentChange: !utils.areObjectsEqual(oldAsset.equipments, asset.equipments),
+      };
+      // check if a critical change is requested and if validation is required?
+      console.log(changesType.locationChange);
+      if (changesType.assetTypeChange) {
+        //console.log('Critical change requested. Performing validations...');
+        vr = await this.validateAssetUpdateAction(oldAsset, asset, changesType);
       }
+      //console.log('validationResult:', JSON.stringify(vr));
 
-      resultObj = { value: asset, status: 200 };
+      if (!vr.valid) {
+        let resStr = JSON.stringify(vr.details, null, 4);
+        // console.log("Asset Update Validation Failed..."+resStr);
+        resultObj = { errorVal: "Validation failed. This asset cannot be edited:" + resStr, status: 405 };
+      } else {
+        if (changesType.locationChange) {
+          asset.parentAsset = asset.lineId;
+          await this.updateTopLevelAssetsParent(asset, asset.lineId);
+        }
+
+        let testRecreateCheck =
+          asset.start &&
+          asset.end &&
+          (await AssetsModel.findOne({ ...query, $or: [{ start: { $ne: asset.start } }, { end: { $ne: asset.end } }] }));
+
+        let savedAsset = await AssetsModel.findOneAndUpdate(query, asset, {
+          upsert: true,
+          new: true,
+        }).exec();
+
+        if (changesType.equipmentChange) {
+          // Update equipments in Work plan templates
+          let equipmentFormMethods = ServiceLocator.resolve("EquipmentFormMethods");
+          let wPlanTemplate = ServiceLocator.resolve("WorkPlanTemplateModel");
+
+          await equipmentFormMethods.updateEquipmentsInWPlans(asset._id, asset.equipments, wPlanTemplate);
+        } else if (!changesType.assetTypeChange) {
+          // only update tree if change is not equipment or asset type
+          await assetTreeService.createHierarchyTree();
+        }
+
+        if (testRecreateCheck) {
+          this.assetCreateAssetTests(savedAsset);
+        }
+
+        resultObj = { value: asset, status: 200 };
+      }
     } catch (error) {
       resultObj = { errorVal: error.toString(), status: 500 };
+      console.log("Assets.service.updateAsset.catch", error.toString());
     }
     return resultObj;
   }
@@ -671,7 +820,7 @@ class AssetsService {
 
     return resultObj;
   }
-  async deleteAsset(id) {
+  async deleteAsset(id, ignoreTreeCreation) {
     let AssetModel = ServiceLocator.resolve("AssetsModel");
     let assetsTreeService = ServiceLocator.resolve("AssetsTreeService");
     let AssetsTreeModel = ServiceLocator.resolve("AssetsTreeModel");
@@ -731,7 +880,7 @@ class AssetsService {
             }),
           );
  */
-          assetsTreeService.createHierarchyTree();
+          !ignoreTreeCreation && assetsTreeService.createHierarchyTree();
           //   console.log(`Deleting [${assetArray}]`); // console.log('delete result', result.value); // todo: log
           /*           result.value = await AssetModel.remove({
             _id: {
@@ -893,8 +1042,32 @@ class AssetsService {
       console.log("err in getLocationTimeZone : ", err);
     }
   }
-  updateAssetTestForms(form, prevForm) {}
+  async getUnAssignedAssets(assetId) {
+    let resultObj = {};
+    let AssetsModel = ServiceLocator.resolve("AssetsModel");
+    try {
+      let asset = await AssetsModel.findOne({ _id: ObjectId(assetId) }).exec();
 
+      if (asset && asset.parentAsset) {
+        let parents = [];
+        await this.getRecursiveParentBranch(parents, asset.parentAsset, AssetsModel);
+        resultObj = { status: 200, value: { asset: asset, parents: parents } };
+      } else {
+        resultObj.errorVal = "Not found";
+        resultObj.status = 404;
+      }
+    } catch (err) {
+      resultObj = { errorVal: err.toString(), status: 500 };
+      console.log("err in getUnAssignedAssets : ", err);
+    }
+    return resultObj;
+  }
+
+  async getRecursiveParentBranch(resultArray, parentAsset, AssetsModel) {
+    let parent = await AssetsModel.findOne({ _id: ObjectId(parentAsset) });
+    resultArray.push(parent);
+    if (parent.parentAsset) await this.getRecursiveParentBranch(resultArray, parent.parentAsset, AssetsModel);
+  }
   /*async copyMarkerFields(asset)
   {
     if(asset.attributes)

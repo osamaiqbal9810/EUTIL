@@ -8,7 +8,8 @@ import ResponseForm from "./ResponseForm";
 import CommonFilters from "components/Common/Filters/CommonFilters";
 import { languageService } from "../../../../Language/language.service";
 import AppForm from "./../../../Common/GenericForms";
-import {versionInfo} from "../../../MainPage/VersionInfo";
+import { versionInfo } from "../../../MainPage/VersionInfo";
+import { LocPrefixService } from "../../../LocationPrefixEditor/LocationPrefixService";
 let timpsSignalApp = versionInfo.isSITE();
 
 class TrackUnitsTable extends React.Component {
@@ -347,6 +348,8 @@ class TrackUnitsTable extends React.Component {
 
   render() {
     const unit = this.state.popupUnit;
+    let mpPrefixStart = unit && LocPrefixService.getPrefixMp(unit.start, this.props.journeyPlan.lineId);
+    let mpPrefixEnd = unit && LocPrefixService.getPrefixMp(unit.end, this.props.journeyPlan.lineId);
     return (
       <Col md="12">
         <ResponseForm
@@ -458,7 +461,7 @@ class TrackUnitsTable extends React.Component {
                       textOverflow: "ellipsis",
                     }}
                   >
-                    {unit.start} - {unit.end}
+                    {mpPrefixStart} {unit.start} - {mpPrefixEnd} {unit.end}
                   </div>
                 </div>
 

@@ -4,8 +4,10 @@ import moment from "moment";
 import { completiontoleranceMP } from "../template/config";
 import { checkCompletedForFixedTestSchedule } from "../api/AssetTests/assetTests.service";
 import { defectCodes } from "../config/database/defectCodes";
-var util = require("util");
+import { getFlatEquipments } from "../utilities/equpmentTreeUtil";
+// import { checkUnitExists, equipmentFormMethod } from "./DBServiceHelper/EquipmentFormsMethods";
 
+var util = require("util");
 let mongoose = require("mongoose");
 let ServiceLocator = require("../framework/servicelocator");
 export default class DatabaseSerivce {
@@ -13,6 +15,7 @@ export default class DatabaseSerivce {
     this.logger = logger;
   }
   async checkForTemplateScheduleReCalculateFlag(receivedObj) {
+    //console.log(receivedObj.newItem.tasks[0].units);
     try {
       let item = receivedObj.item;
       let WPlanSchedulesModel = ServiceLocator.resolve("WPlanSchedulesModel");
@@ -44,16 +47,20 @@ export default class DatabaseSerivce {
           if (newDataInspectionType || planClosedNow) {
             updateReCal = true;
           }
-          // if (toChangeStatusToFinish) {
-          //   existedJPlan.status = item.optParam1.status;
-          //   await existedJPlan.save();
-          // }
+          if (planClosedNow) {
+            updateReCal = true;
+          }
+          if (toChangeStatusToFinish) {
+            existedJPlan.status = item.optParam1.status;
+            await existedJPlan.save();
+          }
         }
       }
       if (updateReCal) {
         let wPlanSchedule = await WPlanSchedulesModel.findOne({ templateId: workplanTemplateId }).exec();
         if (wPlanSchedule) {
           wPlanSchedule.toRecalculate = true;
+         // wPlanSchedule.inspectionSchedules.status = item.optParam1.status;
           await wPlanSchedule.save();
         }
         // // # to update next execution date and expiry date on execution
@@ -113,7 +120,7 @@ export default class DatabaseSerivce {
     }
   }
   async checkTestsFormFilling(receivedObj) {
-    let item = receivedObj && { ...receivedObj.item };
+    let item = receivedObj && { ...receivedObj.change };
     let testSchedulesModel = ServiceLocator.resolve("TestSchedulesModel");
     let JourneyPlanModel = ServiceLocator.resolve("JourneyPlanModel");
     let testScheduleObserverService = ServiceLocator.resolve("TestScheduleObserverService");
@@ -159,6 +166,43 @@ export default class DatabaseSerivce {
       console.log("Error in checkTestsFormFilling: ", err);
     }
   }
+  async checkEquipmentFormWithoutTestFormAndReplacementForms(receivedObj) {
+    let item = receivedObj && { ...receivedObj.change };
+    let inspection = receivedObj.newItem ? receivedObj.newItem : null;
+    let testSchedulesModel = ServiceLocator.resolve("TestSchedulesModel");
+    let JourneyPlanModel = ServiceLocator.resolve("JourneyPlanModel");
+    let equipmentFormMethod = ServiceLocator.resolve("EquipmentFormMethods");
+    let existedJplan = null;
+    let models = {
+      assetModel: ServiceLocator.resolve("AssetsModel"),
+      wpPlanModel: ServiceLocator.resolve("WorkPlanTemplateModel"),
+    };
+    try {
+      if (item.code) {
+        existedJplan = await JourneyPlanModel.findOne({ _id: item.code });
+      }
+      if (equipmentFormMethod.checkUnitsExists(item)) {
+        let unitsLength = item.optParam1.tasks[0].units.length;
+        let units = item.optParam1.tasks[0].units;
+        let inspectionData = existedJplan ? existedJplan : item.optParam1;
+        let fullUnits = existedJplan ? existedJplan.tasks[0].units : item.optParam1.tasks[0].units;
+        for (let u = 0; u < unitsLength; u++) {
+          let equipFormGroupByParent = equipmentFormMethod.equipmentFormEntries(units[u], fullUnits[u]);
+          let parentTestAsset = fullUnits.find((pAsset) => pAsset.id === fullUnits[u].parent_id);
+          if (equipFormGroupByParent && parentTestAsset) {
+            for (let testFormCode in equipFormGroupByParent) {
+              equipmentFormMethod.checkExistInDb(testSchedulesModel, equipFormGroupByParent, parentTestAsset, testFormCode, inspectionData);
+            }
+          }
+
+          equipmentFormMethod.equipFormReplacementForm(units[u], fullUnits[u], models, existedJplan && existedJplan.user, inspection._id);
+        }
+      }
+    } catch (err) {
+      console.log("Error in checkEquipmentFormWithoutTestForm: ", err);
+    }
+  }
+
   async workPlanIntervalReceivedMethod(received) {
     let inspection = received.newItem ? received.newItem : null;
     let workplanTemplateId = inspection.workplanTemplateId;
@@ -266,13 +310,17 @@ export default class DatabaseSerivce {
     let AssetsModel = ServiceLocator.resolve("AssetsModel");
     let wPlanTemplateModel = ServiceLocator.resolve("WorkPlanTemplateModel");
 
-    let validForExecution = assetExistenceInInspection(item.item && item.item.optParam1);
+    let validForExecution = item.item.code!=='' && assetExistenceInInspection(item.item.optParam1);
+    // console.log(`DBService.fixedAssetGPSUpdate: validForExecution: ${validForExecution}`, {item});
+
     if (validForExecution) {
-      let assetsToUpdate = assetsWithAdjCords(item.item.optParam1);
+      let assetsToUpdate = assetsWithAdjCords(item.newItem);
+      // console.log({assetsToUpdate, opt1: item.newItem});
       let assetsTOIds = assetsToUpdate.map((a) => {
         return a.id;
       });
       let templates = await wPlanTemplateModel.find({ "tasks.units.id": { $in: assetsTOIds } });
+      // console.log({assetsTOIds, templates});
       for (let asset of assetsToUpdate) {
         await saveUpdatedAdjCordsAsset(AssetsModel, asset);
         for (let template of templates) {
@@ -296,8 +344,9 @@ export default class DatabaseSerivce {
           item.optParam1.tasks[0].issues.length
         ) {
           await alertService.rule2139bAlertCreate(item);
-        } else if (!item.code || item.code == "") {
-          alertService.recalculateAlertMonitoringByModelId(item.optParam1.workplanTemplateId);
+        }
+        if (!item.code || item.code == "") {
+          await alertService.recalculateAlertMonitoringByModelId(item.optParam1.workplanTemplateId);
         }
       }
     } catch (error) {
@@ -325,10 +374,15 @@ export default class DatabaseSerivce {
               mr.executions.push(item.newItem._id.toString());
               mr.status = "Complete";
               await mr.save();
-              maintenanceService.setMRsFields([mr.mrNumber], {
-                status: "Complete",
-                closedDate: mZero.timeStamp,
-              });
+              await maintenanceService.setMRsFields(
+                [mr.mrNumber],
+                {
+                  status: "Complete",
+                  closedDate: mZero.timeStamp,
+                },
+                null,
+                item.newItem.user,
+              );
             }
           }
         }
@@ -336,6 +390,61 @@ export default class DatabaseSerivce {
     }
   }
 
+  async updateATIVData(item) {
+    let wPlanTemplateModel = ServiceLocator.resolve("WorkPlanTemplateModel");
+    let ATIVDataModel = ServiceLocator.resolve("ATIVDataModel");
+    let updatedJPlan = item.newItem;
+    let workplanTemplateId = item.newItem && item.newItem.workplanTemplateId;
+    try {
+      let changeItems = item.change.optParam1 || {};
+      if (workplanTemplateId /*&& changeItems.tasks && changeItems.tasks[0] && changeItems.tasks[0].ativIssues*/) {
+        let wPlan = await wPlanTemplateModel.findOne({ _id: workplanTemplateId });
+        //console.log(wPlan);
+        if (wPlan && updatedJPlan && updatedJPlan.tasks[0] && updatedJPlan.tasks[0].ativIssues) {
+          let ativData = updatedJPlan.tasks[0].ativIssues;
+          let ativDefects = ativData.filter((item) => item.verified);
+          //let ativProps = ["verified", "latitude", "longitude", "defCode", "defTitle", "defDescription", "deficiency"];
+          if (ativDefects) {
+            for (let ativDefect of ativDefects) {
+              //change wplanTemplate and add verified info into it
+              //change ativdatas and add verified info into it
+              // items to add  , verified (true/false), latitude , longitude , defCode, defTitle , defDescription,deficiency
+              let ativId = ativDefect.ativId;
+              let ativRecord = await ATIVDataModel.findOne({ _id: ativId });
+              let verificationProps = { ...ativDefect };
+              verificationProps.user = updatedJPlan.user;
+              verificationProps.verifiedDate = updatedJPlan.date;
+              let unit = this.getFirstOrDefault(wPlan.tasks[0].units.filter((unit) => unit.ativ_defects));
+              if (ativRecord) {
+                ativRecord["verified"] = ativDefect.verified;
+                ativRecord["verificationProps"] = verificationProps;
+                if (unit) {
+                  ativRecord["unitId"] = unit.id;
+                }
+                await ativRecord.save();
+              }
+              //search in wptempalte this id
+
+              if (unit) {
+                let ativData = this.getFirstOrDefault(unit.ativ_defects.filter((item) => item._id.toString() === ativId));
+                if (ativData) {
+                  ativData["verified"] = ativDefect.verified;
+                  ativData["verificationProps"] = { ...ativDefect };
+                }
+              }
+            }
+            wPlan.markModified("tasks");
+            await wPlan.save();
+            console.log("wpTemplate & ATIVDatas Updated");
+          }
+        } else {
+          //console.log("No AtivIssues Object Found");
+        }
+      }
+    } catch (err) {
+      console.log(("Error in updateATIVData ", err));
+    }
+  }
   async updateDefaultAppFormsValues(item) {
     let wPlanTemplateModel = ServiceLocator.resolve("WorkPlanTemplateModel");
     let updatedJPlan = item.newItem;
@@ -394,7 +503,7 @@ export default class DatabaseSerivce {
           locTimezone = await assetService.getLocationTimeZone(template.lineId);
         }
         let linearAssetTypes = await assetTypeModel.find({ assetTypeClassify: "linear" }).exec();
-
+        let markersAssetTypes = await assetTypeModel.find({ markerMilepost: true }).exec();
         // if (process.env.NODE_ENV === "development") {
         //   customLogNewItem(inspection);
         // }
@@ -404,8 +513,11 @@ export default class DatabaseSerivce {
         for (let u = 0; u < unitsLength; u++) {
           //  check if asset is linear,
           let linearCheck = await _.find(linearAssetTypes, { assetType: units[u].assetType });
+          if (units[u].assetType === "CWR Jointed Track") {
+            linearCheck = false;
+          }
           if (units[u].appForms) {
-            let yardCheck = units[u].assetType == "Yard Track";
+            let yardCheck = _.find(markersAssetTypes, { assetType: units[u].assetType });
             for (let form of units[u].appForms) {
               if (form && form.id) {
                 let assetTest = await testScheduleObserverService.fetchTest(null, units[u].id, form.id);
@@ -606,11 +718,18 @@ export function flterAppFormsForDefaultValue(appForms) {
       let formData = appForm.form;
       if (formData && formData.length > 0) {
         for (let formField of formData) {
-          if (formField.id !== "yes" && formField.id !== "Inspected" && formField.tag != "completionCheck") {
-            filteredAppForm.form.push({
-              id: formField.id,
-              value: formField.value,
-            });
+          if (formField) {
+            if (
+              formField.type !== "table" &&
+              formField.id !== "yes" &&
+              formField.id !== "Inspected" &&
+              formField.tag != "completionCheck"
+            ) {
+              filteredAppForm.form.push({
+                id: formField.id,
+                value: formField.value,
+              });
+            }
           }
         }
         returnAppForms.push(filteredAppForm);
@@ -706,7 +825,7 @@ export function checkIfNewPlan(item) {
   }
 }
 
-function createTestScheduleObj(inspectoinForData, form, unit) {
+export function createTestScheduleObj(inspectoinForData, form, unit) {
   let obj = {
     assetId: unit.id,
     lineId: inspectoinForData.lineId,
@@ -723,6 +842,7 @@ function createTestScheduleObj(inspectoinForData, form, unit) {
     assetStart: unit.start,
     assetEnd: unit.end,
     title: calculateTitleFromFormAssetType(form, unit),
+    // childForms: getChildForms(unit, form),
   };
   return obj;
 }
@@ -766,7 +886,7 @@ export function calculateTitleFromFormAssetType(form, asset) {
   return title;
 }
 
-async function getTestTitleFromAssetTest(execution) {
+export async function getTestTitleFromAssetTest(execution) {
   let AssetTestModel = ServiceLocator.resolve("AssetTestModel");
   let aTest = await AssetTestModel.find({ testCode: execution.testCode, assetId: execution.assetId });
   return aTest.title;

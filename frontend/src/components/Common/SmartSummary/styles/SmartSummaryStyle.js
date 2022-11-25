@@ -1,5 +1,5 @@
 import { themeService } from "../../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 
 export const smartSummaryStyle = {
   cardContainer: {
@@ -18,7 +18,7 @@ export const iconShowHideStyle = themeService({
   default: {
     display: "inline-block",
     verticalAlign: "middle",
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
     cursor: "pointer",
     //visibility: this.props.summaryShowHide ? "visible" : "hidden",
     position: "absolute",
@@ -31,6 +31,19 @@ export const iconShowHideStyle = themeService({
     display: "inline-block",
     verticalAlign: "middle",
     color: retroColors.second,
+    cursor: "pointer",
+    //visibility: this.props.summaryShowHide ? "visible" : "hidden",
+    position: "absolute",
+    right: "18px",
+    zIndex: "10",
+    background: "none",
+    border: "none",
+    outline: "none",
+  },
+  electric: {
+    display: "inline-block",
+    verticalAlign: "middle",
+    color: electricColors.second,
     cursor: "pointer",
     //visibility: this.props.summaryShowHide ? "visible" : "hidden",
     position: "absolute",

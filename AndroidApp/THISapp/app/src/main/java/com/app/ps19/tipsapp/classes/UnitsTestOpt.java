@@ -1,5 +1,7 @@
 package com.app.ps19.tipsapp.classes;
 
+import android.util.Log;
+
 import com.app.ps19.tipsapp.R;
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
@@ -107,6 +109,15 @@ public class UnitsTestOpt implements IConvertHelper {
     private String currentPeriodStart = "";
     private String currentPeriodEnd = "";
     private boolean inspected=false;
+    private TestLinearProps linearProps=null;
+
+    public void setLinearProps(TestLinearProps linearProps) {
+        this.linearProps = linearProps;
+    }
+
+    public TestLinearProps getLinearProps() {
+        return linearProps;
+    }
 
     public void setInspected(boolean inspected) {
         this.inspected = inspected;
@@ -200,6 +211,7 @@ public class UnitsTestOpt implements IConvertHelper {
             setTimezone(jsonObject.optString("timezone", ""));
             setCurrentPeriodStart(jsonObject.optString("currentPeriodStart", ""));
             setCurrentPeriodEnd(jsonObject.optString("currentPeriodEnd", ""));
+            setLinearProps(new TestLinearProps(jsonObject.optJSONObject("linearProps")));
 
             makeDueText();
 
@@ -230,6 +242,7 @@ public class UnitsTestOpt implements IConvertHelper {
 
             jo.put("currentPeriodStart", this.currentPeriodStart);
             jo.put("currentPeriodEnd", this.currentPeriodEnd);
+            jo.put("linearProps",this.linearProps.getJsonObject());
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -3,12 +3,18 @@ package com.app.ps19.scimapp;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -18,10 +24,15 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 
 import com.app.ps19.scimapp.Shared.DataSyncProcessEx;
+import com.app.ps19.scimapp.classes.error.ErrorObject;
+import com.app.ps19.scimapp.classes.version.VersionInfo;
+import com.app.ps19.scimapp.classes.hos.Hos;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.Shared.Utilities;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.core.app.ActivityCompat;
@@ -39,7 +50,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
 import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -82,11 +97,18 @@ import static com.app.ps19.scimapp.Shared.Globals.PREFS_KEY_CUSTOM_SERVER;
 import static com.app.ps19.scimapp.Shared.Globals.PREFS_KEY_SELECTED_PORT;
 import static com.app.ps19.scimapp.Shared.Globals.PREFS_KEY_SELECTED_SERVER;
 import static com.app.ps19.scimapp.Shared.Globals.dayStarted;
+import static com.app.ps19.scimapp.Shared.Globals.dbContext;
 import static com.app.ps19.scimapp.Shared.Globals.getLanguageSettingIndex;
 import static com.app.ps19.scimapp.Shared.Globals.getPingAddress;
+import static com.app.ps19.scimapp.Shared.Globals.getVersionInfo;
+import static com.app.ps19.scimapp.Shared.Globals.getVersionUrl;
 import static com.app.ps19.scimapp.Shared.Globals.initConfigs;
 import static com.app.ps19.scimapp.Shared.Globals.isMaintainerRole;
+import static com.app.ps19.scimapp.Shared.Globals.loadVersionInfo;
+import static com.app.ps19.scimapp.Shared.Globals.mPrefs;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setUrls;
+import static com.app.ps19.scimapp.Shared.Globals.setVersionInfo;
 import static com.app.ps19.scimapp.Shared.Globals.wsDomainName;
 import static com.app.ps19.scimapp.Shared.Globals.wsPort;
 import static com.app.ps19.scimapp.Shared.Globals.user;
@@ -95,6 +117,133 @@ import static com.app.ps19.scimapp.Shared.Globals.user;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity implements Observer, LoaderCallbacks<Cursor>, PopupMenu.OnMenuItemClickListener {
+
+    private static final String TAG = "LoginActivity";
+    // The BroadcastReceiver used to listen from broadcasts from the service.
+    private MyReceiver myReceiver;
+
+    // A reference to the service used to get location updates.
+    @SuppressLint("StaticFieldLeak")
+    private static LocationUpdatesService mService = null;
+
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
+
+    // Monitors the state of the connection to the service.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            try {
+                if (mService == null) {
+                    LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+                    mService = binder.getService();
+
+                    if (!LocationUpdatesService.canGetLocation()) {
+                        Utilities.showSettingsAlert(LoginActivity.this);
+                    }
+
+                    try {
+                        mService.requestLocationUpdates();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                else{
+                    mService.requestLocationUpdates();
+                }
+
+                mBound = true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService.removeLocationUpdates();
+            mService = null;
+            mBound = false;
+        }
+    };
+
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//
+//    }
+
+    /**
+     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+     */
+    private class MyReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+            if (mLocation != null) {
+
+                if (!LocationUpdatesService.canGetLocation()) {
+                    Utilities.showSettingsAlert(LoginActivity.this);
+                }
+            }
+        }
+    }
+    /**
+     * Returns the current state of the permissions needed.
+     */
+    private boolean checkPermissions() {
+        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) &&
+                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION) /*&&
+                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_BACKGROUND_LOCATION)*/;
+    }
+
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void requestPermissions() {
+
+        int PERMISSION_ALL = 1;
+        String[] PERMISSIONS = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+/*                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                Manifest.permission.ACTIVITY_RECOGNITION*/
+        };
+
+        if (!hasPermissions(this, PERMISSIONS)) {
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+
+
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);
+
+/*        if (!shouldProvideRationale) {
+            shouldProvideRationale =
+                    ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+        }*/
+        // Provide an additional rationale to the user. This would happen if the user denied the
+        // request previously, but didn't check the "Don't ask again" checkbox.
+        if (shouldProvideRationale) {
+            Log.i(TAG, "Displaying permission rationale to provide additional context.");
+
+        } else {
+            Log.i(TAG, "Requesting permission");
+
+            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+        }
+    }
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -141,11 +290,16 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
     DataSyncProcessEx dataSyncProcessEx=null;
     Intent dashIntent;
     ProgressDialog dialog =null;
+    TextView tvContractName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setLocale(this);
+
+        Globals.setDbContext(getApplicationContext());
+        mPrefs = new SharedPref(dbContext);
+        setUrls();
+        setLocale(dbContext);
 /*
         String languageToLoad  = "ur-rPK"; // your language
         Locale locale = new Locale(languageToLoad);
@@ -156,21 +310,21 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                 getBaseContext().getResources().getDisplayMetrics());
 */
         //Globals.dbContext=getApplicationContext();
-        Globals.setDbContext(getApplicationContext());
-        if(Globals.dataSyncProcessEx ==null){
-            StartDataSyncService();
-        }
+
 
         Globals.checkLanguage(this);
         Globals.loginContext = this;
         Globals.geocoder = new Geocoder(LoginActivity.this.getApplicationContext(), Locale.getDefault());
         //For initializing configs depends on the App
         initConfigs();
+        if(Globals.dataSyncProcessEx ==null){
+            StartDataSyncService();
+        }
 
         //setContentView(R.layout.activity_login);
         setContentView(R.layout.login_new_theme);
         dialog=new ProgressDialog(this);
-        pref = new SharedPref(this);
+        pref = new SharedPref(dbContext);
         if (pref.getBoolean(PREFS_KEY_CUSTOM_SERVER)) {
             wsDomainName = pref.getString(PREFS_KEY_SELECTED_SERVER);
             wsPort = pref.getString(PREFS_KEY_SELECTED_PORT);
@@ -183,6 +337,24 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         Globals.loadLoginData(LoginActivity.this);
         //Retrieving last known location
         Globals.lastKnownLocation = Globals.retrieveLastLocFromPref(pref);
+        tvContractName = findViewById(R.id.tv_contract_name);
+        if (isInternetAvailable()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    VersionInfo ver = loadVersionInfo();
+                    if (ver != null) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                tvContractName.setText(ver.getDisplayData().getDisplayName());
+                                setVersionInfo(ver);
+                            }
+                        });
+                    }
+                }
+            }).start();
+        }
             /*Intent intent = new Intent(LoginActivity.this, IssuesActivity.class);
             startActivity(intent);*/
         // serverInfo = (ImageButton) findViewById(R.id.btServerSettings);
@@ -198,6 +370,9 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         btnLanguage = findViewById(R.id.btn_language);
         btnSettings = findViewById(R.id.btn_settings);
         dashIntent = new Intent(LoginActivity.this, DashboardActivity.class);
+        if(getVersionInfo()!=null){
+            tvContractName.setText(getVersionInfo().getDisplayData().getDisplayName());
+        }
         //dashIntent = new Intent(LoginActivity.this, MainActivity.class);
         btnLanguage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -213,7 +388,29 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                     Intent intent = new Intent(LoginActivity.this, SettingsActivity.class);
                     startActivity(intent);
                 } else {
-
+                    /*
+                    String errorString="E/AndroidRuntime: FATAL EXCEPTION: main\n" +
+                    "Process: com.app.ps19.scimapp, PID: 11181\n"+
+                    "java.lang.ArithmeticException: divide by zero\n"+
+                    "at com.app.ps19.scimapp.LoginActivity$4.onClick(LoginActivity.java:378)\n"+
+                    "at android.view.View.performClick(View.java:7448)\n"+
+                    "at android.view.View.performClickInternal(View.java:7425)\n"+
+                    "at android.view.View.access$3600(View.java:810)\n"+
+                    "at android.view.View$PerformClick.run(View.java:28305)\n"+
+                    "at android.os.Handler.handleCallback(Handler.java:938)\n"+
+                    "at android.os.Handler.dispatchMessage(Handler.java:99)\n"+
+                    "at android.os.Looper.loop(Looper.java:223)\n"+
+                    "at android.app.ActivityThread.main(ActivityThread.java:7656)\n"+
+                    "at java.lang.reflect.Method.invoke(Native Method)\n"+
+                    "at com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:592)\n"+
+                    "at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:947)";
+                    ErrorObject errorObject=new ErrorObject(errorString);
+                    JSONObject joError=errorObject.getJsonObject();
+                    Intent intent = new Intent ();
+                    intent.setAction ("com.app.ps19.scimapp.SEND_LOG_TO"); // see step 5.
+                    intent.setFlags (Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
+                    intent.putExtra(Intent.EXTRA_TEXT, joError.toString());
+                    startActivity(intent);*/
                     // testLocationService();
                     Snackbar.make(getWindow().getDecorView().getRootView(), getString(R.string.log_out_first_server_info), Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
@@ -248,6 +445,16 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             mPasswordView.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_lock_outline_black_24dp, 0, 0, 0);
         }
         checkAndRequestPermissions();
+
+        //-------------------GPS Code--------------
+        if (!checkPermissions()) {
+            requestPermissions();
+        }
+        myReceiver = new MyReceiver();
+
+
+        //--------------------END-------------------
+
         try {
             PackageInfo pInfo = this.getPackageManager().getPackageInfo(getPackageName(), 0);
             String version = pInfo.versionName;
@@ -311,6 +518,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             public void onClick(View v) {
                 isProceed = true;
                 if(isNetworkAvailable()){
+                    //testHosFunction();
                     new ServerAsyncTask().execute();
                 } else {
                     isProceed = false;
@@ -339,6 +547,24 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
 
             }});*/
 
+    }
+    public void showHidePass(View view){
+        if(view.getId()==R.id.iv_show_password){
+
+            if(mPasswordView.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24_blue);
+
+                //Show Password
+                mPasswordView.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            }
+            else{
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24_blue);
+
+                //Hide Password
+                mPasswordView.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            }
+            mPasswordView.setSelection(mPasswordView.getText().length());
+        }
     }
 
     private void populateAutoComplete() {
@@ -433,6 +659,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_READ_CONTACTS) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 populateAutoComplete();
@@ -549,12 +776,12 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                                     , Toast.LENGTH_SHORT).show();
                         }
                     });
-                    //return;
+                    return;
                 }
                 if (Globals.webLogin(LoginActivity.this, Globals.orgCode, email, password)) {
                     JSONArray jaUser = new JSONArray();
                     //String url = "http://" + wsDomainName + ":"+ wsPort + "/api/List/user/300";
-                    String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+                    String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
                     try {
                         if(userString != null){
                             jaUser = new JSONArray(userString);
@@ -587,8 +814,13 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                         }).start();*/
                 } else {
                     if (isNetworkAvailable()) {
-                        mEmailView.setError(getString(R.string.incorrect_user_info_error));
-                        mPasswordView.setError(getString(R.string.error_incorrect_password));
+                        LoginActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mEmailView.setError(getString(R.string.incorrect_user_info_error));
+                                mPasswordView.setError(getString(R.string.error_incorrect_password));
+                            }
+                        });
                     }
                     if (!Globals.LOGIN_ERROR.equals("")) {
                         LoginActivity.this.runOnUiThread(new Runnable() {
@@ -897,6 +1129,93 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             userFormLayout.setVisibility(LinearLayout.VISIBLE);
             userProceedLayout.setVisibility(LinearLayout.INVISIBLE);
         }
+        if(getVersionInfo()!=null){
+            setVersionInfo(getVersionInfo());
+            if(tvContractName!=null){
+                tvContractName.setText(getVersionInfo().getDisplayData().getDisplayName());
+            }
+        } else {
+            if(isInternetAvailable()){
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VersionInfo ver = loadVersionInfo();
+                        if(ver!=null){
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    tvContractName.setText(ver.getDisplayData().getDisplayName());
+                                    setVersionInfo(ver);
+                                }});
+                        }
+                    }
+                }).start();
+            }
+        }
+
+        if (!mBound) {
+            bindService(new Intent(LoginActivity.this, LocationUpdatesService.class), mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+
+            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+        }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                // do something here
+                //gps.unbindService();
+                if (mBound) {
+                    // Unbind from the service. This signals to the service that this activity is no longer
+                    // in the foreground, and the service can respond by promoting itself to a foreground
+                    // service.
+                    LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+                    unbindService(mServiceConnection);
+                    mBound = false;
+                }
+                finish();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     public boolean isInternetAvailable() {
@@ -1020,10 +1339,16 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             Toast.makeText(LoginActivity.this,getString(R.string.toast_unable_get_location),Toast.LENGTH_SHORT).show();
         }
     }
+
     public Location getLocation() {
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (locationManager != null) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED/* &&
+                    ActivityCompat.checkSelfPermission(this,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED*/) {
                 // TODO: Consider calling
                 //    ActivityCompat#requestPermissions
                 // here to request the missing permissions, and then overriding
@@ -1033,19 +1358,21 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                 // for ActivityCompat#requestPermissions for more details.
                 return null;
             }
+
             Location lastKnownLocationGPS = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
             if (lastKnownLocationGPS != null) {
                 return lastKnownLocationGPS;
             } else {
                 Location loc =  locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
-                System.out.println("1::"+loc);
-                System.out.println("2::"+loc.getLatitude());
+/*                System.out.println("1::"+loc);
+                System.out.println("2::"+loc.getLatitude());*/
                 return loc;
             }
         } else {
             return null;
         }
     }
+
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -1055,6 +1382,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         }
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
     private class ServerAsyncTask extends AsyncTask<Void, Void, Void> {
 
         String server;
@@ -1074,7 +1402,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             // Parse response data
             JSONArray jaUser = new JSONArray();
             //String url = "http://" + wsDomainName + ":"+ wsPort + "/api/List/user/300";
-            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
             try {
                 if(userString != null){
                     jaUser = new JSONArray(userString);
@@ -1150,6 +1478,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             super.onPostExecute(result);
         }
     }
+
     private void openContinueDialog(String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getResources().getString(R.string.confirmation))
@@ -1214,7 +1543,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             // Parse response data
             JSONArray jaUser = new JSONArray();
             //String url = "http://" + server + ":"+ port + "/api/List/JourneyPlan/pull";
-            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+            String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, pref.getString(wsDomainName,"http")), 5000);
             try {
                 if (userString != null) {
                     jaUser = new JSONArray(userString);
@@ -1249,6 +1578,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             super.onPostExecute(result);
         }
     }
+
     private void logoutDialog(){
         new AlertDialog.Builder(LoginActivity.this)
                 .setTitle(getResources().getText(R.string.confirmation))
@@ -1256,19 +1586,24 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setPositiveButton(R.string.btn_ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {
-                        userFormLayout.setVisibility(LinearLayout.VISIBLE);
-                        userProceedLayout.setVisibility(LinearLayout.GONE);
-                        welUserTxt.setText(getResources().getText(R.string.welcome_text));
-                        welUserImg.setImageResource(R.drawable.avatar);
-                        loginLayout.refreshDrawableState();
-                        logOutBtn.setVisibility(View.GONE);
-                        Globals.safetyBriefing = null;
-                        Globals.listViews = new HashMap<Integer, View>();
-                        Globals.userLoggedOff(LoginActivity.this);
+                        onLogOutExecute();
                     }
                 })
                 .setNegativeButton(R.string.btn_cancel, null).show();
     }
+
+    private void onLogOutExecute() {
+        userFormLayout.setVisibility(LinearLayout.VISIBLE);
+        userProceedLayout.setVisibility(LinearLayout.GONE);
+        welUserTxt.setText(getResources().getText(R.string.welcome_text));
+        welUserImg.setImageResource(R.drawable.avatar);
+        loginLayout.refreshDrawableState();
+        logOutBtn.setVisibility(View.GONE);
+        Globals.safetyBriefing = null;
+        Globals.listViews = new HashMap<Integer, View>();
+        Globals.userLoggedOff(LoginActivity.this);
+    }
+
     private  void StartDataSyncService(){
         Globals.IsAutoUpdateEnabled=true;
         dataSyncProcessEx =new DataSyncProcessEx();
@@ -1276,6 +1611,7 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
         StartAsyncTaskInParallel(dataSyncProcessEx, Globals.getDBContext());
         Log.i("StartDataSyncService","Starting Data Sync Service");
     }
+
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     private void StartAsyncTaskInParallel(DataSyncProcessEx task){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
@@ -1290,6 +1626,14 @@ public class LoginActivity extends AppCompatActivity implements Observer, Loader
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,context);
         else
             task.execute(context);
+    }
+
+    private void testHosFunction(){
+        //Hos.load();
+        //Hos.addTodaySession();
+        //Hos.addYesterdaySession();
+        //Hos.sendToServer(Hos.getYesterday().getSlots().get(0));
+        //Hos.update();
     }
 
 }

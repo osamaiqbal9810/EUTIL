@@ -3,10 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.app.ps19.scimapp">
     <!--
-            The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
-            Google Maps Android API v2, but you must specify either coarse or fine
-            location permissions for the "MyLocation" functionality.
-       -->
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the "MyLocation" functionality.
+    -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
@@ -19,9 +19,17 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" /> -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
 
     <application
+        android:name=".LampApplication"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -32,13 +40,65 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning,InnerclassSeparator">
-        <!-- uCrop cropping activity -->
+        <activity android:name=".unitsGroup.UnitsGroupInspectionActivity"></activity>
+        <activity android:name=".CameraIntentActivity" />
+        <activity
+            android:name=".ativ.ATIVDefectDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ativ.ATIVMapActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ativ.ATIVDefectsActivity"
+            android:exported="false"
+            android:label="@string/title_activity_ativdefects"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".DebugActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SendLogTo"
+            android:exported="false"
+            android:textAppearance="@android:style/TextAppearance.Large"
+            android:windowSoftInputMode="stateHidden">
+            <intent-filter>
+                <action android:name="com.app.ps19.scimapp.SEND_LOG_TO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".MaintenanceActivity"
+            android:exported="false"
+            android:label="@string/maintenances_activity_title"
+            android:screenOrientation="portrait" />
+        <activity android:name=".hos.HosActivity" />
+        <activity
+            android:name=".reports.ReportShowActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".inspection.InspectionActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".defects.DefectsActivity"
+            android:label="@string/title_activity_defects"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".defects.PreviousDefectsMapActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity android:name=".InspectionStartActivity" />
+        <activity
+            android:name=".DashActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" /> <!-- uCrop cropping activity -->
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-
-        <!-- cache directory file provider paths -->
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- cache directory file provider paths -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -48,16 +108,21 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-        <activity android:name=".ImagePickerActivity" />
-        <activity android:name=".ProfileActivity"
+
+        <activity
+            android:name=".ImagePickerActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ProfileActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".UpdatePasswordActivity"
+            android:label="@string/title_activity_change_password"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_change_password" />
+            android:screenOrientation="portrait" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -80,30 +145,34 @@
             android:label="@string/maintenance_exec_title"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <activity android:name=".UnitCordsAdjActivity"
-            android:label="@string/activity_update_asset_location"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"/>
         <activity
-            android:name="SessionDashboard"
+            android:name=".UnitCordsAdjActivity"
+            android:label="@string/activity_update_asset_location"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".SessionDashboard"
             android:label="@string/title_activity_session_dashboard"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".wplan.WplanActivity"
             android:label="@string/title_activity_wplan"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:configChanges="layoutDirection|locale"
             android:name=".ReportWebViewActivity"
-            android:label="@string/report_web_title"
-            android:launchMode="singleTask"/>
-        <activity
             android:configChanges="layoutDirection|locale"
+            android:label="@string/report_web_title"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".PdfActivity"
+            android:configChanges="layoutDirection|locale"
             android:label="@string/activity_pdf_title"
-            android:launchMode="singleTask"/>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".Shared.StartInspectionActivity"
             android:launchMode="singleTask"
@@ -169,6 +238,7 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".LoginActivity"
+            android:exported="true"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -238,9 +308,14 @@
             android:label="@string/title_activity_issues"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar" /> <!-- <activity -->
+        <!-- android:name=".CameraActivity" -->
+        <!-- android:label="@string/title_activity_issues" -->
+        <!-- android:launchMode="singleTop" -->
+        <!-- android:screenOrientation="portrait" -->
+        <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
         <activity
-            android:name=".CameraActivity"
+            android:name=".Camera2Activity"
             android:label="@string/title_activity_issues"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -288,12 +363,37 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-        <service android:name=".Shared.BackgroundLocationUpdateService" />
-        <service android:name=".Shared.LocationUpdatesService" />
+        <receiver
+            android:name=".geofencing.providers.GeofencingProvider"
+            android:enabled="true"
+            android:exported="true" /> <!-- Foreground services in Q+ require type. -->
+        <service
+            android:name=".location.LocationUpdatesService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location" />
+        <!--
+        <receiver
 
+android:name=".activity.providers.DeviceActivityDetector"
+            android:enabled="true"
+            
+android:exported="false" 
+/>
+        -->
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
     </application>
 
 </manifest>

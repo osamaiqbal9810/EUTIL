@@ -28,7 +28,8 @@ import { Icon } from "react-icons-kit";
 import { cancel } from "react-icons-kit/typicons/cancel";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { commonStyles } from "../../theme/commonStyles";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
+import { LocPrefixService } from "../LocationPrefixEditor/LocationPrefixService";
 
 function format2Digits(num) {
   return num && !isNaN(parseFloat(num)) ? parseFloat(num).toFixed(2) : "0.00";
@@ -61,17 +62,17 @@ class WOGISView extends Component {
       !Locs || Locs.length == 0
         ? { start: 0, end: 0 }
         : Locs[0].type === "Milepost"
-          ? Locs[0]
-          : Locs.length > 1 && Locs[1].type === "Milepost"
-            ? Locs[1]
-            : { start: 0, end: 0 }; //null;
+        ? Locs[0]
+        : Locs.length > 1 && Locs[1].type === "Milepost"
+        ? Locs[1]
+        : { start: 0, end: 0 }; //null;
     return l;
   }
   setWorkorder(workorder) {
     let lineGroups = [];
     let baseLineId = workorder.locationId;
 
-    let baseLine = this.props.lineAssets.find(l => {
+    let baseLine = this.props.lineAssets.find((l) => {
       return l._id == baseLineId;
     });
 
@@ -81,7 +82,7 @@ class WOGISView extends Component {
         lineColor = baseLine.systemAttributes.stroke;
       }
 
-      let maintLines = this.processMaintenances(workorder.maintenanceRequests);
+      let maintLines = this.processMaintenances(workorder.maintenanceRequests, workorder.locationId);
 
       let selectedMaintenance = maintLines[0] ? maintLines[0] : {};
 
@@ -111,21 +112,27 @@ class WOGISView extends Component {
   overlaps(loc1, loc2) {
     return this.fallsIn(loc1.start, loc2.start, loc2.end) || this.fallsIn(loc1.end, loc2.start, loc2.end);
   }
-  locationRender(location) {
+  locationRender(location, locId) {
     return location.reduce((locations, l) => {
       switch (l.type) {
         case "Milepost":
         case "Marker":
           let start = l.start;
           let end = l.end;
+          let startPrefix = "";
+          let endPrefix = "";
           if (l.type === "Milepost") {
             start = format2Digits(start);
             end = format2Digits(end);
+            startPrefix = LocPrefixService.getPrefixMp(start, locId);
+            endPrefix = LocPrefixService.getPrefixMp(end, locId);
           }
 
           locations.push(
             <div>
-              <strong>{languageService(l.type)}:</strong> {start} to {end}
+              <strong>{languageService(l.type)}:</strong> {startPrefix}
+              {start} to {endPrefix}
+              {end}
             </div>,
           );
           break;
@@ -136,7 +143,7 @@ class WOGISView extends Component {
       return locations;
     }, []);
   }
-  processMaintenances(maintenances) {
+  processMaintenances(maintenances, locId) {
     let textcolor = "black",
       color = "black";
     let checkedMs = [];
@@ -162,7 +169,7 @@ class WOGISView extends Component {
       "#546E7A",
     ]; //['black', 'green', 'red', 'blue','cyan', 'magenta'];
     let textStyle = {
-      color: "rgb(64, 118, 179)",
+      color: "var(--first)",
       fontSize: "12px",
       fontFamily: "Arial",
       letterSpacing: "0.3px",
@@ -172,7 +179,7 @@ class WOGISView extends Component {
       fontFamily: "Arial",
       fontSize: "18px",
       letterSpacing: "0.95px",
-      color: "rgb(64, 118, 179)",
+      color: "var(--first)",
       borderBottom: "1px solid rgb(209, 209, 209)",
       display: "block",
       width: "100%",
@@ -194,13 +201,13 @@ class WOGISView extends Component {
                 <div>
                   <strong>{languageService("created at")}:</strong> {this.formatDate(val.createdAt)}
                 </div>
-                {this.locationRender(val.location)}
+                {this.locationRender(val.location, locId)}
                 <div style={{ maxWidth: "200px", marginBottom: "10px", textAlign: "justify" }}>{val.description}</div>
 
                 <Link style={{ float: "right", textDecoration: "none" }} to={url}>
                   <span
                     style={{
-                      color: "rgb(64, 118, 179)",
+                      color: "var(--first)",
                       fontSize: "12px",
                       fontFamily: "Arial",
                       letterSpacing: "0.3px",
@@ -214,8 +221,8 @@ class WOGISView extends Component {
           );
 
           let data = {
-            start: +loc.start,
-            end: +loc.end,
+            start: loc.start,
+            end: loc.end,
             text: this.formatDate(val.createdAt),
             color: color,
             offset: 0,
@@ -326,7 +333,7 @@ export default WOGISViewContainer;
 
 let planStyle = {
   // userHeading: {
-  //   color: 'rgba(64, 118, 179)',
+  //   color: 'rgb(94, 141, 143)',
   //   fontSize: '14px',
   //   paddingBottom: '1em'
   // },
@@ -338,7 +345,7 @@ let planStyle = {
   //   borderRadius: '5px'
   // },
   dateHeading: {
-    color: "rgba(64, 118, 179)",
+    color: "rgb(94, 141, 143)",
     fontSize: "14px",
     padding: "2em 0em 1em ",
   },
@@ -356,27 +363,27 @@ let planStyle = {
   },
 
   MaintenanceDetailsContainer: {
-    background: "#fff",
+    background: "var(--fifth)",
     boxShadow: "3px 3px 5px #cfcfcf",
     margin: "0px 30px  0px 30px",
     padding: "15px",
     textAlign: "left",
-    color: " rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "12px",
   },
   MaintenanceDescriptionContainer: {
-    background: "#fff",
+    background: "var(--fifth)",
     boxShadow: "1px 1px 2px #cfcfcf",
     padding: "15px",
     textAlign: "left",
-    color: " rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "12px",
     marginBottom: "20px",
   },
   fieldHeading: {
     default: {
       display: "inline-block",
-      color: "rgba(64, 118, 179)",
+      color: "rgb(94, 141, 143)",
       fontWeight: "600",
       fontSize: "14px",
       paddingBottom: "0.5em",
@@ -385,6 +392,14 @@ let planStyle = {
     retro: {
       display: "inline-block",
       color: retroColors.second,
+      fontWeight: "600",
+      fontSize: "14px",
+      paddingBottom: "0.5em",
+      marginRight: "10px",
+    },
+    electric: {
+      display: "inline-block",
+      color: electricColors.second,
       fontWeight: "600",
       fontSize: "14px",
       paddingBottom: "0.5em",
@@ -394,7 +409,7 @@ let planStyle = {
   fieldText: {
     default: {
       display: "inline-block",
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
       fontSize: "14px",
       paddingBottom: "1em",
     },
@@ -404,9 +419,15 @@ let planStyle = {
       fontSize: "12px",
       paddingBottom: "1em",
     },
+    electric: {
+      display: "inline-block",
+      color: electricColors.second,
+      fontSize: "12px",
+      paddingBottom: "1em",
+    },
   },
   subfieldText: {
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "11px",
     paddingBottom: "0em",
   },

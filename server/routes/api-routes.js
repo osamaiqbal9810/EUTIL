@@ -26,7 +26,10 @@ let notification_route = require("./../api/Notification/index");
 let migration_route = require("./../api/migrations/index");
 let version_route = require("./../api/version/index");
 let asset_test_route = require("./../api/AssetTests/index");
-
+let error_reporting_route = require("./../api/ErrorReporting/index");
+let lostnfound_route = require("./../api/Lostnfound/index");
+let assetReports =  require("./../timps/api/InspectionReports/index");
+let jPlan = require("./../timps/api/journeyPlan/index");
 router.use("/login", local_route);
 router.use("/users", user_route);
 router.use("/userHours", userHours_route);
@@ -51,5 +54,7 @@ router.use("/patch", migration_route);
 router.use("/alert", alert_route);
 router.use("/version", version_route);
 router.use("/assetTest", asset_test_route);
-
+router.use("/errorReporting", error_reporting_route);
+router.use("/assetReports", assetReports);
+router.use("/journeyPlan",jPlan);
 module.exports = router;

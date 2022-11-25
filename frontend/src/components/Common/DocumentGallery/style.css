@@ -35,9 +35,13 @@
 .fullWidth {
   width: 100%;
   font-size: 14px;
-  color: rgba(64, 118, 179);
+  color: var(--first);
 }
-
+.modal-body .fullWidth {
+  background: var(--fifth);
+  color: var(--twelve);
+  padding: 5px;
+}
 .moreImgs {
   display: inline-block;
   font-size: 16px;

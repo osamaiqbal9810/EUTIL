@@ -1,0 +1,197 @@
+th>span.tbl-text-rotate {
+  transform: rotate(270deg);
+  display: flex;
+  justify-content: center;
+  white-space: nowrap;
+  text-align: left;
+}
+
+th>span.tbl-text-rotate-multiline {
+  transform: rotate(270deg);
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
+
+table.table-bordered>thead>tr>th.tbl-bordered-header {
+  border: 1px solid black !important
+}
+
+table.table-bordered>thead>tr.left-align>th.tbl-bordered-header {
+  text-align: left;
+}
+
+.report-header-title-underline {
+  border-bottom: 2px solid black;
+  display: flex;
+  padding-left: 10px;
+}
+
+.report-header-title {
+  min-width: 200px;
+  font-weight: 700;
+}
+
+table.table-bordered>thead>tr.grey-background {
+  background-color: #c5c4c4;
+}
+
+table.table-bordered>thead>tr.black-background {
+  background-color: black;
+  color: white;
+}
+
+table.table-bordered>thead>tr.bold-text>th.tbl-bordered-header>span {
+  font-weight: 800;
+}
+
+
+
+/* Report Info Section Style */
+.report-header-flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  padding: 10px;
+}
+
+.report-header-flex-container>div.report-header-property {
+  display: contents;
+}
+
+.report-header-flex-container>div.report-header-property>label.title {
+  font-weight: 700;
+  min-width: 160px;
+  width: fill-available;
+}
+
+.report-header-flex-container>div.report-header-property>div.value {
+  min-width: 400px;
+  border-bottom: 1px solid;
+  padding-left: 10px;
+}
+
+.report-header-flex-container>div.spacer {
+  width: fill-available;
+}
+
+/* Report Title Section Style */
+.report-title-flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  margin: 10px;
+}
+
+.report-title-flex-container.revised {
+  border-bottom: 5px solid gray;
+}
+
+.report-title-flex-container.revised {
+  border-bottom: 5px solid gray;
+}
+
+.report-title-flex-container.revised .report-title-revised-area {
+  border-left: 5px solid gray;
+  width: 300px;
+  font-size: 18px;
+  padding: 12px;
+}
+
+.report-title-flex-container>div.report-title-logo {
+  width: 350px;
+}
+
+.report-title-flex-container>div.report-title-value {
+  width: fill-available;
+}
+
+.report-equal-contents-row {
+  font-size: 18px;
+  display: flex;
+  padding: 10px;
+}
+
+.report-equal-contents-row>div {
+  flex: 1 1 0;
+}
+
+.report-equal-contents-justify {
+  font-size: 18px;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+
+div.custom-tick-box {
+  display: flex;
+  padding-left: 10px;
+}
+
+.report-equal-contents-justify div.custom-tick-box {
+  padding: 10px 70px 10px 10px;
+}
+
+div.custom-tick-box>span.custom-tick-box-check {
+  border: 2px solid;
+  padding: 2px;
+  width: 25px;
+  height: 25px;
+  font-size: 13px;
+  text-align: center;
+  display: inline-block;
+  font-weight: 800;
+}
+
+div.custom-tick-box>span.custom-tick-box-label {
+  padding-left: 10px;
+  width: max-content;
+  display: block;
+}
+
+/* FRA */
+
+.fra-info-section {
+  border: 2px solid black;
+  font-size: 25px;
+}
+
+.fra-info-section .heading-info {
+  padding: 3px;
+}
+
+.fra-masterkey-title {
+  padding: 2px;
+  font-weight: 600;
+}
+
+.fra-masterkey-title span {
+  border-bottom: 2px solid;
+}
+
+.fra-masterkey-values {
+  font-family: monospace;
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 20px;
+}
+
+/* Key Val Box */
+
+div.key-val-box {
+  font-size: 20px;
+  display: inline-flex;
+}
+
+div.key-val-box>div.title {
+  font-weight: 600;
+  min-width: 200px;
+  text-align: right;
+}
+
+div.key-val-box>div.value {
+  border: 2px solid;
+  padding: 0px 5px;
+  margin: 0px 25px 0 5px;
+  width: fill-available;
+  min-height: 30px;
+}

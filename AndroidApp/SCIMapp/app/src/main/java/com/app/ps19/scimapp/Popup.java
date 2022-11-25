@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.app.ps19.scimapp.Shared.Globals;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
@@ -40,14 +41,13 @@ public class Popup extends Dialog {
         setContentView(R.layout.popup_image);
 
         imageFirst = (ImageView) findViewById(R.id.selectedImg);
-        //tvImageName = (TextView) findViewById(R.id.tv_img_name);
-        //tvImageName.setText(name);
-        //tvImageName.setVisibility(View.GONE);
-        /*Glide.with(mContext)
-                .load(url)
+
+        Picasso.get()
+                .load(new File(url))
+                .placeholder(R.drawable.no_image)
                 .error(R.drawable.no_image)
-                .into(imageFirst);*/
-        Picasso.get().load(new File(url)).placeholder(R.drawable.no_image).error(R.drawable.no_image).resize(640, 480).noFade().into(imageFirst);
+                .noFade()
+                .into(imageFirst);
 
 
         Button dialogButton = (Button) findViewById(R.id.btnImgCancel);

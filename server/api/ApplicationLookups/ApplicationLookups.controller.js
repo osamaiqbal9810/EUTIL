@@ -29,7 +29,10 @@ exports.find = function (req, res, next) {
 
 exports.getCodes = async function (req, res, next) {
   let criteria = {};
-  if (req.params.listName && req.params.codes) {
+  if (req.params.listname && req.params.code) {
+    criteria.listName = req.params.listName;
+    criteria.code = req.params.code;
+  } else if (req.params.listName && req.params.codes) {
     let codes = req.params.codes.split(",");
     if (codes && codes.length) {
       criteria.listName = req.params.listName;

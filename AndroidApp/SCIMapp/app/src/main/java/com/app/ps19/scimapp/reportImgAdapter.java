@@ -3,6 +3,7 @@ package com.app.ps19.scimapp;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -168,6 +169,7 @@ public class reportImgAdapter extends RecyclerView.Adapter<reportImgAdapter.MyVi
                         public void onClick(View v) {
                             selectedPosition = position;
                             //String list = taskImgId.get(position);
+
                             popup = new Popup(context, getImgPath(imgid.get(position).getImgName()), position, imgid.get(position).getImgName());
                             popup.setCancelable(true);
                             popup.show();

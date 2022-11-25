@@ -11,13 +11,14 @@ import { themeService } from "../../../theme/service/activeTheme.service";
 import { selectedTeamStyle } from "../styles/selectedTeamStyle";
 import { commonSummaryStyle } from "../../Common/Summary/styles/CommonSummaryStyle";
 import { languageService } from "../../../Language/language.service";
+import permissionCheck from "../../../utils/permissionCheck";
 export default class SelectedTeam extends Component {
   constructor(props) {
     super(props);
     this.state = { tooltipOpen: false };
     this.styles = {
       userHeading: {
-        color: "rgba(64, 118, 179)",
+        color: "rgb(94, 141, 143)",
         fontSize: "14px",
         paddingBottom: "1em",
       },
@@ -29,12 +30,12 @@ export default class SelectedTeam extends Component {
         borderRadius: "5px",
       },
       JourneyPlanInfoContainer: {
-        background: "#fff",
+        background: "var(--fifth)",
         boxShadow: "3px 3px 5px #cfcfcf",
         margin: "0px 0px  0px 0px",
         padding: "15px",
         textAlign: "left",
-        color: " rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       },
     };
@@ -53,7 +54,7 @@ export default class SelectedTeam extends Component {
       inspectorsUsers = this.props.teamLead;
       // To Do :- Find the team lead users in all users and push them to inspectorsUsers.
     }
-    let showAddButton = true;
+    let showAddButton = permissionCheck("TEAM", "create");
     return (
       <div>
         <Row>
@@ -65,7 +66,7 @@ export default class SelectedTeam extends Component {
           <div style={themeService(selectedTeamStyle.detailInfoContainer)}>
             <Row>
               <Col md={"11"} style={{ textAlign: "left" }}>
-                <div style={themeService(selectedTeamStyle.userHeading)}>{languageService("Supervisor")}</div>
+                <div style={themeService(selectedTeamStyle.userHeading)}>{languageService("Track Manager")}</div>
                 <div style={this.styles.userStyle}>
                   <Gravatar
                     style={{
@@ -105,7 +106,7 @@ export default class SelectedTeam extends Component {
 
 let planStyle = {
   userHeading: {
-    color: "rgba(64, 118, 179)",
+    color: "rgb(94, 141, 143)",
     fontSize: "14px",
     paddingBottom: "1em",
   },
@@ -117,7 +118,7 @@ let planStyle = {
     borderRadius: "5px",
   },
   dateHeading: {
-    color: "rgba(64, 118, 179)",
+    color: "rgb(94, 141, 143)",
     fontSize: "14px",
     padding: "2em 0em 1em ",
   },
@@ -134,22 +135,22 @@ let planStyle = {
     marginTop: "30px",
   },
   JourneyPlanInfoContainer: {
-    background: "#fff",
+    background: "var(--fifth)",
     boxShadow: "3px 3px 5px #cfcfcf",
     margin: "0px 30px  0px 30px",
     padding: "15px",
     textAlign: "left",
-    color: " rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "12px",
   },
   fieldHeading: {
-    color: "rgba(64, 118, 179)",
+    color: "rgb(94, 141, 143)",
     fontWeight: "600",
     fontSize: "14px",
     paddingBottom: "0.5em",
   },
   fieldText: {
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     fontSize: "14px",
     paddingBottom: "1em",
   },

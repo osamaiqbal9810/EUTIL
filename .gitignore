@@ -22,3 +22,7 @@
 /deployment-utils/DeploymentImage
 /server/contract.json
 /setup-utils/node_modules
+/server/.compiled
+/deployment-utils/backups
+/setup-utils/data
+/server/config/database/migrations/patches/sfrta-data

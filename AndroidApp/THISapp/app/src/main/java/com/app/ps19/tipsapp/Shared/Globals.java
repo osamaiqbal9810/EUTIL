@@ -1,10 +1,17 @@
 package com.app.ps19.tipsapp.Shared;
 
+import com.app.ps19.tipsapp.LampApplication;
 import com.app.ps19.tipsapp.camera.Size;
+import com.app.ps19.tipsapp.classes.LocItem;
+import com.app.ps19.tipsapp.classes.LocationPrefix;
 import com.app.ps19.tipsapp.classes.Session;
 import com.app.ps19.tipsapp.classes.User;
+import com.app.ps19.tipsapp.classes.ativ.ATIVDefect;
+import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
+import com.app.ps19.tipsapp.classes.equipment.Equipment;
 import com.app.ps19.tipsapp.classes.maintenance.Maintenance;
 import com.app.ps19.tipsapp.classes.maintenance.MaintenanceList;
+import com.app.ps19.tipsapp.classes.safetybriefings.JobBriefing;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -33,12 +40,15 @@ import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import androidx.annotation.AnyRes;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.RoundedBitmapDrawable;
-import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
+
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,8 +77,9 @@ import com.app.ps19.tipsapp.classes.Task;
 import com.app.ps19.tipsapp.classes.Units;
 import com.app.ps19.tipsapp.classes.Worker;
 import com.app.ps19.tipsapp.classes.dynforms.DynForm;
+import com.app.ps19.tipsapp.classes.version.VersionInfo;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.google.gson.Gson;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.mikhaellopez.circularimageview.CircularImageView;
@@ -79,6 +90,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -86,16 +98,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 import static android.content.ContentValues.TAG;
+import static com.app.ps19.tipsapp.Shared.Utilities.addObject;
+import static com.app.ps19.tipsapp.Shared.Utilities.appendLog;
 import static com.app.ps19.tipsapp.Shared.Utilities.getImgPath;
 import static com.app.ps19.tipsapp.Shared.Utilities.getVoicePath;
 import static com.app.ps19.tipsapp.Shared.Utilities.isImageFileExists;
+
 
 /**
  * Created by Ajaz Ahmad Qureshi on 5/24/2017.
@@ -103,11 +121,12 @@ import static com.app.ps19.tipsapp.Shared.Utilities.isImageFileExists;
 
 public  class Globals {
     public static String lastConnectionError="";
-
+    public static LampApplication app=LampApplication.getInstance();
     //public static String wsBaseURL="http://10.0.2.2:58836/api/";
     public enum AppName {
         TIMPS,
-        SCIM
+        SCIM,
+        EUIS // for the time being please enable isEUISActive true to use electric app as a SITE
     }
 
     //Geofencing Values
@@ -152,16 +171,23 @@ public  class Globals {
     //public static String wsDomainName = "172.19.3.137";
     public static String wsDomainName = "timps.eastus.cloudapp.azure.com";
     public static String defaultServerName = "TIMPS";
+    public static String demoId = "demo@user.com";
+    public static String demoPass = "12345";
+    public static boolean isDemoUser = false;
     //public static String wsDomainName ="tips1.southeastasia.cloudapp.azure.com";
     public static String wsPort="80";
     //public static String wsPort = "3005";
-    public static String wsDomain = "http://" + wsDomainName + (wsPort.equals("") ? "" : (":" + wsPort) );
-    public static String wsBaseURL=wsDomain+"/api/";
-    public static String wsImgURL = wsDomain + "/applicationresources/";
+    //public static String wsDomain = getWsDomain();
+    public static String wsBaseURL;//=getWsDomain()+"/api/";
+    public static String wsImgURL;// = getWsDomain() + "/applicationresources/";
+    public static String wsVersionUrl;// = "/api/version";
     //public  static  String wsImageURL=wsDomain +"/images/";
-    public static String wsReportURL=wsBaseURL+"Reports/";
+    public static String wsReportURL;//=wsBaseURL+"Reports/";
+    public static String wsFirmwareURL;
     // This port value should be assigned by Dev
     public static String wsWebPort = ""; // For example :4001
+    public static String emailCrashReport = "ps19test@gmail.com"; // Provide email address to receive crash log
+
 
     public static File selectedPdf;
 
@@ -172,10 +198,12 @@ public  class Globals {
     public static final String SOD_LIST_NAME = "SOD";
     public static final String CATEGORY_LIST_NAME = "AssetTypes";
     public static final String PRIORITY_LIST_NAME = "Priority";
+    public static final String EQUIPMENT_TYPES_LIST_NAME = "assetEquipmentTypes";
     public static final String JPLAN_LIST_NAME = "JourneyPlan";
     public static final String WPLAN_TEMPLATE_LIST_NAME = "WorkPlanTemplate";
     public static final String GPS_LOG_LIST_NAME = "GpsLog";
     public static final String APP_SETTINGS_LIST_NAME = "AppSettings";
+    public static final String LOCATION_PREFIX_LIST_NAME = "LocationPrefix";
     public static final String REM_ACTION_LIST_NAME = "remedialAction";
     public static final String APP_FORMS_LIST_NAME = "appForms";
     public static final String APP_CONFIG_LIST_NAME = "config";
@@ -183,6 +211,7 @@ public  class Globals {
  	public static final String APP_LOCATION_MARKER_LIST_NAME = "alphaNumericMilepostIOC";
     public static final String RUN_LIST_NAME = "Run";
     public static final String MAINTENANCE_LIST_NAME = "Maintenance";
+    public static final String ASSET_TYPE_SIDE_TRACK = "Side Track";
 
 
     public static String LOGIN_ERROR="";
@@ -192,6 +221,7 @@ public  class Globals {
     public static final String imageFolderName="tips_data_img";
     public static final String voiceFolderName="tips_data_voice";
     public static final String docFolderName="tips_data_docs";
+    public static final String logFolderName="tips_data_logs";
     public static final String  OBSERVABLE_MESSAGE_DATA_CHANGED ="1";
     public static final String  OBSERVABLE_MESSAGE_DATA_SENT ="2";
     public static final String  OBSERVABLE_MESSAGE_NETWORK_PULL ="3";
@@ -203,6 +233,7 @@ public  class Globals {
     public static final String  OBSERVABLE_MESSAGE_LANGUAGE_CHANGED ="9";
 
 
+    public static SharedPref mPrefs;
     public static Uri imageFileUri;
     public static String imageFileName="";
     public static final long MIN_UPDATE_INTERVAL=15000;
@@ -225,7 +256,8 @@ public  class Globals {
     public static boolean isPullInProgress = false;
     public static boolean isDataPopulated = false;
     public static String lastError = "";
-    public static boolean isServiceProcessing=false;
+    public volatile static boolean isServiceProcessing=false;
+    public volatile static boolean isServiceInCall=false;
     public static Geocoder geocoder;
     // Declaring a Location Manager
     protected static LocationManager locationManager;
@@ -251,6 +283,8 @@ public  class Globals {
     public static String sodId = "";
     public static boolean isDayProcessRunning=false;
     public static boolean isSODSyncRequired=false;
+    public static boolean isDbLocked = false;
+    public static boolean isLogAllowed = false;
 
 
     public static String startOfDayTime="";
@@ -288,6 +322,7 @@ public  class Globals {
 
     public static final int MESSAGE_STATUS_CREATED=0;
     public static final int MESSAGE_STATUS_READY_TO_POST=1;
+    public static final int MESSAGE_STATUS_PENDING_TO_POST=4;
     public static final int MESSAGE_STATUS_POSTED=2;
     public static final int MESSAGE_STATUS_REPLIED=3;
     public static final int MESSAGE_STATUS_ERROR=9;
@@ -312,6 +347,8 @@ public  class Globals {
 
     public static HashMap<String,JSONArray> changeItemList=new HashMap();
     public static HashMap<String, AssetType>  assetTypes=new HashMap<>();
+    public static HashMap<String, LocItem> markerItemsMap;
+    public static VersionInfo versionInfo;
     /*Default Values for Lookups selections
 
      */
@@ -330,6 +367,15 @@ public  class Globals {
     public static boolean isTaskStarted = false;
     public static File imgFile;
     public static Size imgSize;
+    public static enum AppCameraType{
+        Camera2,
+        IntentType
+    };
+    //These values will only be used in IntentType Camera Settings
+    public static int maxImageSize=1920;
+    public static int jpgQuality=95;
+
+    public static AppCameraType cameraType=AppCameraType.IntentType;
     public static String taskStartTime = "";
     public static String userEmail = "";
     public static String userName = "";
@@ -355,6 +401,7 @@ public  class Globals {
 
     public static final String MAINTENANCE_ROLE_NAME = "maintenance";
     public static boolean isMaintainer = false;
+    public static String JOB_BRIEFING_TARGET = "jobBriefing";
 
     public static int SELECTED_JPLAN_INDEX = 0;
 
@@ -364,21 +411,31 @@ public  class Globals {
     public static Task selectedTask;
     public static Units selectedUnit;
     public static DUnit selectedDUnit;
+    public static Equipment selectedEquipment;
     public static String selectedReportType = "";
     public static int selectedReportIndex;
+    public static ATIVDefect sATIVDefect;
     public static JourneyPlan initialInspection;
     public static Task initialRun;
+    private static LocationPrefix selectedLocPrefix;
+    private static JobBriefing selectedJBriefing;
 
     public static Report selectedReport;
     public static String selectedCategory="";
     public static Session activeSession = null;
+    public static boolean isDisplayHosOnDashboard = true;
+    public static boolean isShowATIV = true;
+    public static boolean isDisableRActionByRule = true;
+    public static boolean isBriefingShown = true;
     public static ArrayList<String> defectCodeList;
     public static ArrayList<String> defectCodeSelection;
     public static ArrayList<String> defectCodeTags;
     public static String selectedCode;
+    public static boolean isSingleDefCode = false;
     public static Multimap<String, String> defectSelection = ArrayListMultimap.create();
     public static Multimap<String, String> defectSelectionCopy = ArrayListMultimap.create();
     public static SafetyBriefingForm safetyBriefing;
+    public static ArrayList<JobBriefing> jbCollection;
     public static HashMap<Integer, View> listViews = new HashMap<>();
     public static Worker selectedWorker;
     public static String PREFS_KEY_SERVER = "TIPS SERVER INFO";
@@ -409,10 +466,14 @@ public  class Globals {
     public static final int NEARBY_ASSETS_LIST_SIZE = 3;
     public static LatLong previousLocation = null;
     public static String defectDivider = "-div-";
+    public static boolean isShowBriefingOnStart = false;
+    public static boolean isUseDynSafetyBriefing = false;
     public static boolean isSingleDefectSelection = false;
     public static boolean isIssueUpdateAllowed = false;
     public static boolean isWConditionMustReq = true;
+    public static boolean isHideRule213 = false;
     public static boolean isMpReq = true;
+    public static boolean isPrimaryAssetOnTop = true;
     public static boolean isTraverseReq = true;
     public static boolean isWConditionReq = true;
     public static boolean isBackOnTaskClose = true;
@@ -422,16 +483,25 @@ public  class Globals {
     public static boolean isUseRailDirection = true;
     public static boolean showNearByAssets = true;
     public static boolean isShowSwitchInspection = true;
-	public static boolean isSmartObjectAvailable=true;  // Journey Plant Full object or only changes
+	public static boolean isSmartObjectAvailable=true;  // Journey Plan Full object or only changes
+    public static boolean isMaintenanceFromDashboard = true;
     public static boolean isRemedialActionReq = false;
     public static boolean isShowSession = true;
     public static boolean isShowTraverseCheckbox = true;
+    public static boolean isShowAllSideTracks = false; // hiding side tracks as per request
+    public static boolean isAudibleNotificationAllowed = false;
     public static boolean isMidNightInspClosingAllowed = false;
     public static String selectedTempSign = "";
     public static String selectedDistanceSign = "";
     public static String selectedPostSign = "";
     public static String selectedTraverseBy = "";
+    public static String selectedObserveOpt = "";
     //Config names
+    public static String isShowHosOnDashboard = "showHosOnDashboard";
+    public static String isShowBriefingAtStart = "briefingAtStart";
+    public static String isUseDynSafetyBriefingForm = "dynamicBriefing";
+    public static String isDisableRActionByRuleConfig = "disableRemedialByRule";
+    public static String isRule213ReqConfig = "disableRule213";
     public static String isMPRequireConfig = "appmpinput";
     public static String isTrackTraverseRequireConfig = "apptraversetrack";
     public static String isByPassTaskViewConfig = "apptaskviewbypass";
@@ -439,6 +509,8 @@ public  class Globals {
     public static String isUseDefaultAssetConfig = "appdefaultasset";
     public static String isInspectionTypeConfig = "appinspectiontype";
     public static String isWConditionConfig = "appweathercondition";
+    public static String defaultObserveOpt = "defaultObserveSelection";
+    public static String isAudibleNotification = "audibleNotification";
     public static String postSign = "postsign";
     public static String distanceSign = "distancesign";
     public static String tempSign = "temperaturesign";
@@ -471,18 +543,50 @@ public  class Globals {
         db=DBHandler.getInstance(context);
     }
 public static void setDomain() {
-    wsDomain = "http://" + wsDomainName + (wsPort.equals("") ? "" : (":" + wsPort));
-    wsBaseURL = wsDomain + "/api/";
-    wsImgURL = wsDomain + "/applicationresources/";
+    //wsDomain = "http://" + wsDomainName + (wsPort.equals("") ? "" : (":" + wsPort));
+    wsBaseURL = getWsDomain() + "/api/";
+    wsImgURL = getWsDomain() + "/applicationresources/";
 }
 
 
     public static void setUserInfoView(Context context, CircularImageView userImgView, TextView userNameView) {
-        String hash = MD5Util.md5Hex(userEmail); // need to change before finalizing
-        String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=204&d=404";
+        //String hash = MD5Util.md5Hex(userEmail); // need to change before finalizing
+        //String gravatarUrl = "http://www.gravatar.com/avatar/" + hash + "?s=204&d=404";
         //userImage.setImageURI(Uri.parse("http://www.gravatar.com/avatar/91ee8b178428a70d695f9794a0340235?s=204&d=404"));
-        if(userNameView != null){
-            userNameView.setText(Globals.user.getName());
+        try {
+            if(userNameView != null){
+                userNameView.setText(Globals.user.getName());
+            }
+            if(user.getProfImg()!=null && isImageFileExists(user.getProfImg().getImgName())){
+               /* Glide.with(context)
+                        .load(Uri.parse(getImgPath(user.getProfImg().getImgName())))
+                        .apply(new RequestOptions()
+                                .circleCrop()
+                                .placeholder(R.drawable.ic_person_white_24dp)
+                        )
+                        .into(userImgView);*/
+                File file=new File(getImgPath(user.getProfImg().getImgName()));
+                if(file.exists()){
+                    Log.d("setUserInfoView", "File Exists:"+file.getAbsolutePath());
+                }else{
+                    Log.d("setUserInfoView", "File Doesn't Exists");
+                }
+                Glide.with(context)
+                        .load(getImgPath(user.getProfImg().getImgName()))
+                        .apply(new RequestOptions()
+                                .centerCrop()
+                                .dontAnimate()
+                                .dontTransform()
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE))
+                        .into(userImgView);
+
+                /*Glide.with(context).load(getImgPath(user.getProfImg().getImgName()))
+                        .into(userImgView);*/
+                userImgView.setColorFilter(ContextCompat.getColor(context, android.R.color.transparent));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         /*try {
             URLConnection connection = new URL(gravatarUrl).openConnection();
@@ -491,34 +595,7 @@ public static void setDomain() {
         }catch (Exception e ){
             Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
         }*/
-        if(user.getProfImg()!=null && isImageFileExists(user.getProfImg().getImgName())){
-           /* Glide.with(context)
-                    .load(Uri.parse(getImgPath(user.getProfImg().getImgName())))
-                    .apply(new RequestOptions()
-                            .circleCrop()
-                            .placeholder(R.drawable.ic_person_white_24dp)
-                    )
-                    .into(userImgView);*/
-            File file=new File(getImgPath(user.getProfImg().getImgName()));
-            if(file.exists()){
-                Log.d("setUserInfoView", "File Exists:"+file.getAbsolutePath());
-            }else{
-                Log.d("setUserInfoView", "File Doesn't Exists");
-            }
-            Glide.with(context)
-                    .load(getImgPath(user.getProfImg().getImgName()))
-                    .apply(new RequestOptions()
-                            .centerCrop()
-                            .dontAnimate()
-                            .dontTransform()
-                            .skipMemoryCache(true)
-                            .diskCacheStrategy(DiskCacheStrategy.NONE))
-                    .into(userImgView);
-
-            /*Glide.with(context).load(getImgPath(user.getProfImg().getImgName()))
-                    .into(userImgView);*/
-            userImgView.setColorFilter(ContextCompat.getColor(context, android.R.color.transparent));
-        } /*else {
+         /*else {
             Glide.with(context)
                     .load(R.drawable.no_image__placeholder)
                     .apply(new RequestOptions()
@@ -684,7 +761,7 @@ public static void setDomain() {
     {
         appid="";
         appid_temp="";
-        orgCode="";
+        //orgCode="";
         userID="";
         userUID = "";
         empCode="";
@@ -824,7 +901,7 @@ public static void setDomain() {
             DBHandler db=Globals.db;//new DBHandler(getDBContext());
             List<StaticListItem> items= null;
             try {
-                items = db.getListItems(CATEGORY_LIST_NAME, Globals.orgCode,"","");
+                items = Globals.db.getListItems(CATEGORY_LIST_NAME, Globals.orgCode,"","");
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -870,7 +947,7 @@ public static void setDomain() {
 
     public static boolean isServerValid() {
         try {
-            URL myUrl = new URL(wsDomain);
+            URL myUrl = new URL(getWsDomain());
             URLConnection connection = myUrl.openConnection();
             connection.setConnectTimeout(10000);
             connection.connect();
@@ -1053,6 +1130,7 @@ public static void setDomain() {
                     item.setOptParam2(joResult.toString());
                     db.AddList("user", "", item);
                     //db.close();
+                    timeStamp = "";
                     loadLoginData(context);
                     return true;
                 //}
@@ -1095,6 +1173,7 @@ public static void setDomain() {
         List<StaticListItem> items= db.getListItems("user","","1");
         //db.close();
         StaticListItem item=null;
+        DynFormList.loadFormList();
         if(items.size()>0) {
             item = items.get(0);
             userID = item.getDescription();
@@ -1106,8 +1185,13 @@ public static void setDomain() {
                 userEmail = jo.getString("email");
                 userName = jo.getString("name");
                 userUID = jo.getString("_id");
-                timeStamp = "";
+                //timeStamp = "";
                 user = new User(jo);
+               /* if(Globals.selectedJPlan !=null){
+                    user=Globals.selectedJPlan.getUser();
+                }else{
+                    user = new User(jo);
+                }*/
                 makeUserImagesAvailable();
                 loadDayStatus(context);
                 Log.i("loadLoginData","Workplan Started:"+dayStarted);
@@ -1317,7 +1401,8 @@ public static void setDomain() {
                 resid=R.raw.nice_msg;
                 break;
         }
-        try {
+        if(isAudibleNotificationAllowed){
+           try {
             if(_notify!=null){
                 if(_notify.isPlaying())
                     _notify.stop();
@@ -1331,6 +1416,8 @@ public static void setDomain() {
         } catch (Exception e){
             e.printStackTrace();
         }
+        }
+
     }
     public static boolean webPullRequest(final Context context, String timeStamp){
 
@@ -1429,7 +1516,7 @@ public static void setDomain() {
 
         try {
             if(blnPullAll||changeItemList.containsKey(APPLICATION_LOOKUP_LIST_NAME)){
-                ListMap.initializeAllLists(loginContext);
+                ListMap.initializeAllLists(getDBContext());
             }
         } catch (Exception e) {
             lastError = "Unable to load data!";
@@ -1598,7 +1685,9 @@ public static void setDomain() {
                 ja.put(item.getMultiJSONObject());
             }
             String strRetValue=null;
-
+            if(isLogAllowed){
+                appendLog(ja.toString());
+            }
             try {
                 strRetValue = JsonWebService.postJSON(url, ja.toString(), 5000);
                 System.out.println(ja.toString());
@@ -1624,6 +1713,329 @@ public static void setDomain() {
         }
         return 0;
     }
+    private static Promise uploadIssueVoices(List<IssueVoice> items){
+        Promise promise =new Promise();
+        HashMap<String,IssueVoice> voiceQue=new HashMap<>();
+
+        for(IssueVoice item:items){
+            voiceQue.put(item.getVoiceName(),item);
+            //imageListObserver.postValue(imageQue);
+            uploadMultipartVoiceAsync(item.getVoiceName(),item).then(res->{
+                item.setStatus(ISSUE_IMAGE_STATUS_UPLOADED);
+                voiceQue.remove(item.getVoiceName());
+                if(voiceQue.size()==0){
+                    promise.resolve(items);
+                }
+
+                return true;
+            }).error(e->{
+                voiceQue.remove(item.getVoiceName());
+                if(voiceQue.size()==0){
+                    promise.resolve(items);
+                }
+
+            }  );
+        }
+        if(items.size()==0){
+            promise.resolve(null);
+        }
+        return promise;
+    }
+
+    private static Promise uploadIssueImages(List<IssueImage> items){
+        Promise promise =new Promise();
+        //MutableLiveData<HashMap<String, IssueImage>> imageListObserver=new MutableLiveData<>();
+        HashMap<String,IssueImage> imageQue=new HashMap<>();
+
+        for(IssueImage item:items){
+            imageQue.put(item.getImgName(),item);
+            //imageListObserver.postValue(imageQue);
+            uploadMultipartImageAsync(item.getImgName(),item).then(res->{
+                item.setStatus(ISSUE_IMAGE_STATUS_UPLOADED);
+                imageQue.remove(item.getImgName());
+                if(imageQue.size()==0){
+                    promise.resolve(items);
+                }
+
+                return true;
+            }).error(e->{
+                imageQue.remove(item.getImgName());
+                if(imageQue.size()==0){
+                    promise.resolve(items);
+                }
+
+            }  );
+        }
+        if(items.size()==0){
+            promise.resolve(null);
+        }
+        return promise;
+    }
+    public static ArrayList<IssueImage> getIssueImagesByItem(StaticListItem item, ArrayList<IssueImage> imagelist){
+        ArrayList<IssueImage> _retImageList=new ArrayList<>();
+        if(imagelist!=null){
+        for(IssueImage issueImage:imagelist){
+            if(item.isEqual(issueImage.getParent())){
+                _retImageList.add(issueImage);
+            }
+        }
+        }
+
+        return _retImageList;
+    }
+    private static ArrayList<IssueVoice> getIssueVoiceByItem(StaticListItem item, ArrayList<IssueVoice> voiceList){
+        ArrayList<IssueVoice> _retImageList=new ArrayList<>();
+        if(voiceList!=null){
+            for(IssueVoice issueVoice:voiceList){
+            if(item.isEqual(issueVoice.getParent())){
+                _retImageList.add(issueVoice);
+            }
+        }
+        }
+
+        return _retImageList;
+    }
+
+    private static HashMap<String, Integer> getIssueImageHashmap(ArrayList<IssueImage> imageList, Integer status){
+        HashMap<String, Integer> _hasp=new HashMap<>();
+        for(IssueImage image:imageList){
+            _hasp.put(image.getImgName(),status);
+        }
+        return _hasp;
+    }
+    private static HashMap<String, Integer> getIssueVoiceHashmap(ArrayList<IssueVoice> voiceList, Integer status){
+        HashMap<String, Integer> _hasp=new HashMap<>();
+        for(IssueVoice image:voiceList){
+            _hasp.put(image.getVoiceName(),status);
+        }
+        return _hasp;
+    }
+
+    public static int webUploadMessageListsEx(final Context context, String orgCode)
+    {
+        //"{appid}/{orgcode:int}"
+        String url = wsBaseURL + "msglist/" ;
+        String jsonObject = null;
+        int intRetValue=0;
+        boolean dataChanged=false;
+
+        DBHandler db = Globals.db;//new DBHandler(getDBContext());
+        List<StaticListItem> items=db.getMsgListItems(orgCode,"status="
+                +MESSAGE_STATUS_READY_TO_POST); //Ready to be posted
+
+        long connTimeDiff=Globals.lastConnTimeDiff/1000;
+
+        if(connTimeDiff>150 || items.size()>0)
+        {
+            Log.i(TAG,"Last Conn Time Diff:"+ String.valueOf(connTimeDiff)+ " (s)");
+            Log.i(TAG, String.valueOf(items.size()));
+            //If disconnected more than 5 mins check sod 1st
+            //if(checkSODChange(context)){
+            //    db.close();
+            //    return intRetValue;
+            //}
+        }
+
+        if(items.size()>0)
+        {
+            boolean isServerAvailable=isServerAvailable();
+            setOfflineMode(!isServerAvailable);
+            if(!isServerAvailable){
+                Log.i("Server Status","Unavailable");
+                return -1;
+            }
+            db.AddOrUpdateMsgList(items.get(0).getListName(),"pending",items.get(0),MESSAGE_STATUS_PENDING_TO_POST);
+            db.RemoveMsgListItems(items,MESSAGE_STATUS_READY_TO_POST);
+            JSONArray ja=new JSONArray();
+            ArrayList<IssueImage> imageList=new ArrayList<>();
+            ArrayList<IssueVoice> voiceList=new ArrayList<>();
+            for(StaticListItem item:items)
+            {
+                if(item.getListName().equals(JPLAN_LIST_NAME)){
+                    // Search for images
+                    Log.i("Request Status","Searching for images");
+                    List<IssueImage> imageLists=item.getImageList();
+                    HashMap <String , Integer> imageListUpdated= new HashMap<>();
+                    for(IssueImage issueImage : imageLists){
+                        if (issueImage.getImgName() != null) {
+                            if (!issueImage.getImgName().equals("")) {
+                                issueImage.setParent(item);
+                                imageList.add(issueImage);
+                            }
+                        }
+                    }
+                    //Check if status need to be updated
+                    // Search for voice
+                    Log.i("Request Status","Searching for voices");
+                    List<IssueVoice> voiceLists=item.getVoiceList();
+                    HashMap <String , Integer> voiceListUpdated= new HashMap<>();
+                    for(IssueVoice issueVoice : voiceLists){
+                        if (issueVoice.getVoiceName() != null) {
+                            if (!issueVoice.getVoiceName().equals("")) {
+                                issueVoice.setParent(item);
+                                voiceList.add(issueVoice);
+
+                            }
+                        }
+                    }
+
+                    if(Inbox.isLocalJPCode(item.getCode())){
+                        item.setHoldCode(true);
+                    }
+                }
+                if(item.getListName().equals(GPS_LOG_LIST_NAME)){
+                    String code=item.getCode();
+                    item.setCode("");
+                    ja.put(item.getMultiJSONObject());
+                    item.setCode(code);
+                }else{
+                    ja.put(item.getMultiJSONObject());
+                }
+
+            }
+            //this method upload images
+            uploadIssueImages(imageList)
+            .then(res->{
+        //this method set the status of uploaded images
+                Log.i("Request Status","upload images");
+                //TODO: call was dropping from here
+        Promise p=new Promise();
+        ArrayList<IssueImage> _items=(ArrayList<IssueImage>)res;
+        if(res==null){
+            p.resolve(voiceList);
+            return p;
+        }
+        for(StaticListItem item:items){
+            ArrayList<IssueImage> itemImages=getIssueImagesByItem(item,_items);
+            HashMap<String, Integer> itemImagesHash=getIssueImageHashmap(itemImages,ISSUE_IMAGE_STATUS_UPLOADED);
+            item.setImageStatus(_items,itemImagesHash);
+        }
+        p.resolve(voiceList);
+        return p;
+    })
+            .then(red-> uploadIssueVoices(voiceList))
+            .then(res->{
+                  //this method update status of uploaded voices
+                Log.i("Request Status","Upload voices");
+                Promise p=new Promise();
+                ArrayList<IssueVoice> _items=(ArrayList<IssueVoice>)res;
+                if(res==null || _items ==null ){
+                    p.resolve("");
+                    return p;
+                }
+                for(StaticListItem item:items){
+                    ArrayList<IssueVoice> itemVoices=getIssueVoiceByItem(item,_items);
+                    HashMap<String, Integer> itemVoicesHash=getIssueVoiceHashmap(itemVoices,ISSUE_IMAGE_STATUS_UPLOADED);
+                    item.setVoiceStatus(_items,itemVoicesHash);
+                }
+                p.resolve("");
+
+                return p;
+            }).then(res->{
+                    Promise p=new Promise();
+                    new Thread(()->{
+                        String strRetValue=null;
+                        System.out.println("Sending Data");
+                        if(isLogAllowed){
+                            appendLog(ja.toString());
+                        }
+                        long tStart = System.currentTimeMillis();
+                        try {
+                            isServiceInCall = true;
+                            System.out.println(ja.toString());
+                            System.out.println("Thread: "+Thread.currentThread().getName());
+                            strRetValue = JsonWebService.postJSON(url, ja.toString(), 15000);
+                            //Thread.sleep(20000);
+                        }catch (Exception e)
+                        {
+                            Log.e(TAG,e.toString());
+                        }
+                        isServiceInCall = false;
+                        long tEnd = System.currentTimeMillis();
+                        long tDelta = tEnd - tStart;
+                        double elapsedSeconds = tDelta / 1000.0;
+                        System.out.println("elapsedSeconds");
+                        System.out.println(elapsedSeconds);
+                        if(strRetValue==null)
+                        {
+                            if(db !=null)
+                            {
+                                //db.close();
+                            }
+                            //ERROR
+                            p.resolve(false);
+                        }
+                        strRetValue=strRetValue.replace("\"","");
+                        strRetValue=strRetValue.replace("\n","");
+                        Log.i("webUploadMessageLists","Sending data to webserivce size:"+ items.size()+" ret:"+strRetValue);
+                        try {
+                            ringtone1(context,0);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        if(strRetValue.equals("success"))
+                        {
+                            for(StaticListItem item:items){
+                                item.setHoldCode(false);
+                            }
+
+                            /*List<StaticListItem> itemsToMatch=db.getMsgListItems(orgCode,"status="
+                                    +MESSAGE_STATUS_READY_TO_POST); //Ready to be posted
+                            for(StaticListItem item: itemsToMatch){
+                                StaticListItem _targetItem=findItem((ArrayList<StaticListItem>) items,item);
+                                if(_targetItem!=null){
+                                    if(_targetItem.getOptParam1().equals(item.getOptParam1())){
+                                        db.RemoveMsgListItem(_targetItem);
+                                    }
+                                }
+                            }*/
+                            //intRetValue=db.UpdateMsgListStatus(orgCode,items,MESSAGE_STATUS_POSTED);
+                            //db.RemoveMsgListItems(items,MESSAGE_STATUS_READY_TO_POST);
+                            ArrayList<String> sentItemList=new ArrayList<>();
+                            for(StaticListItem item:items){
+                                sentItemList.add(item.getListName());
+                            }
+                            sendBroadcastMessage(OBSERVABLE_MESSAGE_DATA_SENT,sentItemList.toString());
+
+                        }else if(strRetValue.startsWith("error:") && items.size()==1){
+                            items.get(0).setStatus(MESSAGE_STATUS_ERROR);
+                            db.AddOrUpdateMsgList(items.get(0).getListName(),orgCode,items.get(0),MESSAGE_STATUS_ERROR);
+                        } else {
+                            Log.i("In timeout case", items.toString());
+                            List<StaticListItem> itemsToMatch=db.getMsgListItems(orgCode,"status="
+                                    +MESSAGE_STATUS_READY_TO_POST); //Ready to be posted
+                            if(itemsToMatch.size()>0){
+                                for(StaticListItem stItem: items){
+                                    JSONObject mainObject = null;
+                                    StaticListItem targetItem=findItem((ArrayList<StaticListItem>) itemsToMatch, stItem);
+                                    if(targetItem!=null) {
+                                        try {
+                                            mainObject = new JSONObject(stItem.getOptParam1());
+                                            JSONObject targetObject=new JSONObject(targetItem.getOptParam1());
+                                            mainObject=addObject(mainObject, targetObject);
+                                            targetItem.setOptParam1(mainObject.toString());
+                                            db.AddOrUpdateMsgList(targetItem.getListName(),targetItem.getOrgCode(),targetItem,MESSAGE_STATUS_READY_TO_POST);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+
+                            }
+
+                        }
+                        db.RemoveMsgListItems(items,"pending",MESSAGE_STATUS_PENDING_TO_POST);
+                        p.resolve(true);
+
+
+                            }).start();
+                    return p;
+                });
+            }
+        //db.close();
+        return intRetValue;
+    }
+
 
     public static int webUploadMessageLists(final Context context, String orgCode)
     {
@@ -1666,7 +2078,7 @@ public static void setDomain() {
                     for(IssueImage issueImage : imageLists){
                         if (issueImage.getImgName() != null) {
                             if (!issueImage.getImgName().equals("")) {
-                                boolean retValue = uploadMultipartImage(issueImage.getImgName());
+                                boolean retValue = uploadMultipartImage(issueImage.getImgName(),issueImage);
                                 if (retValue) {
                                     if (!imageListUpdated.containsKey(issueImage.getImgName())) {
                                         imageListUpdated.put(issueImage.getImgName(), ISSUE_IMAGE_STATUS_UPLOADED);
@@ -1730,6 +2142,9 @@ public static void setDomain() {
             String strRetValue=null;
             System.out.println("Sending Data");
             long tStart = System.currentTimeMillis();
+            if(isLogAllowed){
+                appendLog(ja.toString());
+            }
             try {
                 System.out.println(ja.toString());
                 strRetValue = JsonWebService.postJSON(url, ja.toString(), 15000);
@@ -1785,8 +2200,10 @@ public static void setDomain() {
         JSONArray jaUser = new JSONArray();
         //String url = "http://" + server + ":"+ port + "/api/List/JourneyPlan/pull";
         User user=null;
+        String protocol;
+        protocol = mPrefs.getString(wsDomainName, "http");
         // TODO: Make a new request with short reply
-        String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort), 5000);
+        String userString = JsonWebService.getJSON(getPingAddress(wsDomainName, wsPort, protocol), 5000);
         try {
             if (userString != null) {
                 //jaUser = new JSONArray(userString);
@@ -1826,7 +2243,57 @@ public static void setDomain() {
 
         return true;
     }
-    private static boolean uploadMultipartImage(String uFile) {
+    public static boolean uploadMultipartImage(String uFile) {
+        return uploadMultipartImage(uFile,null);
+    }
+    public static Promise uploadMultipartImageAsync(String uFile,IssueImage issueImage) {
+
+        /*String file_path= Environment.getExternalStorageDirectory()+"/"+Globals.imageFolderName
+                +"/"+uFile;*/
+        Promise promise=new Promise();
+        String file_path= getImgPath(uFile);
+        String url=wsBaseURL + "applicationresources/upload";
+        sendBroadcastMessage(OBSERVABLE_MESSAGE_UPLOADING_IMAGE,uFile);
+
+        Log.d("Uri", "Do file path" + file_path);
+        HttpURLConnection c = null;
+        try {
+            final boolean retValue[]={false,false};
+            Context context=mainActivity!=null?mainActivity:loginContext;
+            Ion.getDefault(context).getConscryptMiddleware().enable(false);
+            //TODO: Enhance this function to support false return
+            Ion.with(context)
+                    .load(url)
+                    .setMultipartParameter("name", issueImage!=null?issueImage.getMd5():"")
+                    .setMultipartFile("image", "image/jpeg", new File(file_path))
+                    .asString()
+                    .setCallback(new FutureCallback<String>() {
+                        @Override
+                        public void onCompleted(Exception e, String result) {
+                            if(e!=null){
+                                e.printStackTrace();
+                                if(issueImage!=null) {
+                                    issueImage.setStatus(ISSUE_IMAGE_STATUS_ERROR);
+
+                                }
+                                promise.reject(e);
+                            }else{
+                                if(issueImage!=null) {
+                                    issueImage.setStatus(ISSUE_IMAGE_STATUS_UPLOADED);
+                                }
+                                promise.resolve(issueImage);
+                            }
+                        }
+                    });
+        }catch (Exception e)
+        {
+
+            Log.d("Globals","uploadMultipartImage:"+e.toString());
+            promise.reject(e);
+        }
+        return promise;
+    }
+    public static boolean uploadMultipartImage(String uFile,IssueImage issueImage) {
 
         /*String file_path= Environment.getExternalStorageDirectory()+"/"+Globals.imageFolderName
                 +"/"+uFile;*/
@@ -1838,9 +2305,11 @@ public static void setDomain() {
         HttpURLConnection c = null;
         try {
             final boolean retValue[]={false,false};
+            Ion.getDefault(mainActivity).getConscryptMiddleware().enable(false);
+            //TODO: Enhance this function to support false return
             Ion.with(mainActivity)
                     .load(url)
-                    .setMultipartParameter("name", "source")
+                    .setMultipartParameter("name", issueImage!=null?issueImage.getMd5():"")
                     .setMultipartFile("image", "image/jpeg", new File(file_path))
                     .asString()
                     .setCallback(new FutureCallback<String>() {
@@ -1849,8 +2318,14 @@ public static void setDomain() {
                             if(e!=null){
                                 e.printStackTrace();
                                 retValue[1] =false;
+                                if(issueImage!=null) {
+                                    issueImage.setStatus(ISSUE_IMAGE_STATUS_ERROR);
+                                }
                             }else{
                                 retValue[1] =true;
+                                if(issueImage!=null) {
+                                    issueImage.setStatus(ISSUE_IMAGE_STATUS_UPLOADED);
+                                }
                             }
                             retValue[0]=true;
 
@@ -1897,6 +2372,7 @@ public static void setDomain() {
         sendBroadcastMessage(OBSERVABLE_MESSAGE_UPLOADING_IMAGE,uFile);
 
         Log.d("Uri", "Do file path" + file_path);
+        Ion.getDefault(mainActivity).getConscryptMiddleware().enable(false);
         HttpURLConnection c = null;
         try {
             final boolean[] retValue = {false,false};
@@ -1933,6 +2409,53 @@ public static void setDomain() {
             Log.d("Globals","uploadMultipartVoice:"+e.toString());
         }
         return true;
+    }
+    private static Promise uploadMultipartVoiceAsync(String uFile,IssueVoice issueVoice) {
+
+        /*String file_path= Environment.getExternalStorageDirectory()+"/"+Globals.voiceFolderName
+                +"/"+uFile;*/
+        Promise p =new Promise();
+        String file_path= getVoicePath(uFile);
+        String url=wsBaseURL + "applicationresources/uploadAudio";
+        sendBroadcastMessage(OBSERVABLE_MESSAGE_UPLOADING_IMAGE,uFile);
+        Context context=mainActivity!=null?mainActivity:loginContext;
+        Log.d("Uri", "Do file path" + file_path);
+        Ion.getDefault(context).getConscryptMiddleware().enable(false);
+        HttpURLConnection c = null;
+        try {
+            final boolean[] retValue = {false,false};
+            Ion.with(context)
+                    .load(url)
+                    .setMultipartParameter("name", "source")
+                    .setMultipartFile("voice", "audio/mp4", new File(file_path))
+                    .asString().setCallback(new FutureCallback<String>() {
+                @Override
+                public void onCompleted(Exception e, String result) {
+                    if(e!=null){
+                        //e.printStackTrace();
+                        retValue[1] =false;
+                        if(issueVoice!=null){
+                            issueVoice.setStatus(ISSUE_IMAGE_STATUS_ERROR);
+                        }
+                        p.reject(e);
+                    }else{
+                        retValue[1] =true;
+                        if(issueVoice!=null){
+                            issueVoice.setStatus(ISSUE_IMAGE_STATUS_UPLOADED);
+                        }
+                        p.resolve(issueVoice);
+                    }
+                    retValue[0]=true;
+                    //do stuff with result
+
+                }
+            });
+        }catch (Exception e)
+        {
+
+            Log.d("Globals","uploadMultipartVoiceAsync:"+e.toString());
+        }
+        return p;
     }
 
     public static List<StaticListItem> getListFromWeb(String listName){
@@ -2369,8 +2892,8 @@ public static void setDomain() {
         //dbHandler.close();
         return true;
     }
-    public static String getPingAddress(String server, String port){
-        return "http://" + server + ":"+ port + "/api/List/user/300";
+    public static String getPingAddress(String server, String port, String protocol){
+        return protocol+"://" + server + ":"+ port + "/api/List/user/300";
     }
     public static Animation getBlinkAnimation(){
         Animation blinkAnimation;
@@ -2382,6 +2905,7 @@ public static void setDomain() {
         return blinkAnimation;
     }
     public static void initConfigs(){
+        orgCode = "ps19";
         if(appName == AppName.SCIM){
             isSingleDefectSelection = true; // For selection of single defect code
             isIssueUpdateAllowed = false; // For updating issue after reported
@@ -2398,6 +2922,7 @@ public static void setDomain() {
             isShowSwitchInspection = false; // For display of switch selection as separate dropdown
             isSmartObjectAvailable=true; // For new set of data update service
             PREFS_KEY_SERVER = "SCIM SERVER INFO";
+            defaultServerName = "SITE";
         } else if (appName == AppName.TIMPS) {
             isSingleDefectSelection = true; // For selection of single defect code
             isIssueUpdateAllowed = false; // For updating issue after reported
@@ -2414,6 +2939,24 @@ public static void setDomain() {
             isShowSwitchInspection = true; // For display of switch selection as separate dropdown
             isSmartObjectAvailable=true; // For new set of data update service
             PREFS_KEY_SERVER = "TIPS SERVER INFO";
+        } else if (appName == AppName.EUIS) {
+            isSingleDefectSelection = true; // For selection of single defect code
+            isIssueUpdateAllowed = false; // For updating issue after reported
+            isWConditionMustReq = false; // For weather condition must req
+            isMpReq = false; // For milepost entry at the start of run
+            isTraverseReq = false; // For traverse by selection at the start of run
+            isWConditionReq = false; // For weather condition display
+            isBackOnTaskClose = true; // For auto back on run close
+            isInspectionTypeReq = false; // For displaying inspection type
+            isBypassTaskView = true; // For use single clock
+            isUseDefaultAsset = true; // For using main track as default asset
+            isUseRailDirection = false; // For the display of rail direction selection
+            showNearByAssets = false; // For showing nearby asset
+            isShowSwitchInspection = false; // For display of switch selection as separate dropdown
+            isSmartObjectAvailable=true; // For new set of data update service
+            PREFS_KEY_SERVER = "EUIS SERVER INFO";
+            defaultServerName = "EUIS";
+
         }
     }
     public static void setLastLocInPref(SharedPref pref ){
@@ -2455,6 +2998,44 @@ public static void setDomain() {
     public static void isMaintainerRole(String role){
         isMaintainer = role.equals(Globals.MAINTENANCE_ROLE_NAME);
     }
+    public static String getHosData(Context context, String startDate, String endDate){
+        String url=wsBaseURL +"users/hos/"+ user.get_id()+"/"+"?";
+        url+="startDate=" + startDate;
+        url+="&endDate=" + endDate;
+        url+="&id=" + user.get_id();
+        String jsonObject=null;
+        jsonObject = JsonWebService.getJSON(url , 5000);
+        if(jsonObject==null)
+        {
+            return  null;
+        }
+        return jsonObject;
+    }
+    public static String updateHosData(Context context, String startDate, String endDate,String comments){
+        String url=wsBaseURL +"users/hos/"+ user.get_id()+"/";
+        String jsonObject=null;
+        try {
+            JSONObject joInputData = new JSONObject();
+            JSONObject joInputDetail = new JSONObject();
+            joInputDetail.put("startDate", startDate);
+            if(!endDate.equals("")) {
+                joInputDetail.put("endDate", endDate);
+            }
+            joInputDetail.put("comments",comments);
+            joInputDetail.put("email", userEmail);
+            jsonObject = JsonWebService.putJSON(url, joInputDetail.toString(), 5000);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(jsonObject==null)
+        {
+            return  null;
+        }
+        return jsonObject;
+    }
+
     public static boolean updatePassword(Context context, String oldPassword, String newPassword){
         String url=wsBaseURL +"users/"+ user.get_id()+"/"+"password";
         String jsonObject=null;
@@ -2473,6 +3054,31 @@ public static void setDomain() {
         if(jsonObject==null)
         {
             return  false;
+        }
+        return true;
+    }
+    public static boolean addUpdateUserImgName(IssueImage img, String mode){
+        String url=wsBaseURL +"users/"+ user.get_id()+"/"+"update";
+        String jsonObject=null;
+        try {
+            JSONObject joInputData = new JSONObject();
+            JSONObject joInputDetail = new JSONObject();
+            joInputDetail.put(mode, img.getJsonObject());
+            jsonObject = JsonWebService.putJSON(url, joInputDetail.toString(), 5000);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if(jsonObject==null)
+        {
+            return  false;
+        } else {
+            try {
+                user = new User(new JSONObject(jsonObject));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
         return true;
     }
@@ -2502,6 +3108,11 @@ public static void setDomain() {
         selectedTask=task;
     }
     public static Task getSelectedTask(){
+        if(selectedTask== null){
+            if(selectedJPlan!=null){
+                selectedTask = selectedJPlan.getTaskList().get(0);
+            }
+        }
         return selectedTask;
     }
     public static Units getSelectedUnit(){
@@ -2693,6 +3304,187 @@ public static void setDomain() {
                 dialog.dismiss();
             }
         }
+    }
+    public static String getVersionUrl(){
+        String protocol = mPrefs.getString(wsDomainName, "http");
+        return protocol+"://" + wsDomainName + (wsPort.equals("") ? "" : (":" + wsPort) )+ wsVersionUrl;
+    }
+    public static String getVersionUrl(String server, String port, String protocol){
+        return protocol+"://" + server + ":"+port + wsVersionUrl;
+    }
+    public static VersionInfo getVersionInfo(){
+        Gson gson = new Gson();
+        String json = mPrefs.getString("VersionInfoObj", "");
+        VersionInfo version = gson.fromJson(json, VersionInfo.class);
+        return version;
+    }
+    public static void setVersionInfo(VersionInfo version){
+
+        Gson gson = new Gson();
+        String json = gson.toJson(version);
+        mPrefs.putString("VersionInfoObj", json);
+        versionInfo = version;
+    }
+    public static VersionInfo loadVersionInfo(){
+        VersionInfo version = null;
+        try {
+            String versionData = JsonWebService.getJSON(getVersionUrl(), 5000);
+            if(versionData!=null){
+                    version = new VersionInfo(new JSONObject(versionData));
+                    setVersionInfo(version);
+            }
+        } catch (Exception e) {
+            Log.e(TAG,e.toString());
+        }
+        return version;
+    }
+    public static String getWsDomain(){
+        String protocol = mPrefs.getString(wsDomainName, "http");
+        return protocol+"://" + wsDomainName + (wsPort.equals("") ? "" : (":" + wsPort) );
+    }
+    public static void setUrls(){
+        if(dbContext!=null){
+            wsBaseURL=getWsDomain()+"/api/";
+            wsImgURL = getWsDomain() + "/applicationresources/";
+            wsVersionUrl = "/api/version";
+            //public  static  String wsImageURL=wsDomain +"/images/";
+            wsReportURL=wsBaseURL+"Reports/";
+            wsFirmwareURL = "/assetEquipmentData/";
+        }
+    }
+    public static ATIVDefect getSelectedAtivDef(){
+        return sATIVDefect;
+    }
+    public static void setSelectedAtivDef(ATIVDefect aDefect){
+        sATIVDefect = aDefect;
+    }
+    public static LocationPrefix getLocPrefix(){
+        return selectedLocPrefix;
+    }
+    public static void setLocationPrefix(String id){
+        selectedLocPrefix = ListMap.getLocationPrefix(id);
+    }
+    public static String getPrefixMp(String mp){
+        String mpPrefix = null;
+        try {
+            if(getLocPrefix()!=null) {
+                mpPrefix = getLocPrefix().getPrefix(mp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(mpPrefix!=null){
+            return mpPrefix + " - " + mp;
+        } else {
+            return mp;
+        }
+    }
+    public static String getPrefixMpOnly(String mp){
+        String mpPrefix = null;
+        try {
+            if(getLocPrefix()!=null) {
+                mpPrefix = getLocPrefix().getPrefix(mp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(mpPrefix!=null){
+            return mpPrefix + " - ";
+        } else {
+            return "";
+        }
+    }
+    public static String getPrefixMp(String mp, String locId){
+        LocationPrefix locPrefix = ListMap.getLocationPrefix(locId);
+        if(locPrefix!=null) {
+            String mpPrefix = null;
+            try {
+                mpPrefix = locPrefix.getPrefix(mp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (mpPrefix != null) {
+                return mpPrefix + " - " + mp;
+            } else {
+                return mp;
+            }
+        }
+        return mp;
+    }
+    public static String getPrefixMpOnly(String mp, String locId){
+        LocationPrefix locPrefix = ListMap.getLocationPrefix(locId);
+        if(locPrefix!=null){
+            String mpPrefix = null;
+            try {
+                mpPrefix = locPrefix.getPrefix(mp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(mpPrefix!=null){
+                return mpPrefix + " - ";
+            } else {
+                return "";
+            }
+        }
+        return "";
+    }
+    private static StaticListItem findItem(ArrayList<StaticListItem> items, StaticListItem item){
+        for(StaticListItem _item:items){
+            if(_item.isEqual(item)){
+                return _item;
+            }
+        }
+        return  null;
+    }
+    public static Equipment getSelectedEquipment() {
+        return selectedEquipment;
+    }
+
+    public static void setSelectedEquipment(Equipment selectedEquipment) {
+        Globals.selectedEquipment = selectedEquipment;
+    }
+    public static String getFirmwareAddress(String name){
+        return getWsDomain() + wsFirmwareURL + name;
+    }
+    public static JobBriefing getSelectedJBriefing() {
+        return selectedJBriefing;
+    }
+
+    public static void setSelectedJBriefing(JobBriefing selectedJBriefing) {
+        Globals.selectedJBriefing = selectedJBriefing;
+    }
+    public static void updateUserInDb(IssueImage profImage,IssueImage sigImage){
+        List<StaticListItem> items= db.getListItems("user","","1");
+        if(items.size() == 1){//current user
+            String strParm2 = items.get(0).getOptParam2();
+            JSONObject jo= null;
+            try {
+                boolean updated = false;
+                jo = new JSONObject(strParm2);
+                if(profImage!= null && !profImage.getImgName().equals("")){
+                    profImage.setChangeOnly(false);
+                    JSONObject joImg = profImage.getJsonObject();
+                    jo.put("profile_img", joImg);
+                    updated = true;
+                }
+                if( sigImage!=null && !sigImage.getImgName().equals("")){
+                    sigImage.setChangeOnly(false);
+                    JSONObject joImg = sigImage.getJsonObject();
+                    jo.put("signature", joImg);
+                    updated = true;
+                }
+                if(updated) {
+                    items.get(0).setOptParam2(jo.toString());
+                    db.AddOrUpdateList("user", "", items.get(0));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static boolean isJourneyPlanValid(Context context, String code){
+        JourneyPlan jp = inbox.loadJourneyPlan(context, code);
+        return jp != null && jp.getIntervals() != null && jp.getIntervals().getSessions() != null && jp.getIntervals().getSessions().size() > 0;
     }
 }
 

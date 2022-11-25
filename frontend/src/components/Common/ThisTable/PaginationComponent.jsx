@@ -8,13 +8,13 @@ import { languageService } from "../../../Language/language.service";
 //
 // import _ from './utils'
 
-const defaultButtonNext = props => (
+const defaultButtonNext = (props) => (
   <button type="button" {...props} className=" myButtonNext" style={themeService(paginationStyle.myButtonNext)}>
     {props.children}
   </button>
 );
 
-const defaultButtonPrev = props => (
+const defaultButtonPrev = (props) => (
   <button type="button" {...props} className=" myButtonPrev" style={themeService(paginationStyle.myButtonPrev)}>
     {props.children}
   </button>
@@ -79,7 +79,7 @@ export default class PaginationComponent extends Component {
     let selectedStyle = {
       fontSize: "12px",
       padding: " 4px 10px",
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
       border: "2px solid #a7cdb8",
     };
     if (min < start) {

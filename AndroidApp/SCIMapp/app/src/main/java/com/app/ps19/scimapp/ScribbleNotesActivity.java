@@ -18,6 +18,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -44,6 +45,7 @@ public class ScribbleNotesActivity extends AppCompatActivity {
     //SurveyAnswers aList=null;
     //AnswerNotesItem answerNotesItem;
     boolean blnClearImage=false;
+    TextView tvAboveLineTxt;
 
 
     ImageView imgClear, imgBack;
@@ -105,7 +107,7 @@ public class ScribbleNotesActivity extends AppCompatActivity {
 
 
         Bitmap bitmap = parent.getDrawingCache();
-        bitmap = getResizedBitmap(bitmap, 800, 600);
+        bitmap = getResizedBitmap(bitmap, 480, 640);
 
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 60, stream);
@@ -140,6 +142,8 @@ public class ScribbleNotesActivity extends AppCompatActivity {
         parent.setDrawingCacheEnabled(true);
         imgClear=findViewById(R.id.imgClear_asn);
         imgBack=findViewById(R.id.imgBack_asn);
+        tvAboveLineTxt = findViewById(R.id.tv_above_line);
+        tvAboveLineTxt.setRotation(90);
         imgBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,6 +255,7 @@ public class ScribbleNotesActivity extends AppCompatActivity {
 
         // CREATE A MATRIX FOR THE MANIPULATION
         Matrix matrix = new Matrix();
+        matrix.setRotate(-90);
         // RESIZE THE BIT MAP
         matrix.postScale(scaleWidth, scaleHeight);
 

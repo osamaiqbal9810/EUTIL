@@ -60,6 +60,27 @@ public class AssetType implements IConvertHelper {
     private Context context;
     private Form form;
     private boolean isInspectable = false;
+    private String displayName="";
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public boolean isPlanable() {
+        return isPlanable;
+    }
+
+    public void setPlanable(boolean planable) {
+        isPlanable = planable;
+    }
+
+    private boolean isPlanable = false;
+
+
     private boolean isMarkerMilepost = false;
 
     public Form getForm() {
@@ -107,8 +128,10 @@ public class AssetType implements IConvertHelper {
             setInstructions(jsonObject.optString("inspectionInstructions",""));
             setLocation(jsonObject.optBoolean("location", false));
             setInspectable(jsonObject.optBoolean("inspectable", false));
+            setPlanable(jsonObject.optBoolean("plannable", false));
             setMarkerMilepost(jsonObject.optBoolean("markerMilepost", false));
             setAssetTypeClassify(jsonObject.optString("assetTypeClassify",""));
+            setDisplayName(jsonObject.optString("displayName",""));
             if(jsonObject.optJSONObject("defectCodesObj") !=null) {
                 defectCodes = new DefectCode(jsonObject.optJSONObject("defectCodesObj"));
             }else{

@@ -15,11 +15,11 @@ import { unitsFactors } from "@turf/turf";
 
 let loginUser = async function(req, res, next) {
   let tenantId = tenantInfo.getTenantId(req.hostname);
-
+console.log(req.body);
   //console.log(tenantId);
   //let user= await User.findOne({tenantId:'ps19'}).populate({path:'userGroup',populate :{path: 'permissions'}}).exec();
+  // console.log(user);
   User.findOne({ tenantId: tenantId, email: req.body.user.email }, function(err, result) {
-    console.log(result); 
     if (err) return res.send({ "Error on the server.": err });
     if (!result) {
       res.status(403);
@@ -74,6 +74,6 @@ let loginUser = async function(req, res, next) {
     populate: { path: "permissions", select: ["resource", "action", "name"] },
   });
 };
-
+console.log(loginUser);
 router.post("/", loginUser);
 module.exports = router;

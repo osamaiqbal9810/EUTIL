@@ -107,7 +107,7 @@ public class DynFormTable implements IConvertHelper,IViewController {
         this.layoutTable.removeView(form.getLayoutListItem());
         this.getFormData().remove(form);
     }
-    public DynForm addNewRow(){
+    public DynForm addNewRow(DynForm parentForm){
 
         try {
             DynForm form1=(DynForm) getForm().clone();
@@ -115,7 +115,8 @@ public class DynFormTable implements IConvertHelper,IViewController {
             form1.cloneFieldList(this.getForm().getFormControlList());
             form1.setFormName(this.parentControl.getFieldName());
             form1.setChangeEventListener(this.parentControl.getListener());
-            form1.setParentControl(this.parentControl);
+            form1.setParentControl(parentForm.getFormControlListMap().get(this.parentControl.getId()));
+            form1.setParentForm(parentForm);
             this.getFormData().add(form1);
             //form1.generateListItemLayout(this.parentControl.getParentControl().getContext());
             form1.generateListItemLayout(this.getContext());
@@ -163,6 +164,9 @@ public class DynFormTable implements IConvertHelper,IViewController {
                         //Toast.makeText(DynFormTable.this.context,"Add code goes here",Toast.LENGTH_SHORT).show();
                         if(valueChangeEventListener!=null) {
                             valueChangeEventListener.onObjectAddClick(parentControl);
+                            if(parentControl!=null){
+                                parentControl.getParentControl().setDirty(true);
+                            }
                         }
                     }
                 });

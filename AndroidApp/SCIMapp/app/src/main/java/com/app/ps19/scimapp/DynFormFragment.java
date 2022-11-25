@@ -14,25 +14,30 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ps19.scimapp.Shared.Globals;
+import com.app.ps19.scimapp.classes.dynforms.DynControlType;
 import com.app.ps19.scimapp.classes.dynforms.DynForm;
 import com.app.ps19.scimapp.classes.dynforms.DynFormControl;
 import com.app.ps19.scimapp.classes.dynforms.DynFormList;
 import com.app.ps19.scimapp.classes.dynforms.OnValueChangeEventListener;
 import com.app.ps19.scimapp.classes.dynforms.defaultvalues.DynFormDv;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import static com.app.ps19.scimapp.Shared.Globals.PING_ADDRESS;
 import static com.app.ps19.scimapp.Shared.Globals.appName;
 import static com.app.ps19.scimapp.Shared.Globals.docFolderName;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.scimapp.Shared.Utilities.getDocumentPath;
@@ -55,6 +60,12 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
         //rootView=null;
         selectForm(form);
         this.rootView.invalidate();
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.fullScroll(scrollView.FOCUS_UP);
+            }
+        });
     }
 
     public interface OnFormClickListener{
@@ -72,6 +83,7 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
     private LinearLayout formLayoutHeader;
     private ArrayAdapter<String> formListAdapter;
     private View rootView=null;
+    private ScrollView scrollView=null;
     private Button btnSave;
     private Button btnCancel;
     private TextView tvFormTitle;
@@ -184,13 +196,17 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
             formLayout=rootView.findViewById(R.id.layoutFormDetails);
             formToolbox=rootView.findViewById(R.id.layoutToolbox_fdf);
             formLayoutHeader=rootView.findViewById(R.id.layoutFormHeader);
-
+            scrollView=rootView.findViewById(R.id.scrollViewAppForm);
             llTestFormsContainer = rootView.findViewById(R.id.ll_instructions);
             spTestForms = rootView.findViewById(R.id.sp_forms);
             btViewInfo = rootView.findViewById(R.id.bt_view_info);
 
             ArrayList<String> formsList;
-            formsList = form.getPdfFiles(selectedUnit.getAssetType());
+            if(selectedUnit!=null) {
+                formsList = form.getPdfFiles(selectedUnit.getAssetType());
+            }else{
+                formsList =new ArrayList<>();
+            }
             if(appName == Globals.AppName.TIMPS){
                 llTestFormsContainer.setVisibility(View.GONE);
             } else if (appName == Globals.AppName.SCIM){
@@ -209,7 +225,11 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
 
             // attaching data adapter to spinner
             spTestForms.setAdapter(dataAdapter);
-
+            if(formsList.size()==0){
+                btViewInfo.setEnabled(false);
+            } else {
+                btViewInfo.setEnabled(true);
+            }
             btViewInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -255,15 +275,31 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
                         JSONObject jo=form.getJsonObject();
                         if(jo !=null) {
                             try {
+/*                                DynForm mainForm=null;
                                 //Globals.selectedTask.setAppForms(formList);
                                 //Globals.selectedJPlan.update();
                                 if(form.getParentControl()!=null){
                                     if(form.getParentControl().getParentControl()!=null){
+                                        mainForm=form.getParentControl().getParentControl();
                                         form.getParentControl().getParentControl().generateLayout(form.getParentControl().getParentControl().getContext());
                                     }
+                                    //Sync formTable with currentValue
+                                    JSONArray jaFormData=new JSONArray();
+                                    for(DynForm dynForm:form.getParentControl().getFormTable().getFormData()){
+                                        jaFormData.put(dynForm.getJsonObject());
+                                    }
+                                    form.getParentControl().setCurrentValue(jaFormData.toString());
+                                }*/
+                                String validateMsg=form.validateForm();
+                                if(!validateMsg.equals("")){
+                                    Toast.makeText(getActivity(),validateMsg,Toast.LENGTH_SHORT).show();
+                                    return;
                                 }
-                                Globals.selectedTask.setDirty(true);
+                                getSelectedTask().setDirty(true);
                                 form.updateForm();
+/*                                if(mainForm!=null){
+                                    mainForm.updateForm();
+                                }*/
                             } catch (Exception e) {
                                 e.printStackTrace();
                                 String text=getResources().getString(R.string.error_update);
@@ -272,6 +308,9 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
 
                             String text = getResources().getString(R.string.successfully_updated); //jo.toString(5);
                             Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
+                            //form.resetFormToNull();
+                            form.getLayout().invalidate();
+                            getActivity().onBackPressed();
                         }else{
                             String text="Unable to find any changes";
                             Toast.makeText(activity, text, Toast.LENGTH_LONG).show();
@@ -314,6 +353,7 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
         boolean showSaveOption=false;
         form.setChangeEventListener(DynFormFragment.this);
         form.setDirty(false);
+        form.setLoading(true);
         if((form.getCurrentValues()==null) || (form.getCurrentValues() !=null && form.getCurrentValues().size()==0)) {
             if (selectedUnit != null && selectedUnit.getDefaultFormValues() != null) {
                 for (DynFormDv dForm : selectedUnit.getDefaultFormValues().formList) {
@@ -336,8 +376,19 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
                 }
             }
         }
-
-        if(forceRedraw || form.getLayout()==null ){
+        boolean isEmptyRowExists=false;
+        for(DynFormControl control:form.getFormControlList()){
+            if(control.getFieldType()== DynControlType.Table){
+                for(DynForm form1: control.getFormTable().getFormData()){
+                    if(form1.getCurrentValues()==null || (form1.isNewForm() && !form1.isDirty())){
+                        control.getFormTable().removeRow(form1);
+                        isEmptyRowExists=true;
+                        break;
+                    }
+                }
+            }
+        }
+        if(forceRedraw || form.getLayout()==null|| isEmptyRowExists ){
             form.generateLayout(getActivity());
         }
         //form.setChangeEventListener(DynFormFragment.this);
@@ -356,6 +407,7 @@ public class DynFormFragment extends Fragment implements OnValueChangeEventListe
             formLayout.addView(layout);
             formLayout.postInvalidate();
         }
+        form.setLoading(false);
 
     }
     @Override

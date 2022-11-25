@@ -5,8 +5,8 @@
   /* height: 34px; */
   padding: 2px 2px;
   font-size: 12px;
-  color: rgba(64, 118, 179);
-  background-color: #fff;
+  color: var(--first);
+  background-color: var(--fifth);
   background-image: none;
   border: 1px solid #e3e9ef;
   border-radius: 2px;

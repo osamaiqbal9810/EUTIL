@@ -55,6 +55,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
 import static com.app.ps19.tipsapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
 
@@ -351,10 +352,15 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements
         /*mCurrLocationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(mLocation.getLatitude(), mLocation.getLongitude())).title("Current Location")
                 .icon(BitmapDescriptorFactory.fromBitmap(getMarkerBitmapFromView(R.drawable.ic_person_white_24dp))));*/
         LatLng sydney = new LatLng(-33.852, 151.211);
-        LatLng asset = new LatLng(Double.parseDouble(selectedUnit.getCoordinates().get(0).getLat()), Double.parseDouble(selectedUnit.getCoordinates().get(0).getLon()));
-        googleMap.addMarker(new MarkerOptions()
-                .position(asset)
-                .title(selectedUnit.getAssetType()).snippet(selectedUnit.getDescription()));
+        LatLng asset = null;
+        try {
+            asset = new LatLng(Double.parseDouble(selectedUnit.getCoordinates().get(0).getLat()), Double.parseDouble(selectedUnit.getCoordinates().get(0).getLon()));
+            googleMap.addMarker(new MarkerOptions()
+                    .position(asset)
+                    .title(selectedUnit.getAssetTypeDisplayName()).snippet(selectedUnit.getDescription()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if(isPrevAvailable){
             if(adjustedMarker!=null){
                 adjustedMarker.remove();
@@ -413,7 +419,7 @@ public class UnitCordsAdjActivity extends AppCompatActivity implements
         String lat2 = coordinatesAdj!=null ? coordinatesAdj.getCoordinates().size()>0?String.valueOf(coordinatesAdj.getCoordinates().get(0).latitude).equals("0.0")?"":String.valueOf(coordinatesAdj.getCoordinates().get(0).latitude) : "":"";
         String lng2 =coordinatesAdj!=null ? coordinatesAdj.getCoordinates().size()>0?String.valueOf(coordinatesAdj.getCoordinates().get(0).longitude).equals("0.0")?"":String.valueOf(coordinatesAdj.getCoordinates().get(0).longitude) : "":"";
 
-        tvMilepost.setText(selectedUnit.getStart());
+        tvMilepost.setText(getPrefixMp(selectedUnit.getStart()));
         tvLat1.setText(lat1);
         tvLong1.setText(lng1);
         tvLat2.setText(lat2);

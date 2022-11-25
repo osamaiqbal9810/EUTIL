@@ -1,27 +1,23 @@
 package com.app.ps19.scimapp;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.location.Location;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.scimapp.classes.Units;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import android.provider.ContactsContract;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -39,7 +35,7 @@ import android.widget.Toast;
 
 import com.app.ps19.scimapp.Shared.FragmentToActivityInterface;
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.LatLong;
 import com.app.ps19.scimapp.classes.Report;
@@ -54,8 +50,9 @@ import static android.app.Activity.RESULT_OK;
 import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.appName;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedDUnit;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+//import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 
 /**
@@ -66,7 +63,7 @@ import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
  * Use the {@link IssueFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class IssueFragment extends Fragment {
+public class IssueFragment extends Fragment implements OnLocationUpdatedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -85,7 +82,7 @@ public class IssueFragment extends Fragment {
     ListView reportList;
     Context context;
     // GPSTracker class
-    GPSTracker gps;
+    // GPSTracker gps;
     TextView taskTitle;
     TextView taskDesc;
     TextView taskNotes;
@@ -107,12 +104,12 @@ public class IssueFragment extends Fragment {
     LinearLayout llLinearAssetContainer;
     LinearLayout llFixedAssetContainer;
     LinearLayout llSwitchContainer;
-    Location location;
+    //Location location;
     ImageView fixAssetLocationEdit;
     FragmentToActivityInterface callback;
     Task task;// = new Task(context);
     // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+    //private MyReceiver myReceiver;
     assetAdapter staticAdapter;
     assetAdapter sortedAdapter;
     assetAdapter switchAdapter;
@@ -151,7 +148,9 @@ public class IssueFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        myReceiver = new MyReceiver();
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+        // myReceiver = new MyReceiver();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -206,9 +205,9 @@ public class IssueFragment extends Fragment {
         //Hiding as not required
         tvAddHelp.setVisibility(View.GONE);
 
-        taskTitle.setText(Globals.selectedTask.getTitle());
-        taskDesc.setText(Globals.selectedTask.getDescription());
-        taskNotes.setText(Globals.selectedTask.getNotes());
+        taskTitle.setText(getSelectedTask().getTitle());
+        taskDesc.setText(getSelectedTask().getDescription());
+        taskNotes.setText(getSelectedTask().getNotes());
         //Hiding as not required to display here
         taskNotes.setVisibility(View.GONE);
         //setAdapter(Globals.selectedUnit.getUnitId());
@@ -230,7 +229,7 @@ public class IssueFragment extends Fragment {
         } else {
             adapter = new reportAdapter(getActivity(), Globals.selectedTask.getFilteredReports(unitId), unitId);
         }*/
-        adapter = new reportAdapter(getActivity(), Globals.selectedTask.getReportList(), unitId);
+        adapter = new reportAdapter(getActivity(), getSelectedTask().getReportList(), unitId);
         reportList.setAdapter(adapter);
 
         llLinearAsset.setOnClickListener(new View.OnClickListener() {
@@ -265,7 +264,7 @@ public class IssueFragment extends Fragment {
                 getActivity().startActivity(intent);
             }
         });*/
-        staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+        staticList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = staticList.iterator(); it.hasNext(); ) {
             //if (it.next().getDistance()>=0) {
             //    it.remove();
@@ -274,7 +273,7 @@ public class IssueFragment extends Fragment {
                 it.remove();
             }
         }
-        sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+        sortedList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext(); ) {
             if (it.next().isLinear()) {
                 it.remove();
@@ -426,14 +425,14 @@ public class IssueFragment extends Fragment {
         reportList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                position = selectedTask.getReportList().size() - 1 - position;
+                position = getSelectedTask().getReportList().size() - 1 - position;
                 Globals.selectedReportIndex = position;
                /* if (Globals.selectedReportType.equals(ASSET_TYPE_ALL_TXT)) {
                     Globals.selectedReport = Globals.selectedTask.getReportList().get(position);
                 } else {
                    //Globals.selectedReport = Globals.selectedTask.getFilteredReports(selectedUnit.getUnitId()).get(position);
                 }*/
-                Globals.selectedReport = Globals.selectedTask.getReportList().get(position);
+                Globals.selectedReport = getSelectedTask().getReportList().get(position);
                 Globals.newReport = null;
                 Globals.selectedCategory = Globals.selectedReportType;
                /* if (Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
@@ -463,7 +462,7 @@ public class IssueFragment extends Fragment {
                 /*adapter = new reportAdapter(mActivity, Globals.selectedTask.getReportList(), unitId);
                 reportList.setAdapter(adapter);
                 adapter.notifyDataSetChanged();*/
-                Collections.reverse(selectedTask.getReportList());
+                Collections.reverse(getSelectedTask().getReportList());
                 setAdapter("");
                 selectAssetItem();
             }
@@ -474,7 +473,7 @@ public class IssueFragment extends Fragment {
         }
         collapseList();
         updateView();
-        if (Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+        if (getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
             fab.hide(); //fab.setVisibility(View.GONE);
             tvAddHelp.setVisibility(View.GONE);
             llFixedAssetContainer.setVisibility(View.GONE);
@@ -500,8 +499,8 @@ public class IssueFragment extends Fragment {
         } else {
             adapter = new reportAdapter(getActivity(), Globals.selectedTask.getFilteredReports(type), type);
         }*/
-        Collections.reverse(selectedTask.getReportList());
-        adapter = new reportAdapter(mActivity, Globals.selectedTask.getReportList(), type);
+        Collections.reverse(getSelectedTask().getReportList());
+        adapter = new reportAdapter(mActivity, getSelectedTask().getReportList(), type);
         reportList.setAdapter(adapter);
     }
 
@@ -550,6 +549,25 @@ public class IssueFragment extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+        if(!LocationUpdatesService.canGetLocation() || mLocation.getProvider() == "None") {
+            return;
+            // Utilities.showSettingsAlert(DashboardActivity.this);
+        }
+
+        if (mLocation != null) {
+            //cLocation = mLocation;
+            CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
+            LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
+            //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+            listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
+                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
+                        Toast.LENGTH_SHORT).show();*/
+        }
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -576,8 +594,10 @@ public class IssueFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver,
-                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+//        LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver,
+//                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         /*if(selectedUnit!=null){
             setAdapter(selectedUnit.getUnitId());
         }*/
@@ -587,30 +607,32 @@ public class IssueFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
+        //Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//        LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
         /*if(selectedUnit!=null){
             setAdapter(selectedUnit.getUnitId());
         }*/
     }
 
-    /**
-     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (mLocation != null) {
-                //cLocation = mLocation;
-                CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
-                LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
-                //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-                listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
-                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
-                        Toast.LENGTH_SHORT).show();*/
-            }
-        }
-    }
+//    /**
+//     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+//     */
+//    private class MyReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (mLocation != null) {
+//                //cLocation = mLocation;
+//                CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
+//                LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
+//                //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+//                listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
+//                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
+//                        Toast.LENGTH_SHORT).show();*/
+//            }
+//        }
+//    }
 
     public void listUpdate(String lat, String lon) {
 
@@ -619,7 +641,7 @@ public class IssueFragment extends Fragment {
             location = new LatLong(lat, lon);
             //staticList.clear();
             //TODO null check
-            staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+            staticList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = staticList.iterator(); it.hasNext(); ) {
                 //if (it.next().getDistance()>=0) {
                 //    it.remove();
@@ -630,7 +652,7 @@ public class IssueFragment extends Fragment {
             }
             Collections.sort(staticList, DUnit.UnitDistanceComparator);
             //sortedList.clear();
-            sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+            sortedList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext(); ) {
                 //if (it.next().getDistance()<0) {
                 //    it.remove();

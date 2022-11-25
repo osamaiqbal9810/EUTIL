@@ -13,18 +13,18 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-enum DynControlType{
-    Text,
-    Checkbox,
-    List,
-    RadioList,
-    Table,
-    Label,
-    Divider,
-    Date,
-    Number
-
-}
+//public enum DynControlType{
+//    Text,
+//    Checkbox,
+//    List,
+//    RadioList,
+//    Table,
+//    Label,
+//    Divider,
+//    Date,
+//    Number
+//
+//}
 
 public class DynFormControl implements IConvertHelper,Cloneable,IViewController {
     private String fieldName;
@@ -42,6 +42,25 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
     private boolean numberSigned=false;
     private boolean fieldEnabled=true;
     private boolean changeOnly=false;
+    private String tag;
+    private boolean active=false;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
     public boolean isChangeOnly() {
         return changeOnly;
     }
@@ -171,6 +190,7 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
                         form.setFormName(this.getFieldName());
                         form.setChangeEventListener(listener);
                         form.setParentControl(this);
+                        form.setParentForm(this.parentControl);
                         this.formTable.getFormData().add(form);
 
                     }
@@ -180,6 +200,16 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
             }
 
         }
+    }
+    public void setCurrentValueFromTable(){
+        JSONArray jaFormData=new JSONArray();
+        for(DynForm dynForm:getFormTable().getFormData()){
+            jaFormData.put(dynForm.getJsonObject());
+        }
+        if(this.parentControl!=null){
+            this.parentControl.controlValueChanged(getId(),jaFormData.toString());
+        }
+        //setCurrentValue(jaFormData.toString());
     }
     public DynFormControl(JSONObject jsonObject){
         parseJsonObject(jsonObject);
@@ -229,6 +259,7 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
             String defaultValue=jsonObject.optString("default","");
             String fontSize=jsonObject.optString("fontSize","");
             String value = jsonObject.optString("value",null);
+            String tag= jsonObject.optString("tag","");
             boolean _numberDecimal=jsonObject.optBoolean("numberDecimal",false);
             boolean _numberSigned=jsonObject.optBoolean("numberSigned",false);
             boolean _fieldEnabled=jsonObject.optBoolean("enabled",true);
@@ -250,6 +281,7 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
             this.numberDecimal=_numberDecimal;
             this.numberSigned=_numberSigned;
             this.fieldEnabled=_fieldEnabled;
+            this.tag=tag;
 
             if(this.fieldType==DynControlType.Table){
                 this.formTable=new DynFormTable(this,jaOptions);
@@ -283,6 +315,9 @@ public class DynFormControl implements IConvertHelper,Cloneable,IViewController 
         try {
             jsonObject.put("id", this.id);
             jsonObject.put("name", this.fieldName);
+            if(!getTag().equals("")){
+                jsonObject.put("tag",getTag());
+            }
             if(fieldType==DynControlType.Table){
                 JSONObject jsonObject1=formTable.getJsonObject();
                 if(jsonObject1 !=null){

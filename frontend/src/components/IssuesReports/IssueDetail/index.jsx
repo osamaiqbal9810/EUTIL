@@ -27,6 +27,7 @@ import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { substractObjects } from "../../../utils/utils";
 import { getAssetLinesWithSelf } from "../../../reduxRelated/actions/assetHelperAction";
 // import _ from "lodash";
+import { LocPrefixService } from "../../LocationPrefixEditor/LocationPrefixService";
 
 class IssueDetail extends Component {
   constructor(props) {
@@ -49,6 +50,7 @@ class IssueDetail extends Component {
     this.handleDefectCode = this.handleDefectCode.bind(this);
     this.formatLocation = this.formatLocation.bind(this);
     this.setIssueToState = this.setIssueToState.bind(this);
+    this.findAssetTypeDefectsByName = this.findAssetTypeDefectsByName.bind(this);
   }
 
   showToastInfo(message) {
@@ -74,16 +76,18 @@ class IssueDetail extends Component {
     if (this.props.assetTypes.length === 0) {
       this.props.getAssetType();
     }
+    this.props.getApplicationlookups("config/disableRule213");
   }
 
   setIssueToState() {
     let issue = this.props.location.state ? this.props.location.state.issue : null;
 
     if (issue) {
+      let startMPPrefix = LocPrefixService.getPrefixMp(issue.startMp, issue.lineId);
+      let endMPPrefix = LocPrefixService.getPrefixMp(issue.endMp, issue.lineId);
       if (!issue.lineName) {
         const line = this.props.lineAssets.find((l) => l._id === issue.lineId);
-        if (line)
-          issue.lineName = line.unitId;
+        if (line) issue.lineName = line.unitId;
       }
 
       if (typeof issue.location === "string") {
@@ -92,6 +96,8 @@ class IssueDetail extends Component {
           type: "Milepost",
           start: issue.startMp,
           end: issue.endMp,
+          sPrefix: startMPPrefix,
+          ePrefix: endMPPrefix,
         };
 
         issue.location = [];
@@ -124,6 +130,14 @@ class IssueDetail extends Component {
       prevProps.assetHelperActionType !== this.props.assetHelperActionType
     ) {
       this.setLineAssets(this.props.lineAssets);
+    }
+    if (
+      prevProps.applicationlookupsActionType !== this.props.applicationlookupsActionType &&
+      this.props.applicationlookupsActionType === "APPLICATIONLOOKUPS_READ_SUCCESS"
+    ) {
+      this.setState({
+        disableRule213Config: this.props.applicationlookups && this.props.applicationlookups[0] && this.props.applicationlookups[0].opt2,
+      });
     }
   }
 
@@ -194,8 +208,8 @@ class IssueDetail extends Component {
 
     if (maintenance && maintenance.unit && assetTypes) at = assetTypes.find((a) => a.assetType === maintenance.unit.assetType);
 
-    if (at && at.defectCodes) {
-      dc = at.defectCodes.details;
+    if (at && at.defectCodesObj) {
+      dc = at.defectCodesObj.details;
     }
 
     return dc;
@@ -219,7 +233,7 @@ class IssueDetail extends Component {
       let lat = l1.start.lat ? l1.start.lat.toString() : "";
       let lon = l1.start.lon ? l1.start.lon.toString() : "";
 
-      formatstr += l1.type === "GPS" ? lat + ", " + lon : this.format2Digit(l1.start);
+      formatstr += l1.type === "GPS" ? lat + ", " + lon : (l1.sPrefix ? l1.sPrefix : "") + this.format2Digit(l1.start);
 
       if (
         (typeof l1.end == "object" && l1.end != {} && Object.keys(diff).length != 0) ||
@@ -228,7 +242,7 @@ class IssueDetail extends Component {
         let endLat = l1.end.lat ? l1.end.lat.toString() : "";
         let endLon = l1.end.lon ? l1.end.lon.toString() : "";
         formatstr += " -> ";
-        formatstr += l1.type === "GPS" ? endLat + ", " + endLon : this.format2Digit(l1.end);
+        formatstr += l1.type === "GPS" ? endLat + ", " + endLon : (l1.ePrefix ? l1.ePrefix : "") + this.format2Digit(l1.end);
       }
 
       let style = { ...themeService(maintenaceDetailstyle.gpsIconTextStyle) };
@@ -377,6 +391,7 @@ class IssueDetail extends Component {
                 history={this.props.history}
                 findAssetTypeDefectsByName={this.findAssetTypeDefectsByName}
                 handleDefectCodeOpen={() => this.openModelMethod()}
+                disableRule213Config={this.state.disableRule213Config}
               />
               <Row>
                 <Col md="12">
@@ -398,8 +413,8 @@ class IssueDetail extends Component {
 
                     <Row>
                       <Col md="12">
-                        {/* <div style={themeService(maintenaceDetailstyle.fieldHeading)}>{languageService("Remedial Action")}:</div> */}
-                        <div style={themeService(maintenaceDetailstyle.fieldHeading)}> {languageService(remediation.title)} </div>
+                        <div style={themeService(maintenaceDetailstyle.fieldHeading)}>{languageService("Remedial Action")}:</div>
+                        <div style={themeService(maintenaceDetailstyle.fieldText)}> {languageService(remediation.title)} </div>
                         <br />
                         <div style={themeService(maintenaceDetailstyle.fieldText)}>
                           <div>
@@ -578,7 +593,7 @@ class IssueDetail extends Component {
 
 const getAssetType = curdActions.getAssetType;
 const updateIssuesReport = curdActions.updateIssuesReport;
-
+const getApplicationlookups = curdActions.getApplicationlookups;
 let actionOptions = {
   create: false,
   update: false,
@@ -588,6 +603,7 @@ let actionOptions = {
     getAssetType,
     updateIssuesReport,
     getAssetLinesWithSelf,
+    getApplicationlookups,
   },
 };
 
@@ -598,12 +614,14 @@ let variableList = {
   assetTypeReducer: {
     assetTypes: [],
   },
+  applicationlookupsReducer: { applicationlookups: [] },
 };
 
 const IssueDetailContainer = CRUDFunction(IssueDetail, "issuedetail", actionOptions, variableList, [
   "assetTypeReducer",
   "issuesReportReducer",
   "assetHelperReducer",
+  "applicationlookupsReducer",
 ]);
 
 export default IssueDetailContainer;

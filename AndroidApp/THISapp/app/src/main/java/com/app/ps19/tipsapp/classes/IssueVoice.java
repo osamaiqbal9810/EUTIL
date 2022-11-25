@@ -1,6 +1,7 @@
 package com.app.ps19.tipsapp.classes;
 
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
+import com.app.ps19.tipsapp.Shared.StaticListItem;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +9,15 @@ import org.json.JSONObject;
 public class IssueVoice implements IConvertHelper {
     private String voiceName;
     private int status;
+    private StaticListItem parent;
+
+    public void setParent(StaticListItem parent) {
+        this.parent = parent;
+    }
+
+    public StaticListItem getParent() {
+        return parent;
+    }
 
     public String getVoiceName() {
         return voiceName;

@@ -1,5 +1,9 @@
 package com.app.ps19.tipsapp.Shared;
 
+import static com.app.ps19.tipsapp.Shared.Globals.isServiceInCall;
+import static com.app.ps19.tipsapp.Shared.Globals.loginContext;
+import static com.app.ps19.tipsapp.Shared.Globals.mainActivity;
+
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -143,16 +147,20 @@ public class DataSyncProcessEx extends AsyncTask<Context,Integer,String>
             }
             //isNetAvailable = Globals.isInternetAvailable(params[0]);
             //isNetAvailable = false;
-            if( ! Globals.empCode.equals("") && ! Globals.orgCode.equals("") && !Globals.appid.equals("") && !Globals.isDayProcessRunning && !Globals.isServiceProcessing)
+            if( ! Globals.empCode.equals("") && ! Globals.orgCode.equals("") && !Globals.appid.equals("") && !Globals.isDayProcessRunning && !Globals.isServiceProcessing && !isServiceInCall)
             {
                 Globals.isServiceProcessing=true;
                 if(isNetAvailable) {
                     if (Globals.serviceHandle == Globals.SERVICE_AVAILABLE || Globals.serviceHandle == this.serviceHandle) {
-
+                        Log.i("DataSyncServiceEx","doInBackground:inside service process  ");
                         Globals.serviceHandle = this.serviceHandle;
                         Globals.sendBroadcastMessage(Globals.OBSERVABLE_MESSAGE_NETWORK_PUSH,"");
                         raiseStatusChangeEvent(Globals.SERVICE_STATUS_PUSH);
-                        int dataSent=Globals.webUploadMessageLists(this.context,Globals.orgCode);
+                        //int dataSent=Globals.webUploadMessageLists(this.context,Globals.orgCode);
+                        //int dataSent=Globals.webUploadMessageListsEx(this.context,Globals.orgCode);
+                        int dataSent=DataUploadHandler.getInstance().upload(Globals.dbContext,Globals.orgCode);
+
+
                         //int dataSent=Globals.webUploadMessageLists(((DashboardActivity) context).getApplicationContext(),Globals.orgCode);
 
                        /* } else {
@@ -193,7 +201,10 @@ public class DataSyncProcessEx extends AsyncTask<Context,Integer,String>
                 {
                     Globals.sendBroadcastMessage(Globals.OBSERVABLE_MESSAGE_NETWORK_DISCONNECTED,"");
                 }
+                Log.i("DataSyncServiceEx","doInBackground:exiting process  ");
                 Globals.isServiceProcessing=false;
+            } else {
+                Log.i("DataSyncServiceEx","doInBackground: already processing ");
             }
             publishProgress(intCount);
 

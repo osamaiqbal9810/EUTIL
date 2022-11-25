@@ -3,6 +3,7 @@ package com.app.ps19.scimapp;
 
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Stack;
 
 import static com.app.ps19.scimapp.Shared.Globals.getReportsURL;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 
 public class AppFormActivity extends AppCompatActivity implements DynFormFragment.OnFormClickListener {
@@ -32,6 +35,7 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
     private DynFormFragment secondaryForm;
     private boolean removeInProcess=false;
     private DynForm itemInFocus=null;
+    private boolean getGlobalForm=false;
 
     @Override
     protected void onStop() {
@@ -68,20 +72,28 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_app_form);
         //setContentView(R.layout.fragment_dyn_form);
-        ArrayList<DynForm> forms=Globals.selectedTask.getAppForms();
+        if(getSelectedTask()== null){
+            Toast.makeText(AppFormActivity.this,"System is not ready! Please try again...",Toast.LENGTH_SHORT).show();
+            finish();
+        }
+        ArrayList<DynForm> forms=getSelectedTask().getAppForms();
         if(savedInstanceState==null){
             //DynFormList.loadFormList();
-            forms=Globals.selectedTask.getAppForms();
+            forms=getSelectedTask().getAppForms();
         }
         Bundle b=getIntent().getExtras();
         String formName=b.getString("form");
         String assetType=b.getString("assetType");
+        boolean blnGetGlobalForm=b.getBoolean("getGlobalForm");
+        this.getGlobalForm=blnGetGlobalForm;
         if(!assetType.equals("")){
             forms=Globals.selectedUnit.getAppForms();
         }
         for(DynForm form:forms){
-            if(form.getFormName().equals(formName)){
-                Globals.selectedForm=form;
+            if(form.getFormName().equals(formName) || form.getFormId().equals(formName)){
+                if(!blnGetGlobalForm) {
+                    Globals.selectedForm = form;
+                }
                 break;
             }
         }
@@ -134,6 +146,15 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
     }
     private boolean backPressedHandler(){
         if(formStack.size()>0){
+            DynForm childForm= primaryForm.getForm();
+            if(childForm.isDirty()) {
+                String validateMsg=childForm.validateForm();
+                if(!validateMsg.equals("")){
+                    Toast.makeText(AppFormActivity.this,validateMsg,Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                childForm.updateForm();
+            }
             DynForm form=formStack.pop();
             Globals.selectedForm=form;
             primaryForm.setForm(form);
@@ -167,27 +188,37 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
                             .setTitle(getResources().getString(R.string.confirmation))
                             .setMessage(getResources().getString(R.string.message_save_changes))
                             .setIcon(android.R.drawable.ic_dialog_alert)
-                            .setPositiveButton("YES", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.briefing_yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Globals.selectedTask.setDirty(false);
+                                    String validateMsg=form.validateForm();
+                                    if(!validateMsg.equals("")){
+                                        Toast.makeText(AppFormActivity.this,validateMsg,Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    form.updateForm();
+                                    getSelectedTask().setDirty(false);
                                     Globals.selectedJPlan.update();
                                     finish();
+                                    //finishActivity(RESULT_OK);
+
                                 }
                             })
-                            .setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.briefing_no, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    Globals.selectedTask.setDirty(false);
+                                    getSelectedTask().setDirty(false);
                                     form.resetFormToNull();
+                                    //finishActivity(RESULT_OK);
                                     finish();
                                 }
                             }).show();
                     return false;
                     //Globals.selectedTask.setDirty(false);
                     //Globals.selectedJPlan.update();
-                }else if(Globals.selectedTask.isDirty()){
-                    Globals.selectedTask.setDirty(false);
+                }else if(getSelectedTask().isDirty()){
+                    getSelectedTask().setDirty(false);
                     Globals.selectedJPlan.update();
                 }
                 else{
@@ -252,15 +283,19 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
 
     @Override
     public void onFormAddClick(Fragment fragment, DynFormControl control) {
-        DynForm form = control.getFormTable().addNewRow();
+        DynFormControl control1=primaryForm.getForm().getFormControlListMap().get(control.getId());
+        DynForm form = control1.getFormTable().addNewRow(Globals.selectedForm);
         //control.getFormTable().generateLayout(this);
+        form.setNewForm(true);
+        form.setDirty(true);
         showForm(form);
-        //Toast.makeText(AppFormActivity.this,"Act.Form Add Clicked",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(AppFormActivity.this,"Form Add Clicked",Toast.LENGTH_SHORT).show();
     }
     private void showForm(DynForm form){
         //formStack.push(Globals.selectedForm);
         //Globals.selectedForm=form;
         formStack.push(Globals.selectedForm);
+        form.setParentForm(Globals.selectedForm);
         Globals.selectedForm=form;
         //primaryForm=DynFormFragment.newInstance("","");
         primaryForm.setForm(form);
@@ -331,7 +366,7 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
     @Override
     public void onFormItemRemoveClick(Fragment fragment,  DynFormControl control, DynForm item) {
         if(!removeInProcess){
-            Toast.makeText(AppFormActivity.this,"Press remove button again to confirm",Toast.LENGTH_SHORT).show();
+            Toast.makeText(AppFormActivity.this, getString(R.string.remove_buton_again_to_confirm),Toast.LENGTH_SHORT).show();
             removeInProcess=true;
             itemInFocus=item;
             Runnable runnable=new Runnable() {
@@ -341,21 +376,32 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
                     itemInFocus=null;
                 }
             };
+            final Handler handler=new Handler();
+            handler.postDelayed(runnable,3000);
 
         }else{
             removeInProcess=false;
             if(itemInFocus!=null ){
                 if(itemInFocus.equals(item)){
                     itemInFocus=null;
-                    if(item.getParentControl()!=null){
+/*                    if(item.getParentControl()!=null){
                         item.getParentControl().getFormTable().removeRow(item);
                         item.getParentControl().getParentControl().setDirty(true);
                         //.generateLayout(item.getParentControl().getParentControl().getContext());
                         //Toast.makeText(AppFormActivity.this,"Act.Form Removed",Toast.LENGTH_SHORT).show();
+                    }*/
+                    if(item.getParentForm()!=null){
+                        DynForm parentForm=item.getParentForm();
+                        DynFormControl parentControl=item.getParentControl();
+                        parentControl.getFormTable().removeRow(item);
+                        parentForm.setDirty(true);
+                        parentControl.setCurrentValueFromTable();
+                        //parentForm.getCurrentValues().put(parentControl.getId(),parentControl.getCurrentValue());
+                        Toast.makeText(AppFormActivity.this,"Form Removed",Toast.LENGTH_SHORT).show();
                     }
 
                 }else{
-                    Toast.makeText(AppFormActivity.this,"Press remove button again to confirm",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AppFormActivity.this,getString(R.string.remove_buton_again_to_confirm),Toast.LENGTH_SHORT).show();
                     removeInProcess=true;
                     itemInFocus=item;
                 }

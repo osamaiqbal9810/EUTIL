@@ -7,6 +7,8 @@ export const commonPageStyle = {
     },
     retro: {
       padding: "30px 0px 0px 15px",
+    }, electric: {
+      padding: "30px 0px 0px 15px",
     },
   },
   commonSummarySetupHeadingContainer: {
@@ -14,6 +16,9 @@ export const commonPageStyle = {
       padding: "0px 0px 30px 15px",
     },
     retro: {
+      padding: "0px 0px 0px 15px",
+    },
+    electric: {
       padding: "0px 0px 0px 15px",
     },
   },

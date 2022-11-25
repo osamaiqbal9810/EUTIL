@@ -1,10 +1,15 @@
 package com.app.ps19.tipsapp;
 
+import static com.app.ps19.tipsapp.Shared.Globals.markerItemsMap;
+
 import android.content.Context;
 
 import com.app.ps19.tipsapp.classes.LocItem;
+import com.app.ps19.tipsapp.classes.ativ.ATIVDefect;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Marker;
 import com.google.maps.android.clustering.Cluster;
+import com.google.maps.android.clustering.ClusterItem;
 import com.google.maps.android.clustering.ClusterManager;
 import com.google.maps.android.clustering.view.DefaultClusterRenderer;
 import com.google.maps.android.ui.IconGenerator;
@@ -16,6 +21,14 @@ public class AssetMarkerRender extends DefaultClusterRenderer<LocItem> {
         super(context, map, clusterManager);
         mContext = context;
         mClusterIconGenerator = new IconGenerator(mContext);
+    }
+    @Override
+    protected void onClusterItemRendered(LocItem clusterItem, Marker marker) {
+        ATIVDefect aDefect = clusterItem.getaDefect();
+        if(aDefect!=null){
+            markerItemsMap.put(marker.getId(),clusterItem);
+        }
+
     }
    /* @Override
     protected void onBeforeClusterItemRendered(LocItem item, MarkerOptions markerOptions) {

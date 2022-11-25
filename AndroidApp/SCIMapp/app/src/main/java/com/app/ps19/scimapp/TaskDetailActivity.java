@@ -27,6 +27,7 @@ import com.app.ps19.scimapp.classes.Task;
 import java.util.ArrayList;
 
 import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.ListMap.LIST_CATEGORY;
 
 
@@ -35,7 +36,7 @@ public class TaskDetailActivity extends AppCompatActivity {
     ListView reportList;
     Context context;
     // GPSTracker class
-    GPSTracker gps;
+    //GPSTracker gps;
     TextView taskTitle;
     TextView taskDesc;
     TextView taskNotes;
@@ -138,16 +139,16 @@ public class TaskDetailActivity extends AppCompatActivity {
         //setRailAdapter();
         //task.loadSampleData();
         //Globals.inbox.getJourneyPlans().get(0).getTaskList().get(0).getFilteredReportList(railsTxt);
-        taskTitle.setText(Globals.selectedTask.getTitle());
-        taskDesc.setText(Globals.selectedTask.getDescription());
-        taskNotes.setText(Globals.selectedTask.getNotes());
+        taskTitle.setText(getSelectedTask().getTitle());
+        taskDesc.setText(getSelectedTask().getDescription());
+        taskNotes.setText(getSelectedTask().getNotes());
         //adapter = new reportAdapter(this, Globals.selectedTask.getReportList(), "All");
         //adapter = new reportAdapter(this, task.getFilteredReportList(railsTxt), railsTxt);
         //reportList.setAdapter(adapter);
         Globals.selectedReportType = ASSET_TYPE_ALL_TXT;
         setAdapter(ASSET_TYPE_ALL_TXT);
 
-        if (Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+        if (getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
             fab.setVisibility(View.GONE);
         }
 
@@ -171,13 +172,13 @@ public class TaskDetailActivity extends AppCompatActivity {
                 Globals.selectedReportIndex = position;
                 //setReportSelection(Globals.selectedTask.getFilteredReportList(Globals.selectedReportType).get(position));
                 if (Globals.selectedReportType.equals(ASSET_TYPE_ALL_TXT)) {
-                    Globals.selectedReport = Globals.selectedTask.getReportList().get(position);
+                    Globals.selectedReport = getSelectedTask().getReportList().get(position);
                 } else {
-                    Globals.selectedReport = Globals.selectedTask.getFilteredReportList(Globals.selectedReportType).get(position);
+                    Globals.selectedReport = getSelectedTask().getFilteredReportList(Globals.selectedReportType).get(position);
                 }
                 Globals.newReport = null;
                 Globals.selectedCategory = Globals.selectedReportType;
-                if (Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+                if (getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
                     Intent viewMode = new Intent(context, ReportViewActivity.class);
                     startActivity(viewMode);
                 } else {
@@ -222,9 +223,9 @@ public class TaskDetailActivity extends AppCompatActivity {
 
     public void setAdapter(String type) {
         if (type.equals(ASSET_TYPE_ALL_TXT)) {
-            adapter = new reportAdapter(this, Globals.selectedTask.getReportList(), type);
+            adapter = new reportAdapter(this, getSelectedTask().getReportList(), type);
         } else {
-            adapter = new reportAdapter(this, Globals.selectedTask.getFilteredReportList(type), type);
+            adapter = new reportAdapter(this, getSelectedTask().getFilteredReportList(type), type);
         }
         reportList.setAdapter(adapter);
     }

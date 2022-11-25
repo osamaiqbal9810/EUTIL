@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,6 +18,7 @@ public class LocationsOpt {
     private List<String> _JourneyPlanAreaList = new ArrayList<>();
     private Map<String, ArrayList<JourneyPlanOpt>> _locationViseJourneyPlans = new ConcurrentHashMap<>();
     private Map<String, Integer> _JourneyPlanAreaColor = new HashMap<>();
+    private Hashtable<String, JourneyPlanOpt> _listVerification = new Hashtable<>();
 
     public ArrayList<JourneyPlanOpt> getJourneyPlanListByLocation(String area) {
         ArrayList<JourneyPlanOpt> ret = null;
@@ -24,6 +26,16 @@ public class LocationsOpt {
             ret = new ArrayList<JourneyPlanOpt>();
         } else {
             ret = _locationViseJourneyPlans.get(area);
+        }
+
+        try {
+            for(int i = 0 ; i < ret.size() ; i++){
+                if((ret.get(i).getId().equals("-1"))){
+                    ret.remove(i);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return ret;
@@ -47,9 +59,14 @@ public class LocationsOpt {
     }
 
     public void clear(){
-        _locationViseJourneyPlans.clear();
-        _JourneyPlanAreaList.clear();
-        _JourneyPlanAreaColor.clear();
+        try {
+            _locationViseJourneyPlans.clear();
+            _JourneyPlanAreaList.clear();
+            _JourneyPlanAreaColor.clear();
+            _listVerification.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -58,6 +75,10 @@ public class LocationsOpt {
     }
 
     public void addJourneyPlan(JourneyPlanOpt jpOpt) {
+        if(_listVerification.get(jpOpt.getuId())!=null){
+            return;
+        }
+        _listVerification.put(jpOpt.getuId(),jpOpt);
         if (!_locationViseJourneyPlans.containsKey("ALL")) {
             _locationViseJourneyPlans.put("ALL", new ArrayList<>());
             _JourneyPlanAreaList.add("ALL");
@@ -66,25 +87,25 @@ public class LocationsOpt {
 
         String location = jpOpt.getArea();
         int color = jpOpt.getColor();
-
-        if(!location.equals("")) {//we don't want to include empty location in out list
-
-            if (!_JourneyPlanAreaList.contains(location)) {
-                _JourneyPlanAreaList.add(location);
-            }
-            if(!_locationViseJourneyPlans.containsKey(location)){
-                _locationViseJourneyPlans.put(location, new ArrayList<>());
-                _JourneyPlanAreaColor.put(location, Globals.COLOR_TEST_NOT_ACTIVE);
-            }
-
-            if(color == Globals.COLOR_TEST_EXPIRING){
-                _JourneyPlanAreaColor.put(location,color);
-            }else if(color == Globals.COLOR_TEST_ACTIVE){
-                if(_JourneyPlanAreaColor.get(location) ==  Globals.COLOR_TEST_NOT_ACTIVE) {
-                    _JourneyPlanAreaColor.put(location, color);
+        if(!jpOpt.getId().equals("-1")){
+            if(!location.equals("")) {//we don't want to include empty location in out list
+                if (!_JourneyPlanAreaList.contains(location)) {
+                    _JourneyPlanAreaList.add(location);
                 }
+                if(!_locationViseJourneyPlans.containsKey(location)){
+                    _locationViseJourneyPlans.put(location, new ArrayList<>());
+                    _JourneyPlanAreaColor.put(location, Globals.COLOR_TEST_NOT_ACTIVE);
+                }
+
+                if(color == Globals.COLOR_TEST_EXPIRING){
+                    _JourneyPlanAreaColor.put(location,color);
+                }else if(color == Globals.COLOR_TEST_ACTIVE){
+                    if(_JourneyPlanAreaColor.get(location) ==  Globals.COLOR_TEST_NOT_ACTIVE) {
+                        _JourneyPlanAreaColor.put(location, color);
+                    }
+                }
+                _locationViseJourneyPlans.get(location).add(jpOpt);
             }
-            _locationViseJourneyPlans.get(location).add(jpOpt);
         }
 
     }
@@ -98,6 +119,16 @@ public class LocationsOpt {
                 }
             });
         }
+    }
+    public String getMaintenancePlanCode(){
+        ArrayList<JourneyPlanOpt> ret = _locationViseJourneyPlans.get("ALL");
+        for(int i = 0 ; i < ret.size() ; i++){
+            if((ret.get(i).getId().equals("-1"))){
+               return ret.get(i).getCode();
+            }
+        }
+        return "";
+
     }
 
 

@@ -8,7 +8,7 @@ import { processFileExtension } from "../../Common/helperFunctions";
 import { getServerEndpoint } from "../../../utils/serverEndpoint";
 import { languageService } from "../../../Language/language.service";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class MaintenanceDocumentsArea extends Component {
   render() {
     let documentList = this.props.documentList.reduce(
@@ -29,7 +29,7 @@ class MaintenanceDocumentsArea extends Component {
         if (doc) {
           return (
             <div style={{ display: "inline-block", margin: "0 3% 0 0", cursor: "pointer", fontSize: "12px" }} key={doc + index}>
-              <DocumentComp index={index} docName={doc} borderStyle={"1px solid rgba(64, 118, 179)"} width={"100%"} />
+              <DocumentComp index={index} docName={doc} borderStyle={"1px solid var(--first)"} width={"100%"} />
             </div>
           );
         }
@@ -40,11 +40,16 @@ class MaintenanceDocumentsArea extends Component {
         <Col md={12}>
           <h5
             style={themeService({
-              default: { padding: "10px 0px", font: "18px sans-serif", color: "rgba(64, 118, 179)" },
+              default: { padding: "10px 0px", font: "18px sans-serif", color: "var(--first)" },
               retro: {
                 padding: "10px 0px",
                 font: "18px sans-serif",
                 color: retroColors.second,
+              },
+              electric: {
+                padding: "10px 0px",
+                font: "18px sans-serif",
+                color: electricColors.second,
               },
             })}
           >
@@ -71,6 +76,14 @@ class MaintenanceDocumentsArea extends Component {
                 paddingLeft: "30px",
                 background: retroColors.fifth,
               },
+              electric: {
+                overflow: "auto",
+                whiteSpace: "nowrap",
+                border: "1px solid" + electricColors.fourth,
+                height: "115px",
+                paddingLeft: "30px",
+                background: electricColors.fifth,
+              },
             })}
           >
             {documentList && showDocuments(documentList.row1)}
@@ -81,8 +94,9 @@ class MaintenanceDocumentsArea extends Component {
         <Col md={2} style={{ padding: "0px" }}>
           <div
             style={themeService({
-              default: { padding: "25px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)" },
+              default: { padding: "25px 0px", margin: "auto", width: "50%", color: "var(--first)" },
               retro: { padding: "25px 0px", margin: "auto", width: "50%", color: retroColors.second },
+              electric: { padding: "25px 0px", margin: "auto", width: "50%", color: electricColors.second },
             })}
           >
             <span style={{ cursor: "pointer" }}>
@@ -114,7 +128,7 @@ class DocumentComp extends Component {
     let [documentName, extension] = this.props.docName.split(".");
 
     extension = processFileExtension(extension);
-    let url = "http://" + getServerEndpoint() + "assetDocuments/" + this.props.docName;
+    let url = getServerEndpoint() + "assetDocuments/" + this.props.docName;
     return (
       <a
         id={`doc_${this.props.index + 1}`}

@@ -4,6 +4,7 @@ import { CALL_API } from "reduxRelated/middleware/api";
 export let curdActions = {};
 
 export function createActionTypes(name, actionsObj, apiName) {
+
   let actions = {};
   let apiPath = apiName !== undefined && apiName !== null ? apiName : name;
   let actionTasks = {};
@@ -17,8 +18,8 @@ export function createActionTypes(name, actionsObj, apiName) {
       [capName + "_CREATE_SUCCESS"]: capName + "_CREATE_SUCCESS",
       [capName + "_CREATE_FAILURE"]: capName + "_CREATE_FAILURE",
     };
-    actions["create" + firstLetterCap] = function (arg) {
-      let argCreate = { [name]: arg };
+    actions["create" + firstLetterCap] = function (arg, cName) {
+      let argCreate = cName ? { [cName]: arg } : { [name]: arg };
       const options = {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         method: "POST",
@@ -162,7 +163,6 @@ export function createActionTypes(name, actionsObj, apiName) {
   }
   actionsCustom = actionsObj.others ? actionsObj.others : {};
   curdActions = { ...curdActions, ...actions };
-  // console.log(curdActions)
   let actionRelated = { actionTypes: actionTasks, actions: actions, customAction: actionsCustom };
   return actionRelated;
 }

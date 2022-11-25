@@ -1,16 +1,15 @@
 
-// import { road } from "react-icons-kit/icomoon/road";
- import {forrst} from 'react-icons-kit/ikons/forrst'
-//import pole from "../../images/pole.png";
+import { road } from "react-icons-kit/icomoon/road";
+
 export const NavTimpsWraper = [
   {
     navId: "assets",
-    navIndex: 7,
-    navIcon: forrst,
+    navIndex: 8,
+    navIcon: road,
     navText: "Assets",
     permissionCheckFirstArg: "ASSET",
     permissionCheckSecondArg: "view",
-    permissionCheck: false,
+    permissionCheck: true,
   },
 ];
 

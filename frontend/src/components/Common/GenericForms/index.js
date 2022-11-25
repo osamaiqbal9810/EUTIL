@@ -3,7 +3,7 @@ import { Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap";
 import { themeService } from "../../../theme/service/activeTheme.service";
 import { ModalStyles } from "../styles";
 import { ButtonStyle, CommonModalStyle } from "../../../style/basic/commonControls";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { languageService } from "../../../Language/language.service";
 import FormsWrapper from "./FormsWrapper";
 import FormLayout1 from "./FormLayout1";
@@ -108,7 +108,7 @@ class GenericFormComponent extends React.Component {
         return (
             <FormsWrapper>
                 <Modal
-                    contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+                    contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
                     isOpen={this.props.modal}
                     toggle={this.props.toggle}
                 >
@@ -123,7 +123,7 @@ class GenericFormComponent extends React.Component {
                                         <div
                                             style={themeService({
                                                 default: {
-                                                    color: "rgba(64, 118, 179)",
+                                                    color: "var(--first)",
                                                     fontSize: "18px",
                                                     fontWeight: 600,
                                                     marginBottom: "15px",
@@ -132,6 +132,15 @@ class GenericFormComponent extends React.Component {
                                                 },
                                                 retro: {
                                                     color: retroColors.second,
+                                                    fontSize: "18px",
+                                                    fontWeight: 600,
+                                                    marginBottom: "15px",
+                                                    borderBottom: "1px solid grey",
+                                                    paddingBottom: "10px",
+                                                },
+
+                                                electric: {
+                                                    color: electricColors.second,
                                                     fontSize: "18px",
                                                     fontWeight: 600,
                                                     marginBottom: "15px",

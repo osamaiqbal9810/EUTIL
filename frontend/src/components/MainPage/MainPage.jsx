@@ -25,7 +25,7 @@ import ResetPassword from "components/Login/ForgotPassword/ResetPassword";
 // import JourneyPlanDetail from 'components/JourneyPlan/JourneyPlanDetail/index'
 // import WorkPlanTemplateDetail from 'components/WorkPlanTemplate/JourneyPlanDetail/index'
 import NotificationBar from "components/Common/NotificationBar/index";
-import {timpsRoutes, lampRoutes} from "routes/routes.js";
+import { timpsRoutes, lampRoutes } from "routes/routes.js";
 import SocketIO from "containers/SocketIOContainer";
 import { sidebarWidth, sidebarWidthSmall } from "components/Common/Variables/CommonVariables";
 import Diagnostics from "components/diagnostics/index";
@@ -38,9 +38,10 @@ import { themeService } from "theme/service/activeTheme.service";
 import { getServerEndpoint } from "utils/serverEndpoint";
 
 import { tabTitle } from "../../config/tabConfig";
-import VersionManager from './VersionManager.jsx';
-import eventBus from '../../utils/eventBus';
-
+import VersionManager from "./VersionManager.jsx";
+import eventBus from "../../utils/eventBus";
+import { updateThemeColors } from "../../style/basic/basicColors";
+import { LocPrefixService } from "../LocationPrefixEditor/LocationPrefixService";
 const routeComponent = timpsRoutes.map((route, index) => {
   return <Route key={route.path} path={route.path} component={route.component} />;
 });
@@ -63,7 +64,7 @@ class MainPage extends Component {
       showTimer: true,
       showSideNav: true,
       language: "en",
-      theme: "retro",
+      theme: localStorage.getItem("theme"),
       rightValue: "-20%",
       // routeComponent: timpsRoutes.map((route, index) => {
       //   return <Route key={route.path} path={route.path} component={route.component} />;
@@ -76,7 +77,7 @@ class MainPage extends Component {
       hideToolTip: window.innerWidth <= 760,
       mainSectionLeft: this.isLoggedOn() ? sidebarWidth : 0,
       applicationType: null,
-      featureset: []
+      featureset: [],
     };
     this.AttendanceBtnHandler = this.AttendanceBtnHandler.bind(this);
     // this.languageChanged = this.languageChanged.bind(this);
@@ -84,12 +85,13 @@ class MainPage extends Component {
     this.sidebarToggle = this.sidebarToggle.bind(this);
     this.toggleRight = this.toggleRight.bind(this);
     this.versionLoaded = this.versionLoaded.bind(this);
+    //this.updateThemeColors = this.updateThemeColors.bind(this);
     // console.log(routePath)
   }
 
   isLoggedOn = () => localStorage.getItem("access_token") !== null;
   loggedInUser = () => localStorage.getItem("loggedInUser");
-  isApp = () => localStorage.getItem("source");
+  isApp = () => localStorage.getItem("source") !== null;
 
   AttendanceBtnHandler() {
     if (this.state.isCheckedIn) {
@@ -124,7 +126,8 @@ class MainPage extends Component {
       this.setState({ user: user });
     } else if (
       !this.props.history.location.pathname.includes("confirmreset") &&
-      !this.props.history.location.pathname.includes("resetPassword")
+      !this.props.history.location.pathname.includes("resetPassword") &&
+      !this.props.history.location.pathname.includes("appReport")
     ) {
       this.props.history.push("/login");
     }
@@ -133,6 +136,7 @@ class MainPage extends Component {
 
   componentDidMount() {
     if (this.isLoggedOn()) {
+      LocPrefixService.getPrefixList();
       this.setState({
         sidebarVisible: true,
         topBarVisible: true,
@@ -149,7 +153,7 @@ class MainPage extends Component {
     }
     window.addEventListener("resize", this.resize.bind(this));
     this.resize();
-    eventBus.on('VersionLoaded', this.versionLoaded);
+    eventBus.on("VersionLoaded", this.versionLoaded);
   }
   resize() {
     let currentHideNav = window.innerWidth <= 760;
@@ -192,30 +196,31 @@ class MainPage extends Component {
   // themeChanged(theme) {
   //   this.setState({ theme });
   // }
-  versionLoaded(versionInfo)
-  {
 
-        let routeToLoad = timpsRoutes;
-        if(versionInfo.isLAMP())
-          routeToLoad = lampRoutes;
+  versionLoaded(versionInfo) {
+    let routeToLoad = timpsRoutes;
+    if (versionInfo.isLAMP()) routeToLoad = lampRoutes;
+    if (versionInfo.isEUtility()) {
+      localStorage.setItem("theme", "electric");
+      //require("../../utils/electric-color.css");
+      updateThemeColors();
+    } else {
+      localStorage.setItem("theme", "retro");
+      require("../../utils/retro-colors.css");
+    }
+    //let rc = routeToLoad.map((route, index) => {return <Route key={route.path} path={route.path} component={route.component} />;});
+    this.setState({ applicationType: versionInfo.getApplicationType(), routesToLoad: routeToLoad });
 
-        //let rc = routeToLoad.map((route, index) => {return <Route key={route.path} path={route.path} component={route.component} />;});
-        this.setState({applicationType: versionInfo.getApplicationType(), routesToLoad: routeToLoad});
-      
-        tabTitle();
+    tabTitle();
 
-        const fi = document.getElementById("favicon");
-        if(versionInfo.isSITE())
-        {
-            fi.href = "/SCIM_Tab_Logo.png";
-        }
-        else
-        {
-          fi.href = "/EUIS_Tab_Logo.png";
-        }
+    const fi = document.getElementById("favicon");
+    if (versionInfo.isSITE()) {
+      fi.href = "/SCIM_Tab_Logo.png";
+    } else {
+      versionInfo.isEUtility() ? (fi.href = "EUIS_Tab_Logo.png") : (fi.href = "/TIMPS_Tab_Logo.png");
+    }
 
-        this.resize();
-       
+    this.resize();
   }
 
   render() {
@@ -225,10 +230,11 @@ class MainPage extends Component {
     //     this.props.history.push('/login')
     //   }
     // }
-    let routeComponent = this.state.routesToLoad.map((route, index) => {return <Route key={route.path} path={route.path} component={route.component} />;});
 
+    let routeComponent = this.state.routesToLoad.map((route, index) => {
+      return <Route key={route.path} path={route.path} component={route.component} />;
+    });
 
-    const loggedUser = this.loggedInUser();
     const { topBarVisible, sidebarVisible, userLoggedOn, user } = this.state;
     const loginScreen = (
       <div className="App-container">
@@ -254,12 +260,12 @@ class MainPage extends Component {
     return (
       <React.Fragment>
         <div className={"App " + this.state.theme}>
-        <VersionManager loadCallback={this.versionLoaded}/>
+          <VersionManager loadCallback={this.versionLoaded} />
           <SocketIO />
           {topBarVisible && (
             <TopBar sidebarToggle={this.sidebarToggle} hideToolTip={this.state.hideToolTip} toggleRight={this.toggleRight} />
           )}
-          {this.loggedInUser() && this.state.showSideNav && !this.isApp() && this.state.applicationType &&  (
+          {this.isLoggedOn() && this.state.showSideNav && !this.isApp() && this.state.applicationType && (
             <SideNavBar
               hideNav={window.innerWidth}
               textDisplay={this.state.textDisplay}
@@ -267,15 +273,15 @@ class MainPage extends Component {
               sideNavDispaly={this.state.sideNavDispaly}
               hamBurgerVisible={this.state.hamBurgerVisible}
               hideToolTip={this.state.hideToolTip}
-              applicationType = {this.state.applicationType}
+              applicationType={this.state.applicationType}
             />
           )}
 
           <div
-            className="main-content-area"
+            className={this.isApp ? "main-content-area is-app scrollbarHor" : "main-content-area scrollbarHor"}
             style={{
               position: "absolute",
-              left: this.state.mainSectionLeft,
+              left: this.isApp() ? 0 : this.state.mainSectionLeft,
               top: "70px",
               right: 0,
               bottom: 0,

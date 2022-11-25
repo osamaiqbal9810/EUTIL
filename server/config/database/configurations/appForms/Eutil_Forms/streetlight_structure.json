@@ -1,0 +1,131 @@
+{
+    "listName": "Streetlight",
+    "inspection_type":"Structural",
+    "opt1": 
+    [
+        {
+            "tab-name":"Base/Standard/Light",
+                "fields": [
+                {
+                    "id": "base_priority_level",
+                    "field_name": "base_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "base_repair_status",
+                    "field_name": "base_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "base_inspection_comments",
+                    "field_name": "base_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        },
+        {
+            "tab-name":"Handhole/Service/Box",
+                "fields": [
+                {
+                    "id": "handHole_priority_level",
+                    "field_name": "handHole_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "handHole_repair_status",
+                    "field_name": "handHole_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "handHole_inspection_comments",
+                    "field_name": "handHole_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        },
+        {
+            "tab-name":"Service/Internal/Wiring",
+                "fields": [
+                {
+                    "id": "service_priority_level",
+                    "field_name": "service_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "service_repair_status",
+                    "field_name": "service_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "service_inspection_comments",
+                    "field_name": "service_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        },
+        {
+            "tab-name":"Other/Miscellaneous",
+                "fields": [
+                {
+                    "id": "other_priority_level",
+                    "field_name": "other_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "other_repair_status",
+                    "field_name": "other_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "other_inspection_comments",
+                    "field_name": "other_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }
+    ]
+}

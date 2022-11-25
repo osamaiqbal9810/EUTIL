@@ -12,6 +12,7 @@ import _ from "lodash";
 import { curdActions } from "../../../../reduxCURD/actions";
 import { CRUDFunction } from "../../../../reduxCURD/container";
 import MonthlySwitchReport from "./monthlySwitchInspection";
+import { getAllowedSwitches } from "../../../../AssetTypeConfig/Reports/SwitchinspectionReport";
 const excludedForms = ["frmSwitchInspection"];
 
 class DetailedSwitchInspection extends Component {
@@ -58,7 +59,7 @@ class DetailedSwitchInspection extends Component {
     if (jPlanFirstTask && jPlan.tasks[0].units.length > 0) {
       switchAssets = [];
       jPlanFirstTask.units.forEach((asset, index) => {
-        if (asset.assetType == "Switch") {
+        if (getAllowedSwitches(asset.assetType)) {
           switchAssets.push(asset);
         }
       });
@@ -133,7 +134,7 @@ class DetailedSwitchInspection extends Component {
       listData.reverse(),
       listData.map((dat) => {
         return (
-          <tr key={dat._id}>
+          <tr key={Math.random() + " " + dat.assetName}>
             <td>{dat.assetName}</td>
             <td>{languageService(dat.testName)}</td>
 
@@ -184,7 +185,7 @@ class DetailedSwitchInspection extends Component {
                 <span
                   style={{
                     display: "inline-block",
-                    backgroundColor: "#fff",
+                    backgroundColor: "var(--fifth)",
                     position: "relative",
                     padding: "5px 15px",
                     borderRadius: "5px",
@@ -213,7 +214,7 @@ class DetailedSwitchInspection extends Component {
                       </th>
                     </tr>
                   </thead>
-                  <tbody style={{ background: "#fff", fontSize: "12px" }}>{rows}</tbody>
+                  <tbody style={{ background: "var(--fifth)", fontSize: "12px" }}>{rows}</tbody>
                 </table>
               </Col>
               <Col md={1}></Col>

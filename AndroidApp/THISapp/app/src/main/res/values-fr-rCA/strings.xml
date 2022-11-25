@@ -51,7 +51,7 @@
     <string name="description_title">Description:</string>
     <string name="pictures_after_fix_title">Photos après correction</string>
     <string name="pictures_title">Photos</string>
-    <string name="voice_notes_title">Remarques</string>
+    <string name="voice_notes_title">Notes internes uniquement</string>
     <string name="title_activity_asset_maps">Carte des actifs</string>
     <string name="work_plan">INSPECTION</string>
     <string name="task_status">Statut d\'exécution</string>
@@ -348,6 +348,7 @@
     <string name="traversed_by_title">Traversé par:</string>
     <string name="traverse_by_walking">En marchant</string>
     <string name="traverse_by_driving">Hi-Rail</string>
+    <string name="traverse_by_train">Former</string>
     <string name="track_inspected_title">La voie complète est-elle inspectée?</string>
     <string name="completed_till_msg">Terminé jusqu\'à</string>
     <string name="forms_sample">Exemple de formulaire</string>
@@ -510,7 +511,7 @@
     <string name="tab_text_defects_old">Vieille</string>
     <string name="permission_denied">Permission refusée!</string>
     <string name="start_maintenance_notify">Voulez-vous vraiment commencer la maintenance?</string>
-    <string name="maintenance_in_progress">Maintenance en cours</string>
+    <string name="maintenance_in_progress">Maintenance</string>
     <string name="work_orders_title">Bons de travail</string>
     <string name="maintenance_status">État d\'entretien</string>
     <string name="no_active_maintenance">Pas de maintenance active!</string>
@@ -567,5 +568,22 @@
     <string name="session">Session</string>
     <string name="auto">Auto</string>
     <string name="text_flow">Flux de texte</string>
+    <string name="category_priority_title">Catégorie / Priorité</string>
+    <string name="view_details">Voir les détails</string>
+    <string name="no_maintenance_available">Aucun entretien disponible !</string>
+    <string name="inspection_pause_message">Inspection interrompue</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Reprendre</string>
+    <string name="inspection_paused_dialog_title">L\'inspection est suspendue!</string>
+    <string name="resume_inspection_confirmation">Voulez-vous reprendre l\'inspection?</string>
+    <string name="inspection_inprogress_dialog_title">L\'inspection est en cours</string>
+    <string name="pause_or_stop_inspection_confirmation">Voulez-vous interrompre ou arrêter l\'inspection ?</string>
+    <string name="maintenances_activity_title">Entretiens</string>
+    <string name="mnu_session_rpt">Rapport de séance</string>
+    <string name="web_reports_title">Web reports</string>
+    <string name="web_reports_details">You can view and print reports</string>
+    <string name="site_inspection_maintenance_and_planning_system">Signal, inspection, efficacité des tests</string>
+    <string name="euis_inspection_maintenance_and_planning_system">Inspection des installations de services publics</string>
+    <string name="report_defect_deficiency">Report Defect / Deficiency</string>
 
 </resources>

@@ -38,7 +38,7 @@ public class workerListAdapter extends BaseExpandableListAdapter {
     private HashMap<String, IssueImage> listDataChild;
 
     public workerListAdapter(Context context, List<String> listDataGroup,
-                             HashMap<String, IssueImage> listChildData) {
+                               HashMap<String, IssueImage> listChildData) {
         this.context = context;
         this.listDataGroup = listDataGroup;
         this.listDataChild = listChildData;

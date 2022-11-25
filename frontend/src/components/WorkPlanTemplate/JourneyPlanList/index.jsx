@@ -87,43 +87,43 @@ class JourneyPlanList extends Component {
           accessor: "title",
           minWidth: 150,
         },
-        {
-          Header: languageService("Title"),
-          id: "inspectionTitleRun",
-          accessor: (d) => {
-            let desc = "";
-            if (d.runRanges) {
-              desc = d.inspectionRun;
-            }
-            return desc;
-          },
+        // {
+        //   Header: languageService("Title"),
+        //   id: "inspectionTitleRun",
+        //   accessor: (d) => {
+        //     let desc = "";
+        //     if (d.runRanges) {
+        //       desc = d.inspectionRun;
+        //     }
+        //     return desc;
+        //   },
 
-          minWidth: 200,
-        },
-        {
-          Header: languageService("Work Zone"),
-          id: "workZone",
-          accessor: (d) => {
-            let marked = "";
-            if (d.workZone == 1) {
-              marked = <SvgIcon size={20} icon={check} />;
-            }
-            return <div style={{ color: "inherit" }}>{marked}</div>;
-          },
-          minWidth: 100,
-        },
-        {
-          Header: languageService("Foul Time"),
-          id: "foulTime",
-          accessor: (d) => {
-            let marked = "";
-            if (d.foulTime == 1) {
-              marked = <SvgIcon size={20} icon={check} />;
-            }
-            return <div style={{ color: "inherit" }}>{marked}</div>;
-          },
-          minWidth: 60,
-        },
+        //   minWidth: 200,
+        // },
+        // {
+        //   Header: languageService("Work Zone"),
+        //   id: "workZone",
+        //   accessor: (d) => {
+        //     let marked = "";
+        //     if (d.workZone == 1) {
+        //       marked = <SvgIcon size={20} icon={check} />;
+        //     }
+        //     return <div style={{ color: "inherit" }}>{marked}</div>;
+        //   },
+        //   minWidth: 100,
+        // },
+        // {
+        //   Header: languageService("Foul Time"),
+        //   id: "foulTime",
+        //   accessor: (d) => {
+        //     let marked = "";
+        //     if (d.foulTime == 1) {
+        //       marked = <SvgIcon size={20} icon={check} />;
+        //     }
+        //     return <div style={{ color: "inherit" }}>{marked}</div>;
+        //   },
+        //   minWidth: 60,
+        // },
         {
           Header: languageService("Inspector"),
           id: "assignedUser",
@@ -137,18 +137,18 @@ class JourneyPlanList extends Component {
 
           minWidth: 120,
         },
-        {
-          Header: languageService("Watchmen"),
-          id: "watchMen",
-          accessor: (d) => {
-            let watchMenNames = "";
-            if (d.watchmen) {
-              watchMenNames = d.watchmen.name;
-            }
-            return watchMenNames;
-          },
-          minWidth: 120,
-        },
+        // {
+        //   Header: languageService("Watchmen"),
+        //   id: "watchMen",
+        //   accessor: (d) => {
+        //     let watchMenNames = "";
+        //     if (d.watchmen) {
+        //       watchMenNames = d.watchmen.name;
+        //     }
+        //     return watchMenNames;
+        //   },
+        //   minWidth: 120,
+        // },
         {
           Header: languageService("Date Created"),
           id: "dateCreated",
@@ -180,8 +180,8 @@ class JourneyPlanList extends Component {
           id: "nextInspection",
           accessor: (d) => {
             let date = "";
-            if (d.nextInspectionDate) {
-              date = moment(d.nextDueDate ? d.nextDueDate : d.nextInspectionDate).format("ll");
+            if (d.inspection_date) {
+              date = moment(d.inspection_date).format("ll");
             }
             return date;
           },
@@ -231,7 +231,7 @@ class JourneyPlanList extends Component {
           accessor: (d) => {
             return (
               <div>
-                {permissionCheck("WORKPLAN", "read") && (
+                {/*permissionCheck("WORKPLAN", "read") && (
                   <Link to={`${this.props.path}s/` + d._id} className="linkStyleTable">
                     <ButtonActionsTable
                       handleClick={(e) => {
@@ -241,7 +241,16 @@ class JourneyPlanList extends Component {
                       buttonText={languageService("View")}
                     />
                   </Link>
-                )}
+                    )*/}
+                    {permissionCheck("WORKPLAN", "read") && (
+                      <ButtonActionsTable
+                        handleClick={(e) => {
+                          this.props.handleViewModalClick("View", d, this.state.sortModeLocal, this.props.pageSize);
+                        }}
+                        margin="0px 10px 0px 0px"
+                        buttonText={languageService("View")}
+                      />
+                    )}
                 {permissionCheck("WORKPLAN", "update") && (
                   <ButtonActionsTable
                     handleClick={(e) => {
@@ -482,7 +491,7 @@ class JourneyPlanList extends Component {
               <div
                 style={{
                   padding: "5px 15px 0px",
-                  color: "rgba(64, 118, 179)",
+                  color: "var(--first)",
                   cursor: "pointer",
                   display: "inline-block",
                 }}
@@ -507,8 +516,8 @@ class JourneyPlanList extends Component {
             )}
             <div
               style={{
-                color: " rgba(64, 118, 179)",
-                border: "3px solid rgba(64, 118, 179)",
+                color: "var(--first)",
+                border: "3px solid var(--first)",
                 background: " #e3e9ef",
                 width: "24px",
                 cursor: "pointer",
@@ -561,7 +570,7 @@ class JourneyPlanList extends Component {
           <div
             style={{
               padding: "0px 15px",
-              color: "rgba(64, 118, 179)",
+              color: "var(--first)",
               display: "inline-block",
               cursor: "pointer",
             }}
@@ -614,18 +623,18 @@ let getStyles = (props, state) => {
   let borders = {
     defaultToday: {
       borderAllTop: "1px solid #e3e9ef",
-      borderHoverTopAll: "1px solid rgba(64, 118, 179)",
-      borderHoverTopToday: "1px solid rgba(64, 118, 179)",
+      borderHoverTopAll: "1px solid var(--first)",
+      borderHoverTopToday: "1px solid var(--first)",
       borderTodayTop: "1px solid #e3e9ef",
     },
   };
   if (state.defaultFilter) {
-    borders.defaultToday.borderAllTop = "3px solid rgba(64, 118, 179)";
-    borders.defaultToday.borderHoverTopAll = "3px solid rgba(64, 118, 179)";
+    borders.defaultToday.borderAllTop = "3px solid var(--first)";
+    borders.defaultToday.borderHoverTopAll = "3px solid var(--first)";
   }
   if (state.customFilter) {
-    borders.defaultToday.borderTodayTop = "3px solid rgba(64, 118, 179)";
-    borders.defaultToday.borderHoverTopToday = "3px solid rgba(64, 118, 179)";
+    borders.defaultToday.borderTodayTop = "3px solid var(--first)";
+    borders.defaultToday.borderHoverTopToday = "3px solid var(--first)";
   }
 
   let commonStyle = {
@@ -633,7 +642,7 @@ let getStyles = (props, state) => {
     padding: "5px",
     margin: "0px 5px",
     fontSize: "12px",
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     cursor: "pointer",
 
     borderBottom: "1px solid #e3e9ef",
@@ -642,10 +651,10 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: "rgba(64, 118, 179)",
-    borderBottom: "1px solid rgba(64, 118, 179)",
-    borderLeft: "1px solid rgba(64, 118, 179)",
-    borderRight: "1px solid rgba(64, 118, 179)",
+    color: "var(--first)",
+    borderBottom: "1px solid var(--first)",
+    borderLeft: "1px solid var(--first)",
+    borderRight: "1px solid var(--first)",
   };
 
   // BORDERS
@@ -669,7 +678,7 @@ let getStyles = (props, state) => {
     },
     divider: {
       display: "inline-block",
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
     },
   };
 };

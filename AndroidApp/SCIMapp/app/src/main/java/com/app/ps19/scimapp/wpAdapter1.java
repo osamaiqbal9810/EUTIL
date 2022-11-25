@@ -38,6 +38,7 @@ public class wpAdapter1 extends ArrayAdapter<JSONObject> {
     private String getString(int resId){
         return this.context.getString(resId);
     }
+
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.workplan_row, null, true);

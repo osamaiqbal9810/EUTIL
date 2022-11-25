@@ -17,7 +17,8 @@ import tekterkking from "../../tekterkking.png";
 import ElectricalLogo from "../../EUIS_Logo.png";
 const iconToShow = {
   default: TIMPS_Logo_old,
-  retro: ElectricalLogo,
+  retro: tekterkking,
+  electric: ElectricalLogo,
 };
 class TopBar extends Component {
   constructor(props) {
@@ -102,10 +103,9 @@ class TopBar extends Component {
   }
 
   componentDidMount() {
-      let lang = localStorage.getItem("language");
-      let user = JSON.parse(localStorage.getItem("loggedInUser"));
-      if (user != null)
-        this.props.getAppMockupsTypes("DynamicLanguage_" + (lang ? lang : ""));
+    let lang = localStorage.getItem("language");
+    let user = JSON.parse(localStorage.getItem("loggedInUser"));
+    if (user != null) this.props.getAppMockupsTypes("DynamicLanguage_" + (lang ? lang : ""));
     if (!this.isLoggedOn) {
       this.setState({
         sidebarVisible: false,
@@ -113,7 +113,6 @@ class TopBar extends Component {
         userLoggedOn: this.isLoggedOn(),
       });
     } else {
-
       if (user != null) {
         this.setState({ user: user, userLoggedOn: this.isLoggedOn() });
         //  this.props.onAttendanceStatus(user._id)
@@ -284,7 +283,7 @@ let variables = {
   },
   diagnosticsReducer: { dynamicLanguageList: [] },
   loginReducer: { user: null },
-    notificationReducer: {notifications: []},
+  notificationReducer: { notifications: [] },
 };
 
 let actionOptions = {
@@ -298,7 +297,7 @@ let TopBarContainer = CRUDFunction(TopBar, "TopBar", actionOptions, variables, [
   "languageHelperReducer",
   "diagnosticsReducer",
   "loginReducer",
-    "notificationReducer"
+  "notificationReducer",
 ]);
 
 export default TopBarContainer;

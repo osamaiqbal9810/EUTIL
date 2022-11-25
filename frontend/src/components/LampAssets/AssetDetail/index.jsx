@@ -9,7 +9,7 @@ class AssetDetail extends Component {
   }
   render() {
     let imgName = ""; //this.props.assetsData[0].images[3];
-    let paths = "http://" + getServerEndpoint() + "assetImages/default.jpg";
+    let paths = getServerEndpoint() + "assetImages/default.jpg";
     //" + "/" + imgName;
     let imgComp = this.props.assetsData[0].images.map((img, index) => {
       let imgName1 = "";
@@ -17,7 +17,7 @@ class AssetDetail extends Component {
         imgName1 = img.imgName1;
         //imgName = img.imgName1[0];
       }
-      let paths1 = "http://" + getServerEndpoint() + "assetImages/" + imgName1;
+      let paths1 = getServerEndpoint() + "assetImages/" + imgName1;
       return (
         <div key={index} style={{ display: "inline-block", width: "100px", height: "100px", overflow: "hidden", marginRight: "5px" }}>
           <img src={paths1} style={{ display: "block", width: "100%" }} alt={imgName1} />

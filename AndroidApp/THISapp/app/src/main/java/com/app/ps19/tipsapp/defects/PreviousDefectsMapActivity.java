@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -88,13 +89,18 @@ public class PreviousDefectsMapActivity extends AppCompatActivity implements
     }
 
     private void initializeMap() {
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_previous_defects);
-        supportMapFragment.getMapAsync(this);
+        try {
+            SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_previous_defects1);
+            assert supportMapFragment != null;
+            supportMapFragment.getMapAsync(this);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
         if (ActivityCompat.checkSelfPermission(_context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(_context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -162,7 +168,7 @@ public class PreviousDefectsMapActivity extends AppCompatActivity implements
                         defectLocation.getLatitude(),
                         defectLocation.getLongitude(),
                         defect.getTitle(),
-                        getString(R.string.string_type) + " " + selectedUnit.getAssetType() +"," +
+                        getString(R.string.string_type) + " " + selectedUnit.getAssetTypeDisplayName() +"," +
                                 "\n" + defect.getDescription() +
                                 "\n" + getString(R.string.created_at) + strDate,
                         defect.getIssueId());

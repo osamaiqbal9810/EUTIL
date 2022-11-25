@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:text="Object Name"
-            android:textSize="14dp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/tvDetails_ior"
@@ -36,7 +36,7 @@
             android:paddingLeft="5dp"
             android:paddingBottom="5dp"
             android:text="Details"
-            android:textSize="8dp" />
+            android:textSize="12sp" />
 
         <View
             android:layout_width="match_parent"

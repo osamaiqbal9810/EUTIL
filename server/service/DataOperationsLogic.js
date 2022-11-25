@@ -22,9 +22,12 @@ export default class DataOperaionsLogic {
   }
   async JPAddorUpdateSuccessCallback(itm)
   { // add to different task queues based on unique wpt._id
-      if(!itm|| !itm.newItem || !itm.newItem.workplanTemplateId)
+      if(!itm|| !itm.newItem || !itm.newItem.workplanTemplateId )
       {
-        console.log('Cannot get wptId:', itm);
+        // Maintenance journey plan check
+        if(itm.newItem.lineId!=="-1"){
+          console.log('Cannot get wptId:', itm);
+        }
       }
       let wptId = itm.newItem.workplanTemplateId;
       let taskQueue = this.taskQueues.get(wptId);

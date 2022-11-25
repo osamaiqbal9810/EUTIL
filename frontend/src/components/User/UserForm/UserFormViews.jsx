@@ -5,10 +5,13 @@ import Gravatar from "react-gravatar";
 import { userAvtarStyle } from "./style/UserFormViews";
 import { themeService } from "theme/service/activeTheme.service";
 //import permissionCheck from "../../../utils/permissionCheck.js";
+import { clock } from "react-icons-kit/icomoon/clock";
+import { Icon } from "react-icons-kit";
+import { languageService } from "../../../Language/language.service";
 
 const permission = JSON.parse(isJSON(localStorage.getItem("permissions")));
 
-export const UserProfileViewTitleBar = props => (
+export const UserProfileViewTitleBar = (props) => (
   <Col md={12}>
     <Row style={props.userTitleBarMain}>
       <div style={props.userTitleBarIconContainer}>
@@ -18,21 +21,33 @@ export const UserProfileViewTitleBar = props => (
     </Row>
   </Col>
 );
-export const UserProfileViewAvatar = props => (
-  <div>
-    <div style={{ display: "inline-block" }}>
-      <div style={props.userAvatarStyle}>
-        <Gravatar email={props.email} default="mm" size={100} style={{ borderRadius: "inherit" }} className="img-thumbnail " />
-        {/*<div style={props.userAvatarArrowStyle}>
+export const UserProfileViewAvatar = (props) => (
+  <React.Fragment>
+    <Col md="9">
+      <div style={{ display: "inline-block" }}>
+        <div style={props.userAvatarStyle}>
+          <Gravatar email={props.email} default="mm" size={100} style={{ borderRadius: "inherit" }} className="img-thumbnail " />
+          {/*<div style={props.userAvatarArrowStyle}>
             <FaChevronDown />
         </div>*/}
+        </div>
       </div>
-    </div>
-    <div style={{ display: "inline-block", paddingLeft: "30px", marginTop: "0px" }}>
-      {" "}
-      <div style={props.userAvatarAreaName}>{props.ProfileName}</div>
-    </div>
-  </div>
+      <div style={{ display: "inline-block", paddingLeft: "30px", marginTop: "0px" }}>
+        {" "}
+        <div style={props.userAvatarAreaName}>{props.ProfileName}</div>
+      </div>
+    </Col>
+    <Col md="3">
+      {props.userGroup == "inspector" && props.isSite && (
+        <div className="button-hos" onClick={() => props.showPreview(props.ProfileName)}>
+          <label>{languageService("Hours of Service")}</label>
+          <span style={{ verticalAlign: "unset" }}>
+            <Icon size={"20px"} icon={clock} />
+          </span>
+        </div>
+      )}
+    </Col>
+  </React.Fragment>
 );
 UserProfileViewAvatar.defaultProps = {
   userAvatarStyle: {

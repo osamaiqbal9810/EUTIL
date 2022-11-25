@@ -5,7 +5,7 @@ import { getServerEndpoint } from "utils/serverEndpoint";
 import {languageService} from "../../../../../Language/language.service";
 const CommentsTab = ({ comment }) => {
   let imgName = comment.signature ? comment.signature.imgName : "";
-  let src = imgName ? "http://" + getServerEndpoint() + "applicationresources/" + imgName : "";
+  let src = imgName ? getServerEndpoint() + "applicationresources/" + imgName : "";
   return (
     <div className="defect-code">
       <Row>

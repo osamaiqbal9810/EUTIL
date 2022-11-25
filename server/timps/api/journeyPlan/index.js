@@ -18,9 +18,10 @@ router.get("/", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], control
 router.get("/report/:id", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], controller.report);
 router.post("/report", [isAuthenticated, isAllowed(permitTypes.READ_WORKPLAN)], controller.inspections);
 router.post("/issue", [isAuthenticated, isAllowed(permitTypes.UPDATE_ISSUE)], controller.updateIssue);
+router.put("/issue/multiIssues", [isAuthenticated, isAllowed(permitTypes.UPDATE_ISSUE)], controller.updateMultiIssue);
 router.put("/issue/:id", [isAuthenticated, isAllowed(permitTypes.UPDATE_ISSUE)], controller.updateIssue);
 router.post("/issueWorkorder", [isAuthenticated, isAllowed(permitTypes.UPDATE_ISSUE)], controller.issueWorkorder);
-router.post("/", [isAuthenticated, isAllowed(permitTypes.CREATE_WORKPLAN)], controller.create);
+router.post("/", controller.create);
 router.put("/:id", [isAuthenticated, isAllowed(permitTypes.UPDATE_WORKPLAN)], controller.update);
 router.delete("/:id", [isAuthenticated, isAllowed(permitTypes.DELETE_WORKPLAN)], controller.delete);
 

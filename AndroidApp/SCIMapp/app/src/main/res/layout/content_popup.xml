@@ -2,12 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".Popup"
+    android:gravity="center"
     android:orientation="vertical"
-    tools:showIn="@layout/popup_image">
+    >
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="35dp"
@@ -34,45 +36,46 @@
             android:textColor="@color/title_text" />
     </RelativeLayout>
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="30dp"
-        android:orientation="vertical"
-        android:gravity="center_horizontal|center_vertical"
-        android:weightSum="2">
-        <!--<TextView
-            android:id="@+id/tv_img_name"
-            android:fontFamily="@font/cabin"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1.3"
-            android:text="Name of the file"/>-->
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/selectedImg"
-            android:padding="30dp"
-            android:layout_weight=".4"
-            android:layout_gravity="center_horizontal"
+
+
+
+        <FrameLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/avatar"
-            android:contentDescription="Image loading..." />
+            android:layout_height="wrap_content"
+            android:id="@+id/frameLayout"
+            android:layout_gravity="center"
+            android:layout_weight="3.5">
+
+            <ImageView
+                android:id="@+id/selectedImg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="0dp"
+                android:src="@mipmap/ic_launcher" />
+        </FrameLayout>
 
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_weight="1.3">
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="30dp"
+            android:layout_gravity="center">
+
             <Button
                 android:id="@+id/btnImgCancel"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/dp5"
+                android:layout_marginBottom="30dp"
                 android:background="@color/report_btn_add"
-                android:layout_marginTop="5dp"
                 android:text="OK"
                 android:textColor="@color/credentials_white"
-                android:textSize="17sp"/>
+                android:textSize="17sp" />
         </LinearLayout>
 
     </LinearLayout>

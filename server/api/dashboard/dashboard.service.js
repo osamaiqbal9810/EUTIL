@@ -36,6 +36,8 @@ class DashboardService {
   }
 
   async reCalculateDashboardV1Data(dateRange) {
+    //console.log(dateRange);
+    dateRange =  null;
     let updatedData = {};
     try {
       let lines = await getLists(null, true);
@@ -52,12 +54,13 @@ class DashboardService {
             //   .utc()
             //   .add(30, "d")
             //   .startOf("day"),
-            from: moment().utc().startOf("month"),
-            to: moment().utc().endOf("month"),
+            from: moment().utc().startOf("year"),
+            to: moment().utc().endOf("year"),
           };
       //   console.log("Recalculating dashboard summary range: ", range);
       let workplanTemplateService = ServiceLocator.resolve("WorkPlanTemplateService");
       let jplans = await workplanTemplateService.getAllPlansInRange(range, {}, null, { date: "asc" });
+     // console.log(jplans);
       let sortedPlans = _.sortBy(jplans, "date");
       //let linesStatusesDataListArray = {};
       // line = [

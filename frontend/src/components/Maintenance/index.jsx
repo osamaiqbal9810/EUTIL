@@ -43,7 +43,7 @@ import { updateFilterState } from "reduxRelated/actions/filterStateAction";
 import { maintenanceTemplate } from "../../templates/MaintenanceTemplate";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { commonStyles } from "../../theme/commonStyles";
-import { retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 
 import { getCurrentMaintenanceStateFilters, TEMPLATE_MAINTENANCE_FILTERS } from "./HelperFunctions/stateRetentionManagement";
 import { LIST_VIEW_SELECTION_TYPES, LIST_VIEW_SELECTION } from "./ViewSelection.js";
@@ -969,12 +969,12 @@ class Maintenance extends Component {
             />
             {/* <div style={{ paddingRight: "15px" }}>
               {LIST_VIEW_SELECTION.map((item, index) => {
-                let color = "#fff";
+                let color = "var(--fifth)";
                 let backgroundColor = "rgb(196, 212, 228)";
                 let boxShadow = "0 0 0 2px rgb(196, 212, 228)";
                 if (item.title === this.state.listViewDataToShow) {
-                  color = "rgb(64, 118, 179)";
-                  backgroundColor = "#fff";
+                  color = "var(--first)";
+                  backgroundColor = "var(--fifth)";
                   boxShadow = "0 0 0 2px rgb(255, 255, 255)";
                 }
 
@@ -989,7 +989,7 @@ class Maintenance extends Component {
                         style={themeService({
                           default: {
                             color: color,
-                            //color: "#fff",
+                            //color: "var(--fifth)",
                             border: "2px solid ",
                             padding: "3px 6px",
                             backgroundColor: backgroundColor,
@@ -999,7 +999,7 @@ class Maintenance extends Component {
                           },
                           retro: {
                             color: retroColors.fouth,
-                            //color: "#fff",
+                            //color: "var(--fifth)",
                             border: "0px solid ",
                             padding: "3px 6px",
                             backgroundColor: "transparent",
@@ -1052,7 +1052,7 @@ class Maintenance extends Component {
               //   fontFamily: "Myriad Pro",
               //   fontSize: "16px",
               //   letterSpacing: "0.5px",
-              //   color: " rgba(64, 118, 179)",
+              //   color: "var(--first)",
               //   paddingLeft: "15px",
               // }}
               style={themeService(commonPageStyle.commonSummaryHeadingContainer)}

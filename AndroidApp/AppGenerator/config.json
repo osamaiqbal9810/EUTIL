@@ -1,0 +1,10 @@
+{
+  "source":"H:/Projects/THIS/AndroidApp/THISapp",
+  "target":"H:/Projects/THIS/AndroidApp/SCIMapp",
+  "ignoreFolders":[".gradle",".idea","build"],
+  "sourcePackage":"com.app.ps19.tipsapp",
+  "targetPackage":"com.app.ps19.scimapp",
+  "sourcePackageType":"TIMPS",
+  "targetPackageType":"SCIM"
+  
+}

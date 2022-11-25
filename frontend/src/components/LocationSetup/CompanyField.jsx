@@ -6,7 +6,7 @@ import SvgIcon from "react-icons-kit";
 import { floppyDisk } from "react-icons-kit/icomoon/floppyDisk";
 import { themeService } from "../../theme/service/activeTheme.service";
 import { locationListStyle } from "./LocationListStyle";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { languageService } from "../../Language/language.service";
 export default class CompanyField extends Component {
   constructor(props) {
@@ -80,7 +80,7 @@ const companyField = {
     element: "input",
     value: "",
     label: true,
-    labelText: languageService("Electric Company"),
+    labelText: languageService("Company"),
     containerConfig: {},
     config: {
       name: "company",

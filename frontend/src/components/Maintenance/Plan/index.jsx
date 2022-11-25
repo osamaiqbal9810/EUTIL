@@ -8,15 +8,14 @@ import { MyButton } from "../../Common/Forms/formsMiscItems";
 import { processFromFields } from "../../../utils/helpers";
 
 class PlanMaintenanceForm extends React.Component {
-
   state = {
     planFields: _.cloneDeep(commonFields),
   };
 
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = (newState) => this.setState({ ...newState });
 
   submitForm = () => {
-    commonFields.assignedTo.config.options = this.props.userList.map(user => ({ val: user._id, text: user.name }));
+    commonFields.assignedTo.config.options = this.props.userList.map((user) => ({ val: user._id, text: user.name }));
     this.setState({
       planFields: _.cloneDeep(commonFields),
     });
@@ -30,7 +29,7 @@ class PlanMaintenanceForm extends React.Component {
     let { planFields } = this.state;
 
     if (prevProps.userList !== this.props.userList && planFields.assignedTo.config.options.length === 0) {
-      planFields.assignedTo.config.options = this.props.userList.map(user => ({ val: user._id, text: user.name }));
+      planFields.assignedTo.config.options = this.props.userList.map((user) => ({ val: user._id, text: user.name }));
       planFields.assignedTo.value = planFields.assignedTo.config.options[0].val;
       planFields.assignedTo.valid = true;
 
@@ -44,14 +43,14 @@ class PlanMaintenanceForm extends React.Component {
         <Modal isOpen={this.props.modal} toggle={this.props.toggle}>
           <ModalHeader style={ModalStyles.modalTitleStyle}>Plan Maintenance</ModalHeader>
           <ModalBody>
-            <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}> {this.props.maintenance.mrNumber} </div>
+            <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}> {this.props.maintenance.mrNumber} </div>
 
-            <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}> {this.props.maintenance.description} </div>
+            <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}> {this.props.maintenance.description} </div>
 
             <div className={"commonform"}>
               <FormFields planFields={this.state.planFields} fieldTitle={"planFields"} change={this.updateFrom} />
             </div>
-            <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>
+            <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>
               <p>*Once a maintenance is planned, a work order will be created </p>
             </div>
           </ModalBody>

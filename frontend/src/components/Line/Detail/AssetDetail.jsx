@@ -1,49 +1,49 @@
-import React, { Component } from 'react'
-import { Row, Col } from 'reactstrap'
+import React, { Component } from "react";
+import { Row, Col } from "reactstrap";
 
 class AssetDetail extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.style = {
       lableStyle: {
-        color: 'rgba(64, 118, 179)',
-        fontSize: '14px'
+        color: "var(--first)",
+        fontSize: "14px",
       },
       FieldStyle: {
-        color: 'rgba(64, 118, 179)',
-        fontSize: '14px'
+        color: "var(--first)",
+        fontSize: "14px",
       },
       FieldContainerStyle: {
-        padding: '5px 15px ',
-        margin: '10px 0px',
-        borderTop: '1px solid #e7e7e7',
-        borderLeft: '1px solid #e7e7e7',
-        borderRight: '1px solid #e7e7e7',
-        borderBottom: '1px solid #e7e7e7', // removed if fields are together with no margin
-        borderRadius: '3px'
+        padding: "5px 15px ",
+        margin: "10px 0px",
+        borderTop: "1px solid #e7e7e7",
+        borderLeft: "1px solid #e7e7e7",
+        borderRight: "1px solid #e7e7e7",
+        borderBottom: "1px solid #e7e7e7", // removed if fields are together with no margin
+        borderRadius: "3px",
       },
       FieldContainerLastStyle: {
-        padding: '5px 15px ',
-        borderBottom: '1px solid #e7e7e7',
-        borderTop: '1px solid #e7e7e7',
-        borderLeft: '1px solid #e7e7e7',
-        borderRight: '1px solid #e7e7e7',
-        borderRadius: '3px'
-      }
-    }
+        padding: "5px 15px ",
+        borderBottom: "1px solid #e7e7e7",
+        borderTop: "1px solid #e7e7e7",
+        borderLeft: "1px solid #e7e7e7",
+        borderRight: "1px solid #e7e7e7",
+        borderRadius: "3px",
+      },
+    };
   }
 
   render() {
-    let showLocationField = false
-    let showLocationStart = false
-    let showLocationEnd = false
+    let showLocationField = false;
+    let showLocationStart = false;
+    let showLocationEnd = false;
     if (this.props.assetDetail.coordinates) {
       if (this.props.assetDetail.coordinates.length > 0) {
-        showLocationField = true
-        showLocationStart = true
+        showLocationField = true;
+        showLocationStart = true;
       }
       if (this.props.assetDetail.coordinates.length > 1) {
-        showLocationEnd = true
+        showLocationEnd = true;
       }
     }
     return (
@@ -53,18 +53,18 @@ class AssetDetail extends Component {
             Subdivision :
           </Col>
           <Col md={8} style={this.style.FieldStyle}>
-            {' '}
-            {this.props.assetDetail.subdivision}{' '}
+            {" "}
+            {this.props.assetDetail.subdivision}{" "}
           </Col>
         </Row>
         <Row style={this.style.FieldContainerStyle}>
           <Col md={4} style={this.style.lableStyle}>
-            {' '}
-            Asset Type :{' '}
+            {" "}
+            Asset Type :{" "}
           </Col>
           <Col md={8} style={this.style.FieldStyle}>
-            {' '}
-            {this.props.assetDetail.assetType}{' '}
+            {" "}
+            {this.props.assetDetail.assetType}{" "}
           </Col>
         </Row>
         <Row style={this.style.FieldContainerStyle}>
@@ -77,12 +77,12 @@ class AssetDetail extends Component {
         </Row>
         <Row style={this.style.FieldContainerStyle}>
           <Col md={4} style={this.style.lableStyle}>
-            {' '}
-            Description{' '}
+            {" "}
+            Description{" "}
           </Col>
           <Col md={8} style={this.style.FieldStyle}>
-            {' '}
-            {this.props.assetDetail.description}{' '}
+            {" "}
+            {this.props.assetDetail.description}{" "}
           </Col>
         </Row>
         {showLocationField && (
@@ -91,8 +91,8 @@ class AssetDetail extends Component {
               {showLocationStart && (
                 <Row style={this.style.FieldContainerStyle}>
                   <Col md={4} style={this.style.lableStyle}>
-                    {' '}
-                    Location Start:{' '}
+                    {" "}
+                    Location Start:{" "}
                   </Col>
                   <Col md={8} style={this.style.FieldStyle}>
                     {this.props.assetDetail.coordinates[0][0]} , {this.props.assetDetail.coordinates[0][1]}
@@ -131,8 +131,8 @@ class AssetDetail extends Component {
           </Row>
         )}
       </div>
-    )
+    );
   }
 }
 
-export default AssetDetail
+export default AssetDetail;

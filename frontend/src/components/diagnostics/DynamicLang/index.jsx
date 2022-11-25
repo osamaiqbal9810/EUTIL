@@ -1,9 +1,6 @@
 /* eslint eqeqeq: 0 */
 import React, { Component } from "react";
-import {
-  Row,
-  Col
-} from "reactstrap";
+import { Row, Col } from "reactstrap";
 // import { Control, LocalForm, Errors, actions } from "react-redux-form";
 import { CRUDFunction } from "reduxCURD/container";
 import LanguageList from "./LanguageList/index";
@@ -55,7 +52,6 @@ class DynamicLang extends Component {
       prevProps.applicationlookupsActionType !== this.props.applicationlookupsActionType &&
       this.props.applicationlookupsActionType == "APPLICATIONLOOKUPSS_READ_SUCCESS"
     ) {
-
       this.setLanguageData(this.props.applicationlookupss);
 
       // if (this.props.dynamicLanguageList.length > 0) {
@@ -75,19 +71,19 @@ class DynamicLang extends Component {
       prevProps.diagnosticsActionType !== this.props.diagnosticsActionType &&
       this.props.diagnosticsActionType == "ADD_LANGUAGE_CHANGE_SUCCESS"
     ) {
-        this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
+      this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
     }
     if (
       prevProps.diagnosticsActionType !== this.props.diagnosticsActionType &&
       this.props.diagnosticsActionType == "EDIT_LANGUAGE_CHANGE_SUCCESS"
     ) {
-        this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
+      this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
     }
     if (
       prevProps.diagnosticsActionType !== this.props.diagnosticsActionType &&
       this.props.diagnosticsActionType == "DELETE_LANGUAGE_CHANGE_SUCCESS"
     ) {
-        this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
+      this.props.getApplicationlookupss(["DynamicLanguage_en", "DynamicLanguage_es", "DynamicLanguage_fr"]);
     }
   }
   handleDeleteClick(field) {
@@ -121,7 +117,7 @@ class DynamicLang extends Component {
       this.setState({ langFields });
     }
   }
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = (newState) => this.setState({ ...newState });
   async submitForm() {
     //e.preventDefault();
 
@@ -137,10 +133,10 @@ class DynamicLang extends Component {
         //     langData: langData,
         //   },
         //   () => {
-            //console.log(this.state.langData);
-            await this.props.setNewDynamicLangWord(dataToSubmit);
-            this.setState({langFields: _.cloneDeep(langFieldsTemplates)});
-          // },
+        //console.log(this.state.langData);
+        await this.props.setNewDynamicLangWord(dataToSubmit);
+        this.setState({ langFields: _.cloneDeep(langFieldsTemplates) });
+        // },
         // );
       } else if (this.state.modalState === "Edit") {
         // this.setState(
@@ -148,51 +144,49 @@ class DynamicLang extends Component {
         //     langData: langData,
         //   },
         //   () => {
-            //console.log("edit", this.state.langData);
-            await this.props.setEditDynamicLangWord(dataToSubmit);
-          this.setState({langFields: _.cloneDeep(langFieldsTemplates)});
-          // },
+        //console.log("edit", this.state.langData);
+        await this.props.setEditDynamicLangWord(dataToSubmit);
+        this.setState({ langFields: _.cloneDeep(langFieldsTemplates) });
+        // },
         // );
       }
     }
   }
   setLanguageData(languagesDataFromServer) {
-      if (languagesDataFromServer && languagesDataFromServer.length) {
-        let displayLangData = [];
-        let en, es, fr = null;
+    if (languagesDataFromServer && languagesDataFromServer.length) {
+      let displayLangData = [];
+      let en,
+        es,
+        fr = null;
 
-        for (let ld of languagesDataFromServer) {
-          if (ld.listName === 'DynamicLanguage_en') {
-            en = ld;
-          } else if (ld.listName === 'DynamicLanguage_es') {
-            es = ld;
-          } else if (ld.listName === 'DynamicLanguage_fr') {
-            fr = ld;
-          }
+      for (let ld of languagesDataFromServer) {
+        if (ld.listName === "DynamicLanguage_en") {
+          en = ld;
+        } else if (ld.listName === "DynamicLanguage_es") {
+          es = ld;
+        } else if (ld.listName === "DynamicLanguage_fr") {
+          fr = ld;
         }
-
-        if (en && en.opt1 && Object.keys(en.opt1).length) {
-          Object.keys(en.opt1).forEach(key => {
-            let langObj = {
-                key
-            };
-
-            if (en && en.opt1 && Object.keys(en.opt1).length && en.opt1[key])
-              langObj.en = en.opt1[key]['en'];
-
-              if (es && es.opt1 && Object.keys(es.opt1).length && es.opt1[key])
-              langObj.es = es.opt1[key]['es'];
-
-            if (fr && fr.opt1 && Object.keys(fr.opt1).length && fr.opt1[key])
-              langObj.fr = fr.opt1[key]['fr'];
-
-              displayLangData.push(langObj);
-          })
-        }
-
-        this.setState({displayLangData});
-
       }
+
+      if (en && en.opt1 && Object.keys(en.opt1).length) {
+        Object.keys(en.opt1).forEach((key) => {
+          let langObj = {
+            key,
+          };
+
+          if (en && en.opt1 && Object.keys(en.opt1).length && en.opt1[key]) langObj.en = en.opt1[key]["en"];
+
+          if (es && es.opt1 && Object.keys(es.opt1).length && es.opt1[key]) langObj.es = es.opt1[key]["es"];
+
+          if (fr && fr.opt1 && Object.keys(fr.opt1).length && fr.opt1[key]) langObj.fr = fr.opt1[key]["fr"];
+
+          displayLangData.push(langObj);
+        });
+      }
+
+      this.setState({ displayLangData });
+    }
   }
   render() {
     return (
@@ -201,7 +195,7 @@ class DynamicLang extends Component {
           handleSubmitClick={this.submitForm}
           headerText="Add New Words to Dynamic Dictionery"
           //handleCancelClick={this.handleLinesCancelClick}
-          setModalOpener={method => {
+          setModalOpener={(method) => {
             this.openModelMethod = method;
           }}
         >
@@ -217,7 +211,7 @@ class DynamicLang extends Component {
                 fontFamily: "Myriad Pro",
                 fontSize: "24px",
                 letterSpacing: "0.5px",
-                color: " rgba(64, 118, 179)",
+                color: "var(--first)",
               }}
             >
               Dynamic Language
@@ -234,7 +228,7 @@ class DynamicLang extends Component {
             <ButtonCirclePlus
               iconSize={70}
               icon={withPlus}
-              handleClick={e => {
+              handleClick={(e) => {
                 this.handleAddEditModalClick("Add");
               }}
               backgroundColor="#e3e9ef"
@@ -245,7 +239,7 @@ class DynamicLang extends Component {
               activeBorder="3px solid #e3e2ef "
               iconStyle={{
                 color: "#c4d4e4",
-                background: "#fff",
+                background: "var(--fifth)",
                 borderRadius: "50%",
                 border: "3px solid ",
               }}
@@ -278,9 +272,12 @@ let actionOptions = {
 };
 let variableList = {
   diagnosticsReducer: { dynamicLanguageList: "" },
-    applicationlookupsReducer: { applicationlookupss: [] },
+  applicationlookupsReducer: { applicationlookupss: [] },
 };
 
-const DynamicLangContainer = CRUDFunction(DynamicLang, "dynamiclang", actionOptions, variableList, ["diagnosticsReducer", "applicationlookupsReducer"]);
+const DynamicLangContainer = CRUDFunction(DynamicLang, "dynamiclang", actionOptions, variableList, [
+  "diagnosticsReducer",
+  "applicationlookupsReducer",
+]);
 
 export default DynamicLangContainer;

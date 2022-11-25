@@ -13,7 +13,7 @@ import { ddElementStyle, menuStyule, topBarStyle } from "./style/TopBarView";
 import { themeService } from "theme/service/activeTheme.service";
 import { languageService } from "Language/language.service";
 import { logout } from "react-icons-kit/iconic/logout";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 let DropdownItemRadium = Radium(DropdownItem);
 class ResponsiveMenu extends React.Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class ResponsiveMenu extends React.Component {
     this.props.history.push("/line");
   };
   toggle() {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       dropdownOpen: !prevState.dropdownOpen,
     }));
   }

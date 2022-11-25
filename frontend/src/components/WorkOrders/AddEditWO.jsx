@@ -23,6 +23,7 @@ import { Link } from "react-router-dom";
 import { formFeildStyle } from "../../wigets/forms/style/formFields";
 import { commonFields } from "../IssuesReports/CreateMR/variables";
 import { checkFormIsValid, processFromFields } from "../../utils/helpers";
+import { LocPrefixService } from "../LocationPrefixEditor/LocationPrefixService";
 
 function format2Digits(num) {
   return num && !isNaN(parseFloat(num)) ? parseFloat(num).toFixed(2) : num ? num : "0.00";
@@ -39,8 +40,26 @@ const MRTableCols = [
       return <Link to={`/maintenancebacklogs/${d._id}`}>{d.mrNumber}</Link>;
     },
   },
-  { id: "Start", header: languageService("Start"), field: "start", editable: false, minWidth: 50, formatter: format2Digits },
-  { id: "End", header: languageService("End"), field: "end", editable: false, minWidth: 50, formatter: format2Digits },
+  {
+    id: "Start",
+    header: languageService("Start"),
+    field: "start",
+    accessor: (d) => {
+      return (d.startPrefix ? d.startPrefix : "") + d.start;
+    },
+    editable: false,
+    minWidth: 50,
+  },
+  {
+    id: "End",
+    header: languageService("End"),
+    field: "end",
+    accessor: (d) => {
+      return (d.endPrefix ? d.endPrefix : "") + d.end;
+    },
+    editable: false,
+    minWidth: 50,
+  },
   { id: "Type", header: languageService("Type"), field: "maintenanceType", editable: false, minWidth: 50 },
 ];
 
@@ -246,7 +265,7 @@ class AddEditWOModal extends Component {
           return m.mrNumber === mrid;
         });
         if (mr) {
-          let l = this.getMPLocation(mr.location);
+          let l = this.getMPLocation(mr.location, mr.lineId);
           let start = l.start;
           let end = l.end;
           if (this.props.modalMode === "view")
@@ -257,6 +276,8 @@ class AddEditWOModal extends Component {
               end: end,
               maintenanceType: mr.maintenanceType,
               locationId: mr.lineId,
+              startPrefix: l.startPrefix,
+              endPrefix: l.endPrefix,
             });
           else
             mrs.push({
@@ -268,6 +289,8 @@ class AddEditWOModal extends Component {
               maintenanceType: mr.maintenanceType,
               locationId: mr.lineId,
               estimate: mr.estimate,
+              startPrefix: l.startPrefix,
+              endPrefix: l.endPrefix,
             });
         }
       }
@@ -301,7 +324,7 @@ class AddEditWOModal extends Component {
           return mr1.mrNumber === m.mrNumber;
         })
       ) {
-        let l = this.getMPLocation(m.location);
+        let l = this.getMPLocation(m.location, m.lineId);
         let start = l.start;
         let end = l.end;
 
@@ -313,18 +336,24 @@ class AddEditWOModal extends Component {
           end: end,
           maintenanceType: m.maintenanceType,
           estimate: m.estimate,
+          startPrefix: l.startPrefix,
+          endPrefix: l.endPrefix,
         });
       }
     }
     this.setState({ addableMRs: addableMrs });
   };
 
-  getMPLocation(Locs) {
-    let l1 = { start: 0, end: 0 };
+  getMPLocation(Locs, lineId) {
+    let l1 = { start: 0, end: 0, startPrefix: "", endPrefix: "" };
     let markerFound = _.find(Locs, { type: "Marker" });
     if (!markerFound) {
       let mpFound = _.find(Locs, { type: "Milepost" });
       mpFound && (l1 = mpFound);
+      let startPrefix = LocPrefixService.getPrefixMp(l1.start, lineId);
+      let endPrefix = LocPrefixService.getPrefixMp(l1.end, lineId);
+      l1.startPrefix = startPrefix;
+      l1.endPrefix = endPrefix;
     } else {
       l1 = markerFound;
     }
@@ -479,7 +508,7 @@ class AddEditWOModal extends Component {
   render() {
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+        contentClassName={themeService({ default: this.props.className, retro: "capital-plan retro", electric: "capital-plan electric" })}
         isOpen={this.props.modal}
         toggle={this.props.toggle}
         styles={{ maxWidth: "98vw" }}

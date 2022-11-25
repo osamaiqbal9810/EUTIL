@@ -63,7 +63,7 @@ class JourneyPlan extends Component {
       planCalculated: true,
       sortMode: "default",
       lineRunNumbers: [],
-        formType: 'inspectionForm'
+      formType: 'inspectionForm'
     };
 
     this.summaryLabels = {
@@ -76,6 +76,7 @@ class JourneyPlan extends Component {
     };
 
     this.handleAddEditModalClick = this.handleAddEditModalClick.bind(this);
+    this.handleViewModalClick = this.handleViewModalClick.bind(this);
     this.resetPage = this.resetPage.bind(this);
     this.handleAddJourneyPlan = this.handleAddJourneyPlan.bind(this);
     this.handleEditJourneyPlan = this.handleEditJourneyPlan.bind(this);
@@ -112,6 +113,8 @@ class JourneyPlan extends Component {
     this.props.getWorkPlanTemplates();
     this.props.getRunOfLines();
     this.props.userListRequest();
+    this.props.getApplookups(["inspectionTypes"])
+    
   }
 
   static getDerivedStateFromProps(nextProps, prevState) {
@@ -326,19 +329,28 @@ class JourneyPlan extends Component {
     this.setState({
       addModal: !this.state.addModal,
       modalState: typeof modalState === "string" ? modalState : "None",
-        formType: 'inspectionForm',
+      formType: 'inspectionForm',
+      selectedJourneyPlan: journeyPlan,
+    });
+  }
+  handleViewModalClick(modalState, journeyPlan) {
+    //console.log(typeof modalState);
+    this.setState({
+      addModal: !this.state.addModal,
+      modalState: typeof modalState === "string" ? modalState : "None",
+      formType: 'inspectionForm',
       selectedJourneyPlan: journeyPlan,
     });
   }
 
-    handleAlertClick(journeyPlan) {
-        this.setState({
-            addModal: !this.state.addModal,
-            modalState: 'Edit',
-            formType: 'alertSetupFormViewOnlyMode',
-            selectedJourneyPlan: journeyPlan,
-        });
-    }
+  handleAlertClick(journeyPlan) {
+    this.setState({
+      addModal: !this.state.addModal,
+      modalState: 'Edit',
+      formType: 'alertSetupFormViewOnlyMode',
+      selectedJourneyPlan: journeyPlan,
+    });
+  }
 
   handleViewClick(journeyPlan, filterName, pageSize) {
     this.props.savePageNum({
@@ -357,6 +369,7 @@ class JourneyPlan extends Component {
     // journeyPlan.subdivision = this.props.selectedLine.subdivision;
     delete journeyPlan.runId;
     this.props.createWorkPlanTemplate(journeyPlan);
+    window.location.reload();
   }
 
   handleEditJourneyPlan(journeyPlan, filterName, pageSize) {
@@ -369,6 +382,7 @@ class JourneyPlan extends Component {
     let copyJourneyPlan = { ...journeyPlan };
     copyJourneyPlan._id = this.state.selectedJourneyPlan._id;
     this.props.updateWorkPlanTemplate(copyJourneyPlan);
+    window.location.reload();
   }
 
 
@@ -396,6 +410,7 @@ class JourneyPlan extends Component {
   handleConfirmation(response) {
     if (response) {
       this.props.deleteWorkPlanTemplate(this.state.planToDelete);
+      window.location.reload();
     }
     this.setState({
       planToDelete: null,
@@ -430,15 +445,15 @@ class JourneyPlan extends Component {
   // checkStateExistenceAfterMount() {
   //     this.handleUpdateFilterState({
   //       ...TEMPLATE_ISSUES_FILTERS,
-        
+
   //     });
-    
+
   // }
   handlePageStateSave(page, planPageSize) {
-     this.setState({
+    this.setState({
       planPageSize,
       listPage: page,
-     });
+    });
     this.handleUpdateFilterState({
       planPageSize,
       listPage: page,
@@ -447,7 +462,7 @@ class JourneyPlan extends Component {
   handlePageSize(planPageSize) {
     this.handleUpdateFilterState({
       planPageSize,
-      
+
     });
   }
   handleUpdateFilterState(propertiesToUpdate) {
@@ -460,7 +475,7 @@ class JourneyPlan extends Component {
   }
   resetPage() {
     this.setState({
-      listPage:  0 ,
+      listPage: 0,
     });
   }
 
@@ -687,7 +702,6 @@ class JourneyPlan extends Component {
           warningMessage={"You cannot delete this line."}
           headerText={"Warning"}
         />
-
         <JourneyPlanAdd
           modal={this.state.addModal}
           formType={this.state.formType}
@@ -703,6 +717,8 @@ class JourneyPlan extends Component {
           lineRunNumbers={this.state.lineRunNumbers}
           runRanges={this.state.runRanges}
           updateLineRunNumbers={this.updateLineRunNumbers}
+          inspectionTypes = {() => this.props.getApplookups(["inspectionTypes"])}
+          inspectionT = {this.props.applookups}
         />
         <Row style={themeService(commonStyles.pageBorderRowStyle)}>
           <Col md="6" style={{ paddingLeft: "0px" }}>
@@ -752,6 +768,7 @@ class JourneyPlan extends Component {
               resetPage={this.resetPage}
               planningTableData={this.state.workPlansView}
               handleEditClick={this.handleAddEditModalClick}
+              handleViewModalClick={this.handleViewModalClick}
               handleDeleteClick={this.handleDeleteClick}
               handleViewClick={this.handleViewClick}
               actionType={this.state.actionType}
@@ -815,6 +832,12 @@ let actionOptions = {
     updateFilterState,
   },
 };
+let customItems = [
+  {
+    name: "applookup",
+    apiName: "applicationlookups",
+  },
+];
 let JourneyPlanContainer = CRUDFunction(JourneyPlan, "workPlanTemplate", actionOptions, variables, [
   "userReducer",
   "utilReducer",
@@ -822,6 +845,6 @@ let JourneyPlanContainer = CRUDFunction(JourneyPlan, "workPlanTemplate", actionO
   "lineSelectionReducer",
   "runNumberReducer",
   "runHelperReducer",
-  "filterStateReducer",
-]);
+  "filterStateReducer"
+], null, customItems);
 export default JourneyPlanContainer;

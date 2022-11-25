@@ -85,7 +85,7 @@ export class TestScheduleObserverService {
           let testObjWithAssetIdForTemplate = {};
           testObjWithAssetIdForTemplate[testObject.assetId] = testObject;
           await AssetTestsService.updateTestOnTemplateUnits(
-            testObject.assetType,
+            { aType: testObject.assetType, assetId: testObject.assetId },
             testObject.testCode,
             "addUpdate",
             testObjWithAssetIdForTemplate,
@@ -142,6 +142,7 @@ export class TestScheduleObserverService {
           .findOne({ $and: [{ assetId: assetTest.assetId }, { testCode: assetTest.testCode }, { status: "Future" }] })
           .exec();
         if (upcoming) {
+          upcoming.title = test.title;
           upcoming.date = test.date;
           upcoming.dueDate = test.dueDate;
           upcoming.expiryDate = test.expiryDate;

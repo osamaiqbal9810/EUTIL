@@ -3,9 +3,10 @@ const rl = require('readline-sync');
 const shell = require('await-shell');
 var tar = require('tar');
 var path = require('path');
-const frontendPath='frontend', serverPath='server';
+const {showFiles} = require('./common.js');
 
-var timpsPath='./';
+const frontendPath='frontend', serverPath='server';
+var timpsPath=path.normalize(__dirname + '/../');
 
 async function buildFrontend(path)
 {
@@ -36,8 +37,13 @@ async function buildFrontend(path)
 //     return true;
 // }
 
-module.exports.makeDeploymentImage = async function makeDeploymentImage()
+module.exports.makeDeploymentImage = async function makeDeploymentImage(args)
 {
+    if(args && args.length>0)
+    {
+        console.log('Automated execution not supported');
+        return;
+    }
     while(!(fs.existsSync(timpsPath+frontendPath) && fs.existsSync(timpsPath+serverPath)))
     {
         console.log(timpsPath+frontendPath, "or", timpsPath+serverPath," doesn't contain required folders");
@@ -79,7 +85,7 @@ module.exports.makeDeploymentImage = async function makeDeploymentImage()
 
     outputDir=outputDir+'\\lamp';
     fs.ensureDirSync(outputDir);
-    console.log('created output directoriy... ', outputDir);
+    console.log('created output directory... ', outputDir);
 
     let inputFrontend=timpsPath+frontendPath;
     let outputFrontend=outputDir+'\\frontend';
@@ -94,8 +100,9 @@ module.exports.makeDeploymentImage = async function makeDeploymentImage()
     // copy all files and folders except node_modules, uploads, .vscode
     fs.copySync(inputServer, outputServer, { filter: (src, dest)=>{
      if(src.includes('node_modules')||src.includes('uploads\\images')||src.includes('uploads\\audio')
-        ||src.includes('uploads\\thumbnails')||src.includes('server\\log')||src.includes('.vscode')
-        ||src.includes('contract.json'))
+        ||src.includes('uploads\\thumbnails')|| src.includes('server\\log')||src.includes('.vscode')
+        ||src.includes('contract.json') || src.includes('server\\.compiled') || src.includes('server\\production\\dist')
+        )
         return false;
 
     return true;
@@ -191,7 +198,8 @@ function removePreviousFiles(pathToRemoveFom)
 module.exports.deploy = async function()
 {
     //let foldersToSave = ['server/contract.json','server/log','server/uploads/images', 'server/uploads/audio','server/uploads/assetDocuments'];
-    
+    await showFiles(__dirname, (f)=>{return f.endsWith('.tar.gz')});
+
     console.log('Deployment file should be a .tar.gz file and should contain folder with file name of .tar.gz');
     let deploymentFile = rl.question('Please enter the deployment filename:');
     if(!fs.existsSync(deploymentFile) || deploymentFile=="")

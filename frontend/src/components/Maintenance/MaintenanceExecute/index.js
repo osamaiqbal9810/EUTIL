@@ -38,10 +38,10 @@ class MaintenanceExecuteForm extends React.Component {
                         Select Execution Date For Maintenance
                     </ModalHeader>
                     <ModalBody>
-                        <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.mrNumber}</div>
-                        <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.workOrderNumber} </div>
-                        <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.description} </div>
-                        <div style={{ color: "rgb(64, 118, 179)", fontSize: "14px", paddingBottom: "1em" }}>  Due Date: {this.props.maintenance.dueDate} </div>
+                        <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.mrNumber}</div>
+                        <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.workOrderNumber} </div>
+                        <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>  {this.props.maintenance.description} </div>
+                        <div style={{ color: "var(--first)", fontSize: "14px", paddingBottom: "1em" }}>  Due Date: {this.props.maintenance.dueDate} </div>
                         <div className={'commonform'}>
                             <FormFields
                                 planFields={this.state.planFields}

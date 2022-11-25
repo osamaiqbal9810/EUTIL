@@ -4,6 +4,7 @@ import { LampAttributes, inspectionInstructions, switchInspForm, trackInspForm }
 import { defectCodes } from "../config/database/defectCodes";
 import { signalApp } from "./config";
 import { SingalAppDefectCodes } from "./DefectCodes";
+import { etrBridgeATypeDefectCodes } from "../config/database/configurations/DefectCodes/ETR_Bridge";
 export async function railRoadLocationsTemplate() {
   let aTypes = await AssetsTypeModel.find().exec();
 
@@ -178,7 +179,7 @@ let locationIdentifier = {
     "Yard Track",
   ],
 };
-let track = {
+export const track = {
   assetType: "track",
   assetTypeClassify: "linear",
   lampAttributes: LampAttributes["track"],
@@ -191,9 +192,9 @@ let track = {
   location: false,
   defectCodesObj: defectCodes,
   inspectionFormsObj: JSON.parse(trackInspForm),
-  allowedAssetTypes: ["rail", "3rd Rail", "Catenary Power", "Switch", "SCC", "DED", "Frogs", "Ties", "Bungalow"],
+  allowedAssetTypes: ["rail", "3rd Rail", "Catenary Power", "Switch", "SCC", "DED", "Frogs", "Ties", "Bungalow", "Curve"],
 };
-let switchAssetType = {
+export const switchAssetType = {
   assetType: "Switch",
   assetTypeClassify: "point",
   lampAttributes: [],
@@ -351,7 +352,7 @@ let catenaryPower = {
   assetType: "Catenary Power",
   assetTypeClassify: "linear",
 };
-let crossings = {
+export const crossings = {
   assetType: "Crossing",
   assetTypeClassify: "point",
   lampAttributes: [],
@@ -416,5 +417,231 @@ export let YardTrack = {
   inspectable: true,
   location: false,
   markerMilepost: true,
+  allowedAssetTypes: ["Curve"],
+};
+export const Curve = {
+  assetType: "Curve",
+  assetTypeClassify: "point",
+  lampAttributes: LampAttributes["Curve"],
+  timpsAttributes: { code: "0027", description: "Curve" },
+  defectCodesObj: defectCodes,
+  inspectionInstructions: "",
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+
+export const SideTrack = {
+  assetType: "Side Track",
+  assetTypeClassify: "linear",
+  lampAttributes: LampAttributes["sideTrack"],
+  timpsAttributes: { code: "0006", description: "SideTrack" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: trackInspForm,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(trackInspForm),
+  allowedAssetTypes: ["Switch"],
+};
+
+export const SpurTrack = {
+  assetType: "Spur",
+  assetTypeClassify: "linear",
+  lampAttributes: LampAttributes["sideTrack"],
+  timpsAttributes: { code: "0006", description: "Spur" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: trackInspForm,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(trackInspForm),
+  allowedAssetTypes: ["Switch"],
+};
+export const StorageTrack = {
+  assetType: "Storage Track",
+  assetTypeClassify: "linear",
+  lampAttributes: LampAttributes["sideTrack"],
+  timpsAttributes: { code: "0006", description: "Storage Track" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: trackInspForm,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(trackInspForm),
+  allowedAssetTypes: ["Switch"],
+};
+
+export const RARTrack = {
+  assetType: "RAR Track",
+  assetTypeClassify: "linear",
+  lampAttributes: LampAttributes["YardTrack"],
+  timpsAttributes: { code: "0007", description: "RAR Track" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: trackInspForm,
+  markerMilepost: true,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(trackInspForm),
+  allowedAssetTypes: ["Switch"],
+};
+
+export const switchLHAssetType = {
+  assetType: "Switch LH",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0013", description: "Switch LH" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: switchInspForm,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(switchInspForm),
+  allowedAssetTypes: [],
+};
+
+export const switchRHAssetType = {
+  assetType: "Switch RH",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0013", description: "Switch LH" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: switchInspForm,
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: JSON.parse(switchInspForm),
+  allowedAssetTypes: [],
+};
+
+export const Culvert = {
+  assetType: "Culvert",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "Culvert" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+
+export const CWRJointedTrack = {
+  assetType: "CWR Jointed Track",
+  assetTypeClassify: "linear",
+  lampAttributes: LampAttributes["CWR Jointed Track"],
+  timpsAttributes: { code: "0006", description: "CWR Jointed Track" },
+  defectCodes: defectCodes,
+  inspectionInstructions: inspectionInstructions,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  defectCodesObj: defectCodes,
+  inspectionFormsObj: "",
+  allowedAssetTypes: [],
+};
+
+export const AEIReaders = {
+  assetType: "AEI Reader",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "AEI Reader" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+export const GradeCrossingWarning = {
+  assetType: "Grade Crossing Warning",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "Grade Crossing Warning" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+export const HighWaterDetector = {
+  assetType: "High Water Detector",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "High Water Detector" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+export const HotboxDetector = {
+  assetType: "Hotbox Detector",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "High Water Detecto" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+export const TrainRadio = {
+  assetType: "Train Radio",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "Train Radio" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
+  allowedAssetTypes: [],
+};
+
+export const Diamond = {
+  assetType: "Diamond",
+  assetTypeClassify: "point",
+  lampAttributes: [],
+  timpsAttributes: { code: "0016", description: "Diamond" },
+  defectCodes: defectCodes,
+  defectCodesObj: defectCodes,
+  inspectionInstructions: null,
+  inspectionForms: "",
+  plannable: false,
+  inspectable: true,
+  location: false,
   allowedAssetTypes: [],
 };

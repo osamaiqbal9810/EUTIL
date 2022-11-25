@@ -16,7 +16,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import androidx.fragment.app.DialogFragment;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +48,8 @@ import static com.app.ps19.tipsapp.Shared.Globals.CURRENT_LOCATION;
 import static com.app.ps19.tipsapp.Shared.Globals.NEARBY_ASSETS_LIST_SIZE;
 import static com.app.ps19.tipsapp.Shared.Globals.TASK_FINISHED_STATUS;
 import static com.app.ps19.tipsapp.Shared.Globals.angleOffset;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMpOnly;
 import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Globals.isBackOnTaskClose;
 import static com.app.ps19.tipsapp.Shared.Globals.isBypassTaskView;
@@ -75,6 +79,7 @@ public class StopInspectionFragment extends DialogFragment {
     ArrayAdapter<Units> assetAheadAdapter;
     LinearLayout llNearByAssets;
     EditText etEndMp;
+    TextView tvEndPrefix;
     public static String STOP_INSPECTION_RETURN_MSG = "finish activity";
     public static String STOP_INSPECTION_RETURN_MSG_FOR_DASHBOARD = "task closed";
     @NonNull
@@ -142,6 +147,7 @@ public class StopInspectionFragment extends DialogFragment {
             setSelectedTask(selectedJPlan.getTaskList().get(0));
         }
         //  Get View elements from Layout file. Be sure to include inflated view name (mView)
+        tvEndPrefix = mView.findViewById(R.id.tv_endmp_prefix);
         spAssetsAhead = (Spinner) mView.findViewById(R.id.sp_assets_ahead);
         spAssetsBehind = (Spinner) mView.findViewById(R.id.sp_assets_behind);
         btnCancel = (Button) mView.findViewById(R.id.btn_cancel);
@@ -153,7 +159,7 @@ public class StopInspectionFragment extends DialogFragment {
         TextView tvTotalMp = (TextView) mView.findViewById(R.id.tv_title_msg_wp_start_mp_value);
         TextView tvCompletedTill = (TextView) mView.findViewById(R.id.tv_completed_title);
 
-        tvTotalMp.setText(Html.fromHtml("<b>" + "MP " + "</b> " + getSelectedTask().getMpStart() + getString(R.string.to_part2) + "<b>" + "MP " + "</b> " + getSelectedTask().getMpEnd()));
+        tvTotalMp.setText(Html.fromHtml("<b>" + "MP " + "</b> " + getPrefixMp(getSelectedTask().getMpStart()) + getString(R.string.to_part2) + "<b>" + "MP " + "</b> " + getPrefixMp(getSelectedTask().getMpEnd())));
         //etEndMp.setHint(selectedJPlan.getMpEnd());
         TextInputLayout textInputLayout = (TextInputLayout) mView.findViewById(R.id.ti_end_mp);
         //textInputLayout.setHint(selectedTask.getMpEnd());
@@ -161,6 +167,7 @@ public class StopInspectionFragment extends DialogFragment {
         assetsBehind = new ArrayList<>();
         llNearByAssets.setVisibility(View.VISIBLE);
         etSelectedAsset.setEnabled(false);
+        etEndMp.addTextChangedListener(endMpTw);
 
         if(location != null){
             fixedAssetsList = getSelectedTask().getUnitList(new LatLng(location.getLatitude(), location.getLongitude()));
@@ -212,7 +219,9 @@ public class StopInspectionFragment extends DialogFragment {
         }
         // Hiding Nearby assets as req by client
         llNearByAssets.setVisibility(View.GONE);
+
         etEndMp.requestFocus();
+        etEndMp.setText(getSelectedTask().getMpEnd());
         //showKeyboard(context);
         // Set up the buttons
         //btnCancel.setVisibility(View.GONE);
@@ -279,6 +288,16 @@ public class StopInspectionFragment extends DialogFragment {
             }
         });*/
     }
+    TextWatcher endMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {}
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvEndPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
     private boolean closeTask(){
         if (!getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
             Date now = new Date();

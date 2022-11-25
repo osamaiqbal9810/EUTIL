@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const CommonFormStyle = {
     formStyle: {
         default: {
@@ -9,6 +9,12 @@ export const CommonFormStyle = {
 
 
             backgroundColor: retroColors.nine
+        },
+        electric: {
+
+
+
+            backgroundColor: electricColors.nine
         }
     }
 }

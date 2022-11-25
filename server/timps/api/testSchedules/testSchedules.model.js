@@ -23,6 +23,7 @@ let testSchedules = new Schema({
   status: String,
   expiryDate: Date,
   completed: Boolean,
+  childForms: { type: Array, default: null },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

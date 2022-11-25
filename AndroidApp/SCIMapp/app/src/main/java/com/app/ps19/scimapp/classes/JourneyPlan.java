@@ -22,7 +22,11 @@ import java.util.List;
 
 import static android.content.ContentValues.TAG;
 import static com.app.ps19.scimapp.Shared.Globals.FULL_DATE_FORMAT;
+import static com.app.ps19.scimapp.Shared.Globals.SESSION_STARTED;
+import static com.app.ps19.scimapp.Shared.Globals.activeSession;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.inbox;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 
 public class JourneyPlan implements IConvertHelper, IMergeHelper {
     private String employeeId;
@@ -53,6 +57,15 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
     private Intervals intervals = new Intervals(new JSONArray());
     private Completion completion;
     private boolean loadCompletion=false;
+    private JourneyPlanOpt jpTemplate;
+
+    public JourneyPlanOpt getJpTemplate() {
+        return jpTemplate;
+    }
+
+    public void setJpTemplate(JourneyPlanOpt jpTemplate) {
+        this.jpTemplate = jpTemplate;
+    }
 
     public boolean isLoadCompletion() {
         return loadCompletion;
@@ -328,8 +341,8 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
         if(Globals.selectedJPlan !=null){
             Globals.selectedJPlan.getDate();
         }
-        if(Globals.selectedTask !=null){
-            selTaskId=Globals.selectedTask.getTaskId();
+        if(getSelectedTask() !=null){
+            selTaskId=getSelectedTask().getTaskId();
         }
         if(Globals.selectedReport !=null){
             selReportIndex=Globals.selectedReport.getReportIndex();
@@ -352,17 +365,17 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
 
                 }
                 if(!selTaskId.equals("")){
-                    Globals.selectedTask=null;
+                    setSelectedTask(null);
                     for(Task task:taskList){
                         if(task.getTaskId().equals(selTaskId)){
-                            Globals.selectedTask=task;
+                            setSelectedTask(task);
                             break;
                         }
                     }
                 }
-                if(selReportIndex>=0 && Globals.selectedTask!=null){
+                if(selReportIndex>=0 && getSelectedTask()!=null){
                     Globals.selectedReport=null;
-                    for(Report report:Globals.selectedTask.getReportList()){
+                    for(Report report:getSelectedTask().getReportList()){
                         if(report.getReportIndex()== selReportIndex){
                             Globals.selectedReport=report;
                         }
@@ -370,7 +383,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
                 }
                 if (!selUnitId.equals("")) {
                     Globals.selectedUnit = null;
-                    for (Units _unit : Globals.selectedTask.getWholeUnitList()) {
+                    for (Units _unit : getSelectedTask().getWholeUnitList()) {
                         if (_unit.getUnitId().equals(selUnitId)) {
                             Globals.selectedUnit = _unit;
                             break;
@@ -398,7 +411,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
         joTask.put("imageURL", "http://this.southeastasia.cloudapp.azure.com/images/sampleimg.png");
 */
         try {
-
+            this.setJpTemplate(getTemplateFullOpt());
             this.date = jsonObject.optString("date");
             //setId(date);
             setId(jsonObject.optString("_id"));
@@ -476,6 +489,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
                 _taskList.add(task);
             }
             this.taskList = _taskList;
+
             // calculateRanges();
         } catch (Exception e) {
             e.printStackTrace();
@@ -605,6 +619,14 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
                 }
             }
 
+            if(user!=null){
+                Globals.user.setChangeOnly(changeOnly);
+                JSONObject userObj=Globals.user.getJsonObject();
+                if(userObj!=null && userObj.length()!=0){
+                    jo.put("user", userObj);
+                }
+            }
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -630,7 +652,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             //Check if Id available in List
             if(!privateKey.equals("")){
                 DBHandler db=Globals.db;
-                List<StaticListItem> items=db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"","description='"+privateKey+"'");
+                List<StaticListItem> items=Globals.db.getListItems(Globals.JPLAN_LIST_NAME, Globals.orgCode,"","description='"+privateKey+"'");
                 if(items.size()==1){
                     StaticListItem item=items.get(0);
                     setId(item.getCode());
@@ -938,8 +960,8 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
         if(Globals.selectedJPlan !=null){
             Globals.selectedJPlan.getDate();
         }
-        if(Globals.selectedTask !=null){
-            selTaskId=Globals.selectedTask.getTaskId();
+        if(getSelectedTask() !=null){
+            selTaskId=getSelectedTask().getTaskId();
         }
         if(Globals.selectedReport !=null){
             selReportIndex=Globals.selectedReport.getReportIndex();
@@ -955,17 +977,17 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
 
             }
             if(!selTaskId.equals("")){
-                Globals.selectedTask=null;
+                setSelectedTask(null);
                 for(Task task:taskList){
                     if(task.getTaskId().equals(selTaskId)){
-                        Globals.selectedTask=task;
+                        setSelectedTask(task);
                         break;
                     }
                 }
             }
-            if(selReportIndex>=0 && Globals.selectedTask!=null){
+            if(selReportIndex>=0 && getSelectedTask()!=null){
                 Globals.selectedReport=null;
-                for(Report report:Globals.selectedTask.getReportList()){
+                for(Report report:getSelectedTask().getReportList()){
                     if(report.getReportIndex()== selReportIndex){
                         Globals.selectedReport=report;
                     }
@@ -973,7 +995,7 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             }
             if (!selUnitId.equals("")) {
                 Globals.selectedUnit = null;
-                for (Units _unit : Globals.selectedTask.getWholeUnitList()) {
+                for (Units _unit : getSelectedTask().getWholeUnitList()) {
                     if (_unit.getUnitId().equals(selUnitId)) {
                         Globals.selectedUnit = _unit;
                         break;
@@ -1018,18 +1040,22 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
         ArrayList<UnitsOpt> unitsOpts=jpTemplate.getUnitList();
 
         if(taskList !=null && unitsOpts!=null){
+            HashMap<String, UnitsOpt> unitsOptHashMap = jpTemplate.getUnitListHashMap();
+            /*
             HashMap<String, UnitsOpt> unitsOptHashMap = new HashMap<>();
             for(UnitsOpt unit:unitsOpts){
                 if(unit.getDefaultFormValues()!=null){
                     unitsOptHashMap.put(unit.getUnitId(), unit);
                 }
-            }
+            }*/
             for(Task task:taskList){
                 if(task.getWholeUnitList()!=null){
                     for(Units unit:task.getWholeUnitList()){
                         UnitsOpt unitsOpt=unitsOptHashMap.get(unit.getUnitId());
                         if(unitsOpt !=null){
                             unit.setDefaultFormValues(unitsOpt.getDefaultFormValues());
+                            unit.setDefectsList(unitsOpt.getDefectsList());
+                            unit.setAtivDefects(unitsOpt.getaDefects());
                         }
                     }
                 }
@@ -1037,5 +1063,29 @@ public class JourneyPlan implements IConvertHelper, IMergeHelper {
             }
         }
         return true;
+    }
+    public void setActiveSession(){
+        for (Session session : getIntervals().getSessions()) {
+            if (session.getStatus().equals(SESSION_STARTED)) {
+                activeSession = session;
+                setTraverseObj(session.traverseTrack);
+                setObserveObj(session.observeTrack);
+                break;
+            }
+        }
+    }
+    public void setTraverseObj(String id){
+        for(Units unit: taskList.get(0).getWholeUnitList()){
+            if(unit.getUnitId().equals(id)){
+                activeSession.setTraverseUnit(unit);
+            }
+        }
+    }
+    public void setObserveObj(String id){
+        for(Units unit: taskList.get(0).getWholeUnitList()){
+            if(unit.getUnitId().equals(id)){
+                activeSession.setObserveUnit(unit);
+            }
+        }
     }
 }

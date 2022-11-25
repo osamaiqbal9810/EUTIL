@@ -1,6 +1,8 @@
 //This Controller deals with all functionalities of User
+const moment = require("moment");
 let userService = require("./user.service");
 let User = require("./user.model");
+let UserHos = require("../userHos/user_hos.model");
 let UserGroup = require("../userGroup/userGroup.model");
 let jwt = require("jsonwebtoken");
 let bcrypt = require("bcryptjs");
@@ -267,7 +269,33 @@ exports.update = function (req, res) {
     });
   });
 };
+exports.updateUserProfile = function (req, res, next) {
+  let userId = req.params.id;
+  let profile_img = req.body.profile_img;
+  let signature = req.body.signature;
 
+  User.findById(userId, function (err, user) {
+    if (err) return handleError(res, err);
+    if (!user) {
+      res.status(404);
+      return res.send("User not found");
+    }
+    if (profile_img) {
+      user.profile_img = profile_img;
+    }
+    if (signature) {
+      user.signature = signature;
+    }
+
+    user.save(function (err, user) {
+      if (err) {
+        return handleError(res, err);
+      }
+      res.status(200);
+      return res.json(user);
+    });
+  });
+};
 exports.logoutUser = function (req, res, next) {
   res.status(200);
   return res.json("LogOut Successful");
@@ -277,6 +305,14 @@ exports.logoutUser = function (req, res, next) {
  */
 exports.forgotPassword = function (req, res, next) {
   let emailService = ServiceLocator.resolve("EmailService");
+  const baseUrl = req.headers["origin"];
+  if(!baseUrl){
+    console.log('request.headers["origin"] not found it is required.');
+    res.status(500);
+    res.json({message:"Invalid request..."});
+    return;
+  }
+  
   async.waterfall(
     [
       function (done) {
@@ -302,26 +338,15 @@ exports.forgotPassword = function (req, res, next) {
         });
       },
       function (token, user, done) {
+        const urlLink = `<p>${baseUrl}/confirmreset/${token}</p>`;
         let mailOptions = {
           to: user.email,
           subject: "Password Reset Link",
           html:
             "<p>You are receiving this because you (or someone else) has requested to reset the password of your account.</p><br/>" +
             "<p>Please click on the following link, or paste this into your browser to complete the process:</p>" +
-            "<p>http://" +
-            config.ip +
-            ":" +
-            config.port +
-            "/confirmreset/" +
-            token +
-            "</p>" +
-            "<a href='http://" +
-            config.ip +
-            ":" +
-            config.port +
-            "/confirmreset/" +
-            token +
-            "'> Click Here </a>" +
+            urlLink + 
+            `<a href=${baseUrl}/confirmreset/${token}> Click Here </a>` +
             "<h3>If you did not request, please ignore this email and your password will remain unchanged.</h3>" +
             "<p>Thank You</p>" +
             "<p>TIMPS Team</p>",
@@ -459,7 +484,7 @@ exports.changePassword = function (req, res, next) {
       }
     }
     user.password = newPass;
-    User.update({ _id: userId }, { $set: { hashedPassword: user.hashedPassword } }, (err, user) => {
+    User.updateOne({ _id: userId }, { $set: { hashedPassword: user.hashedPassword } }, (err, user) => {
       if (err) return next(err);
       res.status(200);
       return res.json("Password updated");
@@ -595,5 +620,100 @@ exports.getUserSignature = function (req, res, next) {
     if (!users) return handleError(res, "Users not found");
 
     res.json(users);
+  });
+};
+exports.getUserHos = function (req, res, next) {
+  let id = req.query.id;
+  let startDateObj = req.query.startDate;
+  let endDateObj = req.query.endDate;
+  let startDate = moment.utc(startDateObj).startOf("day");
+  //startDate = moment.utc(startDate);
+  let endDate = endDateObj ? moment.utc(endDateObj).startOf("day") : null;
+  if (endDate) {
+    //endDate = moment.utc(endDate);
+  }
+  let criteria = endDate
+    ? { date: { $gte: startDate.startOf("day").format(), $lte: endDate.startOf("day").format() } }
+    : { date: startDate.startOf("day").format() };
+  criteria.userId = id;
+  //console.log(criteria);
+  UserHos.find(criteria, function (err, data) {
+    if (err) {
+      return handleError(res, err);
+    }
+    return res.json(data);
+  });
+  //console.log("date in utc" + startDate.valueOf());
+  //res.json({ date: startDate.valueOf(), year: year, month: month });
+};
+
+exports.updateUserHos = function (req, res, next) {
+  const id = req.params.id;
+  const email = req.body.email;
+  let startDateObj = req.body.startDate;
+  let endDateObj = req.body.endDate;
+  const strComments = req.body.comments;
+  const startDate = moment.utc(startDateObj);
+  const startTime = startDate.format("HH:mm");
+  //startDate = moment.utc(startDate).format();
+  let year = startDate.year();
+  let month = startDate.month();
+  const endDate = endDateObj ? moment.utc(endDateObj) : null;
+  const endTime = endDate ? endDate.format("HH:mm") : "";
+  const duration = endDate ? moment.duration(endDate.diff(startDate)).asMinutes() : 0;
+  UserHos.findOne({ userId: id, date: startDate.startOf("day").format() }, function (err, userHosData) {
+    if (err) return handleError(res, err);
+    if (!userHosData) {
+      let userHos = new UserHos();
+      userHos.userId = id;
+      userHos.email = email;
+      userHos.date = startDate.startOf("day").format();
+      let data = [];
+      let timeSlice = {};
+      timeSlice.startTime = startTime;
+      timeSlice.endTime = endTime;
+      timeSlice.dur = duration;
+      timeSlice.comments = strComments;
+      data.push(timeSlice);
+      userHos.data = data;
+      userHos.save(function (err, data) {
+        if (err) {
+          return handleError(res, err);
+        }
+        res.status(200);
+        return res.json(data);
+      });
+    } else {
+      //search for current start time;
+      let data = userHosData.data ? userHosData.data : [];
+      let foundIndex = -1;
+      data.forEach((e, index) => {
+        if (e.startTime === startTime) {
+          e.endTime = endTime;
+          e.dur = duration;
+          e.comments = strComments;
+          foundIndex = index;
+        }
+      });
+      if (startTime === endTime && foundIndex >= 0) {
+        data.splice(foundIndex, 1);
+      } else if (foundIndex < 0 && startTime != endTime) {
+        data.push({ startTime: startTime, endTime: endTime, dur: duration, comments: strComments });
+        foundIndex = 0;
+      }
+      if (foundIndex >= 0) {
+        userHosData.markModified("data");
+        userHosData.save(function (err, data) {
+          if (err) {
+            return handleError(res, err);
+          }
+          res.status(200);
+          return res.json(data);
+        });
+      } else {
+        res.status(200);
+        return res.json(userHosData);
+      }
+    }
   });
 };

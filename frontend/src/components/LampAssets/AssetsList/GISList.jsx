@@ -8,6 +8,7 @@ import { ic_keyboard_arrow_down } from "react-icons-kit/md/ic_keyboard_arrow_dow
 import { ic_keyboard_arrow_right } from "react-icons-kit/md/ic_keyboard_arrow_right";
 import SvgIcon from "react-icons-kit";
 import { languageService } from "../../../Language/language.service";
+import { LocPrefixService } from "../../LocationPrefixEditor/LocationPrefixService";
 class AssetsList extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +19,7 @@ class AssetsList extends Component {
         Header: languageService("Assets"),
         id: "name",
 
-        accessor: d => {
+        accessor: (d) => {
           let expand = null;
 
           //console.log("value", d.paddingLeft, !d.expanded, d.childAsset.length);
@@ -31,7 +32,7 @@ class AssetsList extends Component {
                   display: "inline-block",
                   verticalAlign: "top",
                 }}
-                onClick={e => {
+                onClick={(e) => {
                   this.props.handleExpandClick(d);
                 }}
               >
@@ -56,7 +57,7 @@ class AssetsList extends Component {
                   display: "inline-block",
                   verticalAlign: "top",
                 }}
-                onClick={e => {
+                onClick={(e) => {
                   this.props.handleContractClick(d);
                 }}
               >
@@ -113,7 +114,9 @@ class AssetsList extends Component {
           return (
             <div style={{ height: "100%" }}>
               <div style={{ display: "inline-block", paddingRight: "5px", height: "100%", verticalAlign: "middle" }}>{expand}</div>
-              <div style={{ display: "inline-block", height: "100%", verticalAlign: "middle", lineHeight: "36px" }}>{d.assetType}</div>
+              <div style={{ display: "inline-block", height: "100%", verticalAlign: "middle", lineHeight: "36px" }}>
+                {languageService(d.assetType)}
+              </div>
             </div>
           );
         },
@@ -123,7 +126,7 @@ class AssetsList extends Component {
         Header: languageService("Asset Name"),
         id: "assetId",
 
-        accessor: d => {
+        accessor: (d) => {
           return <div style={{ textAlign: "center" }}>{d.unitId} </div>;
         },
         minWidth: 150,
@@ -133,8 +136,13 @@ class AssetsList extends Component {
         Header: languageService("Start (milepost)"),
         id: "start",
 
-        accessor: d => {
-          return <div style={{ textAlign: "center" }}>{d.start} </div>;
+        accessor: (d) => {
+          let prefix = !d.attributes["Marker Start"] && LocPrefixService.getPrefixMp(d.start, d.lineId);
+          return (
+            <div style={{ textAlign: "center" }}>
+              {prefix} {d.attributes && d.attributes["Marker Start"] ? d.attributes["Marker Start"] : d.start}
+            </div>
+          );
         },
         minWidth: 100,
       },
@@ -142,8 +150,13 @@ class AssetsList extends Component {
         Header: languageService("End (milepost)"),
         id: "end",
 
-        accessor: d => {
-          return <div style={{ textAlign: "center" }}>{d.end} </div>;
+        accessor: (d) => {
+          let prefix = !d.attributes["Marker End"] && LocPrefixService.getPrefixMp(d.end, d.lineId);
+          return (
+            <div style={{ textAlign: "center" }}>
+              {prefix} {d.attributes && d.attributes["Marker End"] ? d.attributes["Marker End"] : d.end}
+            </div>
+          );
         },
         minWidth: 100,
       },

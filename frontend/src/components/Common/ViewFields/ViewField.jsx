@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 
 class ViewFieldSimple extends Component {
@@ -18,6 +18,12 @@ class ViewFieldSimple extends Component {
           paddingBottom: "1em",
           fontWeight: 600,
         },
+        electric: {
+          color: electricColors.second,
+          fontSize: "14px",
+          paddingBottom: "1em",
+          fontWeight: 600,
+        },
       },
       fieldDataStyle: {
         default: {
@@ -27,6 +33,7 @@ class ViewFieldSimple extends Component {
           borderRadius: "5px",
         },
         retro: { border: "1px solid #f1f1f1", boxShadow: "rgb(238, 238, 238) 1px 1px 1px", padding: "10px" },
+        electric: { border: "1px solid #f1f1f1", boxShadow: "rgb(238, 238, 238) 1px 1px 1px", padding: "10px" },
       },
     };
   }

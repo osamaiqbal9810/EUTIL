@@ -6,10 +6,10 @@ import Radium from "radium";
 import { Switch, Route, Link } from "react-router-dom";
 import permissionCheck from "./../../utils/permissionCheck.js";
 // import LineSelectionWrapper from 'components/TrackLineSelect/LineSelectionWrapper'
-import {timpsSetupRoute, setupRoute} from "./../../routes/setupRoutes/setupRoutes.js";
+import { timpsSetupRoute, setupRoute } from "./../../routes/setupRoutes/setupRoutes.js";
 import { themeService } from "theme/service/activeTheme.service";
 import { setupStyle } from "./style/index";
-import {versionInfo} from "../MainPage/VersionInfo";
+import { versionInfo } from "../MainPage/VersionInfo";
 
 class SetupPage extends Component {
   constructor(props) {
@@ -28,8 +28,7 @@ class SetupPage extends Component {
     if (this.props.location.pathname === "/Setup") this.props.history.push("/setup/staff");
 
     let routeToLoad = timpsSetupRoute;
-    if(versionInfo.loaded && versionInfo.isLAMP())
-      routeToLoad = setupRoute;
+    if (versionInfo.loaded && versionInfo.isLAMP()) routeToLoad = setupRoute;
 
     this.routeSetupComponent = routeToLoad.map((route) => {
       return permissionCheck(route.permissionCheckFirstArg, route.permissionCheckSecondArg) || route.permissionCheck == false ? (
@@ -77,6 +76,10 @@ let getStyles = (props, state) => {
         padding: "0px 15px 15px 0px",
       },
       retro: {
+        margin: "30px 0px 0px 0px",
+        padding: "0px 15px 15px 0px",
+      },
+      electric: {
         margin: "30px 0px 0px 0px",
         padding: "0px 15px 15px 0px",
       },

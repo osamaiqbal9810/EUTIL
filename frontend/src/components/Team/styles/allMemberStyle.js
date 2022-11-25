@@ -1,4 +1,4 @@
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 export const allMemberStyle = {
   tableHeading: {
     default: {
@@ -10,6 +10,11 @@ export const allMemberStyle = {
       color: retroColors.second,
       fontWeight: 600,
     },
+    electric: {
+      margin: "5px 0px 5px",
+      color: electricColors.second,
+      fontWeight: 600,
+    },
   },
   userHeading: {
     default: {
@@ -19,6 +24,11 @@ export const allMemberStyle = {
     },
     retro: {
       color: retroColors.second,
+      fontSize: "14px",
+      paddingBottom: "1em",
+    },
+    electric: {
+      color: electricColors.second,
       fontSize: "14px",
       paddingBottom: "1em",
     },

@@ -178,7 +178,7 @@ class AssetTypesSelection extends React.Component {
                     </th>
                   </tr>
                 </thead>
-                <tbody style={{ background: "#fff", fontSize: "12px", minHeight: "500px" }}>{/*rows*/}</tbody>
+                <tbody style={{ background: "var(--fifth)", fontSize: "12px", minHeight: "500px" }}>{/*rows*/}</tbody>
               </table>
             </Col>
             <Col md={1}></Col>

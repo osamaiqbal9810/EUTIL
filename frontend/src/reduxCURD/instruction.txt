@@ -85,3 +85,15 @@ it takes five arguments
 saveContainer(container , name) is a function to save the container so it wont generate again.;
 containerExistCheck(container) is a function that will check if the container is already generated , if not: it will generate the container and save it.
 existingContainers is an object which contains the generated containers.
+
+
+
+V2 :
+customActionItems as an argument is added . it is useful where you want to create separate CRUD actions/reducer for multiple items while creating a single container.
+
+Syntax : it is an array of objects , each object can be like this.
+{
+    name : "" required,
+    apiName : "" optional,
+    actionOptions : {} optional, if not given it will use main crud options.
+}

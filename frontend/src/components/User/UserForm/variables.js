@@ -144,6 +144,28 @@ export const additionalFields = {
     //     touched: false,
     //     validationMessage: requiredValidationMessage
     // },
+    departmentE: {
+        element: 'input',
+        value: "E-Utility",
+        label: true,
+        labelText: 'department',
+        containerConfig: {},
+        config: {
+            name: 'departmentE',
+            type: 'text',
+            placeholder: 'Department',
+            disabled:true
+        },
+        validation: {
+            required: false,
+            phoneNumber: false,
+            minLen: 0,
+            maxLen: 0
+        },
+        valid: false,
+        touched: false,
+        validationMessage: '',
+    },
     assignedLocation: {
         element: 'select',
         value: '',
@@ -223,7 +245,8 @@ export const additionalFields = {
         valid: false,
         touched: false,
         validationMessage: requiredValidationMessage
-    }
+    },
+
 };
 
 export const userGroupsTemplate = {
@@ -263,6 +286,7 @@ export const userGroupsTemplate = {
         },
         valid: false,
         touched: false,
-        validationMessage: requiredValidationMessage
-    },
+        validationMessage: requiredValidationMessage,
+        hide:true
+    }
 }

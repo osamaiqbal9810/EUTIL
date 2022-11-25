@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/border_bottom"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingBottom="40dp">
+    <LinearLayout
+        android:id="@+id/ll_asset_selection_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:id="@+id/rl_select_asset"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:visibility="visible"
+            android:background="@color/title_background">
+
+            <ImageView
+                android:id="@+id/iv_select_asset"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="30dp"
+                android:drawableTint="@android:color/black"
+                android:src="@drawable/ic_web_asset_gray_24dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/iv_select_asset"
+                android:fontFamily="@font/cabin"
+                android:text="Select asset"
+                android:textColor="@color/title_text" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:orientation="horizontal">
+            <Spinner
+                android:id="@+id/sp_assets"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/cabin"/>
+
+        </LinearLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:visibility="visible"
+        android:background="@color/title_background">
+
+        <ImageView
+            android:id="@+id/iv_def_title"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:drawableTint="@android:color/black"
+            android:src="@drawable/ic_web_asset_gray_24dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="Defect / Deficiency"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/iv_def_title"
+            android:fontFamily="@font/cabin"
+            android:textColor="@color/title_text" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:fontFamily="@font/cabin"
+            android:text="Report a defect / deficiency"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_weight="1.5">
+            <Button
+                android:id="@+id/btn_report_issue"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/inspection_plus"/>
+
+        </LinearLayout>
+    </LinearLayout>
+    <RelativeLayout
+        android:id="@+id/rl_form_title"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_below="@id/layout_user"
+        android:visibility="visible"
+        android:background="@color/title_background">
+
+        <ImageView
+            android:id="@+id/iv_form_title"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:drawableTint="@android:color/black"
+            android:src="@drawable/ic_web_asset_gray_24dp" />
+
+        <TextView
+            android:id="@+id/tv_test_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/iv_form_title"
+            android:fontFamily="@font/cabin"
+            android:text="Tests"
+            android:textColor="@color/title_text" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:weightSum="2"
+        android:orientation="horizontal">
+        <Spinner
+            android:id="@+id/sp_forms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight=".5"
+            android:fontFamily="@font/cabin"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:layout_weight="1.5">
+            <Button
+                android:id="@+id/btn_open_form"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="@drawable/arrow_active"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

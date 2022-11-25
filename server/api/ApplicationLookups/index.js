@@ -14,10 +14,10 @@ let isAllowed = require("../../middlewares/validatePermission");
 
 router.get("/", [isAuthenticated], controller.show);
 router.get("/assetTypeTests/:mode", [isAuthenticated], controller.getAssetTypeTests);
+router.get("/single/:id", [isAuthenticated], controller.find);
 router.get("/:lists", [isAuthenticated], controller.show);
 router.get("/getlist/:listname", [isAuthenticated], controller.getList);
 router.get("/:listName/:codes", [isAuthenticated], controller.getCodes);
-router.get("/:id", [isAuthenticated], controller.find);
 router.put("/globalGeoLogging", [isAuthenticated], controller.updateGeoLogging);
 router.post("/language", [isAuthenticated], controller.updateLanguage);
 router.put("/languageedit", [isAuthenticated], controller.editLanguage);

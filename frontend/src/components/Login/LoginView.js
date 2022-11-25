@@ -7,7 +7,7 @@ import "react-overlay-loader/styles.css";
 import PropTypes from "prop-types";
 // import Recaptcha from "react-recaptcha";
 import { ButtonStyle } from "style/basic/commonControls";
-import { retroColors } from "style/basic/basicColors.js";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors.js";
 import { themeService } from "../../theme/service/activeTheme.service";
 
 // const sitekey = "6LegVGkUAAAAAJRHOVXe0JXbXNXO3OVLL46C3FgP";
@@ -43,6 +43,7 @@ class LoginView extends React.Component {
                 style={themeService({
                   default: { ...props.formLabelStyle },
                   retro: { fontWeight: "bold", display: "inline-block", width: "20%", color: retroColors.second },
+                  electric: { fontWeight: "bold", display: "inline-block", width: "20%", color: electricColors.second },
                 })}
               >
                 {languageService("Email")}
@@ -64,6 +65,13 @@ class LoginView extends React.Component {
                     border: "1px solid" + retroColors.fourth,
                     display: "inline-block",
                   },
+                  electric: {
+                    width: "80%",
+                    color: electricColors.second,
+                    borderRadius: "0",
+                    border: "1px solid" + retroColors.fourth,
+                    display: "inline-block",
+                  },
                 })}
               />
               <AvFeedback tooltip>{languageService("Please enter valid email address")}</AvFeedback>
@@ -75,6 +83,7 @@ class LoginView extends React.Component {
                 style={themeService({
                   default: { ...props.formLabelStyle },
                   retro: { fontWeight: "bold", display: "inline-block", width: "20%", color: retroColors.second },
+                  electric: { fontWeight: "bold", display: "inline-block", width: "20%", color: electricColors.second },
                 })}
                 for="examplePassword"
               >
@@ -95,6 +104,13 @@ class LoginView extends React.Component {
                     color: retroColors.second,
                     borderRadius: "0",
                     border: "1px solid" + retroColors.fourth,
+                    display: "inline-block",
+                  },
+                  electric: {
+                    width: "80%",
+                    color: electricColors.second,
+                    borderRadius: "0",
+                    border: "1px solid" + electricColors.fourth,
                     display: "inline-block",
                   },
                 })}
@@ -137,7 +153,7 @@ class LoginView extends React.Component {
           <Col style={{ margin: "-0.5rem .5rem .5rem 0rem" }}>
             <AvGroup>
               <Label
-                style={themeService({ default: { ...props.forgotPassStyle }, retro: { color: retroColors.second, cursor: "pointer" } })}
+                style={themeService({ default: { ...props.forgotPassStyle }, retro: { color: retroColors.second, cursor: "pointer" }, electric: { color: electricColors.second, cursor: "pointer" } })}
                 onClick={props.clickForgotPasswordHandle}
               >
                 <div>{languageService("Forgot Password")}?</div>
@@ -221,7 +237,7 @@ LoginView.defaultProps = {
 
     /*         width: "340px",
         height: "470px",
-        backgroundColor: "#fff",
+        backgroundColor: "var(--fifth)",
         position: "absolute",
         top: "0",
         bottom: "0",
@@ -254,7 +270,7 @@ LoginView.defaultProps = {
   loginButtonStyle: {
     width: "100%",
     height: "40px",
-    backgroundColor: "rgba(64, 118, 179)",
+    backgroundColor: "var(--first)",
     border: "none",
     borderRadius: "2px",
     cursor: "pointer",
@@ -274,7 +290,7 @@ LoginView.defaultProps = {
   },
 
   formContainerStyle: {
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
   },
   //forgotPassButtonStyle: ForgotPasswordButton
 };

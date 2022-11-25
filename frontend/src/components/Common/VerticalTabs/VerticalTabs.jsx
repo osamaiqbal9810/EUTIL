@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import propTypes from "prop-types";
 import Radium from "radium";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 class VerticalTabs extends Component {
   constructor(props) {
@@ -10,7 +10,7 @@ class VerticalTabs extends Component {
   render() {
     let tabs =
       this.props.data &&
-      this.props.data.map(tab => {
+      this.props.data.map((tab) => {
         return <Tab tab={tab} tabValue={tab.value} key={tab.key} onTabClick={this.props.onTabClick} />;
       });
     return <div>{tabs}</div>;
@@ -19,12 +19,12 @@ class VerticalTabs extends Component {
 
 export default VerticalTabs;
 
-const TabComp = props => {
+const TabComp = (props) => {
   const styles = getStyles(props);
   return (
     <div
       style={themeService(styles.rowContainer)}
-      onClick={e => {
+      onClick={(e) => {
         props.onTabClick(props.tab);
       }}
     >
@@ -43,7 +43,7 @@ let getStyles = (props, state) => {
   return {
     rowContainer: {
       default: {
-        backgroundColor: "#fff",
+        backgroundColor: "var(--fifth)",
         borderBottom: "1px solid #e3e9ef",
         textAlign: "left",
         color: basicColors.first,
@@ -71,6 +71,21 @@ let getStyles = (props, state) => {
 
         ":hover": {
           backgroundColor: retroColors.first,
+        },
+      },
+      electric: {
+        backgroundColor: electricColors.fifth,
+        border: "1px solid " + electricColors.second,
+        textAlign: "left",
+        color: electricColors.second,
+        fontWeight: "bold",
+        fontFamily: "Arial",
+        fontSize: "12px",
+        letterSpacing: "0.35px",
+        cursor: "pointer",
+
+        ":hover": {
+          backgroundColor: electricColors.first,
         },
       },
     },

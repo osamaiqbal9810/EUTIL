@@ -1,0 +1,302 @@
+{
+    "listName": "Underground Structures (Pedestals)",
+    "inspection_type":"Structural",
+    "opt1": 
+    [
+        {
+            "tab-name":"Damaged Cover",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "cover_priority_level",
+                    "field_name": "cover_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "cover_repair_status",
+                    "field_name": "cover_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "cover_inspection_comments",
+                    "field_name": "damaged_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }
+    ]
+        },
+        {
+            "tab-name":"Damaged Structure",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "dS_priority_level",
+                    "field_name": "dS_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "dS_repair_status",
+                    "field_name": "dS_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "dS_inspection_comments",
+                    "field_name": "dS_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Congested Structure",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "cs_priority_level",
+                    "field_name": "cs_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "cs_repair_status",
+                    "field_name": "cs_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "cs_inspection_comments",
+                    "field_name": "cs_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Damaged Equipment",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "dE_priority_level",
+                    "field_name": "dE_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "dE_repair_status",
+                    "field_name": "dE_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "dE_inspection_comments",
+                    "field_name": "dE_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Primary Wire",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "sgP_priority_level",
+                    "field_name": "sg_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "sgP_repair_status",
+                    "field_name": "sg_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "sgP_inspection_comments",
+                    "field_name": "sg_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Secondary Wire",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "sgS_priority_level",
+                    "field_name": "sgS_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "sgS_repair_status",
+                    "field_name": "sgS_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "sgS_inspection_comments",
+                    "field_name": "sg_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }
+    ]
+        },
+        {
+            "tab-name":"Neutral Wire",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "nw_priority_level",
+                    "field_name": "nw_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "nw_repair_status",
+                    "field_name": "nw_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "nw_inspection_comments",
+                    "field_name": "nw_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Other/Miscellaneous",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "swOther_priority_level",
+                    "field_name": "nw_priority_level",
+                    "field_type":"select",
+                    "field_label":"Priority Level",
+                    "options":[
+                        {"value":"", "label":"No Repair Required or N/A"},
+                        {"value":"Level-1", "label":"Level-1"},
+                        {"value":"Level-2", "label":"Level-2"},
+                        {"value":"Level-3", "label":"Level-3"},
+                        {"value":"Level-4", "label":"Level-4"}
+                    ],
+                    "required": true
+                },
+                {
+                    "id": "swOther_repair_status",
+                    "field_name": "nw_repair_status",
+                    "field_type":"checkbox",
+                    "field_label":"Repaired"
+                },
+                {
+                    "id": "swOther_inspection_comments",
+                    "field_name": "nw_inspection_comments",
+                    "field_type":"textArea",
+                    "field_label":"Inspection Comments"
+                }
+            ]
+        }]
+        },
+        {
+            "tab-name":"Unlocated",
+            "sections": [
+                {
+                "fields": [
+                {
+                    "id": "unableToLocate",
+                    "field_name": "unableToLocate",
+                    "field_type":"checkbox",
+                    "field_label":"Unable To Locate",
+                    "required":true
+                },
+                {
+                    "id": "unableToLocate_comments",
+                    "field_name": "unableToLocate_comments",
+                    "field_type":"textArea",
+                    "field_label":"Unlocated Comments (IF you feel any are needed):"
+                }
+            ]
+        }]
+        }
+    ]
+}

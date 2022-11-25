@@ -1,0 +1,34 @@
+.cols-matcher {
+    border: 1px solid black;
+    margin-left: 10px;
+    /*max-width: 400px;*/
+}
+
+.verifiyLabel {
+    width: 30%;
+    display: inline-block;
+    font-weight: 600;
+    vertical-align: top;
+}
+
+.verifyRow {
+    padding: 10px;
+    background: #fff;
+    font-size: 14px;
+    margin-block-start: 10px;
+    border-radius: 5px;
+}
+
+.verifyInfoContainer {
+    border: 1px solid #ffffff80;
+    padding-inline: 15px;
+    padding-block-start: 5px;
+    padding-block-end: 15px;
+    background: #b1b1b1;
+}
+
+.verifiyField {
+    width: 69%;
+    display: inline-block;
+
+}

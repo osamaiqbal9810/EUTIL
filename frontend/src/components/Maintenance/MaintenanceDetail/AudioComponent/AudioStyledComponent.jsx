@@ -7,7 +7,7 @@ import { pause2 } from "react-icons-kit/icomoon/pause2";
 
 import SvgIcon from "react-icons-kit";
 import { themeService } from "../../../../theme/service/activeTheme.service";
-import { retroColors, basicColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 class AudioComponent extends Component {
   constructor(props) {
     super(props);
@@ -62,10 +62,10 @@ class AudioComponent extends Component {
         <audio
           className="audioFile"
           ref="myAudioControl02"
-          onTimeUpdate={e => {
+          onTimeUpdate={(e) => {
             this.updateCurrentTime(this.refs.myAudioControl02.currentTime);
           }}
-          onLoadedMetadata={e => {
+          onLoadedMetadata={(e) => {
             this.setTotalDuration(this.refs.myAudioControl02.duration);
           }}
         >
@@ -90,7 +90,7 @@ class AudioComponent extends Component {
 
 export default AudioComponent;
 
-const AudioControlsComp = props => {
+const AudioControlsComp = (props) => {
   // let bothTime = props.totalDuration ? props.totalDuration : "0:00";
   let currentTime = props.currentTime ? props.currentTime : "0:00";
   return (
@@ -98,6 +98,7 @@ const AudioControlsComp = props => {
       style={themeService({
         default: { padding: "10px", background: "rgba(227, 233, 239, 1)", marginRight: "5px" },
         retro: { padding: "10px", background: retroColors.fifth, marginRight: "5px" },
+        electric: { padding: "10px", background: electricColors.fifth, marginRight: "5px" },
       })}
     >
       <div
@@ -127,11 +128,29 @@ const AudioControlsComp = props => {
             width: "33px",
             margin: "0 auto",
           },
+          electric: {
+            textAlign: "center",
+            cursor: "pointer",
+            color: electricColors.second,
+            border: "2px solid",
+            padding: "4px 5px 0px 6px",
+            backgroundColor: "rgb(255, 255, 255)",
+            borderRadius: "50%",
+            boxShadow: "rgb(255, 255, 255) 0px 0px 0px 2px",
+            width: "33px",
+            margin: "0 auto",
+          },
         })}
       >
         <SvgIcon icon={props.icon} size={20} />
       </div>
-      <div style={themeService({ default: { color: basicColors.first }, retro: { color: retroColors.second } })}>
+      <div
+        style={themeService({
+          default: { color: basicColors.first },
+          retro: { color: retroColors.second },
+          electric: { color: electricColors.second },
+        })}
+      >
         {currentTime} / {props.totalDuration}
       </div>
     </div>

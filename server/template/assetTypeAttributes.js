@@ -8,7 +8,7 @@ export let LampAttributes = {
     { name: "stationSide", type: "array", values: ["East", "West", "South", "North", "Platform", "Shop", "Yard"], order: 5 },
   ],
   track: [
-    { name: "primaryTrack", type:"boolean", order: 1 },
+    { name: "primaryTrack", type: "boolean", order: 1 },
     { name: "railOrientation", order: 2 },
     { name: "Local Track Name", type: "string", order: 3 },
     { name: "geoJsonCord", type: "string", order: 4, required: false },
@@ -22,32 +22,43 @@ export let LampAttributes = {
     { name: "geoJsonCord", type: "string", order: 2, required: true },
   ],
   Bridge: [{ name: "bridgeType", type: "string", order: 1, required: true }],
-  YardTrack: [{
-    name : "Marker Start",
-    type : "select",
-    order : 1,
-    selectList : "SwitchNames",
-    required : true
-}, 
-{
-    name : "Marker End",
-    type: "select",
-    order : 2,
-    selectList: "SwitchNames",
-    required: false
-}, /*
+  YardTrack: [
+    {
+      name: "Marker Start",
+      type: "select",
+      order: 1,
+      selectList: "SwitchNames",
+      required: true,
+    },
+    {
+      name: "Marker End",
+      type: "select",
+      order: 2,
+      selectList: "SwitchNames",
+      required: false,
+    } /*
 {
     name : "Markers List",
     type : "array",
     order : 3,
     selectList : "SwitchNames"
-}, */
-{
-    name : "geoJsonCord",
-    type : "string",
-    order : 4,
-    required : false
-}],
+}, */,
+    {
+      name: "geoJsonCord",
+      type: "string",
+      order: 4,
+      required: false,
+    },
+  ],
+  Curve: [
+    // { name: "Beg MP", type: "string", order: 1, required: false },
+    // { name: "End MP", type: "string", order: 2, required: false },
+  ],
+  sideTrack: [
+    { name: "railOrientation", order: 2 },
+    { name: "Local Track Name", type: "string", order: 3 },
+    { name: "geoJsonCord", type: "string", order: 4, required: false },
+  ],
 };
 
 export let inspectionInstructions =

@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 //import Radium from "radium";
 import { themeService } from "../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 
 class ButtonSimple extends Component {
   render() {
@@ -13,6 +13,7 @@ class ButtonSimple extends Component {
             color: basicColors.first,
           },
           retro: { color: retroColors.second },
+          electric: { color: electricColors.second },
         })}
         onClick={this.props.handleClick}
         disabled={this.props.disabled}

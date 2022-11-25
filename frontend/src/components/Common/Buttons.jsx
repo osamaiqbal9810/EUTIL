@@ -19,7 +19,7 @@ class Button1 extends Component {
 
 let getStyles = (props, state) => {
   let iconStyle = {
-    color: "#fff",
+    color: "var(--fifth)",
     verticalAlign: "middle",
   };
   if (props.iconStyle) {
@@ -29,9 +29,9 @@ let getStyles = (props, state) => {
     ButtonStyle: {
       height: props.height ? props.height : "30px",
       width: props.width ? props.width : "90px",
-      backgroundColor: props.backgroundColor ? props.backgroundColor : "rgba(64, 118, 179)",
+      backgroundColor: props.backgroundColor ? props.backgroundColor : "var(--first)",
       border: props.border ? props.border : "1px solid #e3e9ef",
-      color: props.color ? props.color : "#fff",
+      color: props.color ? props.color : "var(--fifth)",
       fontSize: props.fontSize ? props.fontSize : "14px",
       float: props.float ? props.float : null,
       margin: props.margin ? props.margin : "0px",
@@ -42,8 +42,8 @@ let getStyles = (props, state) => {
       transitionDuration: "0.4s",
       ":hover": {
         color: props.hoverColor ? props.hoverColor : " #fff",
-        border: props.hoverBorder ? props.hoverBorder : "1px solid rgba(64, 118, 179)",
-        backgroundColor: props.hoverBackgroundColor ? props.hoverBackgroundColor : "rgba(64, 118, 179)",
+        border: props.hoverBorder ? props.hoverBorder : "1px solid rgb(94, 141, 143)",
+        backgroundColor: props.hoverBackgroundColor ? props.hoverBackgroundColor : "rgb(94, 141, 143)",
       },
     },
     iconStyle: iconStyle,
@@ -83,7 +83,11 @@ class ButtonCircleAdd extends Component {
         {permissionValue && (
           <div>
             <div style={styles.buttonTextTitleStyle}>{this.props.buttonTitleText}</div>
-            <button style={styles.ButtonStyle} onClick={this.props.handleClick}>
+            <button
+              className={this.props.customClassName ? this.props.customClassName : "plus"}
+              style={styles.ButtonStyle}
+              onClick={this.props.handleClick}
+            >
               {this.props.buttonText && this.props.buttonText}
               {this.props.icon && <SvgIcon size={this.props.iconSize} icon={this.props.icon} style={styles.iconStyle} />}
             </button>
@@ -96,10 +100,14 @@ class ButtonCircleAdd extends Component {
 
 let getStylesButtonCirclePlus = (props, state) => {
   let iconStyle = {
-    color: "#fff",
+    color: "var(--fifth)",
     verticalAlign: "middle",
   };
-  let buttonTextTitleStyle = { fontWeight: "600", color: props.buttonTextColor ? props.buttonTextColor : "rgba(64, 118, 179)", fontSize: "small" };
+  let buttonTextTitleStyle = {
+    fontWeight: "600",
+    color: props.buttonTextColor ? props.buttonTextColor : "var(--first)",
+    fontSize: "small",
+  };
   if (props.textTitleStyle) {
     buttonTextTitleStyle = props.textTitleStyle;
   }
@@ -110,9 +118,9 @@ let getStylesButtonCirclePlus = (props, state) => {
     ButtonStyle: {
       height: props.height ? props.height : "inherit",
       width: props.width ? props.width : "inherit",
-      backgroundColor: props.backgroundColor ? props.backgroundColor : "rgba(64, 118, 179)",
+      backgroundColor: props.backgroundColor ? props.backgroundColor : "var(--first)",
       border: props.border ? props.border : "1px solid #e3e9ef",
-      color: props.color ? props.color : "#fff",
+      color: props.color ? props.color : "var(--fifth)",
       fontSize: props.fontSize ? props.fontSize : "14px",
       float: props.float ? props.float : null,
       margin: props.margin ? props.margin : "0px",
@@ -124,11 +132,11 @@ let getStylesButtonCirclePlus = (props, state) => {
       outline: "none",
       ":hover": {
         color: props.hoverColor ? props.hoverColor : " #fff",
-        border: props.hoverBorder ? props.hoverBorder : "1px solid rgba(64, 118, 179)",
-        backgroundColor: props.hoverBackgroundColor ? props.hoverBackgroundColor : "rgba(64, 118, 179)",
+        border: props.hoverBorder ? props.hoverBorder : "1px solid rgb(94, 141, 143)",
+        backgroundColor: props.hoverBackgroundColor ? props.hoverBackgroundColor : "rgb(94, 141, 143)",
       },
       ":active": {
-        border: props.activeBorder ? props.activeBorder : "2px solid rgba(64, 118, 179)",
+        border: props.activeBorder ? props.activeBorder : "2px solid rgb(94, 141, 143)",
       },
     },
     iconStyle: iconStyle,
@@ -170,7 +178,7 @@ class ButtonTableActions extends Component {
 
 let getStylesButtonTableActions = (props, state) => {
   let iconStyle = {
-    color: "#fff",
+    color: "var(--fifth)",
     verticalAlign: "middle",
   };
   if (props.iconStyle) {
@@ -182,7 +190,7 @@ let getStylesButtonTableActions = (props, state) => {
     backgroundColor: "transparent",
   };
   let active = {
-    border: props.activeBorder ? props.activeBorder : "2px solid rgba(64, 118, 179)",
+    border: props.activeBorder ? props.activeBorder : "2px solid rgb(94, 141, 143)",
   };
   if (props.noEffect) {
     active = {};
@@ -203,8 +211,8 @@ let getStylesButtonTableActions = (props, state) => {
       WebkitTransitionDuration: "0.4s",
       transitionDuration: "0.4s",
       outline: "none",
-      ":hover": props.hover ? props.hover :hover,
-      ":active": props.active ? props.active :active,
+      ":hover": props.hover ? props.hover : hover,
+      ":active": props.active ? props.active : active,
     },
     iconStyle: iconStyle,
   };

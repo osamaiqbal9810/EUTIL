@@ -1,9 +1,12 @@
 var fsextra = require('fs-extra');
 var fs = require('fs');
+const path = require('path');
 const rl = require('readline-sync');
 const shell = require('await-shell');
 const MongoClient = require('mongodb').MongoClient;
 var tar = require('tar');
+const {showFiles} = require('./common');
+
 var mongoPath = "C:\\Program Files\\MongoDB\\Server\\4.0\\bin\\";
 
 async function inputPath(path)
@@ -76,15 +79,35 @@ async function restoreCollection(dbname, name, filename)
         console.log('Error restoring collection', name, 'from', filename, err);
     }
 }
-module.exports.backupDatabase = async function backupDatabase()
+module.exports.backupDatabase = async function backupDatabase(args=null)
 {
-    let dbname = rl.question('Enter the database name:');
+    let unAttendedMode = false, udbName, outputName=null;
+    
+    if(args && args['--dbname']) {
+        unAttendedMode = true;
+        udbName = args['--dbname'];
+
+        if(args['--out']) {
+            outputName=args['--out'];
+        }
+    }
+    else if(args!== null)
+    {
+        console.log('Argument: --dbname or -db is required.');
+        return;
+    }
+
+    let dbname = unAttendedMode ? udbName: rl.question('Enter the database name:');
+
     let dirname=new Date().toISOString();
         dirname=dirname.split('T')[0];
         dirname+='-'+dbname;
-    if(fsextra.existsSync(dirname))
+    
+    outputName = outputName ? outputName: dirname;
+
+    if(fsextra.existsSync(outputName))
     {
-        console.log(dirname,'already exist. Cannot continue.');
+        console.log(outputName,'already exist. Cannot continue.');
         return;
     }
     try{
@@ -104,14 +127,16 @@ module.exports.backupDatabase = async function backupDatabase()
         //console.log('collections in ', dbname, 'are ', collectionNames);
         //console.log(process.env);
 
-        fsextra.ensureDirSync(dirname);
-        mongoPath = await inputPath(mongoPath);
+        fsextra.ensureDirSync(outputName);
+        mongoPath = await findMongo(mongoPath); // inputPath(mongoPath);
+
+
         for(let c of collectionNames)
         {
-            await backupCollection(dbname, c, './'+dirname+'/'+ c+'.json');
+            await backupCollection(dbname, c, './' + outputName + '/' + c + '.json');
         }
-        tar.c({gzip: true, file:dirname+'.tar.gz', sync: true}, [dirname]);
-        fsextra.removeSync(dirname);
+        tar.c({gzip: true, file:outputName+'.tar.gz', sync: true}, [outputName]);
+        fsextra.removeSync(outputName);
     }
     catch(err)
     {
@@ -123,6 +148,8 @@ module.exports.backupDatabase = async function backupDatabase()
 }
 module.exports.restoreDatabase = async function restoreDatabase()
 {
+    await showFiles(__dirname, (f)=>{return f.endsWith('.tar.gz')});
+    
     let filename=rl.question('Enter the backup file name:');
     let dbname = rl.question('Enter the database name:');
 
@@ -153,7 +180,7 @@ module.exports.restoreDatabase = async function restoreDatabase()
 
         let fileslist = fs.readdirSync(extractedFolder);
         
-        mongoPath = await inputPath(mongoPath);
+        mongoPath = await findMongo(mongoPath); // inputPath(mongoPath);
 
         for(let filename of fileslist)
         {
@@ -202,4 +229,70 @@ module.exports.deleteDatabase = async function deleteDatabase()
         console.log('Error deleting database', err);
     }
 
+}
+testCommand = async function (command, filePath) {
+    let result=false;
+    try{
+        process.env.path += ';' + filePath;
+        global.SHELL_OPTIONS = {cwd: process.cwd(), env: process.env, stdio: '', shell: true}; // stdio: 'inherit' // to see output on console
+        await shell(command);
+        result = true;
+    }
+    catch(err)
+    {
+        // console.log('testCommand.catch:', err);
+        result = false;        
+    }
+    return result;
+}
+getFiles = async function(directory) {
+    try {
+        let entries = fsextra.readdirSync(directory);
+        return entries;
+    }
+    catch(err) {
+        
+    }
+    return [];
+}
+getMaxVersionNumber = async function (directory) {
+    let files = await getFiles(directory);
+    if(files.length > 0) {
+        let versionNumbers = files.filter((file, index)=>{return parseFloat(file)!==NaN});
+        versionNumbers = versionNumbers.sort((a, b)=>{return parseFloat(a)>parseFloat(b);});
+        return versionNumbers[0];
+    }
+    return '';
+}
+findMongo = async function (defaultPath='') {
+    let mongoPath = defaultPath;
+    const mongoExportTest = 'mongoexport --help';
+    // console.log('Platform:', process.platform);
+    let result = await testCommand(mongoExportTest, mongoPath);
+    if(!result) {
+        if(process.platform==='win32') {
+            mongoPath = process.env['ProgramFiles'];
+            // console.log('Environment[ProgramFiles], env:', mongoPath);
+            if(!mongoPath) {
+                mongoPath = 'C:\\Program Files\\MongoDB\\Server\\';
+            }
+            else mongoPath = path.join(mongoPath, 'MongoDB\\Server');
+            
+            let maxVer = await getMaxVersionNumber(mongoPath);
+            if( maxVer!=='' ) {
+                mongoPath = path.join(mongoPath, maxVer, 'bin' );
+
+                if(await testCommand(mongoExportTest, mongoPath)) {
+                    console.log('found at:', mongoPath);
+                    return mongoPath;
+                }                
+            }
+        }
+        console.log('Not found:', mongoPath);
+        return '';
+    }
+    else {
+        console.log('Found at default path:', defaultPath);
+        return defaultPath;
+    }
 }

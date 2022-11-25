@@ -42,7 +42,10 @@ function Detail(props) {
           <div style={props.fieldHeading}>{languageService("Type")}: </div>
           <div style={props.fieldText}>{props.m1.maintenanceType ? props.m1.maintenanceType : ""}</div>
         </Col>
-
+        <Col md={"12"}>
+          <div style={props.fieldHeading}>{languageService("Information")}:</div>
+          <div style={props.fieldText}>{props.m1.issue && props.m1.issue.voiceNotes ? props.m1.issue.voiceNotes : ""}</div>
+        </Col>
         {moment(props.m1.createdAt).isValid() && (
           <Col md={"12"}>
             <div style={props.fieldHeading}>MR {languageService("Created at")}: </div>

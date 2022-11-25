@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -71,6 +72,10 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_app_form);
         //setContentView(R.layout.fragment_dyn_form);
+        if(getSelectedTask()== null){
+            Toast.makeText(AppFormActivity.this,"System is not ready! Please try again...",Toast.LENGTH_SHORT).show();
+            finish();
+        }
         ArrayList<DynForm> forms=getSelectedTask().getAppForms();
         if(savedInstanceState==null){
             //DynFormList.loadFormList();
@@ -141,6 +146,15 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
     }
     private boolean backPressedHandler(){
         if(formStack.size()>0){
+            DynForm childForm= primaryForm.getForm();
+            if(childForm.isDirty()) {
+                String validateMsg=childForm.validateForm();
+                if(!validateMsg.equals("")){
+                    Toast.makeText(AppFormActivity.this,validateMsg,Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+                childForm.updateForm();
+            }
             DynForm form=formStack.pop();
             Globals.selectedForm=form;
             primaryForm.setForm(form);
@@ -177,6 +191,13 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
                             .setPositiveButton(R.string.briefing_yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    String validateMsg=form.validateForm();
+                                    if(!validateMsg.equals("")){
+                                        Toast.makeText(AppFormActivity.this,validateMsg,Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+
+                                    form.updateForm();
                                     getSelectedTask().setDirty(false);
                                     Globals.selectedJPlan.update();
                                     finish();
@@ -262,15 +283,19 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
 
     @Override
     public void onFormAddClick(Fragment fragment, DynFormControl control) {
-        DynForm form = control.getFormTable().addNewRow();
+        DynFormControl control1=primaryForm.getForm().getFormControlListMap().get(control.getId());
+        DynForm form = control1.getFormTable().addNewRow(Globals.selectedForm);
         //control.getFormTable().generateLayout(this);
+        form.setNewForm(true);
+        form.setDirty(true);
         showForm(form);
-        //Toast.makeText(AppFormActivity.this,"Act.Form Add Clicked",Toast.LENGTH_SHORT).show();
+        //Toast.makeText(AppFormActivity.this,"Form Add Clicked",Toast.LENGTH_SHORT).show();
     }
     private void showForm(DynForm form){
         //formStack.push(Globals.selectedForm);
         //Globals.selectedForm=form;
         formStack.push(Globals.selectedForm);
+        form.setParentForm(Globals.selectedForm);
         Globals.selectedForm=form;
         //primaryForm=DynFormFragment.newInstance("","");
         primaryForm.setForm(form);
@@ -351,17 +376,28 @@ public class AppFormActivity extends AppCompatActivity implements DynFormFragmen
                     itemInFocus=null;
                 }
             };
+            final Handler handler=new Handler();
+            handler.postDelayed(runnable,3000);
 
         }else{
             removeInProcess=false;
             if(itemInFocus!=null ){
                 if(itemInFocus.equals(item)){
                     itemInFocus=null;
-                    if(item.getParentControl()!=null){
+/*                    if(item.getParentControl()!=null){
                         item.getParentControl().getFormTable().removeRow(item);
                         item.getParentControl().getParentControl().setDirty(true);
                         //.generateLayout(item.getParentControl().getParentControl().getContext());
                         //Toast.makeText(AppFormActivity.this,"Act.Form Removed",Toast.LENGTH_SHORT).show();
+                    }*/
+                    if(item.getParentForm()!=null){
+                        DynForm parentForm=item.getParentForm();
+                        DynFormControl parentControl=item.getParentControl();
+                        parentControl.getFormTable().removeRow(item);
+                        parentForm.setDirty(true);
+                        parentControl.setCurrentValueFromTable();
+                        //parentForm.getCurrentValues().put(parentControl.getId(),parentControl.getCurrentValue());
+                        Toast.makeText(AppFormActivity.this,"Form Removed",Toast.LENGTH_SHORT).show();
                     }
 
                 }else{

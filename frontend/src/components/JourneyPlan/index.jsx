@@ -7,7 +7,8 @@ import JourneyPlanSummary from "components/Common/Summary/CommonSummary";
 import JourneySmartPlanSummary from "components/Common/SmartSummary/SmartSummary";
 import { CRUDFunction } from "reduxCURD/container";
 import { userListRequest } from "reduxRelated/actions/userActions";
-import JourneyPlanAdd from "./JourneyPlanAddEdit/JourneyPlanAdd";
+//import JourneyPlanAdd from "./JourneyPlanAddEdit/JourneyPlanAdd";
+import JourneyPlanAdd from "../WorkPlanTemplate/JourneyPlanAddEdit/JourneyPlanAdd";
 import { getSODs } from "reduxRelated/actions/sodActions.js";
 import moment from "moment";
 import _ from "lodash";
@@ -44,13 +45,13 @@ import InspectionAssetStatusView from "./LinearView/InspectionAssetStatusView";
 import { versionInfo } from "../MainPage/VersionInfo";
 import AssetInspections from "./AssetInspections/AssetInspections";
 import Loader from "../Common/GenericSpinnerLoader";
-
+import {filterDateStart, addYears} from "./constants";
 class JourneyPlan extends Component {
   constructor(props) {
     super(props);
 
     this.inspectionFilter = getCurrentInspectionStateFilters(this.props.inspectionFilter);
-
+  
     this.state = {
       workPlans: [],
       filterData: [],
@@ -68,9 +69,7 @@ class JourneyPlan extends Component {
       spinnerLoading: false,
       usersActionType: "",
       summaryShowHide: true,
-
       summaryValue: { first: 0, second: 0, third: 0, fifth: 0, sixth: 0, fourth: 0 },
-
       listPage: 0,
       planFilter: "all",
       planPageSize: this.props.planPageSize,
@@ -88,6 +87,7 @@ class JourneyPlan extends Component {
       { text: "Week", state: false, logic: 3, propertyValue: null },
       { text: "Month", state: true, logic: 3, propertyValue: null },
       { text: "Date", state: false, logic: 1, propertyValue: null },
+      { text: "All", state: false, logic: 3, propertyValue: null },
     ];
     setActiveStateOfFixedDatesFilter(this.filters, this.state.dateFilterName);
 
@@ -95,6 +95,7 @@ class JourneyPlan extends Component {
       Week: { today: moment().endOf("day"), from: moment().startOf("week"), to: moment().endOf("week") },
       Month: { today: moment().endOf("day"), from: moment().startOf("month"), to: moment().endOf("month") },
       Date: this.state.rangeState,
+      All: { today: moment().startOf("day"), from: moment(filterDateStart).startOf("years"), to: moment().add(addYears, 'years').endOf("year") }
     };
     this.summaryLabels = {
       first: "Total",
@@ -117,6 +118,7 @@ class JourneyPlan extends Component {
     this.LIST_VIEW_SELECTION = TIMPS_LIST_VIEW_SELECTION;
 
     this.handleAddEditModalClick = this.handleAddEditModalClick.bind(this);
+    this.handleViewModalClick = this.handleViewModalClick.bind(this);
     this.resetPage = this.resetPage.bind(this);
     this.handleAddJourneyPlan = this.handleAddJourneyPlan.bind(this);
     this.handleEditJourneyPlan = this.handleEditJourneyPlan.bind(this);
@@ -183,8 +185,9 @@ class JourneyPlan extends Component {
     this.props.getAssets();
 
     this.props.getApplicationlookupss("config/switchAlertDaysBeforeMonthEnd");
-
+    this.props.getApplookups(["inspectionTypes"])
     if (versionInfo.isSITE()) this.LIST_VIEW_SELECTION = SITE_LIST_VIEW_SELECTION;
+   
   }
 
   getRangeDataFromServer(range, additionalQuery, tests) {
@@ -281,6 +284,8 @@ class JourneyPlan extends Component {
     // }
     if (prevProps.actionType !== this.props.actionType && this.props.actionType == "JOURNEYPLANS_READ_SUCCESS" && this.props.journeyPlans) {
       this.calculateJourneyPlanToShow(this.props.journeyPlans, this.state.assetChildren, this.state.activeSummary);
+      this.props.getWorkPlanTemplates();
+  
       //  this.calculateUniqueLocations(this.props.journeyPlans);
       // this.setState({
       //   spinnerLoading: false,
@@ -365,21 +370,16 @@ class JourneyPlan extends Component {
       });
     }
     if (this.props.assetActionType === "ASSETS_READ_SUCCESS" && this.props.assetActionType !== prevProps.assetActionType) {
-      // //this.setLocations(this.props.assets);
-      // let locationsId = [];
-      // filterTreeByProperties(this.props.assets.assetTree, { location: true, plannable: true }, locationsId);
-      // let locations = [];
-      // locationsId.forEach((locId) => {
-      //   let foundAsset = _.find(this.props.assets.assetsList, { _id: locId });
-      //   foundAsset && locations.push(foundAsset);
-      // });
-      // let assetsByLocations = this.getAssetsByLocations(this.props.assets.assetTree, this.props.assets.assetsList, locationsId, [
-      //   "Signal",
-      //   "Crossing",
-      //   "Switch",
-      // ]);
-      // //console.log("assetsByLocations", assetsByLocations);
-      // this.setState({ locations: locations, assetsByLocations: assetsByLocations });
+      //this.setLocations(this.props.assets);
+      let locationsId = [];
+      filterTreeByProperties(this.props.assets.assetTree, { location: true, plannable: true }, locationsId);
+      let locations = [];
+      locationsId.forEach((locId) => {
+        let foundAsset = _.find(this.props.assets.assetsList, { _id: locId });
+        foundAsset && locations.push(foundAsset);
+      });
+
+      this.setState({ locations: locations });
     }
     if (
       prevProps.applicationlookupsActionType !== this.props.applicationlookupsActionType &&
@@ -398,7 +398,9 @@ class JourneyPlan extends Component {
       this.state.listViewDataToShow !== prevState.listViewDataToShow
     ) {
       this.props.getAssets();
+
     }
+
   }
 
   getAssetsByLocations(aTree, assets, locations, assetTypesToGet) {
@@ -509,6 +511,14 @@ class JourneyPlan extends Component {
     if (modalState.target) {
       //console.log(modalState.target);
     }
+    this.setState({
+      addModal: !this.state.addModal,
+      modalState: modalState,
+      selectedJourneyPlan: journeyPlan,
+    });
+  }
+  handleViewModalClick(modalState, journeyPlan) {
+    // console.log(journeyPlan);
     this.setState({
       addModal: !this.state.addModal,
       modalState: modalState,
@@ -654,6 +664,8 @@ class JourneyPlan extends Component {
     this.calculateJourneyPlanToShow(this.props.journeyPlans, this.state.assetChildren, this.state.activeSummary);
   }
   changeUserAndUpdate(inspector, inspection) {
+    //console.log(inspection);
+    //console.log(inspector);
     let result = _.find(this.state.userList, { _id: inspector });
     let tempToUpdate = { workplanTemplateId: inspection.workplanTemplateId, tempChanges: {}, date: null };
     if (result) {
@@ -767,6 +779,20 @@ class JourneyPlan extends Component {
           headerText={languageService("Confirm Deletion")}
         />
         <JourneyPlanAdd
+        modal={this.state.addModal}
+        toggle={this.handleAddEditModalClick}
+        modalState={this.state.modalState}
+        handleAddSubmit={this.handleAddJourneyPlan}
+        handleEditSubmit={this.handleEditJourneyPlan}
+        selectedJourneyPlan={this.state.selectedJourneyPlan}
+        journeyPlans={this.props.journeyPlans}
+        viewWpTemplateFlag={true}
+        inspectionTypes = {() => this.props.getApplicationlookupss(["inspectionTypes"])}
+        inspectionT = {this.props.applookups}
+        workPlanTemplates={this.props.workPlanTemplates}
+        userList={this.state.userList}
+      />
+        {/* <JourneyPlanAdd
           modal={this.state.addModal}
           toggle={this.handleAddEditModalClick}
           modalState={this.state.modalState}
@@ -774,8 +800,11 @@ class JourneyPlan extends Component {
           handleEditSubmit={this.handleEditJourneyPlan}
           selectedJourneyPlan={this.state.selectedJourneyPlan}
           userList={this.state.userList}
+          //viewFlag={true}
           journeyPlans={this.props.journeyPlans}
+          workPlanTemplates={this.props.workPlanTemplates}
         />
+        */}
         <Row style={themeService(commonStyles.pageBorderRowStyle)}>
           <Col lg="9" md="6" sm="6" style={{ paddingLeft: "0px", position: "unset" }}>
             <div style={themeService(journeyPlanMainStyles.pageTitle)}>{languageService("Inspections")}</div>
@@ -793,9 +822,7 @@ class JourneyPlan extends Component {
                 summaryLabels={this.summaryLabels}
               />
             )}
-            {(this.state.listViewDataToShow === LIST_VIEW_SELECTION_TYPES.Calendar ||
-              this.state.listViewDataToShow === LIST_VIEW_SELECTION_TYPES.AssetCalendar) &&
-              this.state.CalendarControlsComp}
+            {this.state.listViewDataToShow === LIST_VIEW_SELECTION_TYPES.Calendar && this.state.CalendarControlsComp}
           </Col>
 
           <Col lg="3" md="6" sm="6">
@@ -941,6 +968,7 @@ class JourneyPlan extends Component {
                   setWorkPlansUpdatedFalse={this.setUpdateWorkplansFalse}
                   workPlansUpdated={this.state.workPlansUpdated}
                   handleEditClick={this.handleAddEditModalClick}
+                  handleViewModalClick={this.handleViewModalClick}
                   handleDeleteClick={this.handleDeleteClick}
                   handleViewClick={this.handleViewClick}
                   actionType={this.props.actionType}
@@ -986,6 +1014,8 @@ const getApplicationlookupss = curdActions.getApplicationlookupss;
 const getTestSchedules = curdActions.getTestSchedules;
 const getAssetTests = curdActions.getAssetTests;
 const getAssetTree = curdActions.getAssetTree;
+const getWorkPlanTemplates = curdActions.getWorkPlanTemplates;
+
 let variables = {
   userReducer: {
     userList: [],
@@ -1027,6 +1057,9 @@ let variables = {
   assetTreeReducer: {
     assetTree: null,
   },
+  workPlanTemplateReducer: {
+    workPlanTemplates: [],
+  },
 };
 
 let actionOptions = {
@@ -1049,6 +1082,7 @@ let actionOptions = {
     getTestSchedules,
     getAssetTests,
     getAssetTree,
+    getWorkPlanTemplates
   },
 };
 let containerReducers = [
@@ -1065,6 +1099,15 @@ let containerReducers = [
   "testScheduleReducer",
   "assetTestReducer",
   "assetTreeReducer",
+  "workPlanTemplateReducer"
 ];
-let JourneyPlanContainer = CRUDFunction(JourneyPlan, "journeyPlan", actionOptions, variables, containerReducers);
+let customItems = [
+  {
+    name: "applookup",
+    apiName: "applicationlookups",
+  },
+];
+let JourneyPlanContainer = CRUDFunction(JourneyPlan, "journeyPlan", actionOptions, variables, containerReducers, null , customItems);
 export default JourneyPlanContainer;
+
+

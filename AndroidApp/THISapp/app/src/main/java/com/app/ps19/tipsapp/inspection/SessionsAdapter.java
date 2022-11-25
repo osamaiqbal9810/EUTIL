@@ -22,6 +22,7 @@ import java.util.Date;
 
 import static com.app.ps19.tipsapp.Shared.Globals.SESSION_STARTED;
 import static com.app.ps19.tipsapp.Shared.Globals.activeSession;
+import static com.app.ps19.tipsapp.Shared.Globals.getPrefixMp;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Utilities.elapsedCalculator;
 
@@ -58,6 +59,9 @@ public class SessionsAdapter extends BaseExpandableListAdapter {
                         activeSession = session;
                         break;
                     }
+                }
+                if(activeSession==null){
+                    activeSession=_sessionsList.get(0);
                 }
             }
         } else {
@@ -116,6 +120,9 @@ public class SessionsAdapter extends BaseExpandableListAdapter {
                 setUnitDescription(session, tv_observe_track, false);
             }
 
+        }
+        if(session.isAllSideTracks()){
+            tv_observe_track.setText("All Side Tracks");
         }
         return sessions3rdLevel;
 
@@ -185,8 +192,8 @@ public class SessionsAdapter extends BaseExpandableListAdapter {
             startTime = new Date(session.getEndTime());
         }
 
-        tvStartMP.setText(session.getStart());
-        tvEndMP.setText(session.getEnd());
+        tvStartMP.setText(getPrefixMp(session.getStart()));
+        tvEndMP.setText(getPrefixMp(session.getEnd()));
 
 
         String sessionTitle =  "Session " + Integer.toString(getGroupCount() - groupPosition);

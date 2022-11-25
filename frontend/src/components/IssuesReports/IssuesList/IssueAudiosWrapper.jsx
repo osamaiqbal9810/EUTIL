@@ -67,7 +67,7 @@ class IssueAudios extends Component {
     //console.log(this.state.indexToShow);
 
     let audioName = this.props.audios[this.state.indexToShow] ? this.props.audios[this.state.indexToShow].voiceName : "";
-    let paths = "http://" + getServerEndpoint() + "audio/" + audioName;
+    let paths = getServerEndpoint() + "audio/" + audioName;
     let sideText = this.state.nextPrevButtons ? this.state.indexToShow + 1 + "/" + this.props.audios.length : "";
     return (
       <div style={{ textAlign: "center" }}>

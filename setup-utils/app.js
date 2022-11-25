@@ -5,6 +5,8 @@ const path = require('path');
 const displayMenu = require('./menu');
 const _ = require('lodash');
 var turf = require("@turf/turf");
+var csvParser = require('csv-parse');
+
 //const math = require('mathjs');
 let  routeSolver = require('./routeSolver.js');
 
@@ -12,7 +14,9 @@ const mainMenu=[{item:"Convert kmz File to geojson", func:convertKmzToGeojson},
                 {item:"Convert All kmz Files to geojson In a Folder", func:convertKmzToGeojsonFolder},
                 {item:"Divide a geojson file into multiple files", func: divideGeoJson},
                 {item:"Merge Features and Extract Continuous Lines in file", func: mergeFeatures},
-                {item:"Merge Features and Extract Continuous Lines for All Files in a Folder", func: mergeFeaturesInFolder}];
+                {item:"Merge Features and Extract Continuous Lines for All Files in a Folder", func: mergeFeaturesInFolder},
+                {item:"Linear .geojson files from .csv", func: linearAssetsFromCsv}];
+                // {item:"Fixed Assets from .csv", func: fixedAssetsFromCsv}];
 
 displayMenu(mainMenu);
 
@@ -253,8 +257,111 @@ async function mergeFeaturesInFile(sourceFilePath, outputFilePath)
     {
         console.log('mergeFeaturesinFile.catch: Error caugth:',err);
     }
+}
+async function fixedAssetsFromCsv() {
+    await convertCsvToJson();
+}
+/** 
+ *  
+ */
+async function linearAssetsFromCsv() {
+   
+   let csvJson = await convertCsvToJson();
+    if(csvJson && csvJson.length) {
+        let linearAssetsList = _.groupBy(csvJson, 'Line #');
+        let totalLength = 0;
+        for(let key in linearAssetsList) {
+            let list = linearAssetsList[key];
+            console.log('Asset:', key, 'Points Count:', list.length);
+            totalLength++;
+        }
+
+        console.log('Total:', totalLength, ' linear assets.');
+        let resp = rl.question(`Do you want to create ${totalLength} .geojson files?[y/n]`);
+
+        if(resp.startsWith('y') || resp.startsWith('Y'))
+        {
+            for(let key in linearAssetsList) {
+                let list = linearAssetsList[key];
+                let coordinates = list.map(e => {return [e['Longitude'], e['Latitude']]});
+                await saveGeoJsonFileFromCoords('data\\'+key+'.geojson', coordinates);
+            }       
+                
+        }
+
+    }
 
 }
+/** 
+ * convert a .csv to .geojson 
+ */
+async function convertCsvToJson() {
+    let sourceFilePath = rl.question('Please enter the filename:'), destinationfolder = null;
+     
+     if(!destinationfolder)
+        destinationfolder = path.dirname(sourceFilePath);
+
+    let sourceFile = path.basename(sourceFilePath);
+    if(!sourceFile.endsWith('.csv'))
+    {
+        console.log('File must be a .csv');
+        return;
+    }
+    if(!fs.existsSync(sourceFilePath))
+    {
+        console.log('File does not exist:', sourceFilePath);
+        return;
+    } 
+    
+    let sourceFilename = sourceFile.split('.')[0];
+    let destinationFilePath = path.join(destinationfolder, sourceFilename+'.geojson');
+    
+    if(fs.existsSync(destinationFilePath))
+    {
+        console.log('File already exists with the name:', destinationFilePath);
+        return;
+    }
+    // var buffer = fs.readFileSync(sourceFilePath);
+
+    // csvParser(buffer, function(err, data){
+    //     console.log('read:', data);
+    // });
+
+    let buffer = await parseCSV(sourceFilePath);
+    let json=[];
+    columns = buffer[0];
+    for(let i=1; i<buffer.length; i++)
+    {
+        row=buffer[i];
+        let jObj={};
+        for(let c=0; c<columns.length;c++)
+        {
+            if(columns[c]!=='') {
+                jObj[columns[c]]=row[c];
+            }
+        }
+
+        json.push(jObj);
+    }
+
+    // fs.writeFileSync(destinationFilePath+'.json', JSON.stringify(json, null, 4));
+    // console.log(' read complete:', json);
+    return json;
+}
+async function parseCSV(filePath) {
+    return new Promise(function(resolve, reject) {
+        var buffer = fs.readFileSync(filePath);
+
+        csvParser(buffer, function(err, data){
+            console.log('csv read callback...');
+            if(err)
+            reject(err);
+            else
+            resolve(data);
+        });
+    });
+}
+
 //
 // This function convers a .kmz file to .geojson.
 // The filename along with the path is passed as input parameter

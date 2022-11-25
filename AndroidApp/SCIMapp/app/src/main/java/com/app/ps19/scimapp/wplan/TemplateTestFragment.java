@@ -6,32 +6,28 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Editable;
 import android.text.Html;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.app.ps19.scimapp.R;
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.WorkPlanActivity;
 import com.app.ps19.scimapp.classes.JourneyPlanOpt;
 import com.app.ps19.scimapp.classes.UnitsOpt;
 import com.app.ps19.scimapp.classes.UnitsTestOpt;
@@ -40,7 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
 import static com.app.ps19.scimapp.Shared.Globals.inbox;
@@ -59,14 +55,19 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     ArrayList<Template> templateList=new ArrayList<>();
-    ArrayList<JourneyPlanOpt> wpTemplateList=inbox.loadWokPlanTemplateListEx(getActivity());;
+    ArrayList<JourneyPlanOpt> wpTemplateList=inbox.loadWokPlanTemplateListEx();
     ExpandableListView expandableListView;
     // TODO: Rename and change types of parameters
-    private String mParam1;
+    private String areaType;
     private String mParam2;
     View viewColorNA;
     View viewColorA;
     View viewColorExp;
+    private  RecyclerView  horizontal_recycler_view;
+    private JPAreaAdapter horizontalAdapter;
+
+    View viewLocationColor;
+    TextView tvUnitLocation;
     ParentLevel itemsAdapter;
     ArrayList<JourneyPlanOpt> journeyPlansInProgress;
     public TemplateTestFragment() {
@@ -95,32 +96,38 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
+            areaType = getArguments().getString(ARG_PARAM1);
+            wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
+
+            if(wpTemplateList.size() == 0){
+                wpTemplateList=inbox.loadWokPlanTemplateListEx();
+            }
+
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
         journeyPlansInProgress = inbox.getInProgressJourneyPlans();
         ArrayList<Test> testList=new ArrayList<>();
         for(int i=0;i<10;i++){
-            testList.add(new Test(("G00"+i),(i%2==0)?Color.parseColor("darkgray"):Color.parseColor("green"),(i%2==0)?"Due in 2 days":"Exipre in x Days"));
+            testList.add(new Test(("G00"+i),(i%2==0)?Globals.COLOR_TEST_NOT_ACTIVE:Globals.COLOR_TEST_ACTIVE,(i%2==0)?"Due in 2 days":"Exipre in x Days"));
         }
 
-        Template template1=new Template("Template 1", Color.parseColor("darkgray"));
-        Template template2=new Template("Template 2", Color.parseColor("green"));
-        Template template3=new Template("Template 3", Color.parseColor("darkgray"));
+        Template template1=new Template("Template 1", Globals.COLOR_TEST_NOT_ACTIVE);
+        Template template2=new Template("Template 2", Globals.COLOR_TEST_ACTIVE);
+        Template template3=new Template("Template 3", Globals.COLOR_TEST_NOT_ACTIVE);
         ArrayList<Unit> unitList=new ArrayList<>();
         for(int i=0;i<3;i++){
-            unitList.add(new Unit("Unit "+(i+1), Color.parseColor("darkgray")));
+            unitList.add(new Unit("Unit "+(i+1), Globals.COLOR_TEST_NOT_ACTIVE));
             unitList.get(i).testList.add(testList.get(0));
             unitList.get(i).testList.add(testList.get(1));
             unitList.get(i).testList.add(testList.get(3));
         }
         ArrayList<Unit> unitList1=new ArrayList<>();
         for(int i=0;i<3;i++){
-            unitList1.add(new Unit("Unit "+(i+4), Color.parseColor("darkgray")));
+            unitList1.add(new Unit("Unit "+(i+4), Globals.COLOR_TEST_NOT_ACTIVE));
         }
         ArrayList<Unit> unitList2=new ArrayList<>();
         for(int i=0;i<3;i++){
-            unitList2.add(new Unit("Unit "+(i+7), Color.parseColor("darkgray")));
+            unitList2.add(new Unit("Unit "+(i+7), Globals.COLOR_TEST_NOT_ACTIVE));
 
         }
 
@@ -139,15 +146,22 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
             viewColorExp.setBackgroundTintList (ColorStateList.valueOf(Globals.COLOR_TEST_EXPIRING));
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         View view=inflater.inflate(R.layout.fragment_template_test, container, false);
         expandableListView=view.findViewById(R.id.expandableListView);
         viewColorNA=view.findViewById(R.id.colorNA);
         viewColorA=view.findViewById(R.id.colorA);
         viewColorExp=view.findViewById(R.id.colorExp);
+
+
+//        viewLocationColor=view.findViewById(R.id.v_location_color);
+//        tvUnitLocation = view.findViewById(R.id.tv_Unit_Loc);
+
         refreshColorLegend();
         SearchView search;
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
@@ -156,14 +170,21 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
         search.setIconifiedByDefault(false);
         search.setOnQueryTextListener(this);
         search.setOnCloseListener(this);
+
+
         //expandableListView.setAdapter(new ParentLevel(templateList));
         //Collections.reverse(wpTemplateList);
-       // for(int i=0;i<wpTemplateList.get(0).getUnitList().size();i++){
-            // wpTemplateList.get(0).getUnitList().get(i).setTestList(getMockData());
-       // }
+        // for(int i=0;i<wpTemplateList.get(0).getUnitList().size();i++){
+        // wpTemplateList.get(0).getUnitList().get(i).setTestList(getMockData());
+        // }
         //wpTemplateList.get(0).getUnitList().get(0).setTestList(getMockData());
+
         itemsAdapter=new ParentLevel(wpTemplateList);
         expandableListView.setAdapter(itemsAdapter);
+
+        horizontalAdapter=new JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
+        horizontal_recycler_view= (RecyclerView) view.findViewById(R.id.rvLocations);
+        horizontal_recycler_view.setAdapter(horizontalAdapter);
 
 
         return view;
@@ -181,6 +202,12 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
         return false;
     }
 
+    public void onLocationChange(String location){
+
+    }
+
+
+
     @Override
     public boolean onClose() {
         itemsAdapter.filterData("");
@@ -189,7 +216,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
 
     public class Template{
         public String description="";
-        public int color= Color.parseColor("darkgray");
+        public int color= Globals.COLOR_TEST_NOT_ACTIVE;
         public ArrayList<Unit> unitList=new ArrayList<>();
         public Template(String description, int color){
             this.description=description;
@@ -199,7 +226,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
     }
     public class Unit {
         public String description="";
-        public int color=Color.parseColor("green");
+        public int color=Globals.COLOR_TEST_ACTIVE;
         public ArrayList<Test> testList=new ArrayList<>();
         public Unit(String description, int color){
             this.description=description;
@@ -208,7 +235,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
     }
     public class Test{
         public String description="";
-        public int color=Color.parseColor("green");
+        public int color=Globals.COLOR_TEST_ACTIVE;
         public String dueText ="";
         public Test(String description , int color, String dueText){
             this.description=description;
@@ -217,6 +244,82 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
 
         }
     }
+
+
+
+    public class JPAreaAdapter extends RecyclerView.Adapter<JPAreaAdapter.MyViewHolder> {
+        List<String> areaList;
+        List<TextView> viewList = new ArrayList<>();
+
+        class MyViewHolder extends RecyclerView.ViewHolder {
+            TextView tvJPLocation;
+            View vJPLocColor;
+            MyViewHolder(View itemView) {
+                super(itemView);
+                this.vJPLocColor =(View) itemView.findViewById(R.id.viewLocColor);
+                this.tvJPLocation = (TextView) itemView.findViewById(R.id.tvLocTxt);
+
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        for(TextView tv : viewList){
+                            tv.setTextColor(Color.LTGRAY);
+                            tv.setTypeface(null, Typeface.NORMAL);
+                        }
+
+                        tvJPLocation.setTextColor(Color.WHITE);
+                        tvJPLocation.setTypeface(null, Typeface.BOLD);
+                        String selected = tvJPLocation.getText().toString();
+                        refresh(selected);
+                    }
+                });
+
+            }
+        }
+
+        public JPAreaAdapter(List<String> templates) {
+            this.areaList=new ArrayList<>();
+            this.areaList.addAll(templates);
+        }
+        @NonNull
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layout = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View view = layout.inflate(R.layout.location_item, parent, false);
+            MyViewHolder holder = new MyViewHolder(view);
+
+            return holder;
+        }
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            TextView tvLocation = holder.tvJPLocation;
+            viewList.add(tvLocation);
+            tvLocation.setText(this.areaList.get(position));
+            tvLocation.setTextColor(Color.LTGRAY);
+            if (position != 0) {
+
+                View locColor = holder.vJPLocColor;
+                final int jpColor = inbox.getJPLocationOpts().
+                        getJPLocationColor(this.areaList.get(position));
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    locColor.setBackgroundTintList(ColorStateList.valueOf(jpColor));
+                }
+            }
+            else{
+                tvLocation.setTextColor(Color.WHITE);
+                tvLocation.setTypeface(null, Typeface.BOLD);
+            }
+        }
+        @Override
+        public int getItemCount() {
+            return this.areaList.size();
+        }
+    }
+
+
 
     public class ParentLevel extends BaseExpandableListAdapter
     {
@@ -252,6 +355,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
             Log.v("MyListAdapter", String.valueOf(templateList.size()));
             notifyDataSetChanged();
         }
+
         @Override
         public Object getChild(int groupPosition, int childPosition)
         {
@@ -365,7 +469,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
                     final boolean finalIsInProgress = isInProgress;
                     if(selectedJPlan!=null){
                         if(selectedJPlan.getWorkplanTemplateId().equals(template.getId())){
-                           // Toast.makeText(getActivity(),"Already in progress!",Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getActivity(),"Already in progress!",Toast.LENGTH_SHORT).show();
                             return;
                         }
                     }
@@ -472,7 +576,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
             }
             UnitsTestOpt test=(UnitsTestOpt)getChild(groupPosition,childPosition);
             TextView textView=tv.findViewById(R.id.tvThird);
-            textView.setText(test.getDescription());
+            textView.setText(test.getTitle());
 
             TextView tvDueText=tv.findViewById(R.id.tvDueText);
             tvDueText.setText(test.getDueText());
@@ -546,6 +650,7 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
         }
 
     }
+
     private ArrayList<UnitsTestOpt> getMockData(){
         ArrayList _testList=new ArrayList();
         //int mockSize=(int)Math.round(Math.random()*4);
@@ -560,16 +665,16 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
                 UnitsTestOpt test=new UnitsTestOpt(jo);
                 switch(testStatus){
                     case 1:
-                        test.setColor(Color.parseColor("darkgray"));
+                        //   test.setColor(Color.parseColor("darkgray"));
                         test.setDueText("Due in 10 day(s)");
                         break;
                     case 2:
                         test.setDueText("Expire in 12 day(s)");
-                        test.setColor(Color.parseColor("green"));
+                        //   test.setColor(Color.parseColor(Globals.Green));
                         break;
                     case 3:
                         test.setDueText("Expires in 2 day(s)");
-                        test.setColor(Color.parseColor("#FFFF0000"));
+                        //   test.setColor(Color.parseColor("#FFFF0000"));
                         break;
                 }
                 _testList.add(test);
@@ -580,14 +685,34 @@ public class TemplateTestFragment extends Fragment implements SearchView.OnQuery
         }
         return _testList;
     }
+
     public void refresh(){
         if(this.expandableListView!=null) {
-            this.wpTemplateList = inbox.loadWokPlanTemplateListEx(getActivity());
+            inbox.loadWokPlanTemplateListEx();
+
+            wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
             this.itemsAdapter = new ParentLevel(this.wpTemplateList);
             this.expandableListView.setAdapter(this.itemsAdapter);
+
+            horizontalAdapter=new JPAreaAdapter(inbox.getJPLocationOpts().getJourneyPlansLocationsList());
+
+            horizontal_recycler_view.setAdapter(horizontalAdapter);
             refreshColorLegend();
         }
     }
+
+    public void refresh(String areaType){
+        if(this.expandableListView!=null) {
+            wpTemplateList = inbox.getJPLocationOpts().getJourneyPlanListByLocation(areaType);
+            this.itemsAdapter = new ParentLevel(this.wpTemplateList);
+            this.expandableListView.setAdapter(this.itemsAdapter);
+
+
+            refreshColorLegend();
+        }
+    }
+
+
     public void refreshColors(){
         if(viewColorNA!=null){
             refreshColorLegend();

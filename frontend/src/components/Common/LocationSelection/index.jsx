@@ -9,7 +9,7 @@ import { Label, Field, MyButton } from "../Forms/formsMiscItems";
 
 import { themeService } from "theme/service/activeTheme.service";
 import { CommonFormStyle } from "components/SetupPage/User/UserForm/style";
-import { retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 
 // const Label = props => <label> {props.children}</label>;
@@ -90,10 +90,10 @@ class LocationSelection extends Component {
       <div>
         <LocalForm
           model="locationSpecial"
-          onUpdate={form => {}}
+          onUpdate={(form) => {}}
           validators={this.trackValidator}
-          onChange={values => this.handleChange(values)}
-          onSubmit={values => this.handleSubmit(values)}
+          onChange={(values) => this.handleChange(values)}
+          onSubmit={(values) => this.handleSubmit(values)}
           initialState={this.state.locationSpecial}
         >
           <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>

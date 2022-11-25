@@ -49,7 +49,7 @@ class InspectionSummary extends Component {
     // });
     return (
       <React.Fragment>
-        <div className="table-report electric-utility inspection summary">
+        <div className="table-report electric-utility inspection summary" id="mainContent">
           <Row>
             <Col md={12}>
               <Row>

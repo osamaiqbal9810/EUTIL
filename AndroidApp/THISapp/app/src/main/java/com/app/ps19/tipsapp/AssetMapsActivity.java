@@ -329,7 +329,7 @@ public class AssetMapsActivity extends FragmentActivity implements OnMapReadyCal
                     if (unit.getUnit().getAssetTypeClassify().equals(ASSET_TYPE_LINEAR)) {
                         if (unit1.getCoordinates().size() > 0) {
                             LatLng curPos = unit1.getCoordinates().get(0).getLatLng();
-                            String snippet1 = getString(R.string.string_type) + " " + unit1.getAssetType() +"," +
+                            String snippet1 = getString(R.string.string_type) + " " + unit1.getAssetTypeDisplayName() +"," +
                                     "\n" + getString(R.string.description_title) + " " + unit1.getDescription() + "," + "\n\n"
                                     + getString(R.string.asset_selection_msg);
                             double lat1 = 0.0;
@@ -358,7 +358,7 @@ public class AssetMapsActivity extends FragmentActivity implements OnMapReadyCal
                     }
                 } else {
                     LatLng curPos = unit1.getCoordinates().get(0).getLatLng();
-                    String snippet1 = getString(R.string.string_type) + " " + unit1.getAssetType() +"," +
+                    String snippet1 = getString(R.string.string_type) + " " + unit1.getAssetTypeDisplayName() +"," +
                             "\n" + getString(R.string.description_title) + " " + unit1.getDescription() +"," +"\n\n"
                             + getString(R.string.asset_selection_msg);
                    /* String snippet1="Type : " + unit1.getAssetType() +
@@ -617,16 +617,15 @@ public class AssetMapsActivity extends FragmentActivity implements OnMapReadyCal
             for (LocItem item : listItems){
                 listNames.add(item.getSnippet());
             }
-            mMap.animateCamera(CameraUpdateFactory.newLatLng(cluster.getPosition()), new GoogleMap.CancelableCallback() {
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(cluster.getPosition()), 1500, new GoogleMap.CancelableCallback() {
                 @Override
                 public void onFinish() {
                     //TODO: Activity has leaked window exception on showDialog()
-
-                    listViewDialog.showDialog();
                 }
                 @Override
                 public void onCancel() { }
             });
+            listViewDialog.showDialog();
         } else {
             LatLngBounds.Builder builder = LatLngBounds.builder();
             LatLng venuePosition = cluster.getPosition();

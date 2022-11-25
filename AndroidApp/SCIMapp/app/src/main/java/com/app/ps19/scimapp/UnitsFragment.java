@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,14 +27,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.app.ps19.scimapp.R.layout;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.ListMap;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.LatLong;
 import com.app.ps19.scimapp.classes.Units;
 import com.app.ps19.scimapp.classes.dynforms.DynForm;
-import com.app.ps19.scimapp.classes.dynforms.DynFormList;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,7 +47,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.app.ps19.scimapp.Shared.Globals.appName;
-import static com.app.ps19.scimapp.Shared.Globals.docFolderName;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.scimapp.Shared.ListMap.LIST_CATEGORY;
 import static com.app.ps19.scimapp.Shared.Utilities.getDocumentPath;
@@ -71,7 +73,7 @@ public class UnitsFragment extends Fragment {
     Context _context;
     Spinner spAsset;
     TextView tvInstructions;
-    GPSTracker gps;
+    //GPSTracker gps;
     TextView tvUnit;
     public static final String ASSET_TYPE_ALL_TXT = "All";
     //ImageButton ibtUnitList;
@@ -127,7 +129,7 @@ public class UnitsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        for (Units unit: Globals.selectedTask.getWholeUnitList()){
+        for (Units unit: getSelectedTask().getWholeUnitList()){
             _assetTypeList.add(unit.getAssetType());
         }
         ListMap.loadList(LIST_CATEGORY);
@@ -137,7 +139,6 @@ public class UnitsFragment extends Fragment {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        gps = new GPSTracker(getContext());
     }
 
     @Override
@@ -179,7 +180,7 @@ public class UnitsFragment extends Fragment {
             ft.commit();
             if(showTrackDisturbanceRpt){
                 llTrackDist.setVisibility(View.VISIBLE);
-                DynFormListFragment listFragment1 = DynFormListFragment.newInstance("", "","1");
+                DynFormListFragment listFragment1 = DynFormListFragment.newInstance("", "","1" );
                 FragmentTransaction ft1 = getActivity().getSupportFragmentManager().beginTransaction();
                 ft.replace(R.id.form_fragment_container_vg1, listFragment1);
                 ft1.commit();
@@ -221,7 +222,7 @@ public class UnitsFragment extends Fragment {
         });
         _context = rootView.getContext();
         tvUnit = (TextView) rootView.findViewById(R.id.tvUnitTitle);
-        tvUnit.setText(Globals.selectedTask.getTitle());
+        tvUnit.setText(getSelectedTask().getTitle());
 
 
         //_assetTypeList = ListMap.getList(LIST_CATEGORY);
@@ -343,16 +344,21 @@ public class UnitsFragment extends Fragment {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void populateTypeSpinner() {
         //_assetTypeList.add(0, ASSET_TYPE_ALL_TXT);
-        if (gps.canGetLocation()) {
-            LatLong location = new LatLong(Double.toString(gps.getLatitude()), Double.toString(gps.getLongitude()));
-            spValues = Globals.selectedTask.getUnitList(location.getLatLng());
+        if (LocationUpdatesService.canGetLocation()) {
+            Location loc = LocationUpdatesService.getLocation();
+            LatLong location = new LatLong(Double.toString(loc.getLatitude()), Double.toString(loc.getLongitude()));
+            spValues = getSelectedTask().getUnitList(location.getLatLng());
             typeAdapter = new SpinAdapter(_context, android.R.layout.simple_spinner_item, spValues);
         } else {
-            String[] locStartArray = Globals.selectedTask.getStartLocation().split(",");
+
+            //Utilities.showSettingsAlert(UnitsFragment.this);
+
+            String[] locStartArray = getSelectedTask().getStartLocation().split(",");
             LatLong _location = new LatLong(locStartArray[0], locStartArray[1]);
-            spValues = Globals.selectedTask.getUnitList(_location.getLatLng());
+            spValues = getSelectedTask().getUnitList(_location.getLatLng());
             typeAdapter = new SpinAdapter(_context, android.R.layout.simple_spinner_item, spValues);
         }
 

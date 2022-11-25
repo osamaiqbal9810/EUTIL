@@ -1,5 +1,7 @@
 package com.app.ps19.tipsapp.safetyBriefing.ui.main;
 
+import static com.app.ps19.tipsapp.Shared.Globals.isUseDynSafetyBriefing;
+
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -10,6 +12,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.app.ps19.tipsapp.R;
 import com.app.ps19.tipsapp.safetyBriefing.BriefingFragment;
 import com.app.ps19.tipsapp.safetyBriefing.CommentsFragment;
+import com.app.ps19.tipsapp.safetyBriefing.DynBriefingFragment;
 import com.app.ps19.tipsapp.safetyBriefing.WorkerFragment;
 
 /**
@@ -33,7 +36,11 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
         // Return a PlaceholderFragment (defined as a static inner class below).
         switch (position){
             case 0:
-                return BriefingFragment.newInstance("First", "Briefing");
+                if(isUseDynSafetyBriefing){
+                    return DynBriefingFragment.newInstance("First", "Briefing");
+                } else {
+                    return BriefingFragment.newInstance("First", "Briefing");
+                }
             //AssetFragment.newInstance("First", "Units");//
             case 1:
                 return WorkerFragment.newInstance("Second","Worker");

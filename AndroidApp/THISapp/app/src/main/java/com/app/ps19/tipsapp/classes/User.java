@@ -1,5 +1,6 @@
 package com.app.ps19.tipsapp.classes;
 
+import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
 import com.app.ps19.tipsapp.Shared.Utilities;
 
@@ -269,4 +270,27 @@ public class User implements IConvertHelper {
         return true;
     }
 
+    public boolean setImageStatus(HashMap<String, Integer> finalItems) {
+        boolean blnDataChanged=false;
+        if(profImg!=null){
+            if( finalItems.containsKey(profImg.getImgName())){
+                if(finalItems.get(profImg.getImgName()) != profImg.getStatus()){
+                    profImg.setStatus(finalItems.get(profImg.getImgName()));
+                    blnDataChanged=true;
+                }
+            }
+        }
+        if(signature!=null){
+            if( finalItems.containsKey(signature.getImgName())){
+                if(finalItems.get(signature.getImgName()) != signature.getStatus()){
+                    signature.setStatus(finalItems.get(signature.getImgName()));
+                    blnDataChanged=true;
+                }
+            }
+        }
+        if(blnDataChanged){
+            Globals.updateUserInDb(profImg,signature);
+        }
+        return  blnDataChanged;
+    }
 }

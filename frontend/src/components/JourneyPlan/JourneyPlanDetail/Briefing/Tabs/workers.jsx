@@ -16,7 +16,7 @@ const WorkersTab = ({ workers, handleUpdateState, onHoverImage }) => {
     workersComp = workers.map((worker, index) => {
       let imgName = worker.signature ? worker.signature.imgName : "";
       let byPhone = worker.byPhone;
-      let src = imgName ? "http://" + getServerEndpoint() + "applicationresources/" + imgName : "";
+      let src = imgName ? getServerEndpoint() + "applicationresources/" + imgName : "";
       return (
         <div key={index} className="signature-wrapper">
           <div className="media">
@@ -40,7 +40,7 @@ const WorkersTab = ({ workers, handleUpdateState, onHoverImage }) => {
           <div className="dispaly-area">
             <span className="signarure-caption">{languageService('Signature')}</span>
             {onHoverImage && (
-              <img src={"http://" + getServerEndpoint() + "applicationresources/" + onHoverImage} alt={languageService("Image display area")} />
+              <img src={getServerEndpoint() + "applicationresources/" + onHoverImage} alt={languageService("Image display area")} />
             )}
           </div>
         </Col>

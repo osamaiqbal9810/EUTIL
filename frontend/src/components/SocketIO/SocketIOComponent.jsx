@@ -1,6 +1,6 @@
 import React, {PropTypes} from 'react'
 import socketIOClient from 'socket.io-client'
-import {getServerEndpoint} from 'utils/serverEndpoint.js'
+import {getServerEndpointNoProtocol} from 'utils/serverEndpoint.js'
 import * as types from 'reduxRelated/ActionTypes/actionTypes.js'
 
 class SocketIOComponent extends React.Component {
@@ -16,7 +16,7 @@ class SocketIOComponent extends React.Component {
     let loginCheck = localStorage.getItem('access_token');
     if (loginCheck) {
       if (!this.socket) {
-        this.socket = socketIOClient(getServerEndpoint()); //,{transports:['websocket', 'polling', 'flashsocket']})
+        this.socket = socketIOClient(getServerEndpointNoProtocol()); //,{transports:['websocket', 'polling', 'flashsocket']})
         // console.log('Called in Component Did Mount')
         // console.log(this.socket)
         this.socket.on('InspectionUpdated', this.inspectionUpdateCallBack());
@@ -58,7 +58,7 @@ class SocketIOComponent extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.loginActionType !== nextProps.loginActionType && nextProps.loginActionType == types.LOGIN_SUCCESS) {
       if (!this.socket) {
-        this.socket = socketIOClient(getServerEndpoint());
+        this.socket = socketIOClient(getServerEndpointNoProtocol());
         // console.log('Called in Component Will Receive Props')
         // console.log(this.socket)
 

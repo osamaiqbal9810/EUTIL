@@ -5,7 +5,7 @@ import { languageService } from "../../Language/language.service";
 
 export const LIST_VIEW_SELECTION_TYPES = {
   LIST: "List",
-  // MAP: "Map",
+  MAP: "Map",
   GIS: "GIS",
 };
 
@@ -18,14 +18,14 @@ export const LIST_VIEW_SELECTION = [
       text: "GIS",
     },
   },
-  // {
-  //   title: LIST_VIEW_SELECTION_TYPES.MAP,
-  //   icon: server,
-  //   tooltip: {
-  //     show: false,
-  //     text: "Track Chart",
-  //   },
-  // },
+  {
+    title: LIST_VIEW_SELECTION_TYPES.MAP,
+    icon: server,
+    tooltip: {
+      show: false,
+      text: "Track Chart",
+    },
+  },
   {
     title: LIST_VIEW_SELECTION_TYPES.LIST,
     icon: thList,

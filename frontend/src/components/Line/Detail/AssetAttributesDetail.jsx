@@ -6,11 +6,11 @@ class AssetAttributesDetail extends Component {
     super(props);
     this.style = {
       lableStyle: {
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "14px",
       },
       FieldStyle: {
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "14px",
       },
       FieldContainerStyle: {

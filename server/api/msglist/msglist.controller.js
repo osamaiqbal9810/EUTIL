@@ -7,6 +7,7 @@ let ServiceLocator = require("../../framework/servicelocator");
 
 async function addorUpdate(req, res, next) {
   let itemCount = 0;
+  let results=[];
   let listHelper = ServiceLocator.resolve("ListHelper");
   let DOValidator = ServiceLocator.resolve("DataOpValidationService");
   let DOEventService = ServiceLocator.resolve("DataOpEventService");
@@ -22,7 +23,6 @@ async function addorUpdate(req, res, next) {
       optParam2: element.optParam2,
     };
     let prevItemCopy = _.cloneDeep(item);
-
     let vr = await DOValidator.validatemsgListRequest(item, req.user);
 
     if (vr.valid === true) {
@@ -44,10 +44,11 @@ async function addorUpdate(req, res, next) {
             newItem: newItem,
             change: item,
           });
+          results.push({listName: item.listName, code: element.code, result: true});
           itemCount++;
           if (itemCount >= req.body.length) {
             res.status(200);
-            return res.json(r1);
+            return res.json(r1); // {r1, results: results});
           }
         },
         fail: async (r1) => {
@@ -55,19 +56,21 @@ async function addorUpdate(req, res, next) {
             item: item,
             user: req.user,
           });
+          results.push({listName: item.listName, code: element.code, result: false});
           itemCount++;
           if (itemCount >= req.body.length) {
             res.status(200);
-            return res.json(r1);
+            return res.json(r1); // {r1, results: results});
           }
         },
       });
     } else {
       console.log(item.listName + " validation failed but returning success");
+      results.push({listName: item.listName, code: element.code, result: false});
       itemCount++;
       if (itemCount >= req.body.length) {
         res.status(200);
-        return res.json("success");
+        return res.json("success"); // {r1:"validation failed.", results: results});
       }
     }
   });

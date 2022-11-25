@@ -1,0 +1,30 @@
+.navStyle1 {
+    border-bottom: 3px solid #17a2b8 !important;
+    color:#183D66 !important; 
+    font-size:13px !important;
+    font-weight:bold !important;
+}
+
+.navStyle2 {
+    border-bottom: 1px solid white !important;
+    color:#183D66 !important; 
+    font-size:13px !important;
+    font-weight:bold !important;
+}
+
+.table-report table td {
+    border: 1px solid white !important;
+}
+table.table tbody tr {
+    height: 0px !important;
+}
+
+table.table tbody tr td {
+    height: 10px !important;
+    color: black;
+}
+
+div#mainContent {
+    margin-bottom: 0px !important;
+    padding-bottom: 0px !important;
+}

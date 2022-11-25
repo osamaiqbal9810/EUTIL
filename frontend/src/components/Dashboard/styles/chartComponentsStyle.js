@@ -1,7 +1,7 @@
 export const chartComponentStyle = {
   barChartContainer: {
     default: {
-      backgroundColor: "#fff",
+      backgroundColor: "var(--fifth)",
       height: "280px",
       padding: "15px 10px ",
       margin: "10px -15px",

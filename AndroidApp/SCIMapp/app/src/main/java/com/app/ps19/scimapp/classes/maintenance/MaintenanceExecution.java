@@ -52,7 +52,7 @@ public class MaintenanceExecution implements IConvertHelper {
     public void setChangeOnly(boolean changeOnly) {
         this.changeOnly = changeOnly;
     }
-      private String voiceNotes;
+    private String voiceNotes;
     public String getVoiceNotes() {
         return voiceNotes;
     }

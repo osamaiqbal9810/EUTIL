@@ -40,6 +40,7 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
     //List<Uri> horizontalList = Collections.emptyList();
     Context context;
     int selectedPosition;
+    String activityName;
     MediaPlayer mp = new MediaPlayer();
     // Animation
     Animation animBlink;
@@ -48,9 +49,10 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
     //        +"/";
 
 
-    public reportVoiceAdapter(Context context, ArrayList<IssueVoice> horizontalList) {
+    public reportVoiceAdapter(Context context, ArrayList<IssueVoice> horizontalList, String activityName) {
         this.voiceList = horizontalList;
         this.context = context;
+        this.activityName = activityName;
         animBlink = AnimationUtils.loadAnimation(context,
                 R.anim.blink);
     }
@@ -78,9 +80,9 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final MyViewHolder holder, int position) {
 
-        if(voiceList.get(position).getVoiceName() == null || voiceList.get(position) == null || voiceList.get(position).getVoiceName().equals("")){
+        if(voiceList.get(holder.getAdapterPosition()).getVoiceName() == null || voiceList.get(holder.getAdapterPosition()) == null || voiceList.get(position).getVoiceName().equals("")){
             holder.imageView.setVisibility(View.GONE);
             holder.btnRemoveVoice.setVisibility(View.GONE);
             holder.tvVoiceDuration.setVisibility(View.GONE);
@@ -93,14 +95,14 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
         }*/
             //holder.imageView.setImageURI(Uri.parse(getImgPath(voiceList.get(position).getVoiceName())));
             //holder.txtview.setText(horizontalList.get(position).txt);
-            final File audioFile = new File(getVoicePath(voiceList.get(position).getVoiceName()));
+            final File audioFile = new File(getVoicePath(voiceList.get(holder.getAdapterPosition()).getVoiceName()));
             if (audioFile.isFile() && audioFile.exists()) {
 
             } else {
                 makeVoiceAvailableEx(context,audioFile.getName());
             }
             //
-            holder.tvVoiceDuration.setText(getDuration(new File(getVoicePath(voiceList.get(position).getVoiceName()))));
+            holder.tvVoiceDuration.setText(getDuration(new File(getVoicePath(voiceList.get(holder.getAdapterPosition()).getVoiceName()))));
             /*if (context.getClass().getSimpleName().equals("ReportViewActivity")) {
                 context.getClass().getSimpleName();
                 holder.btnRemoveVoice.setVisibility(View.GONE);
@@ -109,7 +111,7 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
                 if(!isIssueUpdateAllowed){
                     holder.btnRemoveVoice.setVisibility(View.GONE);
                     try {
-                        if(((MaintenanceExecActivity) context).getLocalClassName().equals(maintenanceTag)){
+                        if(activityName.equals(maintenanceTag)){
                             holder.btnRemoveVoice.setVisibility(View.VISIBLE);
                         }
                     } catch (Exception e) {
@@ -143,9 +145,9 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
                         stopPlaying(v);
                         if (audioFile.isFile() && audioFile.exists()) {
                             if(holder.tvVoiceDuration.getText().toString().equals("00:00")){
-                                holder.tvVoiceDuration.setText(getDuration(new File(getVoicePath(voiceList.get(position).getVoiceName()))));
+                                holder.tvVoiceDuration.setText(getDuration(new File(getVoicePath(voiceList.get(holder.getAdapterPosition()).getVoiceName()))));
                             }
-                            mp = MediaPlayer.create(context, Uri.parse(getVoicePath(voiceList.get(position).getVoiceName())));//mp.setDataSource(voiceList.get(position).getVoiceName());
+                            mp = MediaPlayer.create(context, Uri.parse(getVoicePath(voiceList.get(holder.getAdapterPosition()).getVoiceName())));//mp.setDataSource(voiceList.get(position).getVoiceName());
                             mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
                             {
                                 @Override
@@ -184,8 +186,8 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
 
                                 public void onClick(DialogInterface dialog, int whichButton) {
                                     // Remove the item on remove/button click
-                                    tempIssueVoiceList.add(voiceList.get(position));
-                                    voiceList.remove(position);
+                                    tempIssueVoiceList.add(voiceList.get(holder.getAdapterPosition()));
+                                    voiceList.remove(holder.getAdapterPosition());
 
                 /*
                     public final void notifyItemRemoved (int position)
@@ -200,7 +202,7 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
                     Parameters
                         position : Position of the item that has now been removed
                 */
-                                    notifyItemRemoved(position);
+                                    notifyItemRemoved(holder.getAdapterPosition());
 
                 /*
                     public final void notifyItemRangeChanged (int positionStart, int itemCount)
@@ -216,7 +218,7 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
                         positionStart : Position of the first item that has changed
                         itemCount : Number of items that have changed
                 */
-                                    notifyItemRangeChanged(position, voiceList.size());
+                                    notifyItemRangeChanged(holder.getAdapterPosition(), voiceList.size());
                                     //Toast.makeText(context, "Yaay", Toast.LENGTH_SHORT).show();
                                 }
                             })
@@ -240,13 +242,15 @@ public class reportVoiceAdapter extends RecyclerView.Adapter<reportVoiceAdapter.
         }
 
     }
-    private void stopPlaying(View view) {
+    void stopPlaying(View view) {
         if (mp != null) {
             try {
                 mp.stop();
                 mp.release();
                 mp = null;
-                view.clearAnimation();
+                if(view != null) {
+                    view.clearAnimation();
+                }
             } catch (IllegalStateException e) {
                 e.printStackTrace();
             }

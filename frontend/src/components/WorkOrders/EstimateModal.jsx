@@ -8,7 +8,7 @@ import { themeService } from "theme/service/activeTheme.service";
 import moment from "moment";
 import EstimateListEditable from "../Maintenance/AddMaintenance/EstimateListEditable";
 
-const MyButton = props => (
+const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
   </button>
@@ -41,7 +41,7 @@ class EstimateModal extends Component {
   setEstimate() {
     let estimates = [];
     let mRequests = this.getMaintenanceRequestsForIds(this.props.editItem.maintenanceRequests, this.props.maintenances);
-    mRequests.forEach(mr => {
+    mRequests.forEach((mr) => {
       const estmts = mr.estimate.reduce((estmts, est) => {
         const unitType = this.findUnitType(est, this.props.applicationlookupss);
         const costHours = this.calculateCostBase(est, unitType);
@@ -50,8 +50,8 @@ class EstimateModal extends Component {
         est.unitType = unitType;
         est.mr_no = mr.mrNumber;
 
-        let isFoundEstimateIndex = estimates.findIndex(est2 => est2.resource === est.resource);
-        let isFoundEstimateInnerIndex = estmts.findIndex(est2 => est2.resource === est.resource);
+        let isFoundEstimateIndex = estimates.findIndex((est2) => est2.resource === est.resource);
+        let isFoundEstimateInnerIndex = estmts.findIndex((est2) => est2.resource === est.resource);
 
         if (isFoundEstimateIndex !== -1) {
           if (estimates[isFoundEstimateIndex].mergedEstimate && estimates[isFoundEstimateIndex].mergedEstimate.length) {
@@ -95,11 +95,11 @@ class EstimateModal extends Component {
   }
 
   sumMergedEstimate(estimates) {
-    return estimates.map(est => {
+    return estimates.map((est) => {
       if (est.mergedEstimate) {
         est.costHours = 0;
         est.count = 0;
-        est.mergedEstimate.forEach(mEst => {
+        est.mergedEstimate.forEach((mEst) => {
           est.costHours += mEst.costHours;
           est.count = parseInt(est.count) + parseInt(mEst.count);
         });
@@ -111,7 +111,7 @@ class EstimateModal extends Component {
 
   findUnitType(est, lists) {
     let unitType = "hour";
-    let list = lists.find(l => l.description === est.resource);
+    let list = lists.find((l) => l.description === est.resource);
 
     // debugger;
     if (list && list.listName === "materialTypes") unitType = "unit";
@@ -147,7 +147,7 @@ class EstimateModal extends Component {
     let mrs = [];
     for (let mrid of mrIds) {
       if (mrid) {
-        let mr = maintenances.find(m => {
+        let mr = maintenances.find((m) => {
           return m.mrNumber === mrid;
         });
         if (mr) {
@@ -178,7 +178,7 @@ class EstimateModal extends Component {
 
   handleExpandEstimateClick(d) {
     let { estimate } = this.state;
-    let findIndex = estimate.findIndex(est => est.resource === d.resource);
+    let findIndex = estimate.findIndex((est) => est.resource === d.resource);
     estimate.splice(findIndex + 1, 0, ...d.mergedEstimate);
     estimate[findIndex].expanded = true;
     this.setState({ estimate });
@@ -186,7 +186,7 @@ class EstimateModal extends Component {
 
   handleContractEstimateClick(d) {
     let { estimate } = this.state;
-    let findIndex = estimate.findIndex(est => est.resource === d.resource);
+    let findIndex = estimate.findIndex((est) => est.resource === d.resource);
     estimate[findIndex].expanded = false;
     estimate.splice(findIndex + 1, estimate[findIndex].mergedEstimate.length);
     this.setState({ estimate });
@@ -195,7 +195,7 @@ class EstimateModal extends Component {
   render() {
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
         isOpen={this.props.modal}
         toggle={this.props.toggle}
         style={{ maxWidth: "98vw" }}
@@ -216,7 +216,7 @@ class EstimateModal extends Component {
                 header: languageService("Cost Base"),
                 type: "text",
                 field: "costHours",
-                accessor: d => {
+                accessor: (d) => {
                   return `${d.costHours} ${d.unitType}`;
                 },
                 editable: false,

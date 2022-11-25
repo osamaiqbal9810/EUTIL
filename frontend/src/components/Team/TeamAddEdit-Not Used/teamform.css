@@ -5,8 +5,8 @@
   padding: 6px 12px;
   font-size: 12px;
   line-height: 1.42857143;
-  color: rgba(64, 118, 179);
-  background-color: #fff;
+  color: var(--first);
+  background-color: var(--fifth);
   background-image: none;
   border: 1px solid #e3e9ef;
   border-radius: 2px;
@@ -25,8 +25,8 @@
   padding: 6px 6px;
   font-size: 12px;
   line-height: 1.42857143;
-  color: rgba(64, 118, 179);
-  background-color: #fff;
+  color: var(--first);
+  background-color: var(--fifth);
   background-image: none;
   border: 1px solid #e3e9ef;
   border-radius: 2px;
@@ -36,7 +36,7 @@
   margin-bottom: 5px;
   float: left;
   font-size: 14px;
-  color: rgba(64, 118, 179);
+  color: rgb(94, 141, 143);
 }
 .teamform input[type="radio"],
 .teamform input[type="checkbox"] {
@@ -66,7 +66,7 @@
   font-weight: 600;
 }
 .teamform .required-fld {
-  color: rgba(64, 118, 179);
+  color: rgb(94, 141, 143);
   font-weight: bold;
   font-size: large;
   vertical-align: middle;
@@ -76,9 +76,9 @@
   height: 30px;
   min-width: 150px;
   margin-bottom: 20px;
-  background-color: rgba(64, 118, 179);
+  background-color: var(--first);
   border: 1px solid #e3e9ef;
-  color: #fff;
+  color: var(--fifth);
   font-size: 12px;
   cursor: pointer;
   border-radius: 4px;
@@ -87,9 +87,9 @@
 }
 
 .setPasswordButton:hover {
-  color: #fff;
-  border: 1px solid rgba(64, 118, 179);
-  background-color: rgba(64, 118, 179);
+  color: var(--fifth);
+  border: 1px solid var(--first);
+  background-color: var(--first);
 }
 
 .fullWidth {
@@ -98,7 +98,7 @@
 }
 
 .dateControlField {
-  color: rgba(64, 118, 179);
+  color: var(--first);
   padding: 6px 12px;
   font-size: 12px;
   border: 1px solid #e3e9ef;

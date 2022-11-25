@@ -3,12 +3,15 @@ package com.app.ps19.scimapp.Shared;
 import android.content.Context;
 import android.util.Log;
 
+import com.app.ps19.scimapp.classes.LocationPrefix;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,7 +20,7 @@ import java.util.StringTokenizer;
  */
 
 public  class ListMap {
-    private  static HashMap<String , Object> listLookups=new HashMap<String,Object>();
+    private  static Hashtable<String , Object> listLookups=new Hashtable<String,Object>();
     //private  static HashMap<String, String > lookup=new HashMap<String, String>();
     private static Context context;
     public static final int LIST_EMPLOYEE=1;
@@ -33,14 +36,19 @@ public  class ListMap {
     public static final int LIST_APP_FORMS=11;
     public static final int LIST_APP_CONFIG=12;
     public static final int LIST_TEMPLATES=13;
+    public static final int LIST_LOC_PREFIX=14;
 
-    public static HashMap<String, Object> getListLookups() {
+    public static Hashtable<String, Object> getListLookups() {
         return listLookups;
     }
 
     public  static boolean isInitialized()
     {
         return (listLookups.size()!=0);
+    }
+    public  static void clear()
+    {
+        listLookups.clear();
     }
 
     public static boolean initializeAllLists(Context context)
@@ -53,13 +61,16 @@ public  class ListMap {
         retValue=loadList(LIST_CATEGORY) & loadList(LIST_PRIORITY)
                 & loadList(LIST_SETTINGS)  & loadList(LIST_REM_ACTIONS) & loadList(LIST_APP_FORMS)
                 & loadList(LIST_APP_CONFIG)
-                & loadList(LIST_TEMPLATES);;
+                & loadList(LIST_TEMPLATES)
+                & loadList(LIST_LOC_PREFIX);
 
         initConfig();
         return  retValue;
     }
     public static void initConfig(){
         try {
+            String disableRemedialByRuleConfig = getConfigValue(Globals.isDisableRActionByRuleConfig);
+            String rule213Config = getConfigValue(Globals.isRule213ReqConfig);
             String mpConfig = getConfigValue(Globals.isMPRequireConfig);
             String traverseTrackConfig = getConfigValue(Globals.isTrackTraverseRequireConfig);
             String isTaskViewConfig = getConfigValue(Globals.isByPassTaskViewConfig);
@@ -71,13 +82,21 @@ public  class ListMap {
             String distanceSign = getConfigValue(Globals.distanceSign);
             String postSign = getConfigValue(Globals.postSign);
             String traverseBy = getConfigValue(Globals.defTraverseBy);
+            String observeOpt = getConfigValue(Globals.defaultObserveOpt);
+            String audibleNotification = getConfigValue(Globals.isAudibleNotification);
 
             Globals.COLOR_TEST_NOT_ACTIVE=Utilities.checkColorValue(getConfigValue(Globals.colorCodingNaConfig),"darkgray");
-            Globals.COLOR_TEST_ACTIVE=Utilities.checkColorValue(getConfigValue(Globals.colorCodingAConfig),"green");
+            Globals.COLOR_TEST_ACTIVE=Utilities.checkColorValue(getConfigValue(Globals.colorCodingAConfig),Globals.Green);
             Globals.COLOR_TEST_EXPIRING=Utilities.checkColorValue(getConfigValue(Globals.colorCodingExpConfig),"#FFFF0000");
 
 
 
+            if(disableRemedialByRuleConfig!= null && !disableRemedialByRuleConfig.equals("")){
+                Globals.isDisableRActionByRule = Boolean.parseBoolean(disableRemedialByRuleConfig);
+            }
+            if(rule213Config!= null && !rule213Config.equals("")){
+                Globals.isHideRule213 = Boolean.parseBoolean(rule213Config);
+            }
             if(mpConfig!= null && !mpConfig.equals("")){
                 Globals.isMpReq = Boolean.parseBoolean(mpConfig);
             }
@@ -110,6 +129,12 @@ public  class ListMap {
             }
             if(traverseBy!= null && !traverseBy.equals("")){
                 Globals.selectedTraverseBy = traverseBy;
+            }
+            if(observeOpt!= null && !observeOpt.equals("")){
+                Globals.selectedObserveOpt = observeOpt;
+            }
+            if(audibleNotification!= null && !audibleNotification.equals("")){
+                Globals.isAudibleNotificationAllowed = Boolean.parseBoolean(audibleNotification);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -175,6 +200,10 @@ public  class ListMap {
                 listLookups.put(String.valueOf(LIST_SETTINGS), db.getAppLookupList(Globals.APP_SETTINGS_LIST_NAME));
                 //db.close();
                 return true;
+            case LIST_LOC_PREFIX:
+                listLookups.put(String.valueOf(LIST_LOC_PREFIX), db.getAppLookupList(Globals.LOCATION_PREFIX_LIST_NAME,"",0));
+                //db.close();
+                return true;
         }
         return  false;
 
@@ -221,7 +250,22 @@ public  class ListMap {
 
         return sortedItems;
     }
-
+    public static LocationPrefix getLocationPrefix(String id){
+        HashMap<String, String> locationList=(HashMap<String, String>) listLookups.get(String.valueOf(LIST_LOC_PREFIX));
+        String locationObject= null;
+        if (locationList != null) {
+            locationObject = locationList.get(id);
+        }
+        LocationPrefix locationPrefix=null;
+        try {
+            if (locationObject != null) {
+                locationPrefix=new LocationPrefix(new JSONObject(locationObject));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return locationPrefix;
+    }
     public static ArrayList<String> getList(int listId) {
         ArrayList<String> itemList = new ArrayList<>();
 

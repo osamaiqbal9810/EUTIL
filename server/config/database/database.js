@@ -109,7 +109,7 @@ async function createDatabase() {
 
   await updateApplicationLookupsPrev(configUpdateApplicationLookups, configApplicationType);
   await removeAssetTypesForIOC(configUpdateDatabaseForApplicationType);
-  await addIOCMissingAssetTypes(configUpdateDatabaseForApplicationType);
+  //await addIOCMissingAssetTypes(configUpdateDatabaseForApplicationType);
   await addMissingIssueIdsInJourneyPlans(false);
   await addYardTrackAssetTypesNonMilepost(false);
 
@@ -268,9 +268,9 @@ async function updatePermissionsOfUserGroups(execute) {
       }
     }
     await update(UserGroup, { group_id: "supervisor" }, "permissions", permissionAry); // update permissions
-    await update(UserGroup, { group_id: "manager" }, "permissions", permissionAry); // update permissions
+    //await update(UserGroup, { group_id: "manager" }, "permissions", permissionAry); // update permissions
     await update(UserGroup, { group_id: "admin" }, "permissions", permissionAry); // update permissions
-    await update(UserGroup, { group_id: "supervisor", name: "Road Master" }, "name", "Track Manager"); // change supervisor's name, from t 'Road Master' to 'Track Manager'
+    await update(UserGroup, { group_id: "supervisor", name: "Road Master" }, "name", "Manager"); // change supervisor's name, from t 'Road Master' to 'Track Manager'
     await update(UserGroup, { group_id: "inspector" }, "permissions", inspectorPermissionArray);
     await update(UserGroup, { group_id: "maintenance" }, "permissions", inspectorPermissionArray);
   }

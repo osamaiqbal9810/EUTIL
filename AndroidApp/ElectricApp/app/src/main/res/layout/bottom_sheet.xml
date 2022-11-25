@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bottom_sheet"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/shadow_back"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="67dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+<LinearLayout
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:gravity="center">
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="4dp"
+            android:src="@drawable/rounded_rectangle"/>
+    </RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="53dp"
+        android:orientation="horizontal">
+
+
+        <ImageView
+            android:id="@+id/iv_asset"
+            android:layout_width="70dp"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:src="@drawable/asset_7" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="5"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_selected_asset_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Selected Asset"
+                android:fontFamily="@font/cabin"
+                android:textColor="@color/title_black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!--<LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:orientation="horizontal">
+
+                <android.support.v7.widget.AppCompatRatingBar
+                    style="@style/Base.Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:numStars="5"
+                    android:rating="4" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4.7"
+                    android:textColor="@color/colorAccent" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:text="(51)"
+                    android:textColor="@color/colorAccent" />
+
+            </LinearLayout>-->
+
+            <TextView
+                android:id="@+id/tv_selected_asset_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/cabin"
+                android:text="Asset Type"
+                android:textColor="@color/camera_back_color" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!--<TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:drawableLeft="@drawable/border_bottom"
+        android:drawablePadding="16dp"
+        android:text="740 Valencia St, San Fracisco, CA"
+        android:textColor="@color/camera_back_color" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:drawableLeft="@drawable/calander"
+        android:drawablePadding="16dp"
+        android:text="(415) 349-0942"
+        android:textColor="@color/camera_back_color" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp"
+        android:drawableLeft="@drawable/calander"
+        android:drawablePadding="16dp"
+        android:text="Wed, 10 AM - 9 PM"
+        android:textColor="@color/camera_back_color" />
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@color/colorAccent"
+        android:text="PROCEED PAYMENT"
+        android:textColor="#fff" />-->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="65dp"
+        android:weightSum="1"
+        android:orientation="horizontal">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".9"
+            android:padding="8dp"
+            android:fontFamily="@font/cabin"
+            android:textStyle="bold|italic"
+            android:text="@string/map_mode_title"/>
+        <ImageButton
+            android:id="@+id/ib_unit_list_map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight=".1"
+            android:src="@drawable/ic_location_on_black_24dp" />
+    </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/fm_rl_static_list"
+            android:layout_width="match_parent"
+
+            android:layout_height="30dp"
+            android:orientation="horizontal"
+            android:gravity="left"
+            android:background="@drawable/gradient_green">
+            <ImageView
+                android:id="@+id/fm_iv_list_static_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:padding="10dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_expand_less_white_24dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/cabin"
+                android:text="@string/text_linear_assets" />
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+                <ListView
+                    android:id="@+id/fm_lv_static_units"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:cacheColorHint="#000"
+                    android:divider="#7F7F7F"
+                    android:dividerHeight="1dip">
+                </ListView>
+        </LinearLayout>
+
+
+        <RelativeLayout
+            android:id="@+id/fm_rl_sorted_list"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@drawable/gradient_blue">
+            <ImageView
+                android:id="@+id/fm_iv_list_sorted_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:scaleType="centerCrop"
+                android:padding="10dp"
+                android:src="@drawable/ic_expand_less_white_24dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:fontFamily="@font/cabin"
+                android:text="@string/text_fixed_assets" />
+
+        </RelativeLayout>
+            <ListView
+                android:id="@+id/fm_lv_sorted_units"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:cacheColorHint="#000"
+                android:divider="@color/color_unit_back"
+                android:dividerHeight="1dip">
+
+            </ListView>
+    <View
+        android:layout_marginTop="1dp"
+        android:layout_marginBottom="1dp"
+        android:id="@+id/view1"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="#c0c0c0"/>
+
+</LinearLayout>
+</androidx.core.widget.NestedScrollView>

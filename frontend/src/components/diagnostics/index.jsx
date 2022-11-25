@@ -8,6 +8,7 @@ import DiagOptions from "./DiagOptions";
 import { optionsTexts } from "./options";
 import DynamicLang from "./DynamicLang/index";
 import Patches from "./Patches/index";
+import Customer from './Customer/Customer';
 
 class Diagnostics extends Component {
   componentWillMount() {
@@ -36,6 +37,7 @@ class Diagnostics extends Component {
             <Route path={`${path}/usergrouppermissions`} component={UserGroupPermission} />
             <Route path={`${path}/dynamiclanguage`} component={DynamicLang} />
             <Route path={`${path}/patches`} component={Patches}/>
+            <Route path={`${path}/customer`} component={Customer}/>
           </Switch>
         </Row>
       </Col>

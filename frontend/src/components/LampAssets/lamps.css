@@ -4,7 +4,7 @@
   z-index: 99;
   cursor: pointer;
   transition: all 0.5s ease-in-out;
-  background-color: rgba(55, 139, 119, 1);
+  background-color: var(--first);
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   padding: 15px 8px 15px 15px;
@@ -14,7 +14,7 @@
 .retro .gis-nav,
 .retro .gis-nav .button,
 .retro .asset-detail button {
-  background-color: rgb(102, 102, 102);
+  background-color: var(--ten);
 }
 .gis-nav .button {
   display: inline-block;
@@ -25,8 +25,8 @@
   writing-mode: vertical-rl;
   text-orientation: upright;
   position: relative;
-  background-color: rgba(55, 139, 119, 1);
-  color: #fff;
+  background-color: var(--first);
+  color: var(--fifth);
   font-size: 17px;
   border-radius: 5px;
   -webkit-transition: all 0.3s ease-in-out;
@@ -56,18 +56,18 @@
 }
 .gis-nav.one .button {
   top: 50%;
-  background: rgb(227, 233, 239);
-  color: rgb(64, 118, 179);
-  border-top: 1px solid rgb(64, 118, 179);
-  border-bottom: 1px solid rgb(64, 118, 179);
-  border-left: 1px solid rgb(64, 118, 179);
+  background: var(--eleventh);
+  color: var(--first);
+  border-top: 1px solid var(--first);
+  border-bottom: 1px solid var(--first);
+  border-left: 1px solid var(--first);
 }
 .asset-detail {
-  background: #fff;
+  background: var(--fifth);
   width: 100%;
   height: auto;
   border-radius: 4px;
-  color: rgb(64, 118, 179);
+  color: var(--first);
   font-size: 12px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -100,9 +100,9 @@
   height: 30px;
   width: 160px;
   margin-bottom: 20px;
-  background-color: rgba(64, 118, 179);
+  background-color: var(--first);
   border: 1px solid #e3e9ef;
-  color: #fff;
+  color: var(--fifth);
   font-size: 12px;
   cursor: pointer;
   border-radius: 4px;
@@ -114,7 +114,7 @@
 .asset-detail button:focus,
 .asset-detail button:active {
   background-color: rgba(55, 139, 119, 0.6);
-  border-color: rgba(64, 118, 179);
+  border-color: var(--first);
 }
 h4.detail.heading {
   text-transform: capitalize;

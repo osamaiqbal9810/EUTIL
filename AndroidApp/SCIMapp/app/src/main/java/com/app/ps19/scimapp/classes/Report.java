@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 import static android.content.ContentValues.TAG;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 
 public class Report implements IConvertHelper {
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -544,7 +545,7 @@ public class Report implements IConvertHelper {
         private String priority;
         private String timeStamp;*/
         try {
-            int taskIndex = Globals.selectedTask.getTaskIndex();
+            int taskIndex = getSelectedTask().getTaskIndex();
             jo.put("title", "Zuba");
 
         } catch (Exception e) {

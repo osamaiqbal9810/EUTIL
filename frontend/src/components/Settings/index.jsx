@@ -10,7 +10,7 @@ import { checkFormIsValid, processFromFields } from "../../utils/helpers";
 import FormFields from "../../wigets/forms/formFields";
 import { ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import _ from "lodash";
 import permissionCheck from "../../utils/permissionCheck";
 
@@ -31,7 +31,7 @@ class Settings extends Component {
           fontFamily: "Arial",
           fontSize: 12,
           width: "100%",
-          background: "#fff",
+          background: "var(--fifth)",
           margin: "15px",
           padding: "10px 30px ",
         },
@@ -41,6 +41,15 @@ class Settings extends Component {
           fontSize: 12,
           width: "100%",
           background: retroColors.nine,
+          margin: "15px",
+          padding: "10px 30px ",
+        },
+        electric: {
+          boxShadow: "0",
+          fontFamily: "Arial",
+          fontSize: 12,
+          width: "100%",
+          background: electricColors.nine,
           margin: "15px",
           padding: "10px 30px ",
         },
@@ -241,7 +250,7 @@ class Settings extends Component {
           configGroupsDisplay.push(
             <div className={"commonform"} key={k} style={this.styles.companyInfoContainer}>
               <fieldset>
-                <legend> {k === languageService("undefined") ? languageService("Un-Categorized") : languageService(k)} </legend>
+                <legend> {k === languageService("undefined") ? languageService(" ") : languageService(k)} </legend>
                 <FormFields configFields={this.state.configGroups[k]} fieldTitle={this.fieldTitle} change={this.updateConfig} />
               </fieldset>
             </div>,
@@ -252,7 +261,7 @@ class Settings extends Component {
     }
 
     return (
-      <div style={{ background: "#fff", margin: "15px", padding: "10px 30px " }}>
+      <div style={{ background: "var(--fifth)", margin: "15px", padding: "10px 30px " }}>
         <Row>
           <Col md={12}>
             <MainPageHeading heading="b">{languageService("Settings")}</MainPageHeading>
@@ -271,14 +280,16 @@ class Settings extends Component {
           <Col md={12}>{configGroupsDisplay}</Col>
         </Row>
         <Row>
-          <MyButton
-            style={themeService(ButtonStyle.commonButton)}
-            type="submit"
-            onClick={this.saveChanges}
-            disabled={this.dirtyList.length === 0}
-          >
-            {languageService("Save")}
-          </MyButton>
+          {permissionCheck("CONFIG", "update") && (
+            <MyButton
+              style={themeService(ButtonStyle.commonButton)}
+              type="submit"
+              onClick={this.saveChanges}
+              disabled={this.dirtyList.length === 0}
+            >
+              {languageService("Save")}
+            </MyButton>
+          )}
 
           {/* <MyButton style={themeService(ButtonStyle.commonButton)} type="submit" onClick={this.revertChanges} disabled={this.dirtyList.length===0} >
           {languageService("Revert")}

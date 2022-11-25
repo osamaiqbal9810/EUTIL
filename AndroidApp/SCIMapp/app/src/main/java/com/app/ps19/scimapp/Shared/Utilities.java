@@ -1,6 +1,7 @@
 package com.app.ps19.scimapp.Shared;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -12,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
@@ -21,23 +23,34 @@ import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.SparseIntArray;
 import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.TextureView;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
 
 import com.app.ps19.scimapp.R;
 import com.app.ps19.scimapp.classes.IssueImage;
 import com.app.ps19.scimapp.classes.IssueVoice;
 import com.app.ps19.scimapp.classes.LatLong;
+import com.app.ps19.scimapp.classes.Report;
 import com.app.ps19.scimapp.classes.dynforms.DynFormList;
 import com.google.android.gms.maps.model.LatLng;
 import com.squareup.picasso.Picasso;
@@ -69,18 +82,20 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.ContentValues.TAG;
-import static android.content.Context.LOCATION_SERVICE;
 import static com.app.ps19.scimapp.Shared.Globals.FULL_DATE_FORMAT;
 import static com.app.ps19.scimapp.Shared.Globals.geocoder;
 import static com.app.ps19.scimapp.Shared.Globals.getDBContext;
 import static com.app.ps19.scimapp.Shared.Globals.isInternetAvailable;
-import static com.app.ps19.scimapp.Shared.Globals.locationManager;
+import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
 
 /**
  * Created by Ajaz Ahmad Qureshi on 7/17/2017.
  */
 
 public class Utilities {
+
+    private static Boolean DialogueInView = false;
+
     public static String timeDiffText(Date date1, Date date2){
         long different = date2.getTime() - (date1.getTime() );
         long secondsInMilli = 1000;
@@ -280,7 +295,10 @@ public class Utilities {
             }
         }
     }
-
+    public static boolean isImageFileExists(String fileName){
+        File inFile=new File(getImgPath(fileName));
+        return inFile.exists();
+    }
     public static boolean isDocumentExists(String fileName) {
         try {
             /*File sdCard = Environment.getExternalStorageDirectory();
@@ -464,6 +482,28 @@ public class Utilities {
             ex.printStackTrace();
             return "";
         }
+    }
+    public static String getShortDate(String longDate) {
+        String sourceFormat="EEE MMM dd HH:mm:ss Z yyyy";
+        SimpleDateFormat sourDateFormat=new SimpleDateFormat(sourceFormat,Locale.US);
+        String myFormat = "dd/MM/yy"; //In which you need put here
+        SimpleDateFormat sdf = new SimpleDateFormat(myFormat, Locale.US);
+        try {
+            Date sourceDate=sourDateFormat.parse(longDate);
+            DateFormat df = DateFormat.getDateInstance();
+
+            String  _day=((String)android.text.format.DateFormat.format( "dd",sourceDate));
+            String  _month=((String)android.text.format.DateFormat.format( "MM",sourceDate));
+            String  _year=((String)android.text.format.DateFormat.format( "yy",sourceDate));
+            Date date=sdf.parse(new StringBuilder()
+                    .append(_day).append("/").append(_month).append("/").append(_year).append("").toString());
+            SimpleDateFormat sdfOut=new SimpleDateFormat("MMM, dd, yyyy");
+            //_editText.setText(sdfOut.format(date));
+            return sdfOut.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public static String getShortTimeFromNumberDate(String dateValue)
     {
@@ -800,6 +840,110 @@ public class Utilities {
         return  false;
     }
 
+
+    public static boolean checkFloatEqual(float a, float b) {
+        return Math.abs(a - b) < 0.001;
+    }
+
+    private static final int FOCUS_AREA_SIZE = 150;
+
+    public static void addMediaToGallery(Context context, String photoPath) {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File photoFile = new File(photoPath);
+        Uri contentUri = Uri.fromFile(photoFile);
+        mediaScanIntent.setData(contentUri);
+        context.sendBroadcast(mediaScanIntent);
+    }
+
+    public static Rect calculateFocusArea(Rect sensorArraySize, int displayOrientation, TextureView textureView, MotionEvent event) {
+        final int eventX = (int) event.getX();
+        final int eventY = (int) event.getY();
+
+        final int focusX;
+        final int focusY;
+
+        switch (displayOrientation) {
+            case 0:
+                focusX = (int)((eventX / (float)textureView.getWidth())  * (float)sensorArraySize.width());
+                focusY = (int)((eventY / (float)textureView.getHeight()) * (float)sensorArraySize.height());
+                break;
+            case 180:
+                focusX = (int)((1 - (eventX / (float)textureView.getWidth()))  * (float)sensorArraySize.width());
+                focusY = (int)((1 - (eventY / (float)textureView.getHeight())) * (float)sensorArraySize.height());
+                break;
+            case 270:
+                focusX = (int)((1- (eventY / (float)textureView.getHeight())) * (float)sensorArraySize.width());
+                focusY = (int)((eventX / (float)textureView.getWidth())  * (float)sensorArraySize.height());
+                break;
+            case 90:
+            default:
+                focusX = (int)((eventY / (float)textureView.getHeight()) * (float)sensorArraySize.width());
+                focusY = (int)((1 - (eventX / (float)textureView.getWidth()))  * (float)sensorArraySize.height());
+                break;
+        }
+
+        int left = Math.max(focusX - FOCUS_AREA_SIZE,  0);
+        int top = Math.max(focusY - FOCUS_AREA_SIZE, 0);
+        int right = Math.min(left + FOCUS_AREA_SIZE  * 2, sensorArraySize.width());
+        int bottom = Math.min(top + FOCUS_AREA_SIZE  * 2, sensorArraySize.width());
+        return new Rect(left, top, right, bottom);
+    }
+
+
+    private static final int SENSOR_ORIENTATION_DEFAULT_DEGREES = 90;
+    private static final int SENSOR_ORIENTATION_INVERSE_DEGREES = 270;
+    private static final SparseIntArray DEFAULT_ORIENTATIONS = new SparseIntArray();
+    private static final SparseIntArray INVERSE_ORIENTATIONS = new SparseIntArray();
+
+    static {
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_0, 90);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_90, 0);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_180, 270);
+        DEFAULT_ORIENTATIONS.append(Surface.ROTATION_270, 180);
+    }
+
+    static {
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_0, 270);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_90, 180);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_180, 90);
+        INVERSE_ORIENTATIONS.append(Surface.ROTATION_270, 0);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static int getJpegOrientation( int sensorOrientation , int deviceOrientation) {
+        deviceOrientation = -deviceOrientation;
+        // Calculate desired JPEG orientation relative to camera orientation to make
+        // the image upright relative to the device orientation
+        int jpegOrientation = (sensorOrientation + deviceOrientation + 360) % 360;
+
+        return jpegOrientation;
+    }
+
+
+    public static int getOrientation(int sensorOrientation, int displayRotation) {
+        int degree = DEFAULT_ORIENTATIONS.get(displayRotation);
+        switch (sensorOrientation) {
+            case SENSOR_ORIENTATION_DEFAULT_DEGREES:
+                degree = DEFAULT_ORIENTATIONS.get(displayRotation);
+                break;
+            case SENSOR_ORIENTATION_INVERSE_DEGREES:
+                degree = INVERSE_ORIENTATIONS.get(displayRotation);
+                break;
+        }
+        return degree;
+    }
+
+    public static float clamp(float value, float min, float max) {
+        if (value < min) {
+            return min;
+        } else if (value > max) {
+            return max;
+        } else {
+            return value;
+        }
+    }
+
+
     public static String getImgPath(String name) {
         File sdCard = getDBContext().getExternalFilesDir(null);
         File dir = new File(sdCard.getAbsolutePath() + "/" + Globals.imageFolderName);
@@ -820,6 +964,14 @@ public class Utilities {
         return getDBContext().getExternalFilesDir(null).getAbsolutePath() + "/" + Globals.voiceFolderName
                 + "/" + name;
     }
+    public static String getLogPath(String name) {
+        File sdCard = getDBContext().getExternalFilesDir(null);
+        File dir = new File(sdCard.getAbsolutePath() + "/" + Globals.logFolderName);
+        if (!dir.exists())
+            dir.mkdirs();
+        return getDBContext().getExternalFilesDir(null).getAbsolutePath() + "/" + Globals.logFolderName
+                + "/" + name;
+    }
 
     public static String getDocumentPath(String name) {
         File sdCard = getDBContext().getExternalFilesDir(null);
@@ -834,7 +986,7 @@ public class Utilities {
     public static boolean makeImageAvailable(String imgName) {
         String imgPath = getImgPath(imgName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/applicationresources/" + imgName;
+        String url = Globals.getWsDomain() + "/applicationresources/" + imgName;
         if (!dir.exists()) {
 
             DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
@@ -862,7 +1014,7 @@ public class Utilities {
     public static boolean makeImageAvailableEx(Context context,ImageView thumbImage,String imgName) {
         String imgPath = getImgPath(imgName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/applicationresources/" + imgName;
+        String url = Globals.getWsDomain() + "/applicationresources/" + imgName;
         if (!dir.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
 
@@ -888,7 +1040,7 @@ public class Utilities {
     public static boolean makeVoiceAvailableEx(Context context,String voiceName) {
         String imgPath = getVoicePath(voiceName);
         File dir = new File(imgPath);
-        String url = Globals.wsDomain + "/audio/" + voiceName;
+        String url = Globals.getWsDomain() + "/audio/" + voiceName;
         if (!dir.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
 
@@ -903,7 +1055,7 @@ public class Utilities {
     public static boolean makeDocAvailableEx(Context context,String docName) {
         String documentPath = getDocumentPath(docName);
         File f1 = new File(documentPath);
-        String url = Globals.wsDomain + "/giTestForms/" + docName;
+        String url = Globals.getWsDomain() + "/giTestForms/" + docName;
         if (!f1.exists()) {
             String nameOfFile = URLUtil.guessFileName(url, null, MimeTypeMap.getFileExtensionFromUrl(url)); //fetching name of file and type from server
             new DocDownloaderTask(url,nameOfFile, context).execute("");
@@ -1047,22 +1199,32 @@ public class Utilities {
             if(isInternetAvailable(getDBContext())){
                 //Geocoder myLocation = new Geocoder(context, Locale.getDefault());
                 List<Address> myList = geocoder.getFromLocation(Double.parseDouble(latitude), Double.parseDouble(longitude), 1);
-                Address address = (Address) myList.get(0);
-                String addressStr = "";
-                //addressStr += address.getPremises();
-                addressStr += (address.getAddressLine(0)!=null?(address.getAddressLine(0) + ""):"");
-                //addressStr += address.getAddressLine(1) + ", ";
-                //addressStr += address.getAddressLine(2);
-                return addressStr;
-            } else {
-                return "";
+                if(myList.size() > 0) {
+                    Address address = (Address) myList.get(0);
+                    String addressStr = "";
+                    addressStr += (address.getAddressLine(0) != null ? (address.getAddressLine(0) + "") : "");
+                    return addressStr;
+                }else{
+                    return "";
+                }
             }
-
-        }catch (Exception e){
-            e.printStackTrace();
+        }catch (IOException e){
+            if(!e.equals("grpc failed")) {
+                e.printStackTrace();
+            }
         }
+
         return  "";
     }
+
+    /**
+     * created by: zqureshi
+     * Function to check whether the value is within the range or not
+     * param format : double
+     * a: start value
+     * b: end value
+     * c: value which needs to be checked
+     */
     public static boolean isInRange(double a, double b, double c) {
         if (b > a) {
             if (c >= a && c <= b) return true;
@@ -1092,10 +1254,12 @@ public class Utilities {
         HashMap<String , String > map=new HashMap<>();
         for(int i=0;i<ja.length();i++){
             try {
-                JSONObject jo=ja.getJSONObject(i);
-                String id=jo.getString("id");
-                String value=jo.getString("value");
-                map.put(id, value);
+                JSONObject jo=ja.optJSONObject(i);
+                if(jo!=null && jo.length()>0) {
+                    String id = jo.getString("id");
+                    String value = jo.getString("value");
+                    map.put(id, value);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -1275,10 +1439,14 @@ public class Utilities {
             if(!targetArray.isNull(i)){
                 Object value=targetArray.get(i);
                 if(value instanceof JSONObject){
-                    JSONObject mainObject=mainArray.getJSONObject(i);
-                    JSONObject targetObject=targetArray.getJSONObject(i);
-                    mainObject=mergeObject(mainObject,targetObject);
-                    mainArray.put(i,mainObject);
+                    if(mainArray.optJSONObject(i)!=null) {
+                        JSONObject mainObject = mainArray.getJSONObject(i);
+                        JSONObject targetObject = targetArray.getJSONObject(i);
+                        mainObject = mergeObject(mainObject, targetObject);
+                        mainArray.put(i, mainObject);
+                    }else{
+                        mainArray.put(i, new JSONObject());
+                    }
                 }else {
                     mainArray.put(i, targetArray.get(i));
                 }
@@ -1321,35 +1489,35 @@ public class Utilities {
         }
         return target;
     }
-    public static boolean isGPSEnabled(Context mContext) {
-        if (locationManager != null) {
-            return locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER);
-            //return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        } else {
-            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        }
-    }
-    public static boolean isNetworkProviderAvailable(Context mContext) {
-        // flag for network status
-        if (locationManager == null) {
-            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
-        };
-        return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-    }
+//    public static boolean isGPSEnabled(Context mContext) {
+//        if (locationManager != null) {
+//            return locationManager.getAllProviders().contains(LocationManager.GPS_PROVIDER);
+//            //return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+//        } else {
+//            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+//            return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+//        }
+//    }
+//    public static boolean isNetworkProviderAvailable(Context mContext) {
+//        // flag for network status
+//        if (locationManager == null) {
+//            locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
+//        };
+//        return locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+//    }
     /**
      * Function to check GPS/wifi enabled
      *
      * @return boolean
      */
 
-    public static boolean canGetLocation(Context mContext) {
-        boolean canGetLocation = false;
-        if(isGPSEnabled(mContext)){
-            canGetLocation = true;
-        } else canGetLocation = isNetworkProviderAvailable(mContext);
-        return canGetLocation;
-    }
+//    public static boolean canGetLocation(Context mContext) {
+//        boolean canGetLocation = false;
+//        if(isGPSEnabled(mContext)){
+//            canGetLocation = true;
+//        } else canGetLocation = isNetworkProviderAvailable(mContext);
+//        return canGetLocation;
+//    }
     public static Drawable createDashedLined() {
         ShapeDrawable sd = new ShapeDrawable(new RectShape());
         Paint fgPaintSel = sd.getPaint();
@@ -1365,6 +1533,9 @@ public class Utilities {
      */
 
     public static void showSettingsAlert(final Context mContext) {
+
+        if (DialogueInView) {return;}
+        DialogueInView = true;
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
 
         // Setting Dialog Title
@@ -1385,12 +1556,22 @@ public class Utilities {
         alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
+                DialogueInView = false;
             }
         });
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            alertDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+                public void onDismiss(final DialogInterface dialog) {
+                    DialogueInView = false;
+                }
+            });
+        }
 
         // Showing Alert Message
         alertDialog.show();
     }
+
     public static boolean isImageExist(List<IssueImage> images, IssueImage image){
         for(IssueImage _image: images){
             if(_image.getImgName().equals(image.getImgName())){
@@ -1439,6 +1620,17 @@ public class Utilities {
         SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
         return  sdf.format(date);
     }
+    public static Date parseMomentDate(String date,String timeZone){
+        SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
+        sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+        Date date1= null;
+        try {
+            date1 = sdf.parse(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return  date1;
+    }
 
     public static Date parseMomentDate(String date){
         SimpleDateFormat sdf=new SimpleDateFormat(Globals.momentDateFormat);
@@ -1484,12 +1676,80 @@ public class Utilities {
         int colorValue=Color.parseColor(fallback);
         try{
             colorValue=Color.parseColor(configValue);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        }catch (Exception ignore){ }
         return colorValue;
     }
+    public static int getFilteredNewIssues(String id){
+        int count = 0;
 
+        if(selectedJPlan!=null){
+            for (Report issue: selectedJPlan.getTaskList().get(0).getReportList()){
+                if(issue.getUnit().getUnitId().equals(id)){
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+    public static float dpToPixel(Context context, int dp) {
+        Resources r = context.getResources();
+        float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
+        return px;
+    }
+    public static void showKeyboard(Context context){
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+    }
+    public static void closeKeyboard(Context context){
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+    public static TextView createATextView(Context context,int layout_widh, int layout_height, int align,
+                                           String text, int fontSize, int margin, int padding) {
 
+        TextView textView_item_name = new TextView(context);
+
+        // LayoutParams layoutParams = new LayoutParams(
+        // LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        // layoutParams.gravity = Gravity.LEFT;
+        RelativeLayout.LayoutParams _params = new RelativeLayout.LayoutParams(
+                layout_widh, layout_height);
+
+        _params.setMargins(margin, margin, margin, margin);
+        _params.addRule(align);
+        textView_item_name.setGravity(Gravity.CENTER);
+        textView_item_name.setLayoutParams(_params);
+
+        textView_item_name.setText(text);
+        textView_item_name.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+        textView_item_name.setTextColor(Color.parseColor("#000000"));
+        // textView1.setBackgroundColor(0xff66ff66); // hex color 0xAARRGGBB
+        textView_item_name.setPadding(padding, padding, padding, padding);
+
+        return textView_item_name;
+
+    }
+    public static boolean isGPSEnabled(Context context){
+        final LocationManager locManager = (LocationManager) context.getSystemService( Context.LOCATION_SERVICE );
+        return locManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+    public static String removeSpaces(String value){
+        if(!value.equals("")){
+            return value.replaceAll("\\s+","");
+        }
+        return "";
+    }
+    public static float tryParseFloat(String value){
+        float retValue=0.0f;
+        try {
+            retValue = Float.parseFloat(value);
+        }catch (Exception e){
+
+        }
+        return retValue;
+    }
+    public static int getScreenHeight(Context context){
+        return context.getResources().getDisplayMetrics().heightPixels;
+    }
 }
 

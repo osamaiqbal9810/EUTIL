@@ -7,7 +7,8 @@ let router = express.Router();
 
 // Permission Validation
 let isAllowed = require("../../middlewares/validatePermission");
-
+router.get("/aTypeFreqTests", [isAuthenticated], controller.testsByAssetTypeAndFreq);
 router.get("/:id", [isAuthenticated], controller.find);
+router.put("/disableMulti", [isAuthenticated], controller.updateActiveMultiple);
 
 module.exports = router;

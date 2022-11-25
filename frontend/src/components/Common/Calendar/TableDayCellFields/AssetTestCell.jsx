@@ -5,7 +5,7 @@ import { search } from "react-icons-kit/icomoon/search";
 import { themeService } from "theme/service/activeTheme.service";
 import { tableCellStyle } from "../style/TableDayCell";
 import { checkmark } from "react-icons-kit/icomoon/checkmark";
-import { retroColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 export const AssetTestCell = (props) => {
   let executed = props.obj.status ? false : true;
   let completed = props.obj.completed;

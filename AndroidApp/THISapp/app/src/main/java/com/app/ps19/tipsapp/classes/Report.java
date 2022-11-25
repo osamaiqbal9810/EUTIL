@@ -8,6 +8,7 @@ import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
 import com.app.ps19.tipsapp.Shared.StaticListItem;
 import com.app.ps19.tipsapp.Shared.Utilities;
+import com.app.ps19.tipsapp.classes.equipment.Equipment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -55,6 +56,25 @@ public class Report implements IConvertHelper {
     private String issueId;
     private String startMarker;
     private String endMarker;
+    private Equipment equipment;
+    private String equipmentId;
+
+    public Equipment getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(Equipment equipment) {
+        this.equipment = equipment;
+    }
+
+    public String getEquipmentId() {
+        return equipmentId;
+    }
+
+    public void setEquipmentId(String equipmentId) {
+        this.equipmentId = equipmentId;
+    }
+
 
     public String getIssueId() {
         return issueId;
@@ -253,6 +273,7 @@ public class Report implements IConvertHelper {
         setLocationUnit(jsonObject.optString("locUnit",""));
         setStartMarker(jsonObject.optString("startMarker", ""));
         setEndMarker(jsonObject.optString("endMarker", ""));
+        setEquipmentId(jsonObject.optString("equipmentId", ""));
 
         JSONArray _ja =jsonObject.optJSONArray("remedialActionItems");
         if(_ja !=null){
@@ -395,6 +416,7 @@ public class Report implements IConvertHelper {
             jo.put("locUnit", getLocationUnit());
             jo.put("startMarker", getStartMarker());
             jo.put("endMarker", getEndMarker());
+            jo.put("equipmentId", getEquipmentId());
             if(unit!=null){
                 jo.put("unit", unit.getJsonObject());
             } else {
@@ -463,6 +485,7 @@ public class Report implements IConvertHelper {
             putJSONProperty(jo,"locUnit", getLocationUnit());
             putJSONProperty(jo, "startMarker", getStartMarker());
             putJSONProperty(jo, "endMarker", getEndMarker());
+            putJSONProperty(jo, "equipmentId", getEquipmentId());
             /*if(unit!=null){
                 unit.setChangeOnly(changeOnly);
                 jo.put("unit", unit.getJsonObject());
@@ -746,6 +769,7 @@ public class Report implements IConvertHelper {
         setIssueId("");
         setStartMarker("");
         setEndMarker("");
+        setEquipmentId("");
 
     }
     public static Date getUTCdatetimeFromString(String dateValue){
@@ -775,4 +799,21 @@ public class Report implements IConvertHelper {
     public void setStartMarker(String startMarker) {
         this.startMarker = startMarker;
     }
+
+ /*   public void setImageStatus(HashMap<String, Integer> itemImagesHash) {
+        for(IssueImage image : getImgList()){
+            if(itemImagesHash.get(image.getImgName())!=null) {
+                Integer status = itemImagesHash.get(image.getImgName());
+                image.setStatus(status);
+            }
+        }
+    }
+    public void setVoiceStatus(HashMap<String, Integer> itemVoicesHash) {
+        for(IssueVoice voice :  getVoiceList()){
+            if(itemVoicesHash.get(voice.getVoiceName())!=null) {
+                Integer status = itemVoicesHash.get(voice.getVoiceName());
+                voice.setStatus(status);
+            }
+        }
+    }*/
 }

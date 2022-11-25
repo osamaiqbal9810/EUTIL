@@ -18,7 +18,7 @@ import ThisTable from "components/Common/ThisTable/index";
 //import CommonTypeFilter from './CommonTypeFilter'
 import { themeService } from "../../../theme/service/activeTheme.service";
 import { commonFilterStyles } from "./styles/CommonFilterStyle";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class CommonFilter extends Component {
   constructor(props) {
     super(props);
@@ -60,7 +60,7 @@ class CommonFilter extends Component {
   }
 
   toggle() {
-    this.setState(prevState => ({
+    this.setState((prevState) => ({
       dropdownOpen: !prevState.dropdownOpen,
     }));
   }
@@ -84,10 +84,10 @@ class CommonFilter extends Component {
       firstFilterName = this.props.firstFilterName;
     }
     let pageOptions = null;
-    pageOptions = this.pageOptions.map(option => {
+    pageOptions = this.pageOptions.map((option) => {
       return (
         <DropdownItem
-          onClick={e => {
+          onClick={(e) => {
             this.handlePageSizeChange(option);
           }}
           key={option}
@@ -123,7 +123,7 @@ class CommonFilter extends Component {
                 <div
                   style={styles.allTodayCommonStyleToday}
                   key="today"
-                  onClick={e => {
+                  onClick={(e) => {
                     this.handleFilterTodayAllClick("today");
                   }}
                 >
@@ -135,7 +135,7 @@ class CommonFilter extends Component {
                 <div
                   style={styles.allTodayCommonStyleAll}
                   key="all "
-                  onClick={e => {
+                  onClick={(e) => {
                     this.handleFilterTodayAllClick("all");
                   }}
                 >
@@ -165,7 +165,7 @@ class CommonFilter extends Component {
                   pagination={true}
                   onClickSelect={this.props.onClickSelect}
                   handleSelectedClick={this.props.handleSelectedClick}
-                  handlePageChange={page => {
+                  handlePageChange={(page) => {
                     if (this.props.handlePageSave) {
                       this.props.handlePageSave(page, this.state.pageSize);
                     }
@@ -201,6 +201,7 @@ let getStyles = (props, state) => {
     default: basicColors.first,
 
     retro: retroColors.second,
+    electric: electricColors.second,
   });
   let borders = {
     allToday: {
@@ -233,7 +234,7 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: themeService({ default: "rgba(64, 118, 179)", retro: retroColors.first }),
+    color: themeService({ default: "var(--first)", retro: retroColors.first, electric: electricColors.first }),
     borderBottom: "1px solid  " + borderColorObj,
     borderLeft: "1px solid  " + borderColorObj,
     borderRight: "1px solid  " + borderColorObj,

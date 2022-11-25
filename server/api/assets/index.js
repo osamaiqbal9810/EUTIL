@@ -8,6 +8,7 @@ let isAllowed = require("../../middlewares/validatePermission");
 
 //var  permitTypes =require('../../config/permissions').default;
 router.get("/location/:id", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getLocationSetup);
+router.get("/locAssetCSV/:id", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getLocationAssetsCSV);
 router.get("/getAssetTypesAsset/:assetObj", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getAssetTypeAssets);
 router.get("/getLines", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getParentLines);
 router.post("/getLinesWithSelf", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getParentLinesWithSelf);
@@ -15,10 +16,12 @@ router.get("/getAssetsForLine", [isAuthenticated, isAllowed(permitTypes.READ_ASS
 router.get("/getInspectableAssets", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getInspectableAssets);
 router.get("/getUnAssignedAssets", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getUnAssignedAssets);
 router.get("/getAssetTree", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getAssetTree);
+router.get("/getAssetWithParents/:id", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.getAssetWithParents);
 router.get("/", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.all);
 router.get("/multiLines", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.multiLine);
 // router.get("/:line", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.all);
 router.get("/:id", [isAuthenticated, isAllowed(permitTypes.READ_ASSET)], controller.find);
+
 router.post("/", [isAuthenticated], isAllowed(permitTypes.CREATE_ASSET), controller.create);
 
 // todo change permission to import permission instead of this create one

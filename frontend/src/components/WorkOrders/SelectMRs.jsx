@@ -6,7 +6,7 @@ import _ from "lodash";
 import EditableTable from "components/Common/EditableTable";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { Link } from "react-router-dom";
 function format2Digits(num) {
   return num && !isNaN(parseFloat(num)) ? parseFloat(num).toFixed(2) : num ? num : "0.00";
@@ -22,8 +22,27 @@ const MRTableCols = [
       return <Link to={`/maintenancebacklogs/${d._id}`}>{d.mrNumber}</Link>;
     },
   },
-  { id: "Start", header: languageService("Start"), field: "start", editable: false, minWidth: 50, formatter: format2Digits },
-  { id: "End", header: languageService("End"), field: "end", editable: false, minWidth: 50, formatter: format2Digits },
+  {
+    id: "Start",
+    header: languageService("Start"),
+    field: "start",
+    accessor: (d) => {
+      return (d.startPrefix ? d.startPrefix : "") + d.start;
+    },
+    editable: false,
+    minWidth: 50,
+  },
+  {
+    id: "End",
+    header: languageService("End"),
+    field: "end",
+    accessor: (d) => {
+      return (d.endPrefix ? d.endPrefix : "") + d.end;
+    },
+    editable: false,
+    minWidth: 50,
+  },
+
   { id: "Type", header: languageService("Type"), field: "maintenanceType", editable: false, minWidth: 50 },
 ];
 
@@ -73,6 +92,8 @@ class SelectMRs extends Component {
           end: mr.end,
           maintenanceType: mr.maintenanceType,
           estimate: mr.estimate,
+          startPrefix: mr.startPrefix,
+          endPrefix: mr.endPrefix,
         });
     }
 
@@ -84,7 +105,7 @@ class SelectMRs extends Component {
       <Modal
         isOpen={this.props.modal}
         toggle={this.props.toggle}
-        contentClassName={themeService({ default: this.props.className, retro: "retro" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retro", electric: "electric" })}
       >
         <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
           {languageService("Work Order")} {languageService("Request")} (s): {this.props.title}

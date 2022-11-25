@@ -22,13 +22,13 @@ class AddRunNumber extends Component {
 
     this.style = {
       lableStyle: {
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "14px",
       },
       FieldContainerStyle: {
         padding: "10px 10px ",
         height: "40px",
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "14px",
         margin: "10px -15px",
         border: "1px solid #e7e7e7",
@@ -49,7 +49,7 @@ class AddRunNumber extends Component {
       if (modalState === "Add") {
         let run = _.cloneDeep(formFieldsTemplate);
 
-        run.runLineID.config.options = this.props.locations ? this.props.locations.map(loc => ({ val: loc._id, text: loc.unitId })) : [];
+        run.runLineID.config.options = this.props.locations ? this.props.locations.map((loc) => ({ val: loc._id, text: loc.unitId })) : [];
 
         run.runLineID.value = run.runLineID.config.options[0] ? run.runLineID.config.options[0].val : "";
         run.runLineID.valid = run.runLineID.value !== "";
@@ -72,7 +72,7 @@ class AddRunNumber extends Component {
   handleSubmitForm() {
     let dataToSubmit = processFromFields(this.state.run);
 
-    let location = this.props.locations.find(loc => loc._id === dataToSubmit.runLineID);
+    let location = this.props.locations.find((loc) => loc._id === dataToSubmit.runLineID);
 
     dataToSubmit.runLineName = location ? location.unitId : "";
     dataToSubmit.lineStart = location.start;
@@ -111,14 +111,14 @@ class AddRunNumber extends Component {
     this.props.toggle("None", null);
   }
 
-  updateFrom = newState => this.setState({ ...newState });
+  updateFrom = (newState) => this.setState({ ...newState });
 
   render() {
     return (
       <Modal
         isOpen={this.props.addEditModal}
         toggle={this.props.toggle}
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
       >
         <div className="commonform">
           {this.props.modalState === "Add" && (

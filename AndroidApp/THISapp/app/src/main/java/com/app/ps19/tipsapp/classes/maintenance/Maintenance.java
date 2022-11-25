@@ -1,6 +1,7 @@
 package com.app.ps19.tipsapp.classes.maintenance;
 
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
+import com.app.ps19.tipsapp.classes.Report;
 import com.app.ps19.tipsapp.classes.Units;
 
 import org.json.JSONArray;
@@ -32,6 +33,114 @@ public class Maintenance implements IConvertHelper {
 	"updatedAt": "2021-04-28T18:28:11.489Z",
 	"__v": 0,
 	"workOrderNumber": "MWO#0004"
+	"issue" :{
+        "issueId" : "d15a92fc-7ea3-4b4e-b6c9-f8ad76196ae8",
+        "category" : "",
+        "trackId" : "Main Track",
+        "description" : "0037B1 - Vegetation obstructs visibility of railroad signs and fixed signals.",
+        "imgList" : [
+            {
+                "imgName" : "5e27029f-b15e-afea-07d3-036edb99a715_2_20211116_222311.jpg",
+                "status" : NumberInt(1),
+                "tag" : "before"
+            }
+        ],
+        "voiceList" : [
+            {
+                "voiceName" : "5e27029f-b15e-afea-07d3-036edb99a715_2_20211116_222321.mp3",
+                "status" : NumberInt(1)
+            },
+            {
+                "voiceName" : "5e27029f-b15e-afea-07d3-036edb99a715_2_20211116_222327.mp3",
+                "status" : NumberInt(1)
+            }
+        ],
+        "tags" : [
+
+        ],
+        "defectCodes" : [
+            "0037B1"
+        ],
+        "location" : "37.421998333333335,-122.084",
+        "marked" : false,
+        "priority" : "Pending",
+        "timeStamp" : "2021-11-16 17:22:23.185",
+        "status" : "",
+        "startMp" : "50.35",
+        "endMp" : "50.35",
+        "fixType" : "",
+        "locationInfo" : "",
+        "tempSpeed" : "",
+        "title" : "213.37 - Vegetation",
+        "typeOfAction" : "",
+        "railDirection" : "N/A",
+        "ruleApplied" : false,
+        "issueType" : "Defect",
+        "voiceNotes" : "1 picture and 2 voice recordings",
+        "locUnit" : "MP",
+        "startMarker" : "",
+        "endMarker" : "",
+        "unit" : {
+            "track_id" : "null",
+            "id" : "5f304a2b7793382ba548ffca",
+            "unitId" : "Main Track",
+            "start" : "50.35",
+            "end" : "51.3",
+            "assetType" : "track",
+            "coordinates" : [
+                [
+                    "42.87805492100979",
+                    "-76.95914065080032"
+                ],
+                [
+                    "42.87167057907319",
+                    "-76.97573832073444"
+                ]
+            ],
+            "parent_id" : "5ece789ad4cfcc01bc6f08ac",
+            "attributes" : {
+                "primaryTrack" : false,
+                "trackOrientation" : "",
+                "showDirection" : true,
+                "railOptions" : [
+                    "N/A",
+                    "North",
+                    "South"
+                ]
+            },
+            "testForm" : [
+
+            ]
+        },
+        "remedialAction" : "Not Repaired",
+        "remedialActionItems" : [
+            {
+                "id" : "describe",
+                "value" : "",
+                "desc" : "Describe",
+                "type" : "text"
+            }
+        ],
+        "planId" : "618e641c1a8f302d7821b1dd",
+        "taskId" : "5e27029f-b15e-afea-07d3-036edb99a715",
+        "index" : "319-0-2",
+        "date" : "2021-11-12T12:54:51.000Z",
+        "user" : {
+            "id" : "5e4ef9a0c77acb0478b26f0a",
+            "name" : "Joe Denny",
+            "email" : "jdenny@tektracking.com"
+        },
+        "uniqueGuid" : "3e2d367b-da0e-7131-282a-ceabba9f2528",
+        "lineName" : "Geneva Yard",
+        "lineId" : "5ece789ad4cfcc01bc6f08ac",
+        "weatherConditions" : "fast",
+        "temperature" : "45",
+        "tempUnit" : "F",
+        "maintenanceAction" : "maintenanceMode",
+        "serverObject" : {
+            "maintenanceRole" : "InspectorWork"
+        }
+    }
 */
     String id;
     String lineName;
@@ -46,6 +155,16 @@ public class Maintenance implements IConvertHelper {
     String workOrderNumber;
     String maintenanceType;
     boolean markedOnSite;
+    String lineId;
+    Report report;
+
+    public String getLineId() {
+        return lineId;
+    }
+
+    public void setLineId(String lineId) {
+        this.lineId = lineId;
+    }
 
     public String getId() {
         return id;
@@ -194,11 +313,21 @@ public class Maintenance implements IConvertHelper {
     public boolean isMarkedOnSite() {
         return markedOnSite;
     }
+
+    public Report getReport() {
+        return report;
+    }
+
+    public void setReport(Report report) {
+        this.report = report;
+    }
+
     public Maintenance(JSONObject jo){
         parseJsonObject(jo);
     }
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
+        setLineId(jsonObject.optString("lineId", ""));
         setId(jsonObject.optString("_id",""));
         setLineName(jsonObject.optString("lineName",""));
         setMrNumber(jsonObject.optString("mrNumber",""));
@@ -220,6 +349,12 @@ public class Maintenance implements IConvertHelper {
         setWorkOrderNumber(jsonObject.optString("workOrderNumber",""));
         setMaintenanceType(jsonObject.optString("maintenanceType",""));
         setMarkedOnSite(jsonObject.optBoolean("markedOnSite",false));
+
+        if(jsonObject.optJSONObject("issue")!=null){
+            setReport(new Report(jsonObject.optJSONObject("issue")));
+        }else{
+            setReport(null);
+        }
 
         return false;
     }

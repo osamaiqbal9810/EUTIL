@@ -18,18 +18,18 @@ describe("Asset Test Fixed And Linear Scheduling", () => {
     let result = checkWorkPlanTemplateIdAndInspectionIsFinished("id", jPlan);
     let wresult = checkWorkPlanTemplateIdAndInspectionIsFinished("id", wJplan);
     let sresult = checkWorkPlanTemplateIdAndInspectionIsFinished("id", sJplan);
-    let mresult = checkWorkPlanTemplateIdAndInspectionIsFinished("-1", jPlan);
+    let mresult = checkWorkPlanTemplateIdAndInspectionIsFinished("", jPlan);
     assert.equal(result, true, "should be valid");
     assert.equal(wresult, false, "should be invalid for no tasks");
     assert.equal(sresult, false, "should be invalid for not finished");
     assert.equal(mresult, false, "should be invalid for maintenance template");
   });
   it("linear and Inspected check", async () => {
-    let result = checkIfInspectedAndLinear(true, { form: [{ id: "inspected", value: true }] });
+    let result = checkIfInspectedAndLinear(true, { form: [{ id: "Inspected", value: true }] });
     let result1 = checkIfInspectedAndLinear(true, { form: [{ id: "Oui", value: true }] });
-    let result2 = checkIfInspectedAndLinear(true, { form: [{ id: "inspected", value: "true" }] });
-    let result3 = checkIfInspectedAndLinear(true, { form: [{ id: "inspected", value: "false" }] });
-    let result4 = checkIfInspectedAndLinear(false, { form: [{ id: "inspected", value: "false" }] });
+    let result2 = checkIfInspectedAndLinear(true, { form: [{ id: "Inspected", value: "true" }] });
+    let result3 = checkIfInspectedAndLinear(true, { form: [{ id: "Inspected", value: "false" }] });
+    let result4 = checkIfInspectedAndLinear(false, { form: [{ id: "Inspected", value: "false" }] });
     assert.equal(result, true, "should be true");
     assert.equal(result1, false, "should be false");
     assert.equal(result2, true, "should be true");

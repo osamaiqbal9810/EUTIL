@@ -15,13 +15,13 @@ class DataTiles extends Component {
       tileLogic.tileLegend = [];
       let c_tileFields = [...this.props.tileFields];
       let totalFieldValue = 0;
-      c_tileFields.forEach(tile => {
+      c_tileFields.forEach((tile) => {
         // let legend = <TileLegendField label={tile.label} bgColor={tile.bgColor} />;
         // tileLogic.tileLegend.push(legend);
         totalFieldValue = totalFieldValue + parseInt(tile.value);
       });
 
-      tileLogic.tiles = this.props.tileFields.map(tile => {
+      tileLogic.tiles = this.props.tileFields.map((tile) => {
         let height = this.state.totalHeight * (parseInt(tile.value) / totalFieldValue);
         let padding = "15px";
         if (height < 35) {
@@ -65,11 +65,11 @@ class DataTiles extends Component {
 
 export default DataTiles;
 
-const Tile = props => {
+const Tile = (props) => {
   return (
     <div
       style={{
-        color: "#fff",
+        color: "var(--fifth)",
         display: "inline-block",
         padding: props.padding,
         fontFamily: "Arial",
@@ -85,7 +85,7 @@ const Tile = props => {
   );
 };
 
-const TileLegendField = props => {
+const TileLegendField = (props) => {
   return (
     <div style={{ display: "inline-block", margin: "0px 10px" }}>
       <div style={{ display: "inline-block", padding: "0px 5px", width: "10px", height: "10px", background: props.bgColor }}> </div>

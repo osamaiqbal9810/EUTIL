@@ -3,8 +3,11 @@ package com.app.ps19.scimapp;
 import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,13 +20,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationChangedInterface;
+import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.LatLong;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Utilities.getLocationDescription;
 
 /**
@@ -34,7 +40,7 @@ import static com.app.ps19.scimapp.Shared.Utilities.getLocationDescription;
  * Use the {@link AssetFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class AssetFragment extends Fragment implements LocationChangedInterface {
+public class AssetFragment extends Fragment implements OnLocationUpdatedListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -46,7 +52,7 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
     // From unit selection activity
     ListView lvStaticUnits;
     ListView lvSortedUnits;
-    GPSTracker gps;
+    //GPSTracker gps;
     uSelectionAdapter selectionSortedAdt;
     uSelectionAdapter selectionStaticAdt;
     Double preLongitude;
@@ -98,9 +104,14 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
         pm = (PowerManager) getActivity().getSystemService(getActivity().POWER_SERVICE);
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         screenWakeLock();
-        gps = new GPSTracker(getContext());
+
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+
+        // gps = new GPSTracker(getContext());
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -130,8 +141,8 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
         //setTitle(R.string.title_activity_select_asset);
 
         String[] startLoc = getLocationDescription(getContext(),
-                Globals.selectedTask.getStartLoc().getGeometry().getCoordinates().get(0).latitude,
-                Globals.selectedTask.getStartLoc().getGeometry().getCoordinates().get(0).longitude).split(",");
+                getSelectedTask().getStartLoc().getGeometry().getCoordinates().get(0).latitude,
+                getSelectedTask().getStartLoc().getGeometry().getCoordinates().get(0).longitude).split(",");
         if(startLoc.length != 0){
             tvStartLoc.setText(startLoc[0]);
         }
@@ -139,7 +150,7 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
                 Globals.selectedTask.getStartLoc().getGeometry().getCoordinates().get(0).latitude,
                 Globals.selectedTask.getStartLoc().getGeometry().getCoordinates().get(0).longitude));*/
 
-        String[] endLoc = getLocationDescription(getContext(), Globals.selectedTask.getEndLoc().getGeometry().getCoordinates().get(0).latitude, Globals.selectedTask.getEndLoc().getGeometry().getCoordinates().get(0).longitude).split(",");
+        String[] endLoc = getLocationDescription(getContext(), getSelectedTask().getEndLoc().getGeometry().getCoordinates().get(0).latitude,getSelectedTask().getEndLoc().getGeometry().getCoordinates().get(0).longitude).split(",");
         if(endLoc.length != 0){
             tvEndLoc.setText(endLoc[0]);
         }/*
@@ -172,17 +183,22 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
             }
         });
 
-        if (gps.canGetLocation()) {
-            preLongitude = gps.getLongitude();
-            preLatitude = gps.getLatitude();
+        if (!LocationUpdatesService.canGetLocation()){
+
+            //  Utilities.showSettingsAlert(AssetFragment.this);
+        }
+        else{
+            Location loc = LocationUpdatesService.getLocation();
+            preLongitude = loc.getLongitude();
+            preLatitude = loc.getLatitude();
 
             //tvLatitude.setText(Double.toString(gps.getLatitude()));
             //tvLongitude.setText(Double.toString(gps.getLongitude()));
-            CURRENT_LOCATION = String.valueOf(gps.getLatitude()) + "," + String.valueOf(gps.getLongitude());
+            CURRENT_LOCATION = String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude());
 
             LatLong location = new LatLong(Double.toString(preLatitude), Double.toString(preLongitude));
             //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-            staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+            staticList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()>=0) {
                 //    it.remove();
@@ -191,7 +207,7 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
                     it.remove();
                 }
             }
-            sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+            sortedList =getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {
                 //    it.remove();
@@ -214,14 +230,13 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
         }
 
         isUp = false;
-
         // Inflate the layout for this fragment
         return rootView;//inflater.inflate(R.layout.fragment_asset, container, false);
     }
     public void listUpdate(String lat, String lon){
         LatLong location = new LatLong(lat, lon);
         //staticList.clear();
-        staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+        staticList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
             //if (it.next().getDistance()>=0) {
             //    it.remove();
@@ -231,7 +246,7 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
             }
         }
         //sortedList.clear();
-        sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+        sortedList = getSelectedTask().getUnitList(location.getLatLng());
         for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
             //if (it.next().getDistance()<0) {
             //    it.remove();
@@ -361,18 +376,10 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
         return resultDegree+" "+compasLoc;
     }
 
-    @Override
-    public void locationChanged(Location mLocation) {
-        /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
-        txtDegrees.setText(location);*/
-
-        //tvLatitude.setText(String.valueOf(mLocation.getLatitude()));
-        //tvLongitude.setText(String.valueOf(mLocation.getLongitude()));
-        CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
-        LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
-        //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-        listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
-    }
+//    @Override
+//    public void locationChanged(Location mLocation) {
+//
+//    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
@@ -396,6 +403,29 @@ public class AssetFragment extends Fragment implements LocationChangedInterface 
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+
+        //Provider Disabled
+        if (!LocationUpdatesService.canGetLocation() ||
+                mLocation.getProvider().equals("None")) {
+            //Utilities.showSettingsAlert(AssetFragment.this);
+        }
+        else {
+
+        /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
+        txtDegrees.setText(location);*/
+
+            //tvLatitude.setText(String.valueOf(mLocation.getLatitude()));
+            //tvLongitude.setText(String.valueOf(mLocation.getLongitude()));
+            CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
+            LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
+            //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+            listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
+        }
     }
 
     /**

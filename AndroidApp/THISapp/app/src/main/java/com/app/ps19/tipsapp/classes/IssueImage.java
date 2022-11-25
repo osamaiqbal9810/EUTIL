@@ -2,6 +2,7 @@ package com.app.ps19.tipsapp.classes;
 
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
+import com.app.ps19.tipsapp.Shared.StaticListItem;
 import com.app.ps19.tipsapp.Shared.Utilities;
 
 import org.json.JSONArray;
@@ -14,6 +15,24 @@ public class IssueImage implements IConvertHelper {
     private String imgName;
     private int status=Globals.ISSUE_IMAGE_STATUS_CREATED;
     private String tag;
+    private String md5;
+    private StaticListItem parent;
+
+    public void setParent(StaticListItem parent) {
+        this.parent = parent;
+    }
+
+    public StaticListItem getParent() {
+        return parent;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
+    }
 
     public String getTag() {
         return tag;
@@ -56,6 +75,7 @@ public class IssueImage implements IConvertHelper {
             setImgName(jsonObject.optString("imgName"));
             setStatus(jsonObject.optInt("status", 0));
             setTag(jsonObject.optString("tag"));
+            setMd5(jsonObject.optString("md5"));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,6 +96,7 @@ public class IssueImage implements IConvertHelper {
                 jo.put("imgName", imgName);
                 jo.put("status", status);
                 jo.put("tag", tag);
+                jo.put("md5",getMd5());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -92,6 +113,7 @@ public class IssueImage implements IConvertHelper {
                 putJSONProperty(jo,"imgName", imgName);
                 putJSONProperty(jo,"status", status);
                 putJSONProperty(jo,"tag", tag);
+                putJSONProperty(jo,"md5",md5);
                 if(jo !=null && jo.length()!=0){
                     hmBackupValues=Utilities.putHashMapJSONObject(hmBackupValues, jo);
                 }
@@ -149,7 +171,12 @@ public class IssueImage implements IConvertHelper {
         setStatus(status);
         setTag(tag);
     }
-
+    public IssueImage(String name, int status, String tag,String md5) {
+        setImgName(name);
+        setStatus(status);
+        setTag(tag);
+        setMd5(md5);
+    }
     public IssueImage() {
     }
 

@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.app.ps19.scimapp.Shared.Globals.TASK_FINISHED_STATUS;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 
 
 /**
@@ -231,7 +232,7 @@ public class FormFragment extends Fragment{
         btnSubmit = new Button(_context);
         btnSubmit.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
         btnSubmit.setText(getString(R.string.title_new_report_btn_save));
-        if(Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)){
+        if(getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)){
             btnSubmit.setVisibility(View.GONE);
         } else {
             btnSubmit.setVisibility(View.VISIBLE);
@@ -288,7 +289,7 @@ public class FormFragment extends Fragment{
                 }
 
                 //Globals.selectedUnit.setSelection(setOfValues);
-                String selTaskId = Globals.selectedTask.getTaskId();
+                String selTaskId = getSelectedTask().getTaskId();
                 String selUnitId = Globals.selectedUnit.getUnitId();
 
 
@@ -510,7 +511,7 @@ public class FormFragment extends Fragment{
                                 checkBox.setPadding(0,0,getDp(30), 0);
                                 checkBox.setTag(joElement.getString("tag"));
                                 idMap.add(joElement.getString("tag"));
-                                checkBox.setEnabled(!Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS));
+                                checkBox.setEnabled(!getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS));
                                 subParent.addView(checkBox);
                                 break;
                             case "STRING":
@@ -544,7 +545,7 @@ public class FormFragment extends Fragment{
                                 switch1.setPadding(getDp(27),0,0,0);
                                 //switch1.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f));
                                 switch1.setTag(joElement.getString("tag"));
-                                switch1.setEnabled(!Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS));
+                                switch1.setEnabled(!getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS));
                                 subParent.addView(switch1);
                                 switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -577,7 +578,7 @@ public class FormFragment extends Fragment{
                 rootLayout.invalidate();
             }
             try {
-                if (!Globals.selectedTask.getStatus().equals(TASK_FINISHED_STATUS)) {
+                if (!getSelectedTask().getStatus().equals(TASK_FINISHED_STATUS)) {
                     rootLayout.addView(btnSubmit);
                 }
             } catch (Exception e) {

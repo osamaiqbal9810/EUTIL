@@ -66,6 +66,18 @@ export function getUnAssignedAsset() {
   };
 }
 
+export function getAssetsreports() {
+  const options = { headers: { "Content-Type": "application/json", Accept: "application/json" }, method: "GET" };
+  return {
+    [CALL_API]: {
+      endpoint: "assetsReports",
+      authenticated: true,
+      config: options,
+      types: [types.GET_ASSETS_REPORT_REQUEST, types.GET_ASSETS_REPORT_SUCCESS, types.GET_ASSETS_REPORT_FAILURE],
+    },
+  };
+}
+
 export function getAssetTree() {
   const options = { headers: { "Content-Type": "application/json", Accept: "application/json" }, method: "GET" };
   return {

@@ -35,7 +35,7 @@
 .fullWidth {
   width: 100%;
   font-size: 14px;
-  color: rgba(64, 118, 179);
+  color: var(--first);
 }
 .retro .fullWidth,
 .retroModal label.fullWidth {
@@ -58,6 +58,7 @@
 }
 div.fileinputs {
   position: relative;
+  margin-bottom: 10px;
 }
 
 div.fakefile {
@@ -81,7 +82,7 @@ input.file {
   min-width: 134px;
   margin-bottom: 20px;
   background-color: rgb(255, 255, 255);
-  color: rgb(26, 26, 26);
+  color: var(--second);
   font-size: 12px;
   cursor: pointer;
   border-radius: 0px;

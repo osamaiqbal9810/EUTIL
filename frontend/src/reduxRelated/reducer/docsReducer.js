@@ -67,6 +67,34 @@ export default function (
         isSuccess: false,
         actionType: action.type
       };
+      case types.FILE_DOWNLOAD_REQUEST:
+        return {
+          ...state,
+          isFetching: true,
+          isAuthenticated: false,
+          isSuccess: false,
+          errorMessage: '',
+          actionType: action.type
+        };
+      case types.FILE_DOWNLOAD_SUCCESS:
+        return {
+          ...state,
+          isFetching: false,
+          isAuthenticated: true,
+          errorMessage: '',
+          isSuccess: true,
+          actionType: action.type,
+          docsList: action.response
+        };
+      case types.FILE_DOWNLOAD_FAILURE:
+        return {
+          ...state,
+          isFetching: false,
+          isAuthenticated: false,
+          errorMessage: action.error || 'Error: Unable to Get File.',
+          isSuccess: false,
+          actionType: action.type
+        };
     default:
       return state
   }

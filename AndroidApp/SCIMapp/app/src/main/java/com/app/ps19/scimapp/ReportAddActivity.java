@@ -1,16 +1,38 @@
 package com.app.ps19.scimapp;
 
+import static android.view.View.GONE;
+import static com.app.ps19.scimapp.Shared.Globals.ADAPTER_REFRESH_MSG;
+import static com.app.ps19.scimapp.Shared.Globals.DEFECT_TYPE;
+import static com.app.ps19.scimapp.Shared.Globals.DEFICIENCY_TYPE;
+import static com.app.ps19.scimapp.Shared.Globals.appName;
+import static com.app.ps19.scimapp.Shared.Globals.defectSelection;
+import static com.app.ps19.scimapp.Shared.Globals.defectSelectionCopy;
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMpOnly;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
+import static com.app.ps19.scimapp.Shared.Globals.isDisableRActionByRule;
+import static com.app.ps19.scimapp.Shared.Globals.isHideRule213;
+import static com.app.ps19.scimapp.Shared.Globals.isIssueUpdateAllowed;
+import static com.app.ps19.scimapp.Shared.Globals.isUseRailDirection;
+import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
+import static com.app.ps19.scimapp.Shared.Globals.selectedCode;
+import static com.app.ps19.scimapp.Shared.Globals.selectedReport;
+import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
+import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
+import static com.app.ps19.scimapp.Shared.Globals.tempIssueImgList;
+import static com.app.ps19.scimapp.Shared.Globals.tempIssueVoiceList;
+import static com.app.ps19.scimapp.Shared.ListMap.LIST_CATEGORY;
+import static com.app.ps19.scimapp.Shared.ListMap.LIST_PRIORITY;
+import static com.app.ps19.scimapp.Shared.Utilities.getImgPath;
+import static com.app.ps19.scimapp.Shared.Utilities.getVoicePath;
+import static java.lang.String.format;
+
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -20,20 +42,8 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.IBinder;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.speech.RecognizerIntent;
-
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
-
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.TextWatcher;
@@ -45,6 +55,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -64,21 +75,29 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.app.ps19.scimapp.Shared.GPSTrackerEx;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.ListMap;
-import com.app.ps19.scimapp.Shared.LocationChangedInterface;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
+import com.app.ps19.scimapp.Shared.MD5;
 import com.app.ps19.scimapp.Shared.Res;
 import com.app.ps19.scimapp.Shared.StaticListItem;
 import com.app.ps19.scimapp.Shared.Utilities;
-import com.app.ps19.scimapp.Shared.Utils;
+import com.app.ps19.scimapp.classes.DimensionConverter;
 import com.app.ps19.scimapp.classes.IssueImage;
 import com.app.ps19.scimapp.classes.IssueVoice;
 import com.app.ps19.scimapp.classes.LocationMarkers;
 import com.app.ps19.scimapp.classes.RemedialActionItem;
 import com.app.ps19.scimapp.classes.Report;
 import com.app.ps19.scimapp.classes.Task;
+import com.app.ps19.scimapp.classes.dynforms.DynEditTextDatePicker;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.google.common.collect.ArrayListMultimap;
 
 import org.json.JSONArray;
@@ -97,35 +116,17 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.UUID;
 
-import static android.view.View.GONE;
-import static com.app.ps19.scimapp.Shared.Globals.ADAPTER_REFRESH_MSG;
-import static com.app.ps19.scimapp.Shared.Globals.DEFECT_TYPE;
-import static com.app.ps19.scimapp.Shared.Globals.DEFICIENCY_TYPE;
-import static com.app.ps19.scimapp.Shared.Globals.appName;
-import static com.app.ps19.scimapp.Shared.Globals.defectSelection;
-import static com.app.ps19.scimapp.Shared.Globals.isIssueUpdateAllowed;
-import static com.app.ps19.scimapp.Shared.Globals.isUseRailDirection;
-import static com.app.ps19.scimapp.Shared.Globals.defectSelectionCopy;
-import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
-import static com.app.ps19.scimapp.Shared.Globals.selectedCode;
-import static com.app.ps19.scimapp.Shared.Globals.selectedReport;
-import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
-import static com.app.ps19.scimapp.Shared.Globals.setLocale;
-import static com.app.ps19.scimapp.Shared.Globals.tempIssueImgList;
-import static com.app.ps19.scimapp.Shared.Globals.tempIssueVoiceList;
-import static com.app.ps19.scimapp.Shared.ListMap.LIST_CATEGORY;
-import static com.app.ps19.scimapp.Shared.ListMap.LIST_PRIORITY;
-import static com.app.ps19.scimapp.Shared.Utilities.getImgPath;
-import static com.app.ps19.scimapp.Shared.Utilities.getVoicePath;
-import static java.lang.String.format;
-
-public class ReportAddActivity extends AppCompatActivity implements LocationChangedInterface, SharedPreferences.OnSharedPreferenceChangeListener {
+public class ReportAddActivity extends AppCompatActivity implements
+        OnLocationUpdatedListener
+        //, SharedPreferences.OnSharedPreferenceChangeListener
+{
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     TextView tvAssetName;
     Spinner spPriority;
     ImageButton ibCapturePic;
     private Boolean isMarked = false;
     private ArrayList<String> _priorityList;
+    private Boolean isNsOptionInRA = true;
 
     EditText etDescription;
     Button btSave;
@@ -157,7 +158,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     ArrayAdapter<String> remedialActionAdapter;
     ArrayList<RemedialActionItem> remedialActionItems;
     public Boolean isEditMode = false;
-    GPSTrackerEx gps;
+    //GPSTrackerEx gps;
     Location cLocation;
     TextView tvAssetType;
     TextView tvDefectCodes;
@@ -239,24 +240,35 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     EditText etMarkerStart;
     EditText etMarkerEnd;
     ArrayList<String> markersList = new ArrayList<>();
+    TextView tvRemedialActionTitle;
+    RelativeLayout rlLocInfo;
+    LinearLayout llLocInfo;
+    TextView tvStartMpPrefix;
+    TextView tvEndMpPrefix;
+    String locId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setLocale(this);
         setContentView(R.layout.activity_report_add);
+        locId = getIntent().getStringExtra("locId");
+
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
+        // myReceiver = new MyReceiver();
         // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-           /* if (!checkPermissions()) {
-                requestPermissions();
-            }*/
-        }
+//        if (Utils.requestingLocationUpdates(this)) {
+//           /* if (!checkPermissions()) {
+//                requestPermissions();
+//            }*/
+//        }
         //--------------------END-------------------
         Toolbar toolbar = (Toolbar) findViewById(R.id.reportAddtoolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         tvDefectCodes = (TextView) findViewById(R.id.btnCheckList);
         rvImages = (RecyclerView) findViewById(R.id.horizontal_recycler_view);
         swMarked = (Switch) findViewById(R.id.markedSwitch);
@@ -266,9 +278,15 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         btSave = (Button) findViewById(R.id.saveBtn);
         toolbar.setBackgroundColor(res.getColor(R.color.action_bar_background));
         tvAssetType = (TextView) findViewById(R.id.assetTypeTxt);
-        if (gps == null) {
-            gps = new GPSTrackerEx(ReportAddActivity.this);
-        }
+        tvRemedialActionTitle = findViewById(R.id.tv_remedial_actions);
+        rlLocInfo = findViewById(R.id.rl_location_info_title);
+        llLocInfo = findViewById(R.id.ll_location_info_main_container);
+        tvStartMpPrefix = findViewById(R.id.tv_startmp_prefix);
+        tvEndMpPrefix = findViewById(R.id.tv_endmp_prefix);
+        //TODO: GPS HERE
+//        if (gps == null) {
+//            gps = new GPSTrackerEx(ReportAddActivity.this);
+//        }
         ListMap.initializeAllLists(this);
 
         llDefCounter = (LinearLayout) findViewById(R.id.ll_def_counter);
@@ -390,6 +408,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         spMarkerStart.setVisibility(GONE);
         spMarkerEnd.setVisibility(GONE);
 
+
         //if yard track is selected or not
         if (selectedUnit.getAssetTypeObj().isMarkerMilepost()) {
             llMarkerContainer.setVisibility(View.VISIBLE);
@@ -405,9 +424,14 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
 
         //---------- Remedial Actions
         spRemedialActions = (Spinner) findViewById(R.id.spinnerRemedialActions);
+        if(appName.equals(Globals.AppName.EUIS)){
+            isNsOptionInRA=false;
+            //spRemedialActions.setEnabled(false);
+        }
+
         llRemedialActionForm = (LinearLayout) findViewById(R.id.remedialActionsForm);
         loadRemedialActions();
-        setTitle(R.string.title_activity_report_add);
+        setTitle(R.string.def_codes_1);
         // ------Voice Notes------
         // load the animation
         animBlink = AnimationUtils.loadAnimation(this,
@@ -433,8 +457,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                         cbRule.setChecked(false);
                         // Code to display your message.
                     } else {
-                        spRemedialActions.setEnabled(true);
-                        setEnableRemedialViews(true);
+                        if(isDisableRActionByRule){
+                            spRemedialActions.setEnabled(true);
+                            setEnableRemedialViews(true);
+                        }
                         iBtnCaptureAfterFix.setEnabled(true);
                         //cbRule.setChecked(false);
                     }
@@ -454,15 +480,20 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 isLongPressed = true;
                 if (cbRule.isChecked()) {
                     cbRule.setChecked(false);
-                    spRemedialActions.setEnabled(true);
-                    setEnableRemedialViews(true);
+                    if(isDisableRActionByRule){
+                        spRemedialActions.setEnabled(true);
+                        setEnableRemedialViews(true);
+                    }
                     iBtnCaptureAfterFix.setEnabled(true);
                     System.out.println("Apply Rule Un-Checked");
                 } else {
                     cbRule.setChecked(true);
-                    spRemedialActions.setEnabled(false);
-                    setEnableRemedialViews(false);
-                    iBtnCaptureAfterFix.setEnabled(false);
+                    if(isDisableRActionByRule){
+                        spRemedialActions.setEnabled(false);
+                        setEnableRemedialViews(false);
+                        iBtnCaptureAfterFix.setEnabled(false);
+                    }
+
                     System.out.println("Apply Rule Checked");
                 }
                 return true;
@@ -613,7 +644,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             }
         });
         //Log.d("ERROR_PS19",Globals.wsImgURL.toString());
-        String selectedType = Globals.selectedUnit.getAssetType();
+        String selectedType = Globals.selectedUnit.getAssetTypeDisplayName();
         tvAssetType.setText(selectedType);
         //Populating Spinners
         ListMap.loadList(LIST_CATEGORY);
@@ -849,6 +880,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 }
                 etStartMp.setText(Globals.selectedReport.getStartMp());
                 etEndMp.setText(Globals.selectedReport.getEndMp());
+
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp()));
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp()));
+
                 if (Globals.selectedReport.getIssueType().equals(DEFICIENCY_TYPE)) {
                     cbDeficiency.setChecked(true);
                 }
@@ -907,7 +942,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 spMarkerStart.setVisibility(GONE);
                 spMarkerEnd.setVisibility(GONE);
 
-                tvAssetType.setText(selectedReport.getUnit().getAssetType());
+                tvAssetType.setText(selectedReport.getUnit().getAssetTypeDisplayName());
                 tvAssetName.setText(selectedReport.getUnit().getDescription());
                 if (isUseRailDirection) {
                     if (selectedReport.getUnit().getAttributes().isShowDirection()) {
@@ -1112,6 +1147,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         });
         //description.addTextChangedListener(inputTextWatcher);
         etStartMp.addTextChangedListener(mpTextWatcher);
+        etEndMp.addTextChangedListener(endMpTw);
         /*etStartMp.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -1205,7 +1241,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                     }*/
                 if (appName.equals(Globals.AppName.TIMPS)) {
                     if (!cbDeficiency.isChecked() && !cbRule.isChecked()) {
-                        if (spRemedialActions.getSelectedItemPosition() == 0) {
+                        if (isNsOptionInRA && spRemedialActions.getSelectedItemPosition() == 0) {
                             Toast.makeText(ReportAddActivity.this, getString(R.string.select_remedial_action), Toast.LENGTH_SHORT).show();
                             return;
                         }
@@ -1223,16 +1259,18 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                         return;
                     }
                 } else {
-                    if (spRemedialActions.getSelectedItemPosition() != 0) {
-                        ra = remedialActions.get(spRemedialActions.getSelectedItemPosition() - 1);
+                    if ((isNsOptionInRA && spRemedialActions.getSelectedItemPosition() != 0) ||(!isNsOptionInRA )) {
+                        ra = remedialActions.get(spRemedialActions.getSelectedItemPosition() - (isNsOptionInRA?1:0));
                         remedialAction = spRemedialActions.getSelectedItem().toString();
                         rItems = ra.getRemedialActionItems();
                     }
                 }
                 // if rule is applied
                 if(cbRule.isChecked()){
-                    rItems = null;
-                    remedialAction = "";
+                    if(isDisableRActionByRule){
+                        rItems = null;
+                        remedialAction = "";
+                    }
                 }
                 //String priority = prioritySpinner.getSelectedItem().toString();
                 //Setting priority empty as requested by client
@@ -1271,7 +1309,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                     if(selectedCode !=null && !selectedCode.equals("")){
                         codes.add(selectedCode);
                     }
-                    report.setReportIndex(Globals.selectedTask.getReportList().size());
+                    report.setReportIndex(getSelectedTask().getReportList().size());
                     // generating unique id for this issue
                     UUID uuid = UUID.randomUUID();
 
@@ -1347,8 +1385,8 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                         }
                     }
 
-                    Globals.selectedTask = Globals.selectedJPlan.getTaskById(Globals.selectedTask.getTaskId());
-                    Globals.selectedTask.getReportList().add(report);
+                    setSelectedTask(Globals.selectedJPlan.getTaskById(getSelectedTask().getTaskId()));
+                    getSelectedTask().getReportList().add(report);
                     int count = Integer.parseInt(Globals.selectedUnit.getIssueCounter());
                     count++;
                     Globals.selectedUnit.setIssueCounter(String.valueOf(count));
@@ -1360,7 +1398,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                     }*/
 
                     for (Task task : Globals.selectedJPlan.getTaskList()) {
-                        if (task.getTaskId().equals(Globals.selectedTask.getTaskId())) {
+                        if (task.getTaskId().equals(getSelectedTask().getTaskId())) {
                             for (Report _report : task.getReportList()) {
                                 //if condition was incorrect, was not comparing correctly
                                 if (_report.getTimeStamp().equals(Globals.selectedReport.getTimeStamp())) {
@@ -1494,7 +1532,16 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                     e.printStackTrace();
                 }*/
                 Globals.currentImageTag = TAG_BEFORE_FIX;
-                Intent intent = new Intent(ReportAddActivity.this, CameraActivity.class);
+                //Intent intent = new Intent(ReportAddActivity.this, CameraActivity.class);
+                Intent intent=null;
+                switch (Globals.cameraType){
+                    case IntentType:
+                        intent = new Intent(ReportAddActivity.this, CameraIntentActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                }
+                //Intent intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
                 startActivityForResult(intent, REQ_CODE_CAMERA);
             }
         });
@@ -1503,7 +1550,14 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             @Override
             public void onClick(View view) {
                 Globals.currentImageTag = TAG_AFTER_FIX;
-                Intent intent = new Intent(ReportAddActivity.this, CameraActivity.class);
+                Intent intent = null;//new Intent(ReportAddActivity.this, Camera2Activity.class);
+                switch (Globals.cameraType){
+                    case IntentType:
+                        intent = new Intent(ReportAddActivity.this, CameraIntentActivity.class);
+                        break;
+                    default:
+                        intent = new Intent(ReportAddActivity.this, Camera2Activity.class);
+                }
                 startActivityForResult(intent, REQ_CODE_CAMERA);
                 //startActivity(intent);
             }
@@ -1545,6 +1599,18 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         });*/
         //ListMap.getList(ListMap.LIST_REM_ACTIONS)
         updateViewAsOfApp();
+        if(appName.equals(Globals.AppName.EUIS)){
+            tvRemedialActionTitle.setText(R.string.category_priority_title);
+            rlLocInfo.setVisibility(GONE);
+            llLocInfo.setVisibility(GONE);
+        }
+        if(isHideRule213){
+            rlRuleTitle.setVisibility(GONE);
+            llRuleContainer.setVisibility(GONE);
+        } else {
+            rlRuleTitle.setVisibility(View.VISIBLE);
+            llRuleContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     private void updateViewAsOfApp() {
@@ -1575,6 +1641,18 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             }
         }
 
+    }
+
+    @Override
+    public void onLocationUpdated(Location location) {
+
+        if(!LocationUpdatesService.canGetLocation() || location.getProvider().equals("None"))
+        {
+            Utilities.showSettingsAlert(ReportAddActivity.this);
+        }
+        else {
+            cLocation = location;
+        }
     }
 
     private class RemedialActions {
@@ -1655,6 +1733,17 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                                     item.setValue(checkBox.isChecked() ? "true" : "false");
 
                                 }
+                            } else if (fieldType.equals("label")){
+
+                            } else if(fieldType.equals("date")){
+                                EditText et = layout.findViewWithTag(fieldId);
+                                if (et != null) {
+                                    String text = et.getTag(R.id.TAG_DATE_ID).toString();//et.getText().toString();
+                                    if (text.equals("") && required) {
+                                        this.errorMessage = fieldName + " is required";
+                                    }
+                                    item.setValue(text);
+                                }
                             }
                             items.add(item);
                         }
@@ -1669,7 +1758,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
 
     private void selectRemedialAction(int i) {
         if (remedialActions.size() > 0) {
-            int index = 1;
+            int index = isNsOptionInRA ?1:0;
             for (RemedialActions item : remedialActions) {
                 if (index == i) {
                     if (item.layout != null) {
@@ -1712,8 +1801,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             remedialActions = new ArrayList<>();
             remedialActionAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item);
             remedialActionAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            remedialActionAdapter.add("<Not Selected>");
-            int index = 1;
+            if(isNsOptionInRA) {
+                remedialActionAdapter.add("<Not Selected>");
+            }
+            int index = isNsOptionInRA?1:0;
             for (String key : itemsList) {
                 String strItem = items.get(key);
                 if (strItem != "") {
@@ -1779,10 +1870,12 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 String fieldName = jsonObject.optString("fieldName", "undefined");
                 String fieldId = jsonObject.optString("id", "undefined");
                 String defaultValue = jsonObject.optString("default", "");
+                String fontSize = jsonObject.optString("fontSize", "");
                 boolean enabled=jsonObject.optBoolean("enabled", true);
                 boolean visible=jsonObject.optBoolean("visible", true);
                 JSONArray jaOptions = jsonObject.optJSONArray("options");
                 boolean required = jsonObject.optBoolean("required", false);
+
                 String currentValue = "";
                 if (currentValues != null) {
                     currentValue = currentValues.get(fieldId);
@@ -1798,6 +1891,21 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                             ViewGroup.LayoutParams.WRAP_CONTENT));
                     setPadding(tvName, 10, 10, 0, 0);
                     tvName.setVisibility(visible?View.VISIBLE:View.GONE);
+
+                    if(fieldType.equals("label")){
+                        if(!fontSize.equals("")){
+                            try {
+                                tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, DimensionConverter.stringToDimension(fontSize,getResources().getDisplayMetrics()));
+                            }catch (Exception e){
+                                e.printStackTrace();
+                            }
+                        } else {
+                            // Setting default font size for label
+                            String _fontSize = "8dp";
+                            tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, DimensionConverter.stringToDimension(_fontSize,getResources().getDisplayMetrics()));
+                        }
+
+                    }
                     layout.addView(tvName);
                 }
                 if (fieldType.equals("text")) {
@@ -1900,6 +2008,44 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                         }
                     }
                     layout.addView(checkBox);
+                }else if (fieldType.equals("date")){
+                    EditText etDate=new EditText(this);
+                    etDate.setTag(fieldId);
+                    etDate.setFocusable(false);
+                    etDate.setClickable(true);
+                    etDate.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    setPadding(etDate, 10, 10, 10, 10);
+                    DynEditTextDatePicker datePicker =new DynEditTextDatePicker(ReportAddActivity.this,etDate);
+                    datePicker.setMinimumDate((new Date()).getTime());
+                    datePicker.setOnlyDate(true);
+                    if (Globals.newReport == null) {
+                        if (!isIssueUpdateAllowed) {
+                            if(currentValue!=null ){
+                                String dtOut=Utilities.getShortDate(currentValue);
+                                if(dtOut!=null){
+                                    etDate.setText(dtOut);
+                                }else{
+                                    etDate.setText("---------");
+                                }
+
+                            }
+                            etDate.setEnabled(false);
+                        }
+                    }
+                    layout.addView(etDate);
+                    /*
+                    DatePicker datePicker=new DatePicker(this);
+                    datePicker.setTag(fieldId);
+                    datePicker.setLayoutParams(new ViewGroup.LayoutParams(
+                            ViewGroup.LayoutParams.WRAP_CONTENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT));
+                    setPadding(datePicker, 10, 10, 10, 10);
+                    datePicker.setCalendarViewShown(true);
+                    datePicker.setMinDate((new Date()).getTime());
+                    datePicker.setVisibility(visible?View.VISIBLE:View.GONE);
+                    layout.addView(datePicker);*/
                 }
             } catch (Exception e) {
                 Log.e("getLayout", e.toString());
@@ -1956,7 +2102,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             dir.mkdirs();
 */
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        voiceFile = getVoicePath(Globals.selectedTask.getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + file_exts[currentFormat]);
+        voiceFile = getVoicePath(getSelectedTask().getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + file_exts[currentFormat]);
 
         return voiceFile;
     }
@@ -2049,7 +2195,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     }
 
     public void setVoiceAdapter(ArrayList<IssueVoice> attachments) {
-        voiceAdapter = new reportVoiceAdapter(this, attachments);
+        voiceAdapter = new reportVoiceAdapter(this, attachments, ReportAddActivity.this.getLocalClassName());
 
         LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         rvVoiceNotes.setLayoutManager(horizontalLayoutManager);
@@ -2101,11 +2247,25 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         }
 
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvStartMpPrefix.setText(getPrefixMpOnly(s.toString()));
+        }
+    };
+    TextWatcher endMpTw = new TextWatcher() {
+        public void afterTextChanged(Editable s) {
+
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            tvEndMpPrefix.setText(getPrefixMpOnly(s.toString()));
         }
     };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         try {
             if (requestCode == 0) {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
@@ -2137,7 +2297,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
 
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
 
-        return new File(getImgPath(Globals.selectedTask.getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + ".jpg"));
+        return new File(getImgPath(getSelectedTask().getTaskId() + "_" + getCurrentReportIndex() + "_" + timeStamp + ".jpg"));
     }
 
     /**
@@ -2205,9 +2365,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                             if (defectSelection.size() > 0) {
                                 //defectSelectionCopy = ArrayListMultimap.create(defectSelection);
 
+                                boolean isNonFRACodes=Globals.versionInfo.isNonFRACodes();
                                 String _title = defectSelection.keySet().toArray()[0].toString();
                                 String[] titleArray = _title.split(Globals.defectDivider);
-                                String title = titleArray[0] + " - " + titleArray[1];
+                                String title =isNonFRACodes?titleArray[1]: titleArray[0] + " - " + titleArray[1];
                                 String _desc = "";
 
                                 defectSelection.get(defectSelection.keySet().toArray()[0].toString());
@@ -2404,7 +2565,8 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     }*/
     public void updateImgList() {
         if (Globals.currentImageTag.equals(TAG_BEFORE_FIX)) {
-            beforeImgs.add(new IssueImage(Globals.imgFile.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED, TAG_BEFORE_FIX));
+            String md5String=MD5.calculateMD5(Globals.imgFile);
+            beforeImgs.add(new IssueImage(Globals.imgFile.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED, TAG_BEFORE_FIX,md5String));
             issueImgAdapter = new reportImgAdapter(this, beforeImgs, TAG_BEFORE_FIX);
             /*attachmentImgs.add(new IssueImage(f.getName().toString(), Globals.ISSUE_IMAGE_STATUS_CREATED));
             horizontalAdapter = new reportImgAdapter(this, attachmentImgs);*/
@@ -2458,28 +2620,37 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         Location _loc = null;
         double latitude = 0.0;
         double longitude = 0.0;
-        if (gps.canGetLocation()) {
-            if (cLocation == null) {
-                if (gps != null) {
-                    if (gps.getLastKnownLocation() != null) {
-                        _loc = gps.getLastKnownLocation();
-                        latitude = _loc.getLatitude();
-                        longitude = _loc.getLongitude();
-                    } else {
-                        _loc = lastKnownLocation;
-                        latitude = _loc.getLatitude();
-                        longitude = _loc.getLongitude();
-                    }
-                }
-            } else {
-                latitude = cLocation.getLatitude();
-                longitude = cLocation.getLongitude();
-            }
+
+        if(cLocation != null) {
+            latitude = cLocation.getLatitude();
+            longitude = cLocation.getLongitude();
+            return String.valueOf(latitude) + "," + String.valueOf(longitude);
+        }
+        return "";
+
+        //TODO: GPS HERE
+//        if (gps.canGetLocation()) {
+//            if (cLocation == null) {
+//                if (gps != null) {
+//                    if (gps.getLastKnownLocation() != null) {
+//                        _loc = gps.getLastKnownLocation();
+//                        latitude = _loc.getLatitude();
+//                        longitude = _loc.getLongitude();
+//                    } else {
+//                        _loc = lastKnownLocation;
+//                        latitude = _loc.getLatitude();
+//                        longitude = _loc.getLongitude();
+//                    }
+//                }
+//            } else {
+//                latitude = cLocation.getLatitude();
+//                longitude = cLocation.getLongitude();
+//            }
 
             /*longTxt.setText(String.valueOf(longitude));
             latTxt.setText(String.valueOf(latitude));*/
 
-            // \n is for new line
+        // \n is for new line
             /*if(cLocation!=null){
                 Toast.makeText(getApplicationContext(), "Your Location is - \nLat: "
                         + latitude + "\nLong: " + longitude + "From Provider: " + cLocation.getProvider(), Toast.LENGTH_LONG).show();
@@ -2489,14 +2660,14 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             }*/
 
 
-            return String.valueOf(latitude) + "," + String.valueOf(longitude);
-        } else gps.showSettingsAlert();
-        return "";
+        //  return String.valueOf(latitude) + "," + String.valueOf(longitude);
+        // } //else gps.showSettingsAlert();//TODO: GPS HERE
+        //    return "";
     }
 
     private static int getCurrentReportIndex() {
         if (Globals.selectedReport == null) {
-            return Globals.selectedTask.getReportList().size();
+            return getSelectedTask().getReportList().size();
         }
         return Globals.selectedReport.getReportIndex();
     }
@@ -2547,13 +2718,16 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         //code it to launch an intent to the activity you want
         if (Globals.newReport == null) {
             if (!isIssueUpdateAllowed) {
-                if (mBound) {
-                    // Unbind from the service. This signals to the service that this activity is no longer
-                    // in the foreground, and the service can respond by promoting itself to a foreground
-                    // service.
-                    unbindService(mServiceConnection);
-                    mBound = false;
-                }
+//                if (mBound) {
+//                    // Unbind from the service. This signals to the service that this activity is no longer
+//                    // in the foreground, and the service can respond by promoting itself to a foreground
+//                    // service.
+//                    unbindService(mServiceConnection);
+//                    mBound = false;
+//                }
+                //Remove Location Updates
+                LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+
                 Globals.defectCodeSelection = new ArrayList<>();
                 Globals.issueTitle = "";
                 Globals.defectCodeDetails = new ArrayList<>();
@@ -2596,10 +2770,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     public void onStart() {
         super.onStart();
 
-        bindService(new Intent(ReportAddActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+//        bindService(new Intent(ReportAddActivity.this, LocationUpdatesService.class), mServiceConnection,
+//                Context.BIND_AUTO_CREATE);
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .registerOnSharedPreferenceChangeListener(this);
         // Restore the state of the buttons when the activity (re)launches.
         //setButtonsState(Utils.requestingLocationUpdates(this));
         /*if (!checkPermissions()) {
@@ -2619,16 +2793,21 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 // do something here
+                voiceAdapter.stopPlaying(null);
+
+                LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
                 //gps.unbindService();
                 if (Globals.newReport == null) {
                     if (!isIssueUpdateAllowed) {
-                        if (mBound) {
-                            // Unbind from the service. This signals to the service that this activity is no longer
-                            // in the foreground, and the service can respond by promoting itself to a foreground
-                            // service.
-                            unbindService(mServiceConnection);
-                            mBound = false;
-                        }
+//                        if (mBound) {
+//                            // Unbind from the service. This signals to the service that this activity is no longer
+//                            // in the foreground, and the service can respond by promoting itself to a foreground
+//                            // service.
+//                            unbindService(mServiceConnection);
+//                            mBound = false;
+//                        }
+                        //Remove Location Updates
+
                         Globals.defectCodeSelection = new ArrayList<>();
                         Globals.issueTitle = "";
                         Globals.defectCodeDetails = new ArrayList<>();
@@ -2651,8 +2830,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+//        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+//                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         Log.e(getString(R.string.tag_resume), getString(R.string.msg_app_resumed));
     }
 
@@ -2673,7 +2854,9 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
             e.printStackTrace();
         }
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+            // LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
             super.onPause();
         } catch (Exception e) {
             e.printStackTrace();
@@ -2682,15 +2865,15 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
     }
 
     public void onStop() {
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .unregisterOnSharedPreferenceChangeListener(this);
         super.onStop();
         try {
             if (isRecording) {
@@ -2705,6 +2888,10 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+
+//Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
     }
 
     protected void onDestroy() {
@@ -2715,25 +2902,31 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 Log.e(getString(R.string.record), getString(R.string.msg_stop_recording));
                 stopRecording();
                 ViewGroup.LayoutParams layoutParams = btVoiceRecord.getLayoutParams();
-                unbindService(mServiceConnection);
+
+                // unbindService(mServiceConnection);
                 layoutParams.width = (int) dpToPixel(44);
                 layoutParams.height = (int) dpToPixel(44);
                 btVoiceRecord.setLayoutParams(layoutParams);
                 btVoiceRecord.clearAnimation();
+
             }
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
             /*if(gps!=null){
                 gps.unbindService();
             }*/
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+
+
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
     }
 
     private boolean isInRange(double a, double b, double c) {
@@ -2751,12 +2944,31 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         etEndMp.setHint(Globals.selectedUnit.getEnd());
         etStartMp.setText(Globals.selectedReport.getStartMp());
         etEndMp.setText(Globals.selectedReport.getEndMp());
+        if(locId!=null){
+            tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp(), locId));
+            tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp(), locId));
+        }else {
+            tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getStartMp()));
+            tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedReport.getEndMp()));
+        }
+
         //Setting Placeholder if saved value is empty in any case
         if (Globals.selectedReport.getStartMp().equals("")) {
             etStartMp.setHint(Globals.selectedUnit.getStart());
+            if(locId!=null){
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart(), locId));
+            } else {
+                tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart()));
+            }
         }
         if (Globals.selectedReport.getEndMp().equals("")) {
             etEndMp.setHint(Globals.selectedUnit.getEnd());
+            if(locId!=null){
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd(), locId));
+            } else {
+                tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd()));
+            }
+
         }
         //etStartMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
         //etEndMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
@@ -2767,12 +2979,19 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         llEndMp.setVisibility(GONE);
         tvStartMp.setText(getString(R.string.msg_milepost));
         etStartMp.setText(Globals.selectedReport.getStartMp());
+        if(locId!=null){
+            tvStartMpPrefix.setText(getPrefixMpOnly(selectedReport.getStartMp(), locId));
+        }else {
+            tvStartMpPrefix.setText(getPrefixMpOnly(selectedReport.getStartMp()));
+        }
         etStartMp.setEnabled(false);
     }
 
     private void setLinearAssetMode() {
         etStartMp.setHint(Globals.selectedUnit.getStart());
         etEndMp.setHint(Globals.selectedUnit.getEnd());
+        tvStartMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getStart()));
+        tvEndMpPrefix.setText(getPrefixMpOnly(Globals.selectedUnit.getEnd()));
         //etStartMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
         //etEndMp.setFilters(new InputFilter[]{new MinMaxInputFilter(Double.parseDouble(Globals.selectedUnit.getStart()), Double.parseDouble(Globals.selectedUnit.getEnd()))});
     }
@@ -2781,64 +3000,65 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         llEndMp.setVisibility(GONE);
         tvStartMp.setText(getString(R.string.msg_milepost));
         etStartMp.setText(Globals.selectedUnit.getStart());
+        tvStartMpPrefix.setText(getPrefixMpOnly(selectedUnit.getStart()));
         etStartMp.setEnabled(false);
     }
 
-    @Override
-    public void locationChanged(Location mLocation) {
-        cLocation = mLocation;
-    }
+//    @Override
+//    public void locationChanged(Location mLocation) {
+//        cLocation = mLocation;
+//    }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    }
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//
+//    }
 
     /**
      * Receiver for broadcasts sent by {@link LocationUpdatesService}.
      */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (mLocation != null) {
-                cLocation = mLocation;
-            }
-        }
-    }
+//    private class MyReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (mLocation != null) {
+//                cLocation = mLocation;
+//            }
+//        }
+//    }
 
     // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if (mService != null) {
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
+//    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+//            mService = binder.getService();
+//            mBound = true;
+//            if (mService != null) {
+//                mService.requestLocationUpdates();
+//            }
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            mService = null;
+//            mBound = false;
+//        }
+//    };
     private static final String TAG = "resPMain";
 
     // Used in checking for runtime permissions.
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+    // private MyReceiver myReceiver;
 
     // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
+    //  private LocationUpdatesService mService = null;
 
     // Tracks the bound state of the service.
-    private boolean mBound = false;
+    // private boolean mBound = false;
 
     void showConfirmationDialog() {
         AlertDialog alertDialog = new AlertDialog.Builder(this)
@@ -2852,13 +3072,13 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 .setPositiveButton(getString(R.string.briefing_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        if (mBound) {
-                            // Unbind from the service. This signals to the service that this activity is no longer
-                            // in the foreground, and the service can respond by promoting itself to a foreground
-                            // service.
-                            unbindService(mServiceConnection);
-                            mBound = false;
-                        }
+//                        if (mBound) {
+//                            // Unbind from the service. This signals to the service that this activity is no longer
+//                            // in the foreground, and the service can respond by promoting itself to a foreground
+//                            // service.
+//                            unbindService(mServiceConnection);
+//                            mBound = false;
+//                        }
                         Globals.defectCodeSelection = new ArrayList<>();
                         Globals.issueTitle = "";
                         Globals.defectCodeDetails = new ArrayList<>();
@@ -2910,8 +3130,8 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
                 String desc = descArray[0] + " - " + descArray[1];
                 Report issue = new Report();
                 issue = createIssueObj(report, title, desc, descArray[0]);
-                Globals.selectedTask = Globals.selectedJPlan.getTaskById(Globals.selectedTask.getTaskId());
-                Globals.selectedTask.getReportList().add(issue);
+                setSelectedTask(Globals.selectedJPlan.getTaskById(getSelectedTask().getTaskId()));
+                getSelectedTask().getReportList().add(issue);
                 int count = Integer.parseInt(Globals.selectedUnit.getIssueCounter());
                 count++;
                 Globals.selectedUnit.setIssueCounter(String.valueOf(count));
@@ -2927,7 +3147,7 @@ public class ReportAddActivity extends AppCompatActivity implements LocationChan
         defects.add(defectCode);
 
 
-        newIssue.setReportIndex(Globals.selectedTask.getReportList().size());
+        newIssue.setReportIndex(getSelectedTask().getReportList().size());
         // generating unique id for this issue
         UUID uuid = UUID.randomUUID();
 

@@ -1,16 +1,21 @@
 package com.app.ps19.tipsapp;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.SearchView;
 
 
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.classes.DefectCode;
+import com.app.ps19.tipsapp.wplan.WplanActivity;
 import com.google.common.collect.ArrayListMultimap;
 
 import java.util.ArrayList;
@@ -21,7 +26,9 @@ import static com.app.ps19.tipsapp.Shared.Globals.defectSelection;
 import static com.app.ps19.tipsapp.Shared.Globals.defectSelectionCopy;
 import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
 
-public class DefectCodeActivity extends AppCompatActivity {
+public class DefectCodeActivity extends AppCompatActivity implements
+        SearchView.OnQueryTextListener,
+        SearchView.OnCloseListener{
 
     private ExpandableListView expandableListView;
 
@@ -54,8 +61,14 @@ public class DefectCodeActivity extends AppCompatActivity {
         initObjects();
 
         // preparing list data
-        initListData();
-
+        //initListData();
+        SearchView search;
+        SearchManager searchManager = (SearchManager) DefectCodeActivity.this.getSystemService(Context.SEARCH_SERVICE);
+        search = (SearchView) findViewById(R.id.search_ftt);
+        search.setSearchableInfo(searchManager.getSearchableInfo(DefectCodeActivity.this.getComponentName()));
+        search.setIconifiedByDefault(false);
+        search.setOnQueryTextListener(this);
+        search.setOnCloseListener(this);
     }
     public int GetDipsFromPixel(float pixels)
     {
@@ -139,7 +152,7 @@ public class DefectCodeActivity extends AppCompatActivity {
         listDataChild = new HashMap<>();
 
         boolean isEdit = false;
-
+        initListData();
         if(defectSelectionCopy.size() > 0){
             isEdit = true;
             defectSelection.clear();
@@ -167,11 +180,14 @@ public class DefectCodeActivity extends AppCompatActivity {
             listDataChild.put(Globals.selectedUnit.getAssetTypeObj().getDefectCodes().getDetails().get(i),Globals.selectedUnit.getAssetTypeObj().getDefectCodes().getDetails().get(i).getDetails());
         }
         // notify the adapter
-        defectCodeListAdapter.notifyDataSetChanged();
+        if(defectCodeListAdapter!=null) {
+            defectCodeListAdapter.notifyDataSetChanged();
+        }
     }
     @Override
     public boolean onSupportNavigateUp() {
         //code it to launch an intent to the activity you want
+        clearDefectText();
         Intent returnIntent = new Intent();
         returnIntent.putExtra("code","DefectCode");
         setResult(RESULT_OK, returnIntent);
@@ -188,5 +204,28 @@ public class DefectCodeActivity extends AppCompatActivity {
             return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        defectCodeListAdapter.filterData(query);
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        defectCodeListAdapter.filterData(newText);
+        return false;
+    }
+
+
+    @Override
+    public boolean onClose() {
+        defectCodeListAdapter.filterData("");
+        return false;
+    }
+    private void clearDefectText(){
+        for(DefectCode d:this.listDataGroup){
+            d.setFilterText("");
+        }
     }
 }

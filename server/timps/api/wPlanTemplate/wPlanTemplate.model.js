@@ -45,6 +45,12 @@ let wPlanTemplate = new Schema({
   currentExpiryDate: Date,
   locationTimezone: String,
   completion: Object,
+  inspection_type:String,
+  inspection_freq:String,
+  inspection_date:Date,
+  inspectionFormInfo:Object,
+  nextInspDateFieldName:String,
+  lastInspDateFieldName:String,
   isRemoved: { type: Boolean, default: false },
   type: { type: Number, default: 0 },
   sort_id: { type: Number, default: 0 },
@@ -54,7 +60,24 @@ let wPlanTemplate = new Schema({
 
 wPlanTemplate.pre("save", function (next) {
   let now = new Date();
+  
   if (this) {
+    if(this.isRemoved == false){
+    let workPlanTemplate = this;
+    if(workPlanTemplate){
+      console.log(workPlanTemplate.tasks);
+      
+      workPlanTemplate.tasks.forEach((task)=>{
+        if(task)
+        {
+          task.units.forEach((unit)=>{
+            unit.wPlanId = workPlanTemplate._id;
+          })
+        }
+      })
+      console.log(workPlanTemplate);
+    }
+    }
     this.updatedAt = now;
     if (!this.createdAt) {
       this.createdAt = now;

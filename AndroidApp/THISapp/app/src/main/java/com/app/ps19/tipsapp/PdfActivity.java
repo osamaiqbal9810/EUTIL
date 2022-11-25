@@ -30,7 +30,7 @@ public class PdfActivity extends AppCompatActivity {
                 .enableSwipe(true)
                 .enableDoubletap(true)
                 .swipeHorizontal(false)
-                .defaultPage(1)
+                .defaultPage(0)
                 .enableAnnotationRendering(false)
                 .password(null)
                 .enableAntialiasing(true)

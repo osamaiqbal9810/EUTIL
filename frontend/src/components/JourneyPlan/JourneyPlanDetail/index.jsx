@@ -29,7 +29,7 @@ import CommonModal from "../../Common/CommonModal";
 import Briefing from "./Briefing";
 import { MyButton } from "../../Common/Forms/formsMiscItems";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { journeyPlanMainStyles } from "../styles/Inspections";
 import { commonSummaryStyle } from "../../Common/Summary/styles/CommonSummaryStyle";
 import { updateWorkPlanFutureInspection } from "reduxRelated/actions/templateHelperActions";
@@ -330,7 +330,7 @@ class JourneyPlanComponent extends Component {
             // activeBorder="1px solid #e3e2ef "
             // iconStyle={{
             //   color: "#c4d4e4",
-            //   background: "#fff",
+            //   background: "var(--fifth)",
             //   borderRadius: "50%",
             //   border: "3px solid ",
             // }}
@@ -528,7 +528,7 @@ export default JourneyPlanDetailContainer;
 let planStyle = {
   JourneyPlanInfoContainer: {
     default: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "0px 30px  0px 30px",
       padding: "15px",
@@ -537,7 +537,7 @@ let planStyle = {
       fontSize: "12px",
     },
     retro: {
-      background: "#fff",
+      background: "var(--fifth)",
       boxShadow: "3px 3px 5px #cfcfcf",
       margin: "0px 30px  0px 30px",
       padding: "15px",
@@ -545,15 +545,25 @@ let planStyle = {
       color: retroColors.second,
       fontSize: "12px",
     },
+    electric: {
+      background: "var(--fifth)",
+      boxShadow: "3px 3px 5px #cfcfcf",
+      margin: "0px 30px  0px 30px",
+      padding: "15px",
+      textAlign: "left",
+      color: electricColors.second,
+      fontSize: "12px",
+    },
   },
   fieldHeading: {
     default: {
-      color: "rgba(64, 118, 179)",
+      color: "rgb(94, 141, 143)",
       fontWeight: "600",
       fontSize: "14px",
       paddingBottom: "1em",
     },
     retro: { color: retroColors.second, fontWeight: "600", fontSize: "14px", paddingBottom: "1em" },
+    electric: { color: electricColors.second, fontWeight: "600", fontSize: "14px", paddingBottom: "1em" },
   },
   fieldText: {
     default: {
@@ -565,6 +575,14 @@ let planStyle = {
       borderRadius: "5px",
     },
     retro: {
+      width: "fit-content",
+      minWidth: "100px",
+      border: "1px solid #f1f1f1",
+      boxShadow: "rgb(238, 238, 238) 1px 1px 1px",
+      padding: "10px",
+      borderRadius: "5px",
+    },
+    electric: {
       width: "fit-content",
       minWidth: "100px",
       border: "1px solid #f1f1f1",

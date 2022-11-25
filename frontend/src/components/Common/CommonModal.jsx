@@ -50,7 +50,11 @@ class CommonModal extends Component {
     let footerButtonColmnMd = this.props.footerButtonsColumns ? this.props.footerButtonsColumns : "6";
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal "+ this.props.className })}
+        contentClassName={themeService({
+          default: this.props.className,
+          retro: "retroModal " + this.props.className,
+          electric: "electricModal " + this.props.className,
+        })}
         isOpen={this.state.modal}
         toggle={this.toggle}
         style={this.props.modalStyle ? this.props.modalStyle : { maxWidth: "50vw" }}
@@ -58,7 +62,9 @@ class CommonModal extends Component {
         <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
           {languageService(this.props.headerText)}
         </ModalHeader>
-        <ModalBody style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.body))}>{this.props.children}</ModalBody>
+        <ModalBody className="scrollbar" style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.body))}>
+          {this.props.children}
+        </ModalBody>
         <ModalFooter style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.footer))}>
           {this.props.footerContent}
           {!this.props.disableDefaultfooterButtons && (

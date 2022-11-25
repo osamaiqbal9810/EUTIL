@@ -5,7 +5,7 @@ import IssueTypeFilter from "./IssueTypeFilter";
 
 import CustomFilters from "components/Common/Filters/CustomFilters";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 class IssueFilter extends Component {
   constructor(props) {
@@ -118,6 +118,7 @@ let getStyles = (props, state) => {
     default: basicColors.first,
 
     retro: retroColors.second,
+    electric: electricColors.second,
   });
   // Borders ALL TODAY
   let borders = {
@@ -150,7 +151,7 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: themeService({ default: "rgba(64, 118, 179)", retro: retroColors.second }),
+    color: themeService({ default: "var(--first)", retro: retroColors.second, electric: electricColors.second }),
     borderBottom: "1px solid  " + borderColorObj,
     borderLeft: "1px solid  " + borderColorObj,
     borderRight: "1px solid  " + borderColorObj,

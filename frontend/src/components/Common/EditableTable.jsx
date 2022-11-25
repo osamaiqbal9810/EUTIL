@@ -85,7 +85,7 @@ class EditableTable extends Component {
     let { fieldForManage } = this.state;
     this.props.onChange(fieldForManage.fieldName, fieldForManage[fieldForManage.fieldName], fieldForManage);
   }
-  getAccessor(name, type, field, possibleValues, immediate, editModeText, func, formatter, possibleValuesWithTitle) {
+  getAccessor(name, type, field, possibleValues, immediate, editModeText, permissionItems, func, formatter, possibleValuesWithTitle, editable) {
     // type(text, date, time, datetime, gps, status, action),
     //            fieldName, editing
     let ret = (d) => {
@@ -105,7 +105,7 @@ class EditableTable extends Component {
             return v;
           });
 
-          if (d.editMode && editModeText && editModeText.length > 0) {
+          if (editable && d.editMode && editModeText && editModeText.length > 0) {
             val = editModeText.map((v, i) => {
               //console.log("in Edit mode", v);
               return v;
@@ -119,7 +119,7 @@ class EditableTable extends Component {
           }
         }
 
-        if (d.editMode && type === "multiple") {
+        if (editable && d.editMode && type === "multiple") {
           // let size = val.length > 5 ? 5 : val.length;
           // let items = val.slice(0, size).toString().split(",").join(", ");
 
@@ -141,8 +141,8 @@ class EditableTable extends Component {
                   padding="3px 5px"
                   border="1px solid"
                   color={"white"}
-                  backgroundColor="rgb(64, 118, 179)"
-                  hover="rgb(64, 118, 179)"
+                  backgroundColor="var(--first)"
+                  hover="var(--first)"
                   buttonText={languageService("Manage")}
                 />
               </Col>
@@ -152,7 +152,7 @@ class EditableTable extends Component {
 
         if (type == "text") {
           //val=d[field];
-          if (d.editMode) {
+          if (editable && d.editMode) {
             if (possibleValues && possibleValues.length > 0) {
               // display select option
               val = (
@@ -207,15 +207,24 @@ class EditableTable extends Component {
           //console.log('action', val);
           if (val.length && val.length > 0) {
             let v1 = val.map((v, i) => {
+              let permCheckReq = permissionItems && permissionItems[i];
+              let permissionPass = true;
+              if (permCheckReq) {
+                permissionPass = permissionCheck(permissionItems[i][0], permissionItems[i][1]);
+              }
               return (
-                <ButtonActionsTable
-                  handleClick={(e) => {
-                    this.props.handleActionClick(v, d);
-                  }}
-                  margin="0px 10px 0px 0px"
-                  buttonText={languageService(v)}
-                  key={i}
-                />
+                <React.Fragment>
+                  {permissionPass && (
+                    <ButtonActionsTable
+                      handleClick={(e) => {
+                        this.props.handleActionClick(v, d);
+                      }}
+                      margin="0px 10px 0px 0px"
+                      buttonText={languageService(v)}
+                      key={i}
+                    />
+                  )}
+                </React.Fragment>
               );
             });
             val = <div>{v1}</div>;
@@ -250,6 +259,22 @@ class EditableTable extends Component {
               </div>
             );
           }
+          else if(type === "select-button" && editable && d.editMode) {
+            if (possibleValues && possibleValues.length > 0) {
+              // display select option
+              val = (
+                <SelectOption
+                  name={name}
+                  options={possibleValues}
+                  selected={val}
+                  onChange={(n, v) => {
+                    this.props.onChange(n, v, d);
+
+                  }}
+                />
+              );
+            }
+          }
         }
       }
       //else console.log(field not found)
@@ -277,10 +302,13 @@ class EditableTable extends Component {
               col.possibleValues,
               col.immediate ? col.immediate : {},
               col.editMode ? col.editMode : {},
+              col.permissionCheck ? col.permissionCheck : null,
               col.func ? col.func : null,
               col.formatter ? col.formatter : null,
               col.possibleValuesWithTitle,
+              col.editable
             ),
+            resizable: col.resizable,
       };
       // debugger;
       if (col.type === "status" || col.type === "priority") c.sortMethod = generalSort;
@@ -363,32 +391,30 @@ class EditableTable extends Component {
               onClick={() => this.handleClickOnSelectAll(fieldForManage, !this.state.selectAll)}
             />
           </div>
-          <div className="inspection-manage scrollbar" style={{ background: "#fff" }}>
+          <div className="inspection-manage scrollbar" style={{ background: "var(--fifth)" }}>
             <Col md={12}>
-              <div style={{ width: "auth", display: "inline-block" }}>
-                <div>
-                  {fieldForManage &&
-                    fieldForManage.possibleValuesWithTitle &&
-                    fieldForManage.possibleValuesWithTitle.length &&
-                    fieldForManage.possibleValuesWithTitle.map((pv, i) => {
-                      let checked = false;
+              <div style={{ width: "auto", display: "inline-block" }}>
+                {fieldForManage &&
+                  fieldForManage.possibleValuesWithTitle &&
+                  fieldForManage.possibleValuesWithTitle.length &&
+                  fieldForManage.possibleValuesWithTitle.map((pv, i) => {
+                    let checked = false;
 
-                      if (fieldForManage[fieldForManage.fieldName].includes(pv.value)) checked = true;
+                    if (fieldForManage[fieldForManage.fieldName].includes(pv.value)) checked = true;
 
-                      return (
-                        <div className="asset-type-select">
-                          <StyledCheckBox
-                            checked={checked}
-                            key={i}
-                            chkLabel={`${pv.text}`}
-                            onClick={() => {
-                              this.handleChangeSelectionFieldModal(pv.value, !checked);
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                </div>
+                    return (
+                      <div className="asset-type-select">
+                        <StyledCheckBox
+                          checked={checked}
+                          key={i}
+                          chkLabel={`${pv.text}`}
+                          onClick={() => {
+                            this.handleChangeSelectionFieldModal(pv.value, !checked);
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
               </div>
             </Col>
           </div>
@@ -410,6 +436,7 @@ class EditableTable extends Component {
             defaultSorted={this.props.defaultSorted ? this.props.defaultSorted : []}
             handlePageSize={this.props.handlePageSize}
             rowStyleMap={this.props.rowStyleMap ? this.props.rowStyleMap : []}
+
           />
         )}
       </div>

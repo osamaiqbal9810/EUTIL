@@ -225,6 +225,38 @@ public class StaticListItem implements Serializable {
                     JSONArray tasks=jp.optJSONArray("tasks");
                     JSONObject joSB=jp.optJSONObject("safetyBriefing");
                     JSONObject joUser=jp.optJSONObject("user");
+                    JSONArray jaBriefings = jp.optJSONArray("jobBriefings");
+                    if(jaBriefings!=null&&jaBriefings.length()!=0){
+                        for(int i=0;i<jaBriefings.length();i++){
+
+                            JSONArray workers=jaBriefings.getJSONObject(i).optJSONArray("workers")!=null
+                                    ?jaBriefings.getJSONObject(i).optJSONArray("workers")
+                                    :jaBriefings.getJSONObject(i).optJSONArray("*workers");
+                            JSONObject signature=jaBriefings.getJSONObject(i).optJSONObject("signature");
+                            if(signature!=null){
+                                String imgName=signature.getString("imgName");
+                                int status1=signature.getInt("status");
+                                if(status1==status){
+                                    items.add(new IssueImage(signature));
+                                }
+                            }
+                            if(workers !=null) {
+                                for (int w = 0; w < workers.length(); w++) {
+                                    JSONObject worker = workers.getJSONObject(w);
+                                    JSONObject joSignature = worker.optJSONObject("signature");
+                                    if (joSignature != null) {
+                                        String imgName = joSignature.getString("imgName");
+                                        int status1 = joSignature.getInt("status");
+                                        if(status1==status){
+                                            items.add(new IssueImage(joSignature));
+                                        }
+
+                                    }
+                                }
+                            }
+
+                        }
+                    }
                     //User Signature and Profile Picture
                     if(joUser!=null){
                         JSONObject joSignature=joUser.optJSONObject("signature");
@@ -484,6 +516,198 @@ public class StaticListItem implements Serializable {
         }
         return false;
     }
+    public boolean setImageStatusEx (List<IssueImage> sourceItems, HashMap<String, Integer> finalItems) {
+        String listName=getListName();
+        List<IssueImage> items=new ArrayList<>();
+        List<IssueImage>  itemsToUpload = new ArrayList<>();
+        boolean blnDataChanged=false;
+        if(listName.equals(Globals.JPLAN_LIST_NAME)){
+            if(!optParam1.equals("")){
+                try {
+                    /*
+                    JourneyPlan jp =new JourneyPlan(Globals.mainActivity,new JSONObject(getOptParam1()));
+                    jp.setuId(code);
+                    boolean retValue= jp.setImageStatus(finalItems);
+                    if(retValue){
+                        jp.update();
+                    }*/
+                    JSONObject jp=new JSONObject(getOptParam1());
+                    JSONArray tasks=jp.optJSONArray("tasks");
+                    JSONObject joSB=jp.optJSONObject("safetyBriefing");
+                    JSONObject joUser=jp.optJSONObject("user");
+                    JSONArray jaBriefings = jp.optJSONArray("jobBriefings");
+                    if(jaBriefings!=null&&jaBriefings.length()!=0){
+                        for(int i=0;i<jaBriefings.length();i++){
+                                JSONArray workers=jaBriefings.getJSONObject(i).optJSONArray("workers")!=null
+                                        ?jaBriefings.getJSONObject(i).optJSONArray("workers")
+                                        :jaBriefings.getJSONObject(i).optJSONArray("*workers");
+                                JSONObject signature=jaBriefings.getJSONObject(i).optJSONObject("signature");
+                                if(signature!=null){
+                                    String imgName=signature.getString("imgName");
+                                    int status=signature.getInt("status");
+                                    if (finalItems.containsKey(imgName)) {
+                                        if (finalItems.get(imgName) != status) {
+                                            signature.put("status", finalItems.get(imgName));
+                                            blnDataChanged = true;
+                                        }
+                                    }
+                                }
+                                if(workers !=null) {
+                                    for (int w = 0; w < workers.length(); w++) {
+                                        JSONObject worker = workers.getJSONObject(w);
+                                        JSONObject joSignature = worker.optJSONObject("signature");
+                                        if (joSignature != null) {
+                                            String imgName = joSignature.getString("imgName");
+                                            int status = joSignature.getInt("status");
+                                            if (finalItems.containsKey(imgName)) {
+                                                if (finalItems.get(imgName) != status) {
+                                                    joSignature.put("status", finalItems.get(imgName));
+                                                    blnDataChanged = true;
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                        }
+                    }
+
+                    if(joUser!=null){
+                        JSONObject joSignature=joUser.optJSONObject("signature");
+                        JSONObject joProfileImg=joUser.optJSONObject("profile_img");
+                        if(joSignature!=null){
+                            String imgName=joSignature.getString("imgName");
+                            int status=joSignature.getInt("status");
+                            if (finalItems.containsKey(imgName)) {
+                                if (finalItems.get(imgName) != status) {
+                                    joSignature.put("status", finalItems.get(imgName));
+                                    blnDataChanged = true;
+                                }
+                            }
+                        }
+                        if(joProfileImg!=null){
+                            String imgName=joProfileImg.getString("imgName");
+                            int status=joProfileImg.getInt("status");
+                            if (finalItems.containsKey(imgName)) {
+                                if (finalItems.get(imgName) != status) {
+                                    joProfileImg.put("status", finalItems.get(imgName));
+                                    blnDataChanged = true;
+                                }
+                            }
+                        }
+                    }
+                    if(tasks!=null){
+                        for(int i=0;i<tasks.length();i++){
+                            JSONObject task=tasks.getJSONObject(i);
+                            JSONArray jaMaintain=task.optJSONArray("maintenance");
+                            if(jaMaintain !=null){
+                                for(int j=0;j<jaMaintain.length();j++){
+                                    JSONObject joMaintain=jaMaintain.getJSONObject(j);
+                                    JSONArray imageList=joMaintain.optJSONArray("imgList")!=null
+                                            ?joMaintain.optJSONArray("imgList")
+                                            :joMaintain.optJSONArray("*imgList");
+                                    if(imageList!=null){
+                                        for(int i1=0;i1<imageList.length();i1++){
+                                            JSONObject image=imageList.getJSONObject(i1);
+                                            String imageName=image.getString("imgName");
+                                            int status=image.getInt("status");
+                                            if( finalItems.containsKey(imageName)){
+                                                if(finalItems.get(imageName) != status){
+                                                    image.put("status",finalItems.get(imageName));
+                                                    blnDataChanged=true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            JSONArray issues=task.optJSONArray("issues");
+                            if(issues !=null){
+                                for(int j=0;j<issues.length();j++){
+                                    JSONObject issue=issues.getJSONObject(j);
+                                    JSONArray imageList=issue.optJSONArray("imgList")!=null
+                                            ?issue.optJSONArray("imgList")
+                                            :issue.optJSONArray("*imgList");
+                                    if(imageList!=null){
+                                        for(int i1=0;i1<imageList.length();i1++){
+                                            JSONObject image=imageList.getJSONObject(i1);
+                                            String imageName=image.getString("imgName");
+                                            int status=image.getInt("status");
+                                            if( finalItems.containsKey(imageName)){
+                                                if(finalItems.get(imageName) != status){
+                                                    image.put("status",finalItems.get(imageName));
+                                                    blnDataChanged=true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(joSB !=null){
+                        JSONArray workers=joSB.optJSONArray("workers")!=null
+                                ?joSB.optJSONArray("workers")
+                                :joSB.optJSONArray("*workers");
+                        JSONObject signature=joSB.optJSONObject("signature");
+                        if(signature!=null){
+                            String imgName=signature.getString("imgName");
+                            int status=signature.getInt("status");
+                            if (finalItems.containsKey(imgName)) {
+                                if (finalItems.get(imgName) != status) {
+                                    signature.put("status", finalItems.get(imgName));
+                                    blnDataChanged = true;
+                                }
+                            }
+                        }
+                        if(workers !=null) {
+                            for (int w = 0; w < workers.length(); w++) {
+                                JSONObject worker = workers.getJSONObject(w);
+                                JSONObject joSignature = worker.optJSONObject("signature");
+                                if (joSignature != null) {
+                                    String imgName = joSignature.getString("imgName");
+                                    int status = joSignature.getInt("status");
+                                    if (finalItems.containsKey(imgName)) {
+                                        if (finalItems.get(imgName) != status) {
+                                            joSignature.put("status", finalItems.get(imgName));
+                                            blnDataChanged = true;
+                                        }
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    if(blnDataChanged){
+                        DBHandler db =Globals.db;// new DBHandler(Globals.getDBContext());
+                        List<StaticListItem> pendingItems=db.getMsgListItems(getListName(), "pending","code='"+getCode() +"' AND status="+Globals.MESSAGE_STATUS_PENDING_TO_POST);
+                        if(pendingItems.size()>0){
+                            StaticListItem pendingItem=pendingItems.get(0);
+                            try {
+                                JSONObject jo1=new JSONObject(pendingItem.getOptParam1());
+                                jo1= Utilities.addObject(jo1,jp);
+                                pendingItem.setOptParam1(jo1.toString());
+                                db.AddOrUpdateMsgList(pendingItem.getListName(),"pending",pendingItem,Globals.MESSAGE_STATUS_PENDING_TO_POST);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }else {
+                            db.AddOrUpdateMsgList(getListName(), Globals.orgCode, this, Globals.MESSAGE_STATUS_READY_TO_POST);
+                        }
+                        //db.close();
+
+                    }
+                    return blnDataChanged;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
 
     public List<IssueVoice> getVoiceList(){
         return getVoiceList(Globals.ISSUE_IMAGE_STATUS_CREATED);
@@ -707,6 +931,97 @@ public class StaticListItem implements Serializable {
         }
         return false;
     }
+    public boolean setVoiceStatusEx(List<IssueVoice> sourceItems, HashMap<String, Integer> finalItems) {
+        String listName=getListName();
+        List<IssueImage> items=new ArrayList<>();
+        List<IssueImage>  itemsToUpload = new ArrayList<>();
+        boolean blnDataChanged=false;
+        if(listName.equals(Globals.JPLAN_LIST_NAME)){
+            if(!optParam1.equals("")){
+                try {
+                    JSONObject jp=new JSONObject(getOptParam1());
+                    JSONArray tasks=jp.optJSONArray("tasks");
+
+                    if(tasks!=null){
+                        for(int i=0;i<tasks.length();i++){
+                            JSONObject task=tasks.getJSONObject(i);
+                            JSONArray jaMaintain=task.optJSONArray("maintenance");
+                            if(jaMaintain !=null){
+                                for(int j=0;j<jaMaintain.length();j++){
+                                    JSONObject joMaintain=jaMaintain.getJSONObject(j);
+                                    JSONArray voiceList=
+                                            joMaintain.optJSONArray("voiceList")
+                                                    !=null?joMaintain.optJSONArray("voiceList")
+                                                    :joMaintain.optJSONArray("*voiceList");
+                                    if(voiceList!=null){
+                                        for(int i1=0;i1<voiceList.length();i1++){
+                                            JSONObject voice=voiceList.getJSONObject(i1);
+                                            String voiceName=voice.getString("voiceName");
+                                            int status=voice.getInt("status");
+                                            if( finalItems.containsKey(voiceName)){
+                                                if(finalItems.get(voiceName) != status){
+                                                    voice.put("status",finalItems.get(voiceName));
+                                                    blnDataChanged=true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            JSONArray issues=task.optJSONArray("issues");
+                            if(issues !=null){
+                                for(int j=0;j<issues.length();j++){
+                                    JSONObject issue=issues.getJSONObject(j);
+                                    JSONArray voiceList=
+                                            issue.optJSONArray("voiceList")
+                                                    !=null?issue.optJSONArray("voiceList")
+                                                    :issue.optJSONArray("*voiceList");
+                                    if(voiceList!=null){
+                                        for(int i1=0;i1<voiceList.length();i1++){
+                                            JSONObject voice=voiceList.getJSONObject(i1);
+                                            String voiceName=voice.getString("voiceName");
+                                            int status=voice.getInt("status");
+                                            if( finalItems.containsKey(voiceName)){
+                                                if(finalItems.get(voiceName) != status){
+                                                    voice.put("status",finalItems.get(voiceName));
+                                                    blnDataChanged=true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if(blnDataChanged){
+                        DBHandler db =Globals.db;
+                        List<StaticListItem> pendingItems=db.getMsgListItems(getListName(), "pending","code='"+getCode() +"' AND status="+Globals.MESSAGE_STATUS_PENDING_TO_POST);
+                        if(pendingItems.size()>0){
+                            StaticListItem pendingItem=pendingItems.get(0);
+                            try {
+                                JSONObject jo1=new JSONObject(pendingItem.getOptParam1());
+                                jo1= Utilities.addObject(jo1,jp);
+                                pendingItem.setOptParam1(jo1.toString());
+                                db.AddOrUpdateMsgList(pendingItem.getListName(),"pending",pendingItem,Globals.MESSAGE_STATUS_PENDING_TO_POST);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                        }else {
+                            db.AddOrUpdateMsgList(getListName(), Globals.orgCode, this, Globals.MESSAGE_STATUS_READY_TO_POST);
+                        }
+                    }
+
+                    return blnDataChanged;
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
 
     /*
     public void setImageStatus(List<String> uploadComplete, int intStatus) {
@@ -775,4 +1090,10 @@ public class StaticListItem implements Serializable {
 
     }
     */
+    public boolean isEqual(StaticListItem item){
+        return this.orgCode.equals(item.orgCode) && this.listName.equals(item.listName) && this.code.equals(item.code);
+    }
+    public boolean isEqualListAndCode(StaticListItem item){
+        return this.listName.equals(item.listName) && this.code.equals(item.code);
+    }
 }

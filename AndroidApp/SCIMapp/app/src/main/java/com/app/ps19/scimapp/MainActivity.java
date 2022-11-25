@@ -1,18 +1,13 @@
 package com.app.ps19.scimapp;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.location.Location;
@@ -20,13 +15,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Message;
-import android.preference.PreferenceManager;
-import androidx.core.app.ActivityCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -37,19 +26,22 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+
 import com.app.ps19.scimapp.Shared.DBHandler;
 import com.app.ps19.scimapp.Shared.DataSyncProcessEx;
-import com.app.ps19.scimapp.Shared.GPSTrackerEx;
 import com.app.ps19.scimapp.Shared.Globals;
 import com.app.ps19.scimapp.Shared.ListMap;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
 import com.app.ps19.scimapp.Shared.ObservableObject;
 import com.app.ps19.scimapp.Shared.StaticListItem;
 import com.app.ps19.scimapp.Shared.Utilities;
-import com.app.ps19.scimapp.Shared.Utils;
 import com.app.ps19.scimapp.classes.Inbox;
 import com.app.ps19.scimapp.classes.JourneyPlan;
 import com.app.ps19.scimapp.classes.User;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.safetyBriefing.SafetyBriefingActivity;
 
 import org.json.JSONArray;
@@ -72,118 +64,161 @@ import static com.app.ps19.scimapp.Shared.Globals.inbox;
 import static com.app.ps19.scimapp.Shared.Globals.isDayProcessRunning;
 import static com.app.ps19.scimapp.Shared.Globals.loadDayStatus;
 import static com.app.ps19.scimapp.Shared.Globals.loadInbox;
-import static com.app.ps19.scimapp.Shared.Globals.mainActivity;
 import static com.app.ps19.scimapp.Shared.Globals.orgCode;
 import static com.app.ps19.scimapp.Shared.Globals.selectedJPlan;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.userEmail;
 import static com.app.ps19.scimapp.Shared.Globals.userUID;
 import static com.app.ps19.scimapp.Shared.Globals.webPullRequest;
 import static com.app.ps19.scimapp.Shared.Globals.webUploadMessageLists;
 
-public class MainActivity extends AppCompatActivity implements Observer, SharedPreferences.OnSharedPreferenceChangeListener {
+//import com.app.ps19.scimapp.Shared.GPSTrackerEx;
+
+public class MainActivity extends AppCompatActivity implements
+        Observer,
+        OnLocationUpdatedListener {
     // Updated GPS location service code
     // Start
     private static final String TAG = "resPMain";
 
     // Used in checking for runtime permissions.
-    private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
+//        private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
-    // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+//        // The BroadcastReceiver used to listen from broadcasts from the service.
+//        private MyReceiver mLocationUpdateReciever;
+//
+//        // A reference to the service used to get location updates.
+//        @SuppressLint("StaticFieldLeak")
+//        private static LocationUpdatesService mService = null;
+//
+//        // Tracks the bound state of the service.
+//        private boolean mBound = false;
+//
+//        // UI elements.
+//       // private Button mRequestLocationUpdatesButton;
+//       // private Button mRemoveLocationUpdatesButton;
+//
+//        // Monitors the state of the connection to the service.
+//        private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//            @Override
+//            public void onServiceConnected(ComponentName name, IBinder service) {
+//                LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+//                if (mService == null) {
+//                    mService = binder.getService();
+//                    mService.requestLocationUpdates();
+//                }
+//                else{
+//                    mService.requestLocationUpdates();
+//                }
+//                mBound = true;
+//            }
+//
+//            @Override
+//            public void onServiceDisconnected(ComponentName name) {
+//                mService = null;
+//                mBound = false;
+//            }
+//        };
 
-    // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
+//    @Override
+//    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+//
+//    }
 
-    // Tracks the bound state of the service.
-    private boolean mBound = false;
-
-    // UI elements.
-    private Button mRequestLocationUpdatesButton;
-    private Button mRemoveLocationUpdatesButton;
-
-    // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-
-    }
-
-    /**
-     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (location != null) {
-                cLocation = mLocation;
-                latitude = String.valueOf(mLocation.getLatitude());
-                longitude = String.valueOf(mLocation.getLongitude());
-                refreshLocation();
-                /*Toast.makeText(MainActivity.this, Utils.getLocationText(mLocation),
-                        Toast.LENGTH_SHORT).show();*/
-            }
-        }
-    }
+//    /**
+//     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+//     */
+//    private class MyReceiver extends BroadcastReceiver {
+//        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (location != null) {
+//                cLocation = mLocation;
+//                latitude = String.valueOf(mLocation.getLatitude());
+//                longitude = String.valueOf(mLocation.getLongitude());
+//                refreshLocation();
+//                /*Toast.makeText(MainActivity.this, Utils.getLocationText(mLocation),
+//                        Toast.LENGTH_SHORT).show();*/
+//            }
+//        }
+//    }
     /**
      * Returns the current state of the permissions needed.
      */
-    private boolean checkPermissions() {
-        return  PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION);
-    }
-
-    private void requestPermissions() {
-        boolean shouldProvideRationale =
-                ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.ACCESS_FINE_LOCATION);
-
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
-        if (shouldProvideRationale) {
-            Log.i(TAG, "Displaying permission rationale to provide additional context.");
-            /*Snackbar.make(
-                    findViewById(R.layout.activity_main),
-                    R.string.permission_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            // Request permission
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                    REQUEST_PERMISSIONS_REQUEST_CODE);
-                        }
-                    })
-                    .show();*/
-        } else {
-            Log.i(TAG, "Requesting permission");
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
-        }
-    }
+//    private boolean checkPermissions() {
+//        return PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION) &&
+//                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+//                        Manifest.permission.ACCESS_COARSE_LOCATION) &&
+//                PackageManager.PERMISSION_GRANTED == ActivityCompat.checkSelfPermission(this,
+//                        Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+//    }
+//
+//    public static boolean hasPermissions(Context context, String... permissions) {
+//        if (context != null && permissions != null) {
+//            for (String permission : permissions) {
+//                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+//                    return false;
+//                }
+//            }
+//        }
+//        return true;
+//    }
+//
+//    private void requestPermissions() {
+//
+//        int PERMISSION_ALL = 1;
+//        String[] PERMISSIONS = {
+//                Manifest.permission.ACCESS_FINE_LOCATION,
+//                Manifest.permission.ACCESS_COARSE_LOCATION,
+//                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//        };
+//
+//        if (!hasPermissions(this, PERMISSIONS)) {
+//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+//        }
+//
+//
+//        boolean shouldProvideRationale =
+//                ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                        Manifest.permission.ACCESS_FINE_LOCATION);
+//
+//        if (!shouldProvideRationale) {
+//            shouldProvideRationale =
+//                    ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                            Manifest.permission.ACCESS_BACKGROUND_LOCATION);
+//        }
+//        // Provide an additional rationale to the user. This would happen if the user denied the
+//        // request previously, but didn't check the "Don't ask again" checkbox.
+//        if (shouldProvideRationale) {
+//            Log.i(TAG, "Displaying permission rationale to provide additional context.");
+//            /*Snackbar.make(
+//                    findViewById(R.layout.activity_main),
+//                    R.string.permission_rationale,
+//                    Snackbar.LENGTH_INDEFINITE)
+//                    .setAction(R.string.ok, new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            // Request permission
+//                            ActivityCompat.requestPermissions(MainActivity.this,
+//                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+//                                    REQUEST_PERMISSIONS_REQUEST_CODE);
+//                        }
+//                    })
+//                    .show();*/
+//        } else {
+//            Log.i(TAG, "Requesting permission");
+//            // Request permission. It's possible this can be auto answered if device policy
+//            // sets the permission in a given state or the user denied the permission
+//            // previously and checked "Never ask again".
+//            ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
+////            ActivityCompat.requestPermissions(this,
+////                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+////                    REQUEST_PERMISSIONS_REQUEST_CODE);
+//        }
+//    }
 
     /**
      * Callback received when a permissions request has been completed.
@@ -225,17 +260,37 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             }
         }
     }*/
+
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    public void onLocationUpdated(Location mLocation) {
+
+        if(!LocationUpdatesService.canGetLocation() || mLocation.getProvider().equals("None")) { Utilities.showSettingsAlert(MainActivity.this); return; }
+
+        if (location != null) {
+            cLocation = mLocation;
+            latitude = String.valueOf(mLocation.getLatitude());
+            longitude = String.valueOf(mLocation.getLongitude());
+            refreshLocation();
+                /*Toast.makeText(MainActivity.this, Utils.getLocationText(mLocation),
+                        Toast.LENGTH_SHORT).show();*/
+        }
+    }
+
     @Override
     protected void onStop() {
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
+//Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .unregisterOnSharedPreferenceChangeListener(this);
         super.onStop();
     }
     @Override
@@ -247,16 +302,19 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         }catch (Exception e){
 
         }
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
-        if(mService!=null){
-            mService.removeLocationUpdates();
-        }
+
+//Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
+//        if(mService!=null){
+//            mService.removeLocationUpdates();
+//        }
         //gps.stopUsingGPS();
 
         //Intent myService = new Intent(MainActivity.this, GPSService.class);
@@ -266,15 +324,19 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch(keyCode){
             case KeyEvent.KEYCODE_BACK:
+
+
+                //RemoveLocation Updates
+                LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
                 // do something here
                 //gps.unbindService();
-                if (mBound) {
-                    // Unbind from the service. This signals to the service that this activity is no longer
-                    // in the foreground, and the service can respond by promoting itself to a foreground
-                    // service.
-                    unbindService(mServiceConnection);
-                    mBound = false;
-                }
+//                if (mBound) {
+//                    // Unbind from the service. This signals to the service that this activity is no longer
+//                    // in the foreground, and the service can respond by promoting itself to a foreground
+//                    // service.
+//                    unbindService(mServiceConnection);
+//                    mBound = false;
+//                }
                 finish();
                 return true;
         }
@@ -284,7 +346,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
     public void onPause() {
         super.onPause();
         try {
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+
+            //Remove Location Updates
+            LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+//            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationUpdateReciever);
             super.onPause();
         } catch (Exception e) {
             e.printStackTrace();
@@ -293,22 +358,27 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
     @Override
     public void onStart() {
         super.onStart();
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         /*if(gps== null){
             gps = new GPSTrackerEx(MainActivity.this);
         }*/
-        bindService(new Intent(MainActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
+
+//        if (!checkPermissions()) {
+//            requestPermissions();
+//        } else {
+//            if(mService!=null){
+//                mService.requestLocationUpdates();
+//            }
+//        }
+
+//        bindService(new Intent(MainActivity.this, LocationUpdatesService.class), mServiceConnection,
+//                Context.BIND_AUTO_CREATE);
+//        PreferenceManager.getDefaultSharedPreferences(this)
+//                .registerOnSharedPreferenceChangeListener(this);
         // Restore the state of the buttons when the activity (re)launches.
         //setButtonsState(Utils.requestingLocationUpdates(this));
-        if (!checkPermissions()) {
-            requestPermissions();
-        } else {
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
+
         // Bind to the service. If the service is in foreground mode, this signals to the service
         // that since this activity is in the foreground, the service can exit foreground mode.
 
@@ -330,11 +400,13 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             //sleep(5000);
             refreshSwitchboard();
             refreshDashboard();
+            //Listen to location Updates
+            LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
             /*if(gps== null){
                 gps = new GPSTrackerEx(MainActivity.this);
             }*/
-            LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+//            LocalBroadcastManager.getInstance(this).registerReceiver(mLocationUpdateReciever,
+//                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -369,7 +441,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
     Button reportBtn;
     ImageView syncStatusIcon;
     ImageView userImage;
-    GPSTrackerEx gps;
+    // GPSTrackerEx gps;
     String location="";
     Location cLocation;
     //Dashboard Items
@@ -399,18 +471,20 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
     //end
     Thread threadScreenUpdate=null;
 
+    @SuppressLint("HandlerLeak")
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Globals.checkLanguage(this);
         //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
+//        mLocationUpdateReciever = new MyReceiver();
         // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-            if (!checkPermissions()) {
-                requestPermissions();
-            }
-        }
+//        if (Utils.requestingLocationUpdates(this)) {
+//            if (!checkPermissions()) {
+//                requestPermissions();
+//            }
+//        }
         //--------------------END-------------------
         setContentView(R.layout.activity_main);
         currentDate = (TextView) findViewById(R.id.sodDateTxt);
@@ -424,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         inspTxtView.setText("5");
         ObservableObject.getInstance().addObserver(this);
         syncStatusIcon = (ImageView) findViewById(R.id.syncStatusIcon);
-        Globals.setUserInfoView(this,userImage, userNameView);
+        //Globals.setUserInfoView(this,userImage, userNameView);
         ListMap.initializeAllLists(this);
         dialog=new ProgressDialog(this); // this = YourActivity
         //DASHBOARD ITEMS
@@ -474,9 +548,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         //startService(new Intent(this, GPSService.class));
 
         refreshSwitchboard();
-        if(gps == null){
-            gps = new GPSTrackerEx(MainActivity.this);
-        }
+        //TODO: GPS HERE
+//        if(gps == null){
+//            gps = new GPSTrackerEx(MainActivity.this);
+//        }
         if(threadScreenUpdate ==null){
             threadScreenUpdate=new Thread(new Runnable() {
                 @Override
@@ -489,15 +564,18 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
                             }
                             if(dayStarted) {
                                 runOnUiThread(new Runnable() {
+                                    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
                                     @Override
                                     public void run() {
                                         if(secCounter % 10 == 0){
                                             if(latitude.equals("")) {
-                                                if(gps!=null){
-                                                    if(gps.isGPSEnabled()){
-                                                        tryLocation();
-                                                    }
-                                                }
+                                                tryLocation();
+                                                //TODO: GPS HERE
+//                                                if(gps!=null){
+//                                                    if(gps.isGPSEnabled()){
+//
+//                                                    }
+//                                                }
 
                                             }
                                         }
@@ -586,6 +664,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         });
         */
         sessionBtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onClick(View view) {
                 if(dayStarted){
@@ -595,7 +674,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
                     blnShowLocationAlert=true;
                     tryLocation();
                     blnShowLocationAlert=false;
-                    if(latitude.equals("") || longitude.equals("") || !gps.canGetLocation()){
+                    if(latitude.equals("") || longitude.equals("") ){//|| !gps.canGetLocation()){////TODO: GPS HERE
                         Toast.makeText(MainActivity.this,GPS_UNAVAILABLE_MSG,Toast.LENGTH_SHORT).show();
                         return ;
                     }
@@ -660,7 +739,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             public void onClick(View v) {
                 if (Globals.dayStarted) {
                     if(Globals.selectedJPlan.getTaskList().size() == 1){
-                        Globals.selectedTask = selectedJPlan.getTaskList().get(0);
+                        setSelectedTask(selectedJPlan.getTaskList().get(0));
                         Intent intent = new Intent(MainActivity.this, TaskDashboardActivity.class);
                         startActivity(intent);
                     } else {
@@ -693,7 +772,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
                     blnShowLocationAlert=true;
                     tryLocation();
                     blnShowLocationAlert=false;
-                    if(latitude.equals("")|| longitude.equals("") || !gps.canGetLocation()){
+                    if(latitude.equals("")|| longitude.equals("") ){//|| !gps.canGetLocation()){//TODO: GPS HERE
                         Toast.makeText(MainActivity.this,GPS_UNAVAILABLE_MSG,Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -784,9 +863,10 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             Log.d("debug", "started"); // Insert a breakpoint at this line!!
         }*/
         //if (requestCode == 100) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             String selection = data.getStringExtra("Selection");
-            if(selection.equals("Yes")){
+            if (selection.equals("Yes")) {
                 //Bundle extras = data.getExtras();
                 final int position = data.getIntExtra("Position", -1);
                 new Thread(new Runnable() {
@@ -1329,7 +1409,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         MainActivity.this.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                Globals.selectedTask = null;
+                setSelectedTask( null);
                 Globals.selectedUnit = null;
                 Globals.safetyBriefing = null;
                 Globals.selectedWorker = null;
@@ -1453,56 +1533,61 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
 
 
     }
-    public ArrayList<String> getCurrentLocation() {
-        double latitude;
-        double longitude;
-        ArrayList<String> loc = new ArrayList<>();
-        // create class object
-        if(gps ==null) {
-            gps = new GPSTrackerEx(MainActivity.this);
-        }
-        try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-            } else if(!gps.canGetLocation()) {
-                gps.showSettingsAlert();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if(!gps.canGetLocation()){
-            gps.showSettingsAlert();
-        }
-        // check if GPS enabled
-        if (gps.canGetLocation() && cLocation !=null) {
-            latitude = cLocation.getLatitude();
-            longitude = cLocation.getLongitude();
-
-            loc.add(String.valueOf(latitude));
-            loc.add(String.valueOf(longitude));
-
-            return loc;
-        } else {
-            // can't get location
-            // GPS or Network is not enabled
-            // Ask user to enable GPS/network in settings
-            if(blnShowLocationAlert) {
-                if (!isGpsPermissionAvailable()) {
-                    requestPermission(this, mPermission, REQUEST_CODE_PERMISSION);
-                } else {
-                    //gps.showSettingsAlert();
-                }
-            }
-            return loc;
-        }
-
-    }
+//    public ArrayList<String> getCurrentLocation() {
+//        double latitude;
+//        double longitude;
+//        ArrayList<String> loc = new ArrayList<>();
+//        // create class object
+//        //TODO: GPS HERE
+////        if(gps ==null) {
+////            gps = new GPSTrackerEx(MainActivity.this);
+////        }
+//        try {
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//
+//                ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+////            } else if(!gps.canGetLocation()) {//TODO: GPS HERE
+////                gps.showSettingsAlert();
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        //TODO: GPS HERE
+////        if(!gps.canGetLocation()){
+////            gps.showSettingsAlert();
+////        }
+//        // check if GPS enabled
+//        //TODO: GPS HERE
+//        //if (gps.canGetLocation() && cLocation !=null) {
+//        if ( cLocation !=null)
+//        {
+//            latitude = cLocation.getLatitude();
+//            longitude = cLocation.getLongitude();
+//
+//            loc.add(String.valueOf(latitude));
+//            loc.add(String.valueOf(longitude));
+//
+//            return loc;
+//        } else{
+//            // can't get location
+//            // GPS or Network is not enabled
+//            // Ask user to enable GPS/network in settings
+//            if(blnShowLocationAlert) {
+//                if (!isGpsPermissionAvailable()) {
+//                    requestPermission(this, mPermission, REQUEST_CODE_PERMISSION);
+//                } else {
+//                    //gps.showSettingsAlert();
+//                }
+//            }
+//            return loc;
+//        }
+//
+//    }
 
     void showDialog(String title,String message){
         dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -1519,54 +1604,56 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             }
         }
     }
-    boolean loadCurrentLocation(){
-        getCurrentLocation();
-
-        if(!gps.canGetLocation()){
-            Toast.makeText(MainActivity.this,getResources().getString(R.string.enable_gps),Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        if (getCurrentLocation().size() == 2) {
-            location = getCurrentLocation().get(0) + "," + getCurrentLocation().get(1);
-            return true;
-        }
-        return  false;
-
-    }
-    public boolean isGpsPermissionAvailable(){
-        try {
-            if (ActivityCompat.checkSelfPermission(this, mPermission)
-                    != PackageManager.PERMISSION_GRANTED) {
-                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
-                        REQUEST_CODE_PERMISSION);*/
-
-                // If any permission above not allowed by user, this condition will
-                //execute every time, else your else part will work
-                return false;
-            } else {
-                return true;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return  false;
-    }
-    public void requestPermission(Context context, String reqPermission, int permissionCode){
-        ActivityCompat.requestPermissions((Activity) context, new String[]{reqPermission},
-                permissionCode);
-
-    }
+    //    boolean loadCurrentLocation(){
+//        getCurrentLocation();
+//
+//        //TODO: GPS HERE
+////        if(!gps.canGetLocation()){
+////            Toast.makeText(MainActivity.this,getResources().getString(R.string.enable_gps),Toast.LENGTH_SHORT).show();
+////            return false;
+////        }
+//        if (getCurrentLocation().size() == 2) {
+//            location = getCurrentLocation().get(0) + "," + getCurrentLocation().get(1);
+//            return true;
+//        }
+//        return  false;
+//
+//    }
+//    public boolean isGpsPermissionAvailable(){
+//        try {
+//            if (ActivityCompat.checkSelfPermission(this, mPermission)
+//                    != PackageManager.PERMISSION_GRANTED) {
+//                /*ActivityCompat.requestPermissions(this, new String[]{mPermission},
+//                        REQUEST_CODE_PERMISSION);*/
+//
+//                // If any permission above not allowed by user, this condition will
+//                //execute every time, else your else part will work
+//                return false;
+//            } else {
+//                return true;
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return  false;
+//    }
+//    public void requestPermission(Context context, String reqPermission, int permissionCode){
+//        ActivityCompat.requestPermissions((Activity) context, new String[]{reqPermission},
+//                permissionCode);
+//
+//    }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    ArrayList<String> loc = getCurrentLocation();
-                    if(loc.size()>0){
-                        latitude=loc.get(0);
-                        longitude=loc.get(1);
-                    }
+//                    ArrayList<String> loc = getCurrentLocation();
+//                    if(loc.size()>0){
+//                        latitude=loc.get(0);
+//                        longitude=loc.get(1);
+//                    }
 
                 } else {
                     // permission denied, boo! Disable the
@@ -1582,45 +1669,39 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void tryLocation(){
-        ArrayList<String> loc =getCurrentLocation();
-        longitude="";
-        longitude ="";
-        if(loc.size()>0){
-            latitude=loc.get(0);
-            longitude=loc.get(1);
-            //gps.stopUsingGPS();
-        }
+        Location loc = LocationUpdatesService.getLocation();
+        latitude = String.valueOf(loc.getLatitude());
+        longitude = String.valueOf(loc.getLongitude());
+
         refreshLocation();
     }
-    private void refreshLocation(){
-        String locationString=longitude +","+latitude;
-        if(latitude.equals("") && longitude.equals("")){
-            if(gps!=null){
-                if(gps.getLastKnownLocation()!=null){
-                    Location _loc = gps.getLastKnownLocation();
-                    latitude = String.valueOf(_loc.getLatitude());
-                    longitude = String.valueOf(_loc.getLongitude());
-                    String locationDesc= Utilities.getLocationAddress(MainActivity.this, latitude, longitude);
-                    imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_white_24dp);
-                    if(locationDesc.equals("")){
-                        tvCurrLocationText.setText(locationString);
-                    }else{
-                        tvCurrLocationText.setText(locationDesc);
-                    }
-                }
-            }
-        } else if(!longitude.equals("") && !latitude.equals("")){
-            String locationDesc= Utilities.getLocationAddress(MainActivity.this, latitude, longitude);
+
+    private void refreshLocation() {
+        String locationString = longitude + "," + latitude;
+        if (latitude.equals("") && longitude.equals("")) {
+            Location _loc = LocationUpdatesService.getLocation();
+            latitude = String.valueOf(_loc.getLatitude());
+            longitude = String.valueOf(_loc.getLongitude());
+            String locationDesc = Utilities.getLocationAddress(MainActivity.this, latitude, longitude);
             imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_white_24dp);
-            if(locationDesc.equals("")){
+            if (locationDesc.equals("")) {
                 tvCurrLocationText.setText(locationString);
-            }else{
+            } else {
                 tvCurrLocationText.setText(locationDesc);
             }
 
-        }else
-        {
+        } else if (!longitude.equals("") && !latitude.equals("")) {
+            String locationDesc = Utilities.getLocationAddress(MainActivity.this, latitude, longitude);
+            imgGpsIcon.setBackgroundResource(R.drawable.ic_location_on_white_24dp);
+            if (locationDesc.equals("")) {
+                tvCurrLocationText.setText(locationString);
+            } else {
+                tvCurrLocationText.setText(locationDesc);
+            }
+
+        } else {
             imgGpsIcon.setBackgroundResource(R.drawable.ic_gps_off_white_24dp);
             tvCurrLocationText.setText(GPS_UNAVAILABLE_MSG);
         }
@@ -1665,5 +1746,7 @@ public class MainActivity extends AppCompatActivity implements Observer, SharedP
             Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
         }
     }
+
+
 }
 

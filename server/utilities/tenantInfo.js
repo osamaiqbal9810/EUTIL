@@ -1,5 +1,5 @@
 let config = require('../config/environment/index');
-var parseDomain=require('parse-domain');
+// var parseDomain=require('parse-domain');
 module.exports.getTenantId=function(domainName){
     /*let objDomain=parseDomain(domainName,{customTlds: /localhost|\.local/});
     if(objDomain){

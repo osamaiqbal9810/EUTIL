@@ -28,13 +28,11 @@ import { Icon } from "react-icons-kit";
 class AssetsSelection extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       options: [],
       selected: props.selected || [],
     };
-    this.onChange = this.onChange.bind(this);
-    console.log(this.props.options);
+    //this.onChange = this.onChange.bind(this);
   }
 
   componentDidMount() {}
@@ -46,7 +44,7 @@ class AssetsSelection extends Component {
     if (prevProps.options != this.props.options) {
       stateObj = { options: this.props.options };
     }
-    if (prevProps.selected != this.props.selected) {
+    if (prevProps.selected !== this.props.selected) {
       stateObj = {
         ...stateObj,
         ...{ selected: this.props.selected },
@@ -60,6 +58,8 @@ class AssetsSelection extends Component {
   componentWillReceiveProps(nextProps) {}
 
   onChange = selected => {
+    //console.log(selected);
+    this.props.selectedValues(selected) ;
     this.setState({ selected });
     if (this.props.onAssetChange) {
       this.props.onAssetChange(selected);

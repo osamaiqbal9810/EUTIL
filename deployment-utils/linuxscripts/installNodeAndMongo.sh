@@ -14,11 +14,14 @@ sudo apt-get update
 sudo apt-get install -y mongodb-org
 echo "Starting mongodb service using 'sudo service mongodb start'"
 # set mongodb to start automatically on system startup
+# sudo mkdir /data/db # if required do this
 sudo systemctl enable mongod
+sudo systemctl start mongod
 sudo systemctl status mongod
 echo "Installing mongodb native drivers for Nodejs"
 echo "Installing PM2"
 sudo npm install -g pm2
+sudo npm install -g babel-cli
 # set pm2 to start automatically on system startup
 sudo pm2 startup systemd
 

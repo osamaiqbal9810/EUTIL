@@ -1,7 +1,7 @@
 import AssetsTreeModel from "../assetsTree/assetsTreeModel";
 let ServiceLocator = require("../../framework/servicelocator");
 let assetsModal = require("./assets.modal");
-exports.all = async function(req, res, next) {
+exports.all = async function (req, res, next) {
   //console.log("Assets Controller all ");
   let AssetsService = ServiceLocator.resolve("AssetsService");
   //let resultObj = await AssetsService.getAllAssetsLamp(req.user);
@@ -13,7 +13,7 @@ exports.all = async function(req, res, next) {
   res.json(resultObj.value);
 };
 
-exports.getInspectableAssets = async function(req, res) {
+exports.getInspectableAssets = async function (req, res) {
   let AssetsService = ServiceLocator.resolve("AssetsService");
   let resultObj = await AssetsService.getInspectableAssets(req.user, "AssetsModel", "_id");
   if (resultObj.errorVal) {
@@ -23,8 +23,7 @@ exports.getInspectableAssets = async function(req, res) {
   res.json(resultObj.value);
 };
 
-exports.create = async function(req, res, next) {
-  //console.log(req.body);
+exports.create = async function (req, res, next) {
   let AssetsService = ServiceLocator.resolve("AssetsService");
   let resultObj; //= await AssetsService.createAssetsLamp(req.body.asset);
   if (req.body.asset.wizard && req.body.asset.wizard == true) {
@@ -39,14 +38,14 @@ exports.create = async function(req, res, next) {
   res.json(resultObj.value);
 };
 
-exports.createMultiple = async function(req, res, next) {
-// createMultipleAssets( multipleAssets )
-let AssetsService = ServiceLocator.resolve("AssetsService");
-  let resultObj; 
+exports.createMultiple = async function (req, res, next) {
+  // createMultipleAssets( multipleAssets )
+  let AssetsService = ServiceLocator.resolve("AssetsService");
+  let resultObj;
   if (req.body.assetsList) {
     resultObj = await AssetsService.createMultipleAssets(req.body.assetsList);
   } else {
-    resultObj = {status: 400, errorVal: 'Assets list missing'};
+    resultObj = { status: 400, errorVal: "Assets list missing" };
   }
   if (resultObj.errorVal) {
     return res.send(resultObj.errorVal);
@@ -55,7 +54,7 @@ let AssetsService = ServiceLocator.resolve("AssetsService");
   res.json(resultObj.value);
 };
 
-exports.find = async function(req, res) {
+exports.find = async function (req, res) {
   //console.log(req.body);
   let AssetsService = ServiceLocator.resolve("AssetsService");
   let resultObj = await AssetsService.find(req.params.id);
@@ -66,7 +65,7 @@ exports.find = async function(req, res) {
   res.json(resultObj.value);
 };
 
-exports.getParentLinesWithSelf = async function(req, res, next) {
+exports.getParentLinesWithSelf = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
 
   let resultObj = await assetService.getParentLinesWithSelf(req.user, req.body.criteria); // TODO: pass filter such as, Railroad, Division, Subdivision
@@ -77,7 +76,7 @@ exports.getParentLinesWithSelf = async function(req, res, next) {
   else res.json(resultObj.errorVal);
 };
 
-exports.getParentLines = async function(req, res, next) {
+exports.getParentLines = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
 
   let resultObj = await assetService.getParentLines(req.user); // TODO: pass filter such as, Railroad, Division, Subdivision
@@ -88,7 +87,7 @@ exports.getParentLines = async function(req, res, next) {
   else res.json(resultObj.errorVal);
 };
 
-exports.getAssetsForLine = async function(req, res, next) {
+exports.getAssetsForLine = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
   let resultObj = {};
   if (req.query && req.query.lineName) {
@@ -109,7 +108,7 @@ exports.getAssetsForLine = async function(req, res, next) {
   else res.json(resultObj.errorVal);
 };
 
-exports.getAssetTypeAssets = async function(req, res, next) {
+exports.getAssetTypeAssets = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
   let assetObj = JSON.parse(req.params.assetObj);
   let resultObj = await assetService.getAssetTypeAssets(assetObj);
@@ -118,7 +117,7 @@ exports.getAssetTypeAssets = async function(req, res, next) {
   else res.json(resultObj.errorVal);
 };
 
-exports.update = async function(req, res, next) {
+exports.update = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
 
   let resultObj = await assetService.updateAsset(req.body);
@@ -126,7 +125,7 @@ exports.update = async function(req, res, next) {
   if (resultObj.value) res.json(resultObj.value);
   else res.json(resultObj.errorVal);
 };
-exports.updateMultipleAssets = async function(req, res, next) {
+exports.updateMultipleAssets = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
 
   let resultObj = await assetService.updateMultipleAsset(req.body);
@@ -134,7 +133,7 @@ exports.updateMultipleAssets = async function(req, res, next) {
   if (resultObj.value) res.json(resultObj.value);
   else res.json(resultObj.errorVal);
 };
-exports.delete = async function(req, res, next) {
+exports.delete = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
 
   let resultObj = await assetService.deleteAsset(req.params.id);
@@ -146,7 +145,7 @@ exports.delete = async function(req, res, next) {
     res.json(resultObj.errorVal);
   }
 };
-exports.multiLine = async function(req, res, next) {
+exports.multiLine = async function (req, res, next) {
   let assetService = ServiceLocator.resolve("AssetsService");
   let resultObj = { status: 500, errorVal: "default" };
   let lines = [];
@@ -166,7 +165,7 @@ exports.multiLine = async function(req, res, next) {
   else res.json(resultObj.errorVal);
 };
 
-exports.getLocationSetup = async function(req, res) {
+exports.getLocationSetup = async function (req, res) {
   let locationService = ServiceLocator.resolve("LocationService");
   let resultObj = await locationService.getLocations(req.params.id);
   res.status(resultObj.status);
@@ -178,7 +177,7 @@ exports.getLocationSetup = async function(req, res) {
   }
 };
 
-exports.updateLocationSetup = async function(req, res) {
+exports.updateLocationSetup = async function (req, res) {
   let locationService = ServiceLocator.resolve("LocationService");
   let resultObj = await locationService.updateLocations(req.params.id, req.body);
   res.status(resultObj.status);
@@ -189,7 +188,7 @@ exports.updateLocationSetup = async function(req, res) {
   }
 };
 
-exports.getUnAssignedAssets = async function(req, res) {
+exports.getUnAssignedAssets = async function (req, res) {
   let assetService = ServiceLocator.resolve("AssetsService");
   let resultObj = await assetService.getUnAssignedAssets();
   res.status(resultObj.status);
@@ -200,7 +199,7 @@ exports.getUnAssignedAssets = async function(req, res) {
   }
 };
 
-exports.getAssetTree = async function(req, res) {
+exports.getAssetTree = async function (req, res) {
   try {
     let assetTree = await AssetsTreeModel.findOne({ tag: "AssetTree" }).exec();
     res.status(200);
@@ -208,5 +207,27 @@ exports.getAssetTree = async function(req, res) {
   } catch (err) {
     res.status(500);
     return res.send(err);
+  }
+};
+
+exports.getLocationAssetsCSV = async function (req, res) {
+  let locationService = ServiceLocator.resolve("LocationService");
+  let resultObj = await locationService.locationAssetsToCSV(req.params.id);
+  res.status(resultObj.status);
+  if (resultObj.value) {
+    res.json(resultObj.value);
+  } else {
+    res.json(resultObj.errorVal);
+  }
+};
+
+exports.getAssetWithParents = async function (req, res) {
+  let assetService = ServiceLocator.resolve("AssetsService");
+  let resultObj = await assetService.getUnAssignedAssets(req.params.id);
+  res.status(resultObj.status);
+  if (resultObj.value) {
+    res.json(resultObj.value);
+  } else {
+    res.json(resultObj.errorVal);
   }
 };

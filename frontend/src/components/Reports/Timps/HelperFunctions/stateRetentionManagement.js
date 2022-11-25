@@ -4,13 +4,20 @@ import moment from "moment";
 const InputObj = {
   location: "",
   user: "",
+  assetType: "",
+  defectCode: "",
+  defectStatus: "",
+  asset_name:"",
+  priority_level:"1",
+  assetStatus:""
 };
 export const TEMPLATE_REPORT_FILTERS = {
-  reportName: "Inspection of Utility Facilities",
-  reportTitle: "Inspection of Utility Facilities",
+  reportName: "Asset Inspection Reports",
+  reportTitle: "Asset Inspection Reports",
   InputObj: { ...InputObj },
   showReport: false,
   inspec: {},
+  InspectionReportType: "Original",
   dateRange: { from: new Date(moment().startOf("day")), today: new Date(moment().startOf("day")), to: new Date(moment().endOf("day")) },
 };
 
@@ -25,6 +32,7 @@ export const getCurrentReportStateFilters = (reportFilterState) => {
       dateRange: reportFilterState.dateRange,
       showReport: reportFilterState.showReport,
       inspec: reportFilterState.inspec,
+      InspectionReportType: reportFilterState.InspectionReportType
     };
   }
 

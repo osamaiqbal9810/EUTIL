@@ -10,27 +10,27 @@ import { commonFormFields, POPUP_TYPES_TO_SHOW } from "./variables";
 import FormFields from "../../../wigets/forms/formFields";
 import { FORM_SUBMIT_TYPES, MODAL_TYPES } from "../../../utils/globals";
 import { curdActions } from "reduxCURD/actions";
-import {checkFormIsValid, processFromFields} from "../../../utils/helpers";
+import { checkFormIsValid, processFromFields } from "../../../utils/helpers";
 import Select from "react-select";
-const MyButton = props => (
+const MyButton = (props) => (
   <button className="setPasswordButton" {...props}>
     {props.children}
   </button>
 );
 
 const multiSelectStyle = {
-    control: styles => ({
-        ...styles,
-        fontSize: "12px",
-        backgroundColor: "white",
-        height: "auto",
-        minHeight: "15px",
-    }),
-    option: (base, state) => ({
-        ...base,
-        color: "rgba(64, 118, 179)",
-        fontSize: "12px",
-    }),
+  control: (styles) => ({
+    ...styles,
+    fontSize: "12px",
+    backgroundColor: "white",
+    height: "auto",
+    minHeight: "15px",
+  }),
+  option: (base, state) => ({
+    ...base,
+    color: "var(--first)",
+    fontSize: "12px",
+  }),
 };
 
 class AddAssetTypeIndex extends Component {
@@ -40,8 +40,8 @@ class AddAssetTypeIndex extends Component {
 
     popupTypeToShow: POPUP_TYPES_TO_SHOW.MAIN_FORM,
     modalState: "None",
-      assetTypeOptions: [],
-      allowedAssetTypes: []
+    assetTypeOptions: [],
+    allowedAssetTypes: [],
   };
 
   componentDidUpdate(prevProps, prevState) {
@@ -52,10 +52,10 @@ class AddAssetTypeIndex extends Component {
 
       if (this.props.modals.type === MODAL_TYPES.ADD) {
         this.setState({
-            assetTypeFields: _.cloneDeep(commonFormFields),
-            assetTypeOptions: [],
-            allowedAssetTypes: []
-        })
+          assetTypeFields: _.cloneDeep(commonFormFields),
+          assetTypeOptions: [],
+          allowedAssetTypes: [],
+        });
       }
     }
 
@@ -64,10 +64,10 @@ class AddAssetTypeIndex extends Component {
     }
   }
 
-    setAllowedAssetTypes = () => {
-      let assetTypeOptions = this.props.assetTypes.map(at => ({value: at.assetType, label: at.assetType}));
-      this.setState({assetTypeOptions});
-    };
+  setAllowedAssetTypes = () => {
+    let assetTypeOptions = this.props.assetTypes.map((at) => ({ value: at.assetType, label: at.assetType }));
+    this.setState({ assetTypeOptions });
+  };
 
   mapSelectedAssetTypeFieldsToState = () => {
     const { data } = this.props.modals;
@@ -77,18 +77,18 @@ class AddAssetTypeIndex extends Component {
     for (let key in data) {
       if (key in assetTypeFields) {
         assetTypeFields[key].value = data[key];
-        assetTypeFields[key].valid = data[key] !== '';
+        assetTypeFields[key].valid = data[key] !== "";
       }
 
-      if (key === 'allowedAssetTypes') {
-        allowedAssetTypes = data[key].map(aat => ({value: aat, label: aat}))
+      if (key === "allowedAssetTypes") {
+        allowedAssetTypes = data[key].map((aat) => ({ value: aat, label: aat }));
       }
     }
 
     this.updateFrom({ assetTypeFields, allowedAssetTypes });
   };
 
-  handleSubmitAssetType = formType => () => {
+  handleSubmitAssetType = (formType) => () => {
     let { assetTypeFields, allowedAssetTypes } = this.state;
 
     let dataToSubmit = {
@@ -98,16 +98,14 @@ class AddAssetTypeIndex extends Component {
     let isFormValid = checkFormIsValid(assetTypeFields);
     // debugger;
     if (isFormValid) {
-        if (allowedAssetTypes) {
-            dataToSubmit.allowedAssetTypes = allowedAssetTypes.map(aat => aat.value);
-        }
+      if (allowedAssetTypes) {
+        dataToSubmit.allowedAssetTypes = allowedAssetTypes.map((aat) => aat.value);
+      }
 
-        this.props.handleSubmitForm(dataToSubmit, formType);
-
+      this.props.handleSubmitForm(dataToSubmit, formType);
     } else {
-        this.setFormValidation(assetTypeFields, "assetTypeFields");
+      this.setFormValidation(assetTypeFields, "assetTypeFields");
     }
-
   };
 
   setFormValidation = (data, stateVarName) => {
@@ -128,7 +126,7 @@ class AddAssetTypeIndex extends Component {
     this.props.toggle("None", null);
   };
 
-  updateFrom = newState => {
+  updateFrom = (newState) => {
     if (
       newState.assetTypeFields.plannable.value !== this.state.assetTypeFields.plannable.value &&
       newState.assetTypeFields.plannable.value
@@ -139,7 +137,7 @@ class AddAssetTypeIndex extends Component {
     this.setState({ ...newState });
   };
 
-  handleChangeAllowedAssetTypes = allowedAssetTypes => this.setState({allowedAssetTypes});
+  handleChangeAllowedAssetTypes = (allowedAssetTypes) => this.setState({ allowedAssetTypes });
 
   render() {
     return (
@@ -158,14 +156,14 @@ class AddAssetTypeIndex extends Component {
                 <div className={"commonform"}>
                   <FormFields assetTypeFields={this.state.assetTypeFields} fieldTitle={"assetTypeFields"} change={this.updateFrom} />
 
-                    <Select
-                        value={this.state.allowedAssetTypes}
-                        closeMenuOnSelect={false}
-                        styles={multiSelectStyle}
-                        options={this.state.assetTypeOptions}
-                        isMulti
-                        onChange={this.handleChangeAllowedAssetTypes}
-                    />
+                  <Select
+                    value={this.state.allowedAssetTypes}
+                    closeMenuOnSelect={false}
+                    styles={multiSelectStyle}
+                    options={this.state.assetTypeOptions}
+                    isMulti
+                    onChange={this.handleChangeAllowedAssetTypes}
+                  />
                 </div>
               </Col>
             </Row>

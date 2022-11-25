@@ -214,10 +214,10 @@ class CategoryAddEdit extends Component {
             </Field>
             <Field>
               <div onClick={this.handleCheckBoxClick}>
-                <div style={{ color: "rgba(64, 118, 179)", display: "inline-block" }}>
+                <div style={{ color: "rgb(94, 141, 143)", display: "inline-block" }}>
                   <SvgIcon size={16} icon={this.state.newListName ? ic_check_box : ic_check_box_outline_blank} />
                 </div>
-                <div style={{ padding: "0px 5px", color: "rgba(64, 118, 179)", fontSize: "14px", display: "inline-block" }}>
+                <div style={{ padding: "0px 5px", color: "rgb(94, 141, 143)", fontSize: "14px", display: "inline-block" }}>
                   Create New List
                 </div>
               </div>

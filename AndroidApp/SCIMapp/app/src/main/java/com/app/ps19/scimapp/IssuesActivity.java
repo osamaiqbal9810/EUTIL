@@ -3,25 +3,26 @@ package com.app.ps19.scimapp;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Location;
 import android.net.Uri;
-import android.os.IBinder;
+import android.os.Build;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import androidx.annotation.NonNull;
 
+import com.app.ps19.scimapp.Shared.Utilities;
+import com.app.ps19.scimapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.scimapp.classes.Units;
 import com.app.ps19.scimapp.classes.maintenance.WorkOrderListFragment;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.core.view.ViewCompat;
@@ -35,6 +36,7 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -54,17 +56,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ps19.scimapp.Shared.FragmentToActivityInterface;
-import com.app.ps19.scimapp.Shared.GPSTrackerEx;
+//import com.app.ps19.scimapp.Shared.GPSTrackerEx;
 import com.app.ps19.scimapp.Shared.Globals;
-import com.app.ps19.scimapp.Shared.LocationChangedInterface;
-import com.app.ps19.scimapp.Shared.LocationUpdatesService;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.app.ps19.scimapp.Shared.Res;
-import com.app.ps19.scimapp.Shared.Utils;
-import com.app.ps19.scimapp.Shared.onLocReceive;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.LatLong;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -77,15 +75,24 @@ import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.TASK_NOT_STARTED_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.appName;
 import static com.app.ps19.scimapp.Shared.Globals.getBlinkAnimation;
-import static com.app.ps19.scimapp.Shared.Globals.initialRun;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.isMaintainer;
 import static com.app.ps19.scimapp.Shared.Globals.isTimpsApp;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+//import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 import static com.app.ps19.scimapp.Shared.Utilities.getLocationDescription;
 
-public class IssuesActivity extends AppCompatActivity implements FormFragment.OnFragmentInteractionListener, UnitsFragment.OnFragmentInteractionListener, IssueFragment.OnFragmentInteractionListener, AssetFragment.OnFragmentInteractionListener, LocationChangedInterface, SharedPreferences.OnSharedPreferenceChangeListener, onLocReceive, FragmentToActivityInterface,DynFormListFragment.OnFragmentInteractionListener {
+public class IssuesActivity extends AppCompatActivity implements
+        FormFragment.OnFragmentInteractionListener,
+        UnitsFragment.OnFragmentInteractionListener,
+        IssueFragment.OnFragmentInteractionListener,
+        AssetFragment.OnFragmentInteractionListener,
+        SharedPreferences.OnSharedPreferenceChangeListener,
+        // onLocReceive,
+        FragmentToActivityInterface,
+        DynFormListFragment.OnFragmentInteractionListener,
+        OnLocationUpdatedListener {
 
     /**
      * The {@link PagerAdapter} that will provide
@@ -108,8 +115,8 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
     private NestedScrollView bottom_sheet;
     ListView lvStaticUnits;
     ListView lvSortedUnits;
-    GPSTrackerEx gps;
-    Location cLocation;
+    //  GPSTrackerEx gps;
+    volatile Location cLocation;
     uSelectionAdapter selectionSortedAdt;
     uSelectionAdapter selectionStaticAdt;
     Double preLongitude;
@@ -172,25 +179,28 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         }
         return res;
     }
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
         setLocale(this);
         setContentView(R.layout.activity_issues);
         dialog=new ProgressDialog(this);
         showDialog("Please Wait!","Loading Assets. . . ");
         //-------------------GPS Code--------------
-        myReceiver = new MyReceiver();
+        // myReceiver = new MyReceiver();
         // Check that the user hasn't revoked permissions by going to Settings.
-        if (Utils.requestingLocationUpdates(this)) {
-        /*    if (!checkPermissions()) {
-                requestPermissions();
-            }*/
-        }
+//        if (Utils.requestingLocationUpdates(this)) {
+//        /*    if (!checkPermissions()) {
+//                requestPermissions();
+//            }*/
+//        }
         //--------------------END-------------------
 
         // Calculating is yard inspection
-        if(selectedTask != null){
+        if(getSelectedTask() != null){
             findAndSetYardInspection();
         }
         bottom_sheet = findViewById(R.id.bottom_sheet);
@@ -274,7 +284,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         tabLayout.setBackgroundColor(res.getColor(R.color.action_bar_background));
         toolbar.setBackgroundColor(res.getColor(R.color.action_bar_background));
         tvTaskStatus = (TextView) findViewById(R.id.tv_task_status);
-        setTaskView(selectedTask.getStatus());
+        setTaskView(getSelectedTask().getStatus());
 
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
@@ -317,7 +327,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
                 // Reload your recyclerView here
             }});
 
-        if(Globals.selectedTask.getWholeUnitList().size() == 0){
+        if(getSelectedTask().getWholeUnitList().size() == 0){
             Toast.makeText(IssuesActivity.this, "No Asset available to proceed!", Toast.LENGTH_SHORT).show();
             //gps.unbindService();
             finishActivity();
@@ -334,9 +344,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         screenWakeLock();
-        if(gps == null){
-            gps = new GPSTrackerEx(IssuesActivity.this);
-        }
+
         lvStaticUnits = (ListView) findViewById(R.id.fm_lv_static_units);
         lvSortedUnits = (ListView) findViewById(R.id.fm_lv_sorted_units);
         tvAssetTitle = (TextView) findViewById(R.id.tv_selected_asset_title);
@@ -355,7 +363,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
 
         if (Globals.selectedUnit == null) {
             if(appName.equals(Globals.AppName.SCIM)){
-                for(Units unit: selectedTask.getWholeUnitList()) {
+                for(Units unit: getSelectedTask().getWholeUnitList()) {
                     if (!unit.getAssetTypeClassify().equals("linear")) {
                         selectedUnit = unit;
                         break;
@@ -375,10 +383,11 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
             @Override
             public void onClick(View view) {
                 Intent intent=new Intent(IssuesActivity.this,AssetMapsActivity.class);
-                if(gps.canGetLocation()){
+
+                if(cLocation != null){
                     startActivityForResult(intent, 1);
                 } else {
-                    gps.showSettingsAlert();
+                    Log.e(TAG, "GPS Service Not Availiable");
                 }
 
 
@@ -438,17 +447,20 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
             }
         });
 
-        if (gps.canGetLocation() && cLocation != null) {
+        cLocation = LocationUpdatesService.getLocation();
+        if ( cLocation != null) {
+
             preLongitude = cLocation.getLongitude();
             preLatitude = cLocation.getLatitude();
 
             //tvLatitude.setText(Double.toString(gps.getLatitude()));
             //tvLongitude.setText(Double.toString(gps.getLongitude()));
-            CURRENT_LOCATION = String.valueOf(cLocation.getLatitude()) + "," + String.valueOf(cLocation.getLongitude());
+            CURRENT_LOCATION = LocationUpdatesService.getLocationText(cLocation);
+            //String.valueOf(cLocation.getLatitude()) + "," + String.valueOf(cLocation.getLongitude());
 
             LatLong location = new LatLong(Double.toString(preLatitude), Double.toString(preLongitude));
             //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-            staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+            staticList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()>=0) {
                 //    it.remove();
@@ -457,7 +469,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
                     it.remove();
                 }
             }
-            sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+            sortedList =getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {
                 //    it.remove();
@@ -479,9 +491,9 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
 
             selectionSortedAdt = new uSelectionAdapter(IssuesActivity.this, "sorted", sortedList);
             lvSortedUnits.setAdapter(selectionSortedAdt);
-        } else {
-            gps.showSettingsAlert();
-        }
+        } //else {
+        // gps.showSettingsAlert();
+        //}
 
         setListViewHeightBasedOnChildren(lvStaticUnits);
         setListViewHeightBasedOnChildren(lvSortedUnits);
@@ -559,14 +571,12 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         listView.requestLayout();
     }
     public void listUpdate(String lat, String lon){
-
-
         try {
             LatLong location = null;
             location = new LatLong(lat, lon);
             //staticList.clear();
             //TODO null check
-            staticList = Globals.selectedTask.getUnitList(location.getLatLng());
+            staticList =getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = staticList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()>=0) {
                 //    it.remove();
@@ -577,7 +587,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
             }
             Collections.sort(staticList, DUnit.UnitDistanceComparator);
             //sortedList.clear();
-            sortedList = Globals.selectedTask.getUnitList(location.getLatLng());
+            sortedList = getSelectedTask().getUnitList(location.getLatLng());
             for (Iterator<DUnit> it = sortedList.iterator(); it.hasNext();) {
                 //if (it.next().getDistance()<0) {
                 //    it.remove();
@@ -639,13 +649,13 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
     }
     @Override
     protected void onStop() {
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
         PreferenceManager.getDefaultSharedPreferences(this)
                 .unregisterOnSharedPreferenceChangeListener(this);
         super.onStop();
@@ -659,14 +669,16 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
                 e.printStackTrace();
             }
         }
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
         //gps.unbindService();
+        //Remove Location Updates
+        LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
         super.onDestroy();
     }
 
@@ -677,7 +689,9 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         if(mWakeLock.isHeld()){
             try {
                 mWakeLock.release();
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
+                //Remove Location Updates
+                LocationUpdatesService.removeLocationUpdateListener(this.getClass().getSimpleName());
+                //LocalBroadcastManager.getInstance(this).unregisterReceiver(myReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -693,11 +707,14 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
     public void onStart()
     {
         super.onStart();
-        if(gps == null){
-            gps = new GPSTrackerEx(IssuesActivity.this);
-        }
-        bindService(new Intent(IssuesActivity.this, LocationUpdatesService.class), mServiceConnection,
-                Context.BIND_AUTO_CREATE);
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+        //TODO: GPS HERE
+//        if(gps == null){
+//            gps = new GPSTrackerEx(IssuesActivity.this);
+//        }
+//        bindService(new Intent(IssuesActivity.this, LocationUpdatesService.class), mServiceConnection,
+//                Context.BIND_AUTO_CREATE);
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
 
@@ -708,8 +725,10 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         // TODO: Implement this method
         super.onResume();
         screenWakeLock();
-        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
-                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+        //Listen to location Updates
+        LocationUpdatesService.addOnLocationUpdateListener( this.getClass().getSimpleName() , this);
+//        LocalBroadcastManager.getInstance(this).registerReceiver(myReceiver,
+//                new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
         setLocale(this);
         /*if(imgCompass.getTag().equals(R.drawable.compass)) {
             sensorManager.registerListener(UnitSelectionActivity.this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION), SensorManager.SENSOR_DELAY_GAME);
@@ -766,19 +785,19 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         return resultDegree+" "+compasLoc;
     }
 
-    @Override
-    public void locationChanged(Location mLocation) {
-        /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
-        txtDegrees.setText(location);*/
-
-        //tvLatitude.setText(String.valueOf(mLocation.getLatitude()));
-        //tvLongitude.setText(String.valueOf(mLocation.getLongitude()));
-        /*cLocation = mLocation;
-        CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
-        LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
-        //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-        listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));*/
-    }
+//    @Override
+//    public void locationChanged(Location mLocation) {
+//        /*String location = String.valueOf(mLocation.getLatitude() + ", " + String.valueOf(mLocation.getLongitude()));
+//        txtDegrees.setText(location);*/
+//
+//        //tvLatitude.setText(String.valueOf(mLocation.getLatitude()));
+//        //tvLongitude.setText(String.valueOf(mLocation.getLongitude()));
+//        /*cLocation = mLocation;
+//        CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
+//        LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
+//        //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+//        listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));*/
+//    }
 
 
     @Override
@@ -814,11 +833,6 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
     }
 
     @Override
-    public void onLocSent(String lat, String lon) {
-
-    }
-
-    @Override
     public void onAssetChange() {
         if(getFragmentRefreshFormListener()!=null){
             getFragmentRefreshFormListener().onRefresh();
@@ -829,6 +843,22 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         if(getFragmentRefreshAssetFormListener()!=null){
             getFragmentRefreshAssetFormListener().onRefresh();
         }
+    }
+
+    @Override
+    public void onLocationUpdated(Location location) {
+        if(!LocationUpdatesService.canGetLocation() || location.getProvider().equals("None")) { Utilities.showSettingsAlert(IssuesActivity.this); return;}
+        if (location != null) {
+            cLocation = location;
+            CURRENT_LOCATION = LocationUpdatesService.getLocationText(cLocation);
+            //String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
+            LatLong mlocation = new LatLong(Double.toString(location.getLatitude()), Double.toString(location.getLongitude()));
+            //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+            listUpdate(String.valueOf(location.getLatitude()), String.valueOf(location.getLongitude()));
+                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
+                        Toast.LENGTH_SHORT).show();*/
+        }
+
     }
 
     /**
@@ -1058,85 +1088,85 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
     }
     @Override
     public void onBackPressed() {
-        if (mBound) {
-            // Unbind from the service. This signals to the service that this activity is no longer
-            // in the foreground, and the service can respond by promoting itself to a foreground
-            // service.
-            unbindService(mServiceConnection);
-            mBound = false;
-        }
+//        if (mBound) {
+//            // Unbind from the service. This signals to the service that this activity is no longer
+//            // in the foreground, and the service can respond by promoting itself to a foreground
+//            // service.
+//            unbindService(mServiceConnection);
+//            mBound = false;
+//        }
         Intent intent = new Intent();
         intent.putExtra("status", "close");
         setResult(RESULT_OK, intent);
         super.onBackPressed();
     }
-   /* @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch(keyCode){
-            case KeyEvent.KEYCODE_BACK:
-                //gps.unbindService();
-                if (mBound) {
-                    // Unbind from the service. This signals to the service that this activity is no longer
-                    // in the foreground, and the service can respond by promoting itself to a foreground
-                    // service.
-                    unbindService(mServiceConnection);
-                    mBound = false;
-                }
-                finishActivity();
-                return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }*/
-    /**
-     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
-    private class MyReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
-            if (mLocation != null) {
-                cLocation = mLocation;
-                CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
-                LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
-                //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
-                listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
-                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
-                        Toast.LENGTH_SHORT).show();*/
-            }
-        }
-    }
+    /* @Override
+     public boolean onKeyDown(int keyCode, KeyEvent event) {
+         switch(keyCode){
+             case KeyEvent.KEYCODE_BACK:
+                 //gps.unbindService();
+                 if (mBound) {
+                     // Unbind from the service. This signals to the service that this activity is no longer
+                     // in the foreground, and the service can respond by promoting itself to a foreground
+                     // service.
+                     unbindService(mServiceConnection);
+                     mBound = false;
+                 }
+                 finishActivity();
+                 return true;
+         }
+         return super.onKeyDown(keyCode, event);
+     }*/
+    //   /**
+//     * Receiver for broadcasts sent by {@link LocationUpdatesService}.
+//     */
+//    private class MyReceiver extends BroadcastReceiver {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            Location mLocation = intent.getParcelableExtra(LocationUpdatesService.EXTRA_LOCATION);
+//            if (mLocation != null) {
+//                cLocation = mLocation;
+//                CURRENT_LOCATION = String.valueOf(mLocation.getLatitude()) + "," + String.valueOf(mLocation.getLongitude());
+//                LatLong location = new LatLong(Double.toString(mLocation.getLatitude()), Double.toString(mLocation.getLongitude()));
+//                //tvLocation.setText(getLocationDescription(location, UnitSelectionActivity.this));
+//                listUpdate(String.valueOf(mLocation.getLatitude()), String.valueOf(mLocation.getLongitude()));
+//                /*Toast.makeText(IssuesActivity.this, Utils.getLocationText(mLocation),
+//                        Toast.LENGTH_SHORT).show();*/
+//            }
+//        }
+//    }
     // Monitors the state of the connection to the service.
-    private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
-            mService = binder.getService();
-            mBound = true;
-            if(mService!=null){
-                mService.requestLocationUpdates();
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            mService = null;
-            mBound = false;
-        }
-    };
+//    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            LocationUpdatesService.LocalBinder binder = (LocationUpdatesService.LocalBinder) service;
+//            mService = binder.getService();
+//            mBound = true;
+//            if(mService!=null){
+//                mService.requestLocationUpdates();
+//            }
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//            mService = null;
+//            mBound = false;
+//        }
+//    };
     private static final String TAG = "resPMain";
 
     // Used in checking for runtime permissions.
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
     // The BroadcastReceiver used to listen from broadcasts from the service.
-    private MyReceiver myReceiver;
+    // private MyReceiver myReceiver;
 
     // A reference to the service used to get location updates.
-    private LocationUpdatesService mService = null;
+    // private LocationUpdatesService mService = null;
 
     // Tracks the bound state of the service.
-    private boolean mBound = false;
+    // private boolean mBound = false;
     public float dpToPixel(int dp) {
         Resources r = getResources();
         float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, r.getDisplayMetrics());
@@ -1168,7 +1198,7 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         tvTaskStatus.setAnimation(getBlinkAnimation());
     }
     private void selectFirstAsset(){
-        for (Units unit: selectedTask.getWholeUnitList()){
+        for (Units unit: getSelectedTask().getWholeUnitList()){
             if(!unit.getAssetTypeObj().isLocation()){
                 selectedUnit = unit;
                 break;
@@ -1176,9 +1206,9 @@ public class IssuesActivity extends AppCompatActivity implements FormFragment.On
         }
     }
     private void findAndSetYardInspection(){
-        for(Units asset: selectedTask.getWholeUnitList()){
+        for(Units asset: getSelectedTask().getWholeUnitList()){
             if(asset.getAssetTypeObj().isMarkerMilepost()){
-                selectedTask.setYardInspection(true);
+                getSelectedTask().setYardInspection(true);
             }
         }
     }

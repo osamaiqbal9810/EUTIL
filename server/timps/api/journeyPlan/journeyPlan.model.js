@@ -5,7 +5,7 @@ let ServiceLocator = require("../../../framework/servicelocator");
 
 let JourneyPlan = new Schema({
   supervisor: String,
-  user: { id: String, name: String, email: String },
+  user: { id: String, name: String, email: String, signature: Object, profile_img: Object, },
   date: Date,
   title: String,
   subdivision: String,
@@ -23,8 +23,10 @@ let JourneyPlan = new Schema({
   status: String,
   serverObject: Object,
   safetyBriefing: Object,
+  jobBriefings:Array,
   intervals: Array,
   privateKey: String,
+  inspection_type:String,                   
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

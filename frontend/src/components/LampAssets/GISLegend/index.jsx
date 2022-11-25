@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 
-import { languageService } from "Language/language.service";
 import { pinOutline } from "react-icons-kit/typicons/pinOutline";
 import { pin } from "react-icons-kit/typicons/pin";
 import { Icon } from "react-icons-kit";
 // import { inspectionTemplate } from "templates/InspectionTemplate";
 // import { getStatusColor } from "../../../utils/statusColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
+import { lang } from "moment";
+import { languageService } from "../../../Language/language.service";
 
 class GISLegend extends Component {
   constructor(props) {
@@ -40,14 +41,14 @@ class GISLegend extends Component {
             transition: "all 0.3s ease-in-out",
           }}
         >
-          {/* <h6 style={{ fontFamily: "Myriad Pro", fontSize: "18px", letterSpacing: "0.5px", color: "rgb(64, 118, 179)" }}>Legend:</h6> */}
-          <div style={{ display: "inline-block", width: "70%", background: "rgb(102, 102, 102)", padding: "10px", lineHeight: "normal" }}>
+          {/* <h6 style={{ fontFamily: "Myriad Pro", fontSize: "18px", letterSpacing: "0.5px", color: "var(--first)" }}>Legend:</h6> */}
+          <div style={{ display: "inline-block", width: "70%", background: "var(--ten)", padding: "10px", lineHeight: "normal" }}>
             {this.props.legendData &&
               this.props.legendData.map((item) => (
                 <div
                   key={item.text}
                   className={this.state.pinned ? "legend-container gis" : "legend-container gis open"}
-                  style={{ background: "#fff", padding: "5px" }}
+                  style={{ background: "var(--fifth)", padding: "5px" }}
                 >
                   <span
                     style={{
@@ -61,7 +62,8 @@ class GISLegend extends Component {
                     }}
                   ></span>
                   <label className="legend-bar" style={themeService({ default: {}, retro: { color: retroColors.second } })}>
-                    {item.text.charAt(0).toUpperCase() + item.text.slice(1)}
+                    {/* { item.text.charAt(0).toUpperCase() + item.text.slice(1)} */}
+                    {languageService(item.text)}
                   </label>
                 </div>
               ))}
@@ -69,7 +71,7 @@ class GISLegend extends Component {
           <button
             onClick={this.handleClick}
             style={{
-              background: "rgb(102, 102, 102)",
+              background: "var(--ten)",
               border: "none",
               width: "30%",
               cursor: "pointer",
@@ -84,7 +86,7 @@ class GISLegend extends Component {
             {/* <Icon
               size={20}
               style={themeService({
-                default: { color: "rgb(64, 118, 179)", fill: "rgb(64, 118, 179)" },
+                default: { color: "var(--first)", fill: "var(--first)" },
                 retro: { color: retroColors.second, fill: retroColors.second },
               })}
               icon={this.state.pinned ? pinOutline : pin}
@@ -95,7 +97,7 @@ class GISLegend extends Component {
                 textOrientation: "upright",
                 textTransform: "uppercase",
                 fontWeight: "600",
-                color: "#fff",
+                color: "var(--fifth)",
               }}
             >
               Legend

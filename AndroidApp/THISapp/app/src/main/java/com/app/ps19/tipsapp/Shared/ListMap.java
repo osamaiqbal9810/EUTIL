@@ -3,12 +3,15 @@ package com.app.ps19.tipsapp.Shared;
 import android.content.Context;
 import android.util.Log;
 
+import com.app.ps19.tipsapp.classes.LocationPrefix;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -17,7 +20,7 @@ import java.util.StringTokenizer;
  */
 
 public  class ListMap {
-    private  static HashMap<String , Object> listLookups=new HashMap<String,Object>();
+    private  static Hashtable<String , Object> listLookups=new Hashtable<String,Object>();
     //private  static HashMap<String, String > lookup=new HashMap<String, String>();
     private static Context context;
     public static final int LIST_EMPLOYEE=1;
@@ -33,14 +36,19 @@ public  class ListMap {
     public static final int LIST_APP_FORMS=11;
     public static final int LIST_APP_CONFIG=12;
     public static final int LIST_TEMPLATES=13;
-
-    public static HashMap<String, Object> getListLookups() {
+    public static final int LIST_LOC_PREFIX=14;
+    public static final int LIST_EQUIPMENT_TYPES=15;
+    public static Hashtable<String, Object> getListLookups() {
         return listLookups;
     }
 
     public  static boolean isInitialized()
     {
         return (listLookups.size()!=0);
+    }
+    public  static void clear()
+    {
+        listLookups.clear();
     }
 
     public static boolean initializeAllLists(Context context)
@@ -53,69 +61,98 @@ public  class ListMap {
         retValue=loadList(LIST_CATEGORY) & loadList(LIST_PRIORITY)
                 & loadList(LIST_SETTINGS)  & loadList(LIST_REM_ACTIONS) & loadList(LIST_APP_FORMS)
                 & loadList(LIST_APP_CONFIG)
-                & loadList(LIST_TEMPLATES);;
+                & loadList(LIST_TEMPLATES)
+                & loadList(LIST_LOC_PREFIX)
+                & loadList(LIST_EQUIPMENT_TYPES);
 
         initConfig();
         return  retValue;
     }
-   public static void initConfig(){
-       try {
-           String mpConfig = getConfigValue(Globals.isMPRequireConfig);
-           String traverseTrackConfig = getConfigValue(Globals.isTrackTraverseRequireConfig);
-           String isTaskViewConfig = getConfigValue(Globals.isByPassTaskViewConfig);
-           String isRailDirectionConfig = getConfigValue(Globals.isRailDirectionConfig);
-           String isUseDefaultAssetConfig = getConfigValue(Globals.isUseDefaultAssetConfig);
-           String isInspectionTypeConfig = getConfigValue(Globals.isInspectionTypeConfig);
-           String isWConditionConfig = getConfigValue(Globals.isWConditionConfig);
-           String tempSign = getConfigValue(Globals.tempSign);
-           String distanceSign = getConfigValue(Globals.distanceSign);
-           String postSign = getConfigValue(Globals.postSign);
-           String traverseBy = getConfigValue(Globals.defTraverseBy);
+    public static void initConfig(){
+        try {
+            String showHosOnDashboard = getConfigValue(Globals.isShowHosOnDashboard);
+            String showBriefingAtStart = getConfigValue(Globals.isShowBriefingAtStart);
+            String useDynSafetyBriefing = getConfigValue(Globals.isUseDynSafetyBriefingForm);
+            String disableRemedialByRuleConfig = getConfigValue(Globals.isDisableRActionByRuleConfig);
+            String rule213Config = getConfigValue(Globals.isRule213ReqConfig);
+            String mpConfig = getConfigValue(Globals.isMPRequireConfig);
+            String traverseTrackConfig = getConfigValue(Globals.isTrackTraverseRequireConfig);
+            String isTaskViewConfig = getConfigValue(Globals.isByPassTaskViewConfig);
+            String isRailDirectionConfig = getConfigValue(Globals.isRailDirectionConfig);
+            String isUseDefaultAssetConfig = getConfigValue(Globals.isUseDefaultAssetConfig);
+            String isInspectionTypeConfig = getConfigValue(Globals.isInspectionTypeConfig);
+            String isWConditionConfig = getConfigValue(Globals.isWConditionConfig);
+            String tempSign = getConfigValue(Globals.tempSign);
+            String distanceSign = getConfigValue(Globals.distanceSign);
+            String postSign = getConfigValue(Globals.postSign);
+            String traverseBy = getConfigValue(Globals.defTraverseBy);
+            String observeOpt = getConfigValue(Globals.defaultObserveOpt);
+            String audibleNotification = getConfigValue(Globals.isAudibleNotification);
 
-           Globals.COLOR_TEST_NOT_ACTIVE=Utilities.checkColorValue(getConfigValue(Globals.colorCodingNaConfig),"darkgray");
-           Globals.COLOR_TEST_ACTIVE=Utilities.checkColorValue(getConfigValue(Globals.colorCodingAConfig),Globals.Green);
-           Globals.COLOR_TEST_EXPIRING=Utilities.checkColorValue(getConfigValue(Globals.colorCodingExpConfig),"#FFFF0000");
+            Globals.COLOR_TEST_NOT_ACTIVE = Utilities.checkColorValue(getConfigValue(Globals.colorCodingNaConfig), "darkgray");
+            Globals.COLOR_TEST_ACTIVE = Utilities.checkColorValue(getConfigValue(Globals.colorCodingAConfig), Globals.Green);
+            Globals.COLOR_TEST_EXPIRING = Utilities.checkColorValue(getConfigValue(Globals.colorCodingExpConfig), "#FFFF0000");
 
 
+            if (showHosOnDashboard != null && !showHosOnDashboard.equals("")) {
+                Globals.isDisplayHosOnDashboard = Boolean.parseBoolean(showHosOnDashboard);
+            }
+            if (showBriefingAtStart != null && !showBriefingAtStart.equals("")) {
+                Globals.isShowBriefingOnStart = Boolean.parseBoolean(showBriefingAtStart);
+            }
+            if (useDynSafetyBriefing != null && !useDynSafetyBriefing.equals("")) {
+                Globals.isUseDynSafetyBriefing = Boolean.parseBoolean(useDynSafetyBriefing);
+            }
+            if (disableRemedialByRuleConfig != null && !disableRemedialByRuleConfig.equals("")) {
+                Globals.isDisableRActionByRule = Boolean.parseBoolean(disableRemedialByRuleConfig);
+            }
+            if (rule213Config != null && !rule213Config.equals("")) {
+                Globals.isHideRule213 = Boolean.parseBoolean(rule213Config);
+            }
+            if (mpConfig != null && !mpConfig.equals("")) {
+                Globals.isMpReq = Boolean.parseBoolean(mpConfig);
+            }
+            if(traverseTrackConfig!= null && !traverseTrackConfig.equals("")){
+                Globals.isTraverseReq = Boolean.parseBoolean(traverseTrackConfig);
+            }
+            if(isTaskViewConfig!= null && !isTaskViewConfig.equals("")){
+                Globals.isBypassTaskView = Boolean.parseBoolean(isTaskViewConfig);
+            }
+            if(isRailDirectionConfig!= null && !isRailDirectionConfig.equals("")){
+                Globals.isUseRailDirection = Boolean.parseBoolean(isRailDirectionConfig);
+            }
+            if(isUseDefaultAssetConfig!= null && !isUseDefaultAssetConfig.equals("")){
+                Globals.isUseDefaultAsset = Boolean.parseBoolean(isUseDefaultAssetConfig);
+            }
+            if(isInspectionTypeConfig!= null && !isInspectionTypeConfig.equals("")){
+                Globals.isInspectionTypeReq = Boolean.parseBoolean(isInspectionTypeConfig);
+            }
+            if(isWConditionConfig!= null && !isWConditionConfig.equals("")){
+                Globals.isWConditionReq = Boolean.parseBoolean(isWConditionConfig);
+            }
+            if(tempSign!= null && !tempSign.equals("")){
+                Globals.selectedTempSign = tempSign;
+            }
+            if(distanceSign!= null && !distanceSign.equals("")){
+                Globals.selectedDistanceSign = distanceSign;
+            }
+            if(postSign!= null && !postSign.equals("")){
+                Globals.selectedPostSign = postSign;
+            }
+            if(traverseBy!= null && !traverseBy.equals("")){
+                Globals.selectedTraverseBy = traverseBy;
+            }
+            if(observeOpt!= null && !observeOpt.equals("")){
+                Globals.selectedObserveOpt = observeOpt;
+            }
+            if(audibleNotification!= null && !audibleNotification.equals("")){
+                Globals.isAudibleNotificationAllowed = Boolean.parseBoolean(audibleNotification);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-           if(mpConfig!= null && !mpConfig.equals("")){
-               Globals.isMpReq = Boolean.parseBoolean(mpConfig);
-           }
-           if(traverseTrackConfig!= null && !traverseTrackConfig.equals("")){
-               Globals.isTraverseReq = Boolean.parseBoolean(traverseTrackConfig);
-           }
-           if(isTaskViewConfig!= null && !isTaskViewConfig.equals("")){
-               Globals.isBypassTaskView = Boolean.parseBoolean(isTaskViewConfig);
-           }
-           if(isRailDirectionConfig!= null && !isRailDirectionConfig.equals("")){
-               Globals.isUseRailDirection = Boolean.parseBoolean(isRailDirectionConfig);
-           }
-           if(isUseDefaultAssetConfig!= null && !isUseDefaultAssetConfig.equals("")){
-               Globals.isUseDefaultAsset = Boolean.parseBoolean(isUseDefaultAssetConfig);
-           }
-           if(isInspectionTypeConfig!= null && !isInspectionTypeConfig.equals("")){
-               Globals.isInspectionTypeReq = Boolean.parseBoolean(isInspectionTypeConfig);
-           }
-           if(isWConditionConfig!= null && !isWConditionConfig.equals("")){
-               Globals.isWConditionReq = Boolean.parseBoolean(isWConditionConfig);
-           }
-           if(tempSign!= null && !tempSign.equals("")){
-               Globals.selectedTempSign = tempSign;
-           }
-           if(distanceSign!= null && !distanceSign.equals("")){
-               Globals.selectedDistanceSign = distanceSign;
-           }
-           if(postSign!= null && !postSign.equals("")){
-               Globals.selectedPostSign = postSign;
-           }
-           if(traverseBy!= null && !traverseBy.equals("")){
-               Globals.selectedTraverseBy = traverseBy;
-           }
-       } catch (Exception e) {
-           e.printStackTrace();
-       }
-
-   }
+    }
 
     public static boolean loadList(int listId)
     {
@@ -144,7 +181,9 @@ public  class ListMap {
                 listLookups.put(String.valueOf(LIST_CATEGORY), db.getAppLookupList(Globals.CATEGORY_LIST_NAME));
                 //db.close();
                 return true;
-
+            case LIST_EQUIPMENT_TYPES:
+                listLookups.put(String.valueOf(LIST_EQUIPMENT_TYPES), db.getAppLookupList(Globals.EQUIPMENT_TYPES_LIST_NAME,"",2));
+                return true;
             case LIST_PRIORITY:
                 listLookups.put(String.valueOf(LIST_PRIORITY), db.getAppLookupList(Globals.PRIORITY_LIST_NAME));
                 //db.close();
@@ -175,8 +214,12 @@ public  class ListMap {
                 listLookups.put(String.valueOf(LIST_SETTINGS), db.getAppLookupList(Globals.APP_SETTINGS_LIST_NAME));
                 //db.close();
                 return true;
+            case LIST_LOC_PREFIX:
+                listLookups.put(String.valueOf(LIST_LOC_PREFIX), db.getAppLookupList(Globals.LOCATION_PREFIX_LIST_NAME,"",0));
+                //db.close();
+                return true;
         }
-    return  false;
+        return  false;
 
     }
     public static String getListValue(int listId,String key)
@@ -221,7 +264,22 @@ public  class ListMap {
 
         return sortedItems;
     }
-
+    public static LocationPrefix getLocationPrefix(String id){
+        HashMap<String, String> locationList=(HashMap<String, String>) listLookups.get(String.valueOf(LIST_LOC_PREFIX));
+        String locationObject= null;
+        if (locationList != null) {
+            locationObject = locationList.get(id);
+        }
+        LocationPrefix locationPrefix=null;
+        try {
+            if (locationObject != null) {
+                locationPrefix=new LocationPrefix(new JSONObject(locationObject));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return locationPrefix;
+    }
     public static ArrayList<String> getList(int listId) {
         ArrayList<String> itemList = new ArrayList<>();
 
@@ -268,14 +326,14 @@ public  class ListMap {
             {
                 String product=getListValue(LIST_PRODUCTS,code);
                 String desc="";
-            try {
-                JSONObject jo=new JSONObject(product);
-                desc=jo.getString("desc");
-            } catch (JSONException e) {
-                e.printStackTrace();
-                desc="<Not Found>";
-            }
-            prodListAry[i]=code+"."+desc;
+                try {
+                    JSONObject jo=new JSONObject(product);
+                    desc=jo.getString("desc");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    desc="<Not Found>";
+                }
+                prodListAry[i]=code+"."+desc;
             }
         }
         return prodListAry;

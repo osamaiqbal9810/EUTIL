@@ -1,5 +1,5 @@
 import { withPlus } from "react-icons-kit/entypo/withPlus";
-import { retroColors } from "../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../style/basic/basicColors";
 export const commonStyles = {
   zeroMarginRow: { default: { margin: "0px" } },
   zeroPaddingCol: { default: { padding: "0px" } },
@@ -9,20 +9,30 @@ export const commonStyles = {
       fontFamily: "Myriad Pro",
       fontSize: "24px",
       letterSpacing: "0.5px",
-      color: " rgba(64, 118, 179)",
+      color: "var(--first)",
     },
     retro: {
       display: "none",
     },
+    electric: {
+      display: "none",
+    },
   },
   pageTitleDetailStyle: {
-    default: { float: "left", fontFamily: "Myriad Pro", fontSize: "24px", letterSpacing: "0.5px", color: " rgba(64, 118, 179)" },
+    default: { float: "left", fontFamily: "Myriad Pro", fontSize: "24px", letterSpacing: "0.5px", color: "var(--first)" },
     retro: {
       float: "left",
       fontFamily: "Myriad Pro",
       fontSize: "24px",
       letterSpacing: "0.5px",
       color: retroColors.second,
+    },
+    electric: {
+      float: "left",
+      fontFamily: "Myriad Pro",
+      fontSize: "24px",
+      letterSpacing: "0.5px",
+      color: electricColors.second,
     },
   },
   pageBorderRowStyle: {
@@ -32,6 +42,9 @@ export const commonStyles = {
       padding: "10px 0px",
     },
     retro: {
+      margin: "0px 15px",
+    },
+    electric: {
       margin: "0px 15px",
     },
   },
@@ -52,7 +65,7 @@ export function addButtonCircleStyleMethod(props) {
         ? props.iconStyle
         : {
           color: "#c4d4e4",
-          background: "#fff",
+          background: "var(--fifth)",
           borderRadius: "50%",
           border: "3px solid ",
         },
@@ -72,13 +85,34 @@ export function addButtonCircleStyleMethod(props) {
         ? props.iconStyle
         : {
           color: "#c4d4e4",
-          background: "#fff",
+          background: "var(--fifth)",
           borderRadius: "50%",
           border: "3px solid ",
         },
       buttonTitleText: props.buttonTitleText,
       textTitleStyle: props.textTitleStyle,
       buttonTextColor: retroColors.second,
+    },
+    electric: {
+      iconSize: props.iconSize ? props.iconSize : 50,
+      icon: props.icon ? props.icon : withPlus,
+      backgroundColor: props.backgroundColor ? props.backgroundColor : "#e3e9ef",
+      margin: props.margin ? props.margin : "5px 0px 0px 0px",
+      borderRadius: props.borderRadius ? props.borderRadius : "50%",
+      hoverBackgroundColor: props.hoverBackgroundColor ? props.hoverBackgroundColor : "#e3e2ef",
+      hoverBorder: props.hoverBorder ? props.hoverBorder : "0px",
+      activeBorder: props.activeBorder ? props.activeBorder : "3px solid #e3e2ef ",
+      iconStyle: props.iconStyle
+        ? props.iconStyle
+        : {
+          color: "#c4d4e4",
+          background: "var(--fifth)",
+          borderRadius: "50%",
+          border: "3px solid ",
+        },
+      buttonTitleText: props.buttonTitleText,
+      textTitleStyle: props.textTitleStyle,
+      buttonTextColor: electricColors.second,
     },
   };
 }

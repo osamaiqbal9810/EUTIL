@@ -63,12 +63,15 @@ import com.app.ps19.tipsapp.classes.Task;
 import com.app.ps19.tipsapp.classes.Units;
 import com.app.ps19.tipsapp.classes.User;
 import com.app.ps19.tipsapp.classes.dynforms.DynFormList;
+import com.app.ps19.tipsapp.classes.hos.Hos;
 import com.app.ps19.tipsapp.inspection.InspectionActivity;
 import com.app.ps19.tipsapp.location.Interface.OnLocationUpdatedListener;
 import com.app.ps19.tipsapp.location.LocationUpdatesService;
+import com.app.ps19.tipsapp.safetyBriefing.MultiSelectionActivity;
 import com.app.ps19.tipsapp.safetyBriefing.SafetyBriefingActivity;
 import com.app.ps19.tipsapp.wplan.WplanActivity;
 import com.mikhaellopez.circularimageview.CircularImageView;
+import com.app.ps19.tipsapp.hos.HosActivity;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -96,6 +99,7 @@ import static com.app.ps19.tipsapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.tipsapp.Shared.Globals.WORK_PLAN_FINISHED_STATUS;
 import static com.app.ps19.tipsapp.Shared.Globals.WORK_PLAN_IN_PROGRESS_STATUS;
 import static com.app.ps19.tipsapp.Shared.Globals.activeSession;
+import static com.app.ps19.tipsapp.Shared.Globals.app;
 import static com.app.ps19.tipsapp.Shared.Globals.appName;
 import static com.app.ps19.tipsapp.Shared.Globals.blnFreshLogin;
 import static com.app.ps19.tipsapp.Shared.Globals.blnFreshLoginWaitForData;
@@ -107,18 +111,25 @@ import static com.app.ps19.tipsapp.Shared.Globals.initialRun;
 import static com.app.ps19.tipsapp.Shared.Globals.isBypassTaskView;
 import static com.app.ps19.tipsapp.Shared.Globals.isDataPopulated;
 import static com.app.ps19.tipsapp.Shared.Globals.isDayProcessRunning;
+import static com.app.ps19.tipsapp.Shared.Globals.isDemoUser;
+import static com.app.ps19.tipsapp.Shared.Globals.isDisplayHosOnDashboard;
 import static com.app.ps19.tipsapp.Shared.Globals.isInspectionTypeReq;
+import static com.app.ps19.tipsapp.Shared.Globals.isInternetAvailable;
+import static com.app.ps19.tipsapp.Shared.Globals.isJourneyPlanValid;
 import static com.app.ps19.tipsapp.Shared.Globals.isMaintainer;
+import static com.app.ps19.tipsapp.Shared.Globals.isMaintenanceFromDashboard;
 import static com.app.ps19.tipsapp.Shared.Globals.isMpReq;
 import static com.app.ps19.tipsapp.Shared.Globals.isShowSession;
 import static com.app.ps19.tipsapp.Shared.Globals.isTraverseReq;
 import static com.app.ps19.tipsapp.Shared.Globals.isUseDefaultAsset;
+import static com.app.ps19.tipsapp.Shared.Globals.isUseDynSafetyBriefing;
 import static com.app.ps19.tipsapp.Shared.Globals.isWConditionReq;
 import static com.app.ps19.tipsapp.Shared.Globals.lastError;
 import static com.app.ps19.tipsapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.tipsapp.Shared.Globals.loadDayStatus;
 import static com.app.ps19.tipsapp.Shared.Globals.loadInbox;
 import static com.app.ps19.tipsapp.Shared.Globals.mainActivity;
+import static com.app.ps19.tipsapp.Shared.Globals.maintenanceList;
 import static com.app.ps19.tipsapp.Shared.Globals.offlineMode;
 import static com.app.ps19.tipsapp.Shared.Globals.orgCode;
 import static com.app.ps19.tipsapp.Shared.Globals.saveCurrentJP;
@@ -126,6 +137,7 @@ import static com.app.ps19.tipsapp.Shared.Globals.selectedDUnit;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedJPlan;
 import static com.app.ps19.tipsapp.Shared.Globals.selectedUnit;
 import static com.app.ps19.tipsapp.Shared.Globals.setLocale;
+import static com.app.ps19.tipsapp.Shared.Globals.setLocationPrefix;
 import static com.app.ps19.tipsapp.Shared.Globals.setSelectedTask;
 import static com.app.ps19.tipsapp.Shared.Globals.showNearByAssets;
 import static com.app.ps19.tipsapp.Shared.Globals.startOfDayTime;
@@ -134,6 +146,7 @@ import static com.app.ps19.tipsapp.Shared.Globals.userUID;
 import static com.app.ps19.tipsapp.Shared.Globals.webPullRequest;
 import static com.app.ps19.tipsapp.Shared.Globals.webUploadMessageLists;
 import static com.app.ps19.tipsapp.Shared.StopInspectionFragment.STOP_INSPECTION_RETURN_MSG_FOR_DASHBOARD;
+import static com.app.ps19.tipsapp.Shared.Utilities.isInRange;
 
 //import static com.app.ps19.tipsapp.Shared.Globals.selectedTask;
 
@@ -154,6 +167,9 @@ public class DashboardActivity extends AppCompatActivity implements
     // Used for work plan activity
     private static final int WORK_PLAN_REQUEST_CODE = 1;
 
+    // Used for inspection activity
+    private static final int INSPECTION_ACTIVITY_REQUEST_CODE = 50;
+
 
     @Override
     protected void onStop() {
@@ -164,12 +180,16 @@ public class DashboardActivity extends AppCompatActivity implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        threadScreenUpdate.interrupt();
-        try{
+        if(threadScreenUpdate!=null){
+            threadScreenUpdate.interrupt();
+            threadScreenUpdate = null;
+        }
+
+        /*try{
             threadScreenUpdate.join();
         }catch (Exception e){
 
-        }
+        }*/
         LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
     }
     @Override
@@ -188,6 +208,10 @@ public class DashboardActivity extends AppCompatActivity implements
     public void onPause() {
         super.onPause();
         LocationUpdatesService.removeLocationUpdateListener( this.getClass().getSimpleName());
+        if(threadScreenUpdate!=null){
+            threadScreenUpdate.interrupt();
+            threadScreenUpdate = null;
+        }
     }
     @Override
     public void onStart() {
@@ -197,7 +221,19 @@ public class DashboardActivity extends AppCompatActivity implements
     public void onResume(){
         super.onResume();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        //Enabling button(s)
+        btnRun.setEnabled(true);
+        btnSelectRun.setEnabled(true);
+
         try {
+            if(isInternetAvailable(DashboardActivity.this)){
+                //TODO: restrict to SITE and EUIS
+                if(!appName.equals(Globals.AppName.TIMPS)){
+                    if(!isDemoUser){
+                        Hos.load(null);
+                    }
+                }
+            }
             if(Globals.dayStarted){
                 if(selectedJPlan!=null){
                     if(selectedJPlan.getTaskList().get(0).getReportList().size()>0){
@@ -227,7 +263,13 @@ public class DashboardActivity extends AppCompatActivity implements
             if(cLocation == null){
                 cLocation = lastKnownLocation;
             }
-            Globals.setUserInfoView(DashboardActivity.this, userImage, userNameView);
+            if(!isDemoUser){
+                Globals.setUserInfoView(DashboardActivity.this, userImage, userNameView);
+                initThreadScreenUpdate();
+            }
+           /* if(threadScreenUpdate!=null){
+                threadScreenUpdate.join();
+            }*/
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -307,6 +349,7 @@ public class DashboardActivity extends AppCompatActivity implements
     LinearLayout llIssuesContainer;
     TextView tvInspStatusTxt;
     TextView tvIssueCountTitle;
+    RelativeLayout rlTimeRecorded;
 
     @Override public Resources getResources() {
         if (res == null) {
@@ -336,13 +379,28 @@ public class DashboardActivity extends AppCompatActivity implements
         tvInspStatusTxt = findViewById(R.id.tv_insp_status_txt);
         tvIssueCountTitle = findViewById(R.id.tv_reported_title);
         ivLogo = (ImageView) rlUserInfo.findViewById(R.id.iv_logo);
+        rlTimeRecorded = findViewById(R.id.rl_time_progress);
         ObservableObject.getInstance().addObserver(this);
         syncStatusIcon = (ImageView) findViewById(R.id.syncStatusIcon);
         Globals.setUserInfoView(DashboardActivity.this, userImage, userNameView);
-        try {
-            ListMap.initializeAllLists(this);
-        } catch (Exception e) {
-            e.printStackTrace();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    //ListMap.initializeAllLists(DashboardActivity.this);
+                    DynFormList.loadFormList();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+
+        if(isInternetAvailable(DashboardActivity.this)){
+            if(!appName.equals(Globals.AppName.TIMPS)){
+                if(!isDemoUser) {
+                    Hos.load(null);
+                }
+            }
         }
         rlUserInfo.setBackgroundColor(res.getColor(R.color.action_bar_background));
         dialog=new ProgressDialog(this); // this = YourActivity
@@ -389,6 +447,7 @@ public class DashboardActivity extends AppCompatActivity implements
         tvDayText.setMovementMethod(new ScrollingMovementMethod());
         //-----------------------------------------------------------
         refreshDashboard();
+        //Hos.load();
         btnSelectRun = (Button) findViewById(R.id.startBtn);
         btnBriefing = (Button) findViewById(R.id.syncBtn);
         btnRun = (Button) findViewById(R.id.planBtn);
@@ -396,6 +455,11 @@ public class DashboardActivity extends AppCompatActivity implements
         llIssuesContainer.setVisibility(GONE);
         if(isMaintainer){
             btnRun.setText(R.string.maintenance_title);
+            rlTimeRecorded.setVisibility(View.INVISIBLE);
+        }
+
+        if(appName.equals(Globals.AppName.SCIM) && isDisplayHosOnDashboard){
+            reportBtn.setText("HOS");
         }
         if(selectedJPlan!=null){
             if(!isMaintainer){
@@ -449,7 +513,10 @@ public class DashboardActivity extends AppCompatActivity implements
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(DashboardActivity.this, ProfileActivity.class);
-                startActivity(intent);
+                //Intent intent = new Intent(DashboardActivity.this, HosActivity.class);
+                if(Globals.user != null){
+                    startActivity(intent);
+                }
             }});
 
 
@@ -457,82 +524,6 @@ public class DashboardActivity extends AppCompatActivity implements
         /*if(gps == null){
             gps = new GPSTrackerEx(DashboardActivity.this);
         }*/
-        if(threadScreenUpdate ==null){
-            threadScreenUpdate=new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        while (true) {
-                            secCounter++;
-                            if(secCounter>=60){
-                                secCounter=1;
-                            }
-                            if(dayStarted && selectedJPlan!=null) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if(secCounter % 10 == 0){
-                                            if(LocationUpdatesService.canGetLocation()) {
-                                                refreshLocation();
-                                            }
-                                            else{
-                                                // Utilities.showSettingsAlert(DashboardActivity.this);
-                                            }
-                                        }
-                                        if (blnClockIcon) {
-                                            blnClockIcon = false;
-                                            imgClockIcon.setVisibility(View.INVISIBLE);
-                                        }else{
-                                            blnClockIcon = true;
-                                            imgClockIcon.setVisibility(VISIBLE);
-                                        }
-                                        if(blnGpsIcon){
-                                            imgGpsIcon.setVisibility(View.INVISIBLE);
-                                            blnGpsIcon=false;
-
-                                        }else{
-                                            imgGpsIcon.setVisibility(VISIBLE);
-                                            blnGpsIcon=true;
-                                        }
-
-                                    }
-                                });
-                            }else{
-                                if(!blnGpsIcon){
-                                    DashboardActivity.this.runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            if(blnGpsIcon){
-                                                imgGpsIcon.setVisibility(View.INVISIBLE);
-                                                blnGpsIcon=false;
-
-                                            }else{
-                                                imgGpsIcon.setVisibility(VISIBLE);
-                                                blnGpsIcon=true;
-                                            }
-                                        }
-                                    });
-                                }
-                            }
-                            if(secCounter==30 && !isDayProcessRunning) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        refreshDashboard();
-                                        refreshSwitchboard();
-                                    }
-                                });
-                            }
-                            Thread.sleep(1000);
-                        }
-
-                    }catch(InterruptedException e){
-                        //e.printStackTrace();
-                    }
-                }
-            });
-            threadScreenUpdate.start();
-        }
         /*
         sessionBtn.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -585,6 +576,7 @@ public class DashboardActivity extends AppCompatActivity implements
                 if(dayStarted){
                     Intent intent = new Intent( DashboardActivity.this, WplanActivity.class);
                     //Intent intent = new Intent( DashboardActivity.this, WorkPlanActivity.class);
+                    btnSelectRun.setEnabled(false);
                     startActivityForResult(intent, WORK_PLAN_REQUEST_CODE);
                     //Close WorkPlan
                     //Toast.makeText(DashboardActivity.this,"CLOSE Work Plan",Toast.LENGTH_SHORT).show();
@@ -625,6 +617,7 @@ public class DashboardActivity extends AppCompatActivity implements
                     });*/
                     Intent intent = new Intent( DashboardActivity.this, WplanActivity.class);
                     //Intent intent = new Intent( DashboardActivity.this, WorkPlanActivity.class);
+                    btnSelectRun.setEnabled(false);
                     startActivityForResult(intent, WORK_PLAN_REQUEST_CODE);
                     // selectBox.show(getFragmentManager(),"SELECT WORK PLAN");
 
@@ -637,9 +630,20 @@ public class DashboardActivity extends AppCompatActivity implements
         btnBriefing.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(Globals.dayStarted){
-                    Intent intent = new Intent(DashboardActivity.this, SafetyBriefingActivity.class);
-                    //Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
+                if(Globals.dayStarted && selectedJPlan!=null&&!selectedJPlan.getWorkplanTemplateId().equals("")){
+                    Intent intent;
+                    //if(BuildConfig.DEBUG){
+                    //   intent = new Intent(DashboardActivity.this, DebugActivity.class);
+                    // }
+                    // } else {
+
+                    // }
+                    if(isUseDynSafetyBriefing){
+                        intent = new Intent(DashboardActivity.this, MultiSelectionActivity.class);
+                    } else {
+                        intent = new Intent(DashboardActivity.this, SafetyBriefingActivity.class);
+                    }
+                    // Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
                     // Intent intent =new Intent(DashboardActivity.this,ScribbleNotesActivity.class);
                     Bundle b=new Bundle();
                     b.putString("filename","");
@@ -655,10 +659,36 @@ public class DashboardActivity extends AppCompatActivity implements
                 //}
             }
         });
+        tvDayText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Globals.dayStarted) {
+                    if(selectedJPlan!=null&&!selectedJPlan.getWorkplanTemplateId().equals("")){
+                        setSelectedTask(selectedJPlan.getTaskList().get(0));
+                        try {
+                            if(selectedJPlan.getIntervals().getSessions().size() == 0){
+                                if(isJourneyPlanValid(DashboardActivity.this, selectedJPlan.getId())){
+                                    Log.e("Corrupted JP:", "Journey Plan unable to load due to session unavailable");
+                                    selectedJPlan = inbox.loadJourneyPlan(DashboardActivity.this, selectedJPlan.getId());
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        activeSession = null;
+                        selectedJPlan.setActiveSession();
+                        Intent intent = new Intent(DashboardActivity.this, InspectionActivity.class);
+                        btnRun.setEnabled(false);
+                        startActivityForResult(intent, INSPECTION_ACTIVITY_REQUEST_CODE);
+                    }
+                }
+
+            }});
         btnRun.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 try{
+                    //Garbage code
                     String json1="{\"title\": \"Welcome\",\"issues\":[{\"name\":\"Issue 1\",\"status\":\"closed\"}]}";
                     String json2="{\"issues\":[{},{\"name\":\"Issue 2\",\"status\":\"open\"}]}";
                     String json11="{\"title\":\"Sample 1\",\"status\":2, \"Object1\":{\"Field1\": \"Sample 1\",\"Field2\":\"Sample 2\"},\"ary\":[{\"name\":\"a1\",\"status\":0}]}";
@@ -669,8 +699,26 @@ public class DashboardActivity extends AppCompatActivity implements
                     //JSONObject jo1=new JSONObject(json12);
                     //jo=Utilities.addObject(jo,jo1);
                     //jo=Utilities.mergeObject(jo,jo1);
-                    jo=Utilities.addObject(new JSONObject(json11),new JSONObject(json12));
-                    Log.i("Sample",jo.toString());
+                    //jo=Utilities.addObject(new JSONObject(json11),new JSONObject(json12));
+                    //Log.i("Sample",jo.toString());
+                    //Garbage code ended
+
+                    //In case of new Maintenance change
+                    if(isMaintenanceFromDashboard){
+                        if(maintenanceList.getMaintenanceList().size()>0){
+                            if(selectedJPlan == null && getActiveMPlan() == null){
+                                JourneyPlan journeyPlan = inbox.loadJourneyPlanTemplate(DashboardActivity.this, "-1");
+                                startMaintenancePlan(journeyPlan.getId());
+                            } else {
+                                // launch activity
+                                launchMaintenanceActivity();
+                            }
+                        } else {
+                            Toast.makeText(DashboardActivity.this, "No maintenance available!", Toast.LENGTH_SHORT).show();
+                        }
+                        return;
+                    }
+
                     if (Globals.dayStarted) {
                         if (Globals.selectedJPlan != null && Globals.selectedJPlan.getTaskList()!=null) {
                             if (Globals.selectedJPlan.getTaskList().size() == 1) {
@@ -678,9 +726,15 @@ public class DashboardActivity extends AppCompatActivity implements
                                 activeSession = null;
                                 selectedJPlan.setActiveSession();
                                 //Intent intent = new Intent(DashboardActivity.this, TaskDashboardActivity.class);
-
-                                Intent intent = new Intent(DashboardActivity.this, InspectionActivity.class);
-                                startActivity(intent);
+                                if(isMaintainer){
+                                    Intent intent = new Intent(DashboardActivity.this, MaintenanceActivity.class);
+                                    btnRun.setEnabled(false);
+                                    startActivity(intent);
+                                } else {
+                                    Intent intent = new Intent(DashboardActivity.this, InspectionActivity.class);
+                                    btnRun.setEnabled(false);
+                                    startActivityForResult(intent, INSPECTION_ACTIVITY_REQUEST_CODE);
+                                }
                             } else {
                                 Intent intent = new Intent(DashboardActivity.this, InboxActivity.class);
                                 startActivity(intent);
@@ -692,14 +746,25 @@ public class DashboardActivity extends AppCompatActivity implements
                 }
             }
         });
+        if(appName.equals(Globals.AppName.EUIS)){
+            btnRun.setVisibility(GONE);
+        }
         reportBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(isMaintainer){
                     Toast.makeText(DashboardActivity.this, getResources().getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
                 } else {
-                    if (Globals.dayStarted) {
-                        Intent intent = new Intent(DashboardActivity.this, ReportInboxActivity.class);
+                    Intent intent;
+                    if(appName.equals(Globals.AppName.SCIM) && isDisplayHosOnDashboard){
+                        if(isInternetAvailable(DashboardActivity.this)){
+                            intent = new Intent(DashboardActivity.this, HosActivity.class);
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(DashboardActivity.this, "Server unreachable!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        intent = new Intent(DashboardActivity.this, ReportInboxActivity.class);
                         startActivity(intent);
                     }
                 }
@@ -871,7 +936,11 @@ public class DashboardActivity extends AppCompatActivity implements
                             }
 
                             if(!lastError.equals("")){
-                                Toast.makeText(DashboardActivity.this, lastError, Toast.LENGTH_SHORT).show();
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(DashboardActivity.this, lastError, Toast.LENGTH_SHORT).show();
+                                    }});
                             }
                             loadDayStatus(mainActivity);
                             runOnUiThread(new Runnable() {
@@ -897,7 +966,39 @@ public class DashboardActivity extends AppCompatActivity implements
 
         };
 
+        if(selectedJPlan!=null){
+            try {
+                setLocationPrefix(selectedJPlan.getTaskList().get(0).getLocationAsset().getUnitId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        setAppView();
     }
+
+    private void setAppView() {
+        if(appName.equals(Globals.AppName.TIMPS)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.timps_new_logo, getApplicationContext().getTheme()));
+            } else {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.timps_new_logo));
+            }
+        } else if(appName.equals(Globals.AppName.SCIM)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.site_logo_dash, getApplicationContext().getTheme()));
+            } else {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.site_logo_dash));
+            }
+        } else if(appName.equals(Globals.AppName.EUIS)){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.euis_u_logo, getApplicationContext().getTheme()));
+            } else {
+                ivLogo.setImageDrawable(getResources().getDrawable(R.drawable.euis_u_logo));
+            }
+        }
+
+    }
+
     private void expandList() {
         isListExpanded = true;
         ibExpandList.setImageResource(R.drawable.ic_baseline_unfold_more_24);
@@ -916,6 +1017,13 @@ public class DashboardActivity extends AppCompatActivity implements
             Log.d("debug", "started"); // Insert a breakpoint at this line!!
         }*/
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == INSPECTION_ACTIVITY_REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                refreshSOD();
+                refreshDashboard();
+                refreshSwitchboard();
+            }
+        }
         if (requestCode == WORK_PLAN_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 String selection = data.getStringExtra("Selection");
@@ -1003,128 +1111,156 @@ public class DashboardActivity extends AppCompatActivity implements
             }
 
         }
+        if(selectedJPlan!=null && selectedJPlan.getWorkplanTemplateId().equals("") && !isMaintainer){
 
-        String strElapsedHours="00 h";
-        String strElapsedMins="00 m";
-        String strSessionTotal="0";
-        String strTaskCurrent="0";
-        String strIssueCount="0";
-        String strDayYear="0000";
-        String strDayText="";
-        String strWorkPlanName="";
-        if (jp != null) {
-            startOfDayTime = jp.getStartDateTime();
-        }
+        } else {
+
+            String strElapsedHours="00 h";
+            String strElapsedMins="00 m";
+            String strSessionTotal="0";
+            String strTaskCurrent="0";
+            String strIssueCount="0";
+            String strDayYear="0000";
+            String strDayText="";
+            String strWorkPlanName="";
+            if (jp != null) {
+                startOfDayTime = jp.getStartDateTime();
+            }
 
 
-        try {
-            if (Globals.dayStarted) {
-                if (!Globals.startOfDayTime.equals("")) {
-                    Date startDate = FULL_DATE_FORMAT.parse(Globals.startOfDayTime);
-                    Date currSOD =new Date();
-                    Date currDate = new Date();
-                    if(!Globals.SOD.equals("")){
-                        currSOD=Utilities.ConvertToDateTime(Globals.SOD);
-                    }
-                    if (startDate != null) {
-                        TimeZone tz = TimeZone.getDefault();
-                        Date now = new Date();
-                        int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
-                        offsetFromUtc=0;
-                        long different = currDate.getTime() - (startDate.getTime() + offsetFromUtc);
-                        long secondsInMilli = 1000;
-                        long minutesInMilli = secondsInMilli * 60;
-                        long hoursInMilli = minutesInMilli * 60;
-                        long daysInMilli = hoursInMilli * 24;
-
-                        long elapsedDays = different / daysInMilli;
-                        different = different % daysInMilli;
-
-                        long elapsedHours = different / hoursInMilli;
-                        different = different % hoursInMilli;
-
-                        long elapsedMinutes = different / minutesInMilli;
-                        different = different % minutesInMilli;
-
-                        //long elapsedSeconds = different / secondsInMilli;
-                        strElapsedHours= (elapsedDays>0 )? (elapsedDays + "d "):"";
-                        strElapsedHours += String.valueOf(elapsedHours) + "h";
-                        strElapsedMins = String.valueOf(elapsedMinutes) + "m";
-                        SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
-                        SimpleDateFormat sdfDayText = new SimpleDateFormat("EEE, MMM d, yyyy");
-                        strDayYear = sdfYear.format(currDate);
-                        //strDayText = sdfDayText.format(currDate);
-                        strDayText = sdfDayText.format(currSOD);
-                    }
-                    // Task Count
-                    if (jp != null) {
-                        if(isShowSession && !jp.getTaskList().get(0).isYardInspection() && !isMaintainer){
-                           // tvSessions.setVisibility(VISIBLE);
-                        } else {
-                            tvSessions.setVisibility(View.INVISIBLE);
+            try {
+                if (Globals.dayStarted) {
+                    if (!Globals.startOfDayTime.equals("")) {
+                        Date startDate = FULL_DATE_FORMAT.parse(Globals.startOfDayTime);
+                        Date currSOD =new Date();
+                        Date currDate = new Date();
+                        if(!Globals.SOD.equals("")){
+                            currSOD=Utilities.ConvertToDateTime(Globals.SOD);
                         }
-                        strWorkPlanName=jp.getTitle();
+                        if (startDate != null) {
+                            TimeZone tz = TimeZone.getDefault();
+                            Date now = new Date();
+                            int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
+                            offsetFromUtc=0;
+                            long different = currDate.getTime() - (startDate.getTime() + offsetFromUtc);
+                            long secondsInMilli = 1000;
+                            long minutesInMilli = secondsInMilli * 60;
+                            long hoursInMilli = minutesInMilli * 60;
+                            long daysInMilli = hoursInMilli * 24;
+
+                            long elapsedDays = different / daysInMilli;
+                            different = different % daysInMilli;
+
+                            long elapsedHours = different / hoursInMilli;
+                            different = different % hoursInMilli;
+
+                            long elapsedMinutes = different / minutesInMilli;
+                            different = different % minutesInMilli;
+
+                            //long elapsedSeconds = different / secondsInMilli;
+                            strElapsedHours= (elapsedDays>0 )? (elapsedDays + "d "):"";
+                            strElapsedHours += String.valueOf(elapsedHours) + "h";
+                            strElapsedMins = String.valueOf(elapsedMinutes) + "m";
+                            SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
+                            SimpleDateFormat sdfDayText = new SimpleDateFormat("EEE, MMM d, yyyy");
+                            strDayYear = sdfYear.format(currDate);
+                            //strDayText = sdfDayText.format(currDate);
+                            strDayText = sdfDayText.format(currSOD);
+                        }
+                        // Task Count
+                        if (jp != null) {
+                            if(isShowSession && !jp.getTaskList().get(0).isYardInspection() && !isMaintainer){
+                                // tvSessions.setVisibility(VISIBLE);
+                            } else {
+                                tvSessions.setVisibility(View.INVISIBLE);
+                            }
+                            strWorkPlanName=jp.getTitle();
+                            strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
+                            if (jp.getTaskList() != null) {
+                                //strTaskTotal = String.valueOf(jp.getTaskList().size());
+                                strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
+                                strIssueCount = String.valueOf(jp.getIssueCount());
+
+                            }
+                            if(jp.getEndDateTime().equals("")){
+                                // Task In-Progress
+                                imgBtnSS.setBackgroundResource(R.drawable.stop_btn);
+                                tvInspStatus.setText(getResources().getText(R.string.inspection_in_progress));
+                                llBtnSS.setVisibility(VISIBLE);
+                                llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_stop));
+                                llFinishedStatus.setVisibility(GONE);
+                                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                                tvSSBtnText.setText(getResources().getText(R.string.stop_new_theme));
+                                tvIssueCountTitle.setText(getResources().getText(R.string.reported));
+                                tvInspStatusTxt.setText(getResources().getString(R.string.run_status));
+                                if(isMaintainer || jp.getWorkplanTemplateId().equals("")){
+                                    tvInspStatus.setText(R.string.maintenance_in_progress);
+                                    llBtnSS.setVisibility(GONE);
+                                    strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
+                                    tvIssueCountTitle.setText(R.string.work_orders_title);
+                                    tvInspStatusTxt.setText(R.string.maintenance_status);
+                                }
+                            }
+
+                        }
+
+                    }
+                }else{
+                    //No WorkPlan started
+
+                    if (jp != null) {
                         strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
                         if (jp.getTaskList() != null) {
+                            tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
                             //strTaskTotal = String.valueOf(jp.getTaskList().size());
                             strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
                             strIssueCount = String.valueOf(jp.getIssueCount());
+                            strWorkPlanName=jp.getTitle();
+                            ArrayList<String> elapseArray=jp.getElapsedTime();
+                            strElapsedHours=formatElapsedTimeHours(elapseArray);
+                            strElapsedMins = formatElapsedTimeMins(elapseArray);
+                            if(!jp.getEndDateTime().equals(""))
+                            {
+                                //Task Closed
+                                tvInspStatus.setText(getResources().getText(R.string.inspection_closed_status));
+                                llBtnSS.setVisibility(View.GONE);
+                                //llFinishedStatus.setVisibility(View.VISIBLE);
+                                imgClockIcon.setVisibility(View.INVISIBLE);
+                                tvElapsedLabel.setText(getResources().getString(R.string.time_total));
+                                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                                tvSessions.setVisibility(View.INVISIBLE);
 
-                        }
-                        if(jp.getEndDateTime().equals("")){
-                            // Task In-Progress
-                            imgBtnSS.setBackgroundResource(R.drawable.stop_btn);
-                            tvInspStatus.setText(getResources().getText(R.string.inspection_in_progress));
-                            llBtnSS.setVisibility(VISIBLE);
-                            llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_stop));
-                            llFinishedStatus.setVisibility(GONE);
-                            llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                            llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                            tvSSBtnText.setText(getResources().getText(R.string.stop_new_theme));
-                            tvIssueCountTitle.setText(getResources().getText(R.string.reported));
-                            tvInspStatusTxt.setText(getResources().getString(R.string.run_status));
-                            if(isMaintainer){
-                                tvInspStatus.setText(R.string.maintenance_in_progress);
-                                strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
-                                tvIssueCountTitle.setText(R.string.work_orders_title);
-                                tvInspStatusTxt.setText(R.string.maintenance_status);
                             }
+
                         }
 
+                    } else {
+                        tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
+                        llBtnSS.setVisibility(View.GONE);
+                        llFinishedStatus.setVisibility(View.GONE);
+                        imgClockIcon.setVisibility(View.INVISIBLE);
+                        tvElapsedLabel.setText(getResources().getString(R.string.time_total));
+                        llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
+                        llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
+                        strWorkPlanName = getResources().getString(R.string.no_last_inspection);
+                        tvSessions.setVisibility(View.INVISIBLE);
+                        llIssuesContainer.setVisibility(GONE);
+                        if(isMaintainer){
+                            tvInspStatus.setText(getResources().getText(R.string.maintenance_title));
+                            //llBtnSS.setVisibility(VISIBLE);
+                            //imgBtnSS.setBackgroundResource(R.drawable.play_btn);
+                            //tvSSBtnText.setText(getResources().getText(R.string.start));
+                            //tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
+                            llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
+                            strWorkPlanName = getString(R.string.no_active_maintenance);
+                            tvInspStatusTxt.setText(R.string.maintenance_status);
+                        }
                     }
 
                 }
-            }else{
-                //No WorkPlan started
-
-                if (jp != null) {
-                    strSessionTotal = String.valueOf(jp.getIntervals().getSessions().size());
-                    if (jp.getTaskList() != null) {
-                        tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
-                        //strTaskTotal = String.valueOf(jp.getTaskList().size());
-                        strTaskCurrent = String.valueOf(jp.getCompletedTaskCount());
-                        strIssueCount = String.valueOf(jp.getIssueCount());
-                        strWorkPlanName=jp.getTitle();
-                        ArrayList<String> elapseArray=jp.getElapsedTime();
-                        strElapsedHours=formatElapsedTimeHours(elapseArray);
-                        strElapsedMins = formatElapsedTimeMins(elapseArray);
-                        if(!jp.getEndDateTime().equals(""))
-                        {
-                            //Task Closed
-                            tvInspStatus.setText(getResources().getText(R.string.inspection_closed_status));
-                            llBtnSS.setVisibility(View.GONE);
-                            //llFinishedStatus.setVisibility(View.VISIBLE);
-                            imgClockIcon.setVisibility(View.INVISIBLE);
-                            tvElapsedLabel.setText(getResources().getString(R.string.time_total));
-                            llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                            llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                            tvSessions.setVisibility(View.INVISIBLE);
-
-                        }
-
-                    }
-
-                } else {
+                if(jp == null){
                     tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
                     llBtnSS.setVisibility(View.GONE);
                     llFinishedStatus.setVisibility(View.GONE);
@@ -1133,59 +1269,49 @@ public class DashboardActivity extends AppCompatActivity implements
                     llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
                     llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
                     strWorkPlanName = getResources().getString(R.string.no_last_inspection);
-                    tvSessions.setVisibility(View.INVISIBLE);
                     llIssuesContainer.setVisibility(GONE);
                     if(isMaintainer){
                         tvInspStatus.setText(getResources().getText(R.string.maintenance_title));
-                        llBtnSS.setVisibility(VISIBLE);
-                        imgBtnSS.setBackgroundResource(R.drawable.play_btn);
-                        tvSSBtnText.setText(getResources().getText(R.string.start));
-                        tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
-                        llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
+                        //llBtnSS.setVisibility(VISIBLE);
+                        //imgBtnSS.setBackgroundResource(R.drawable.play_btn);
+                        //tvSSBtnText.setText(getResources().getText(R.string.start));
+                        //tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
+                        //llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
                         strWorkPlanName = getString(R.string.no_active_maintenance);
+                        strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
+                        tvIssueCountTitle.setText(R.string.work_orders_title);
                         tvInspStatusTxt.setText(R.string.maintenance_status);
                     }
                 }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
 
+            tvTimeElapsedHours.setText(strElapsedHours);
+            tvTimeElapsedMins.setText(strElapsedMins);
+            tvTaskTotal.setText(strSessionTotal);
+            tvTaskCurrent.setText(strTaskCurrent);
+            tvIssueCount.setText(strIssueCount);
+            tvDayYear.setText(strDayText);
+
+            SpannableString sTitle = new SpannableString(strWorkPlanName);
+            sTitle.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.btn_color_primary)), 0, sTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            sTitle.setSpan(new UnderlineSpan(), 0, sTitle.length(), 0);
+            tvDayText.setText(sTitle);
+            if(isMaintainer){
+                tvDayText.setText("Maintenance Work");
             }
-            if(jp == null){
-                tvInspStatus.setText(getResources().getText(R.string.no_inspection_started));
-                llBtnSS.setVisibility(View.GONE);
-                llFinishedStatus.setVisibility(View.GONE);
-                imgClockIcon.setVisibility(View.INVISIBLE);
-                tvElapsedLabel.setText(getResources().getString(R.string.time_total));
-                llTileElapsed.setBackgroundColor(getResources().getColor(R.color.color_organge_light));
-                llTileElapsedSmall.setBackgroundColor(getResources().getColor(R.color.color_db_orange_dark));
-                strWorkPlanName = getResources().getString(R.string.no_last_inspection);
-                llIssuesContainer.setVisibility(GONE);
-                if(isMaintainer){
-                    tvInspStatus.setText(getResources().getText(R.string.maintenance_title));
-                    llBtnSS.setVisibility(VISIBLE);
-                    imgBtnSS.setBackgroundResource(R.drawable.play_btn);
-                    tvSSBtnText.setText(getResources().getText(R.string.start));
-                    tvSSBtnText.setTextColor(ContextCompat.getColor(DashboardActivity.this,R.color.credentials_white));
-                    llBtnSS.setBackgroundColor(getResources().getColor(R.color.color_db_green_dark));
-                    strWorkPlanName = getString(R.string.no_active_maintenance);
-                    strIssueCount = String.valueOf(Globals.maintenanceList.getMaintenanceList().size());
-                    tvIssueCountTitle.setText(R.string.work_orders_title);
-                    tvInspStatusTxt.setText(R.string.maintenance_status);
-                }
-            }
-        }catch (Exception e){
-            e.printStackTrace();
         }
 
-        tvTimeElapsedHours.setText(strElapsedHours);
-        tvTimeElapsedMins.setText(strElapsedMins);
-        tvTaskTotal.setText(strSessionTotal);
-        tvTaskCurrent.setText(strTaskCurrent);
-        tvIssueCount.setText(strIssueCount);
-        tvDayYear.setText(strDayText);
-        tvDayText.setText(strWorkPlanName);
 
     }
     private void refreshSwitchboard(){
-        if (Globals.dayStarted) {
+        if(selectedJPlan!=null&&selectedJPlan.getWorkplanTemplateId().equals("") && !isMaintainer){
+            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+        } else {
+            //enabling report button as per requested by client
+            reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+            if (Globals.dayStarted) {
 //            sessionBtn.setText("DAY END");
 //            sessionBtn.setBackgroundColor(getResources().getColor(R.color.end_task_button));
 /*
@@ -1193,35 +1319,63 @@ public class DashboardActivity extends AppCompatActivity implements
             syncBtn.setBackgroundColor(getResources().getColor(R.color.sync_button_light));
             reportBtn.setBackgroundColor(getResources().getColor(R.color.report_button_light));
 */
-            //sessionBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            if(isMaintainer){
-                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            }
+                //sessionBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }
+                if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                }
 
-        } else {
-            if(Globals.currDayLocked){
-                //              sessionBtn.setText("DAY CLOSED");
-            }else{
-                //             sessionBtn.setText("DAY START");
+            } else {
+                if(Globals.currDayLocked){
+                    //              sessionBtn.setText("DAY CLOSED");
+                }else{
+                    //             sessionBtn.setText("DAY START");
+                }
+                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(!isMaintenanceFromDashboard){
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                } else {
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                }
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                //reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }
+                if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                    if(isDisplayHosOnDashboard){
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                    } else {
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                    }
+                }
+
             }
-            btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            if(isMaintainer){
-                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            }
-        }
-        if(selectedJPlan == null){
-            btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
-            btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
-            if(isMaintainer){
-                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+            if(selectedJPlan == null){
+                btnSelectRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                if(!isMaintenanceFromDashboard){
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                } else {
+                    btnRun.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                }
+                btnBriefing.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                //reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                if(isMaintainer){
+                    btnSelectRun.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                }if(appName.equals(Globals.AppName.SCIM)){
+                    btnRun.setVisibility(GONE);
+                    if(isDisplayHosOnDashboard){
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.btn_transparent_background));
+                    } else {
+                        reportBtn.setBackgroundColor(getResources().getColor(R.color.color_button_disabled));
+                    }
+                }
             }
         }
     }
@@ -1301,7 +1455,7 @@ public class DashboardActivity extends AppCompatActivity implements
     public void openSession(){
         String dayToStart="";
 
-        if(!Globals.isInternetAvailable(DashboardActivity.this)){
+        if(!isInternetAvailable(DashboardActivity.this)){
             //Toast.makeText(DashboardActivity.this,"Network Unavailable!",Toast.LENGTH_SHORT).show();
             showToastOnUiThread(getResources().getString(R.string.network_unavailable));
             return ;
@@ -1418,7 +1572,12 @@ public class DashboardActivity extends AppCompatActivity implements
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
+                if(journeyPlan.getWorkplanTemplateId().equals("")){
+                    showDialog("Loading maintenances",getResources().getString(R.string.please_wait) );
+                } else {
+                    showDialog(getResources().getString(R.string.work_plan_starting),getResources().getString(R.string.please_wait) );
+                }
+
             }
         });
         isDayProcessRunning=true;
@@ -1440,7 +1599,12 @@ public class DashboardActivity extends AppCompatActivity implements
                         @Override
                         public void run() {
                             hideDialog();
-                            Toast.makeText(DashboardActivity.this,getResources().getString(R.string.inspection_started),Toast.LENGTH_SHORT).show();
+                            if (!selectedJPlan.getWorkplanTemplateId().equals("")) {
+                                Toast.makeText(DashboardActivity.this,getResources().getString(R.string.inspection_started),Toast.LENGTH_SHORT).show();
+                            } else {
+                                //Toast.makeText(DashboardActivity.this,"Maintenance started",Toast.LENGTH_SHORT).show();
+                            }
+
                             refreshSOD();
                         }
                     });
@@ -1597,6 +1761,7 @@ public class DashboardActivity extends AppCompatActivity implements
                 } else {
                     session.setEnd(jp.getTaskList().get(0).getUserEndMp());
                 }
+                makeVirtualSessions(session);
             }
         }
         jp.setEndDateTime(_date.toString());
@@ -1957,22 +2122,23 @@ public class DashboardActivity extends AppCompatActivity implements
 
     }
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     ArrayList<String> loc = getCurrentLocation();
-                    if(loc.size()>0){
-                        latitude=loc.get(0);
-                        longitude=loc.get(1);
+                    if (loc.size() > 0) {
+                        latitude = loc.get(0);
+                        longitude = loc.get(1);
                     }
 
                 } else {
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    latitude="";
-                    longitude="";
+                    latitude = "";
+                    longitude = "";
                 }
                 refreshLocation();
                 return;
@@ -2317,6 +2483,7 @@ public class DashboardActivity extends AppCompatActivity implements
                         } else {
                             session.setEnd(jp.getTaskList().get(0).getUserEndMp());
                         }
+                        makeVirtualSessions(session);
                     }
                 }
                 jp.setEndDateTime(_date.toString());
@@ -2425,8 +2592,12 @@ public class DashboardActivity extends AppCompatActivity implements
                 sleep(500);
 
             } else {
-                Toast.makeText(DashboardActivity.this, "Network Error!", Toast.LENGTH_SHORT).show();
                 hideDialog();
+                DashboardActivity.this.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(DashboardActivity.this, "Network Error!", Toast.LENGTH_SHORT).show();
+                    }});
                 return;
             }
 
@@ -2471,7 +2642,7 @@ public class DashboardActivity extends AppCompatActivity implements
     }
     public void startSessionProcess(final JourneyPlan jPlan){
         if(jPlan.getTaskList().size() == 1 && isBypassTaskView){
-            if(isMaintainer){
+            if(isMaintainer||jPlan.getWorkplanTemplateId().equals("")){
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -2631,6 +2802,17 @@ public class DashboardActivity extends AppCompatActivity implements
             initialRun = null;
             initialInspection = null;
         }
+        if (selectedJPlan != null && selectedJPlan.getWorkplanTemplateId().equals("")) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    launchMaintenanceActivity();
+                }
+            });
+
+        } else {
+            Toast.makeText(DashboardActivity.this, "Please try again!", Toast.LENGTH_SHORT).show();
+        }
 
         //loadTaskDetails();
         //startActivity(intent);
@@ -2687,14 +2869,19 @@ public class DashboardActivity extends AppCompatActivity implements
         refreshLocation();
     }
     private void showDefectsList(){
-        llIssuesContainer.setVisibility(VISIBLE);
-        ArrayList<Report> issuesList = selectedJPlan.getTaskList().get(0).getReportList();
-        //Reversing the order of issue list
-        Collections.reverse(issuesList);
-        rAdapter = new issueAdapter(DashboardActivity.this, issuesList);
-        LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
-        reportList.setLayoutManager(horizontalLayoutManager);
-        reportList.setAdapter(rAdapter);
+        try {
+            ArrayList<Report> issuesList = selectedJPlan.getTaskList().get(0).getReportList();
+            llIssuesContainer.setVisibility(VISIBLE);
+
+            //Reversing the order of issue list
+            Collections.reverse(issuesList);
+            rAdapter = new issueAdapter(DashboardActivity.this, issuesList);
+            LinearLayoutManager horizontalLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+            reportList.setLayoutManager(horizontalLayoutManager);
+            reportList.setAdapter(rAdapter);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     private void startMaintenancePlan(String jpCode){
         selectedJPlan = null;
@@ -2706,11 +2893,166 @@ public class DashboardActivity extends AppCompatActivity implements
             //journeyPlan.setUserStartMp(startMp);
             startSessionProcess(journeyPlan);
             //Repopulating issue list
-            if(!isMaintainer){
+            if(!isMaintainer && !journeyPlan.getWorkplanTemplateId().equals("")){
                 showDefectsList();
             } else {
                 llIssuesContainer.setVisibility(GONE);
             }
+        }
+    }
+    private void makeVirtualSessions(Session session) {
+        if(session.isAllSideTracks()){
+            //get all siding assets in range
+            double start=Double.parseDouble(session.getStart());
+            double end =Double.parseDouble(session.getEnd());
+
+            ArrayList<Units> allSidings=new ArrayList<>();
+            for (Units unit : getSelectedTask().getWholeUnitList()) {
+                if (unit.getAssetType().equals("Side Track")) {
+                    double uStart = Double.parseDouble(unit.getStart());
+                    double uEnd = Double.parseDouble(unit.getEnd());
+
+                    if (isInRange(start, end, uStart)
+                            || isInRange(start, end, uEnd)
+                            || isInRange(uStart, uEnd, start)
+                            || isInRange(uStart, uEnd, end)) {
+                        allSidings.add(unit);
+                    }
+                }
+            }
+            for(Units unit:allSidings){
+                Double uStart=Double.valueOf(unit.getStart());
+                Double uEnd=Double.valueOf(unit.getEnd());
+                uStart=uStart<start?start:uStart;
+                uEnd =uEnd >end ? end:uEnd;
+                if(!isUnitExistsInSessions(unit,uStart,uEnd)) {
+                    Session _session = Session.clone(session);
+                    _session.setStart(String.valueOf(uStart));
+                    _session.setEnd((String.valueOf(uEnd)));
+                    _session.setExpEnd(_session.getEnd());
+                    _session.setTraverseTrack("");
+                    _session.setTraverseUnit(null);
+                    _session.setObserveTrack(unit.getUnitId());
+                    _session.setObserveUnit(unit);
+                    _session.setType("virtual");
+                    _session.setParentSession(session.getId());
+                    selectedJPlan.getIntervals().getSessions().add(_session);
+                }
+            }
+        }
+    }
+    private boolean isUnitExistsInSessions(Units unit, Double uStart, Double uEnd ){
+        for(Session session:selectedJPlan.getIntervals().getSessions()){
+            if(session.getObserveTrack().equals(unit.getUnitId()) && session.getStatus().equals(SESSION_STOPPED)){
+                Double start=Double.parseDouble(session.getStart());
+                Double end=Double.parseDouble(session.getEnd());
+                if(uStart>=start && uEnd <=end){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    private JourneyPlan getActiveMPlan() {
+        ArrayList<JourneyPlanOpt> activePlans = new ArrayList<>();
+        activePlans = inbox.getInProgressJourneyPlans();
+        JourneyPlanOpt activeJp = null;
+        if(activePlans.size()>0){
+            for(JourneyPlanOpt jp: activePlans){
+                if(jp.getWorkplanTemplateId().equals("")){
+                    activeJp = jp;
+                    break;
+                }
+            }
+            if(activeJp!=null){
+                if(inbox.loadJourneyPlan(DashboardActivity.this, activeJp.getCode())!=null){
+                    return inbox.loadJourneyPlan(DashboardActivity.this, activeJp.getCode());
+                }
+            }
+        }
+        return null;
+    }
+    private void launchMaintenanceActivity(){
+        Intent intent = new Intent(DashboardActivity.this, MaintenanceActivity.class);
+        btnRun.setEnabled(false);
+        startActivity(intent);
+    }
+    private void initThreadScreenUpdate (){
+        if(threadScreenUpdate == null){
+            threadScreenUpdate=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        while (true) {
+                            secCounter++;
+                            if(secCounter>=60){
+                                secCounter=1;
+                            }
+                            if(dayStarted && selectedJPlan!=null && !selectedJPlan.getWorkplanTemplateId().equals("")&& !isMaintainer) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if(secCounter % 10 == 0){
+                                            if(LocationUpdatesService.canGetLocation()) {
+                                                refreshLocation();
+                                            }
+                                            else{
+                                                // Utilities.showSettingsAlert(DashboardActivity.this);
+                                            }
+                                        }
+                                        if (blnClockIcon) {
+                                            blnClockIcon = false;
+                                            imgClockIcon.setVisibility(View.INVISIBLE);
+                                        }else{
+                                            blnClockIcon = true;
+                                            imgClockIcon.setVisibility(VISIBLE);
+                                        }
+                                        if(blnGpsIcon){
+                                            imgGpsIcon.setVisibility(View.INVISIBLE);
+                                            blnGpsIcon=false;
+
+                                        }else{
+                                            imgGpsIcon.setVisibility(VISIBLE);
+                                            blnGpsIcon=true;
+                                        }
+
+                                    }
+                                });
+                            }else{
+                                if(!blnGpsIcon){
+                                    DashboardActivity.this.runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            if(blnGpsIcon){
+                                                imgGpsIcon.setVisibility(View.INVISIBLE);
+                                                blnGpsIcon=false;
+
+                                            }else{
+                                                imgGpsIcon.setVisibility(VISIBLE);
+                                                blnGpsIcon=true;
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            if(secCounter==30 && !isDayProcessRunning) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshDashboard();
+                                        refreshSwitchboard();
+                                    }
+                                });
+                            }
+                            Thread.sleep(1000);
+                        }
+
+                    }catch(InterruptedException e){
+                        //e.printStackTrace();
+                    }
+                }
+            });
+            threadScreenUpdate.start();
         }
     }
 }

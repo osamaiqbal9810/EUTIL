@@ -45,7 +45,7 @@ class UnitAddEdit extends Component {
       control: (styles) => ({ ...styles, backgroundColor: "white", height: "15px" }),
       option: (base, state) => ({
         ...base,
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       }),
     };

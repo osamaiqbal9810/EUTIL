@@ -43,7 +43,9 @@ public class DynFormConfig implements IConvertHelper {
             JSONArray jaFiles=jsonObject.optJSONArray("instructionFile");
             ArrayList _files=new ArrayList();
             for(int i=0;i<jaFiles.length();i++){
-                _files.add(jaFiles.optString(i));
+                if(!jaFiles.optString(i).equals("")){
+                    _files.add(jaFiles.optString(i));
+                }
             }
             instructionFile=_files;
         }

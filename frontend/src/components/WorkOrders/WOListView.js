@@ -132,7 +132,7 @@ export const WOListView = (props) => {
       func: calculateActions,
       //immediate:["Edit", "Delete"],
       minWidth: 150,
-      editable: false,
+      editable: true,
     },
   ];
 

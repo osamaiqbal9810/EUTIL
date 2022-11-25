@@ -3,6 +3,14 @@ let ServiceLocator = require("../framework/servicelocator");
 let utils = require("../utilities/utils");
 let moment = require("moment");
 
+const isValidJsonString = (str) => {
+  try {
+      JSON.parse(str);
+  } catch (e) {
+      return false;
+  }
+  return true;
+};
 export default class ListHelper {
   constructor(logger) {
     this.logger = logger;
@@ -244,6 +252,8 @@ export default class ListHelper {
     if (displayConsole) console.log(str);
   }
   async addOrUpdate(item, callbacks) {
+    try {
+
     let modelName = item.listName + "Model";
     let listModel = ServiceLocator.resolve(modelName);
     if (!listModel) {
@@ -253,7 +263,8 @@ export default class ListHelper {
     }
 
     if (item.code == "" || item.code == null) {
-      if (item.description === "" || item.description == null) {
+      if (item.description === "" || item.description == null || !isValidJsonString(item.description)) {
+        delete item.optParam1._id;
         listModel.create(item.optParam1, (err, result) => {
           if (err) {
             // this.logger.error("Error creating listname:" + item.listName);
@@ -266,7 +277,14 @@ export default class ListHelper {
         });
         return;
       } else {
-        let filterObj = JSON.parse(item.description);
+        let filterObj;
+        try {
+          filterObj = JSON.parse(item.description);
+        } catch (e) {
+          this.handleError("Error parsing description " + JSON.stringify(item) + " listname:" + item.listName, e, true);
+          callbacks.fail(e);
+          return;
+        }
         listModel.findOne(filterObj, (err, itms) => {
           let itm = null;
           if (!itms) {
@@ -320,12 +338,6 @@ export default class ListHelper {
 
       itm = utils.mergeDeep(itm, item.optParam1);
 
-      // if (typeof item.optParam1 === "object") {
-      //   for (const key in item.optParam1) {
-      //     itm.markModified(key);
-      //   }
-      // }
-
       itm.updatedAt = Date.now();
       listModel.findByIdAndUpdate(item.code, itm, { new: true }, function (err, result) {
         if (err) {
@@ -337,38 +349,11 @@ export default class ListHelper {
         callbacks.success("success", itm, item.optParam1);
         return;
       });
-
-      // listModel.findById(item.code, (err, itm) => {
-      //   if (err || !itm)
-      //   {
-      //     this.handleError("could not find item to update listName: " + item.listName + ", id:" + item.code, err, true);
-      //     return "could not find the item to update";
-      //   }
-
-      //   itm = utils.mergeDeep(itm, item.optParam1);
-      //   if (typeof item.optParam1 === "object") {
-      //     for (const key in item.optParam1) {
-      //       itm.markModified(key);
-      //     }
-      //   }
-
-      //   itm.save((err, result) => {
-      //     if (err) {
-      //       // this.logger.error(
-      //       //   "could not save item, listName: " +
-      //       //     item.listName +
-      //       //     ", id:" +
-      //       //     item.code +
-      //       //     ", err:" +
-      //       //     err
-      //       // );
-      //       // console.log(err);
-      //       this.handleError("could not save item, listName: " + item.listName + ", id:" + item.code, err, true);
-      //     }
-      //   });
-      //   callbacks.success("success");
-      //   return;
-      // });
+    }
+    }
+    catch(err) {
+      callbacks.fail(err);
+      return;
     }
   }
 

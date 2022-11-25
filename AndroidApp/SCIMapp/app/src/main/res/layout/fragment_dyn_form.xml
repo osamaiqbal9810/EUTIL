@@ -48,6 +48,7 @@
             android:text="@string/btn_cancel" />
     </LinearLayout>
     <ScrollView
+        android:id="@+id/scrollViewAppForm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >

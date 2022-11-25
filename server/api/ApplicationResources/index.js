@@ -46,6 +46,14 @@ let assetDocStorage = multer.diskStorage({
 });
 let uploadAssetDoc = multer({storage: assetDocStorage});
 
+let equipmentDataStorage = multer.diskStorage({
+  destination: function(req, file, cb){cb(null, config.assetEquipmentData)},
+  filename: function(req, file, cb){ 
+     const saveby = req.body.saveby;
+     // console.log({req, body: req.body, sb, file}); 
+     cb(null, saveby);} //file.originalname);}
+});
+let uploadEquipmentData = multer({storage: equipmentDataStorage});
 
 let uploadAudio = multer({ storage: audioStorage });
 router.get("/", [isAuthenticated], controller.show);
@@ -57,5 +65,8 @@ router.post("/uploadaudio", uploadAudio.any(), controller.uploadAudio);
 // Asset images and document uploads
 router.post("/uploadassetimage", uploadAssetImg.single("file"), controller.uploadAssetImage);
 router.post("/uploadassetdocument", uploadAssetDoc.single("file"), controller.uploadAssetDocument);
+router.post("/uploadequipmentdata", [isAuthenticated], uploadEquipmentData.single("file"), controller.uploadEquipmentData);
+
+router.get("/assetEquipmentData/:filename", [isAuthenticated], controller.getAssetEquipmentData);
 
 module.exports = router;

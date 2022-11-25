@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import static com.app.ps19.scimapp.Shared.Globals.isInternetAvailable;
 import static com.app.ps19.scimapp.Shared.Globals.lastWsReturnCode;
+import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 import static com.app.ps19.scimapp.Shared.Globals.updatePassword;
 
 public class UpdatePasswordActivity extends AppCompatActivity {
@@ -36,7 +37,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_change_password);
-
+        setLocale(this);
         etOldPassword = findViewById(R.id.et_old_password);
         etNewPassword = findViewById(R.id.et_new_password);
         etRepeatPassword = findViewById(R.id.et_new_password_again);
@@ -44,6 +45,7 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         loadingProgressBar = findViewById(R.id.loading);
         llContainer = findViewById(R.id.ll_container);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle(R.string.title_activity_change_password);
 
         btUpdate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -196,43 +198,46 @@ public class UpdatePasswordActivity extends AppCompatActivity {
         if(view.getId()==R.id.iv_show_old_password){
 
             if(etOldPassword.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
 
                 //Show Password
                 etOldPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
             }
             else{
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
 
                 //Hide Password
                 etOldPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
+            etOldPassword.setSelection(etOldPassword.getText().length());
         } else if(view.getId() == R.id.iv_show_new_password){
             if(etNewPassword.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
 
                 //Show Password
                 etNewPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
             }
             else{
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
 
                 //Hide Password
                 etNewPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
+            etNewPassword.setSelection(etNewPassword.getText().length());
         } else if(view.getId() == R.id.iv_show_new_password_again){
             if(etRepeatPassword.getTransformationMethod().equals(PasswordTransformationMethod.getInstance())){
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
 
                 //Show Password
                 etRepeatPassword.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
             }
             else{
-                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_24);
+                ((ImageView)(view)).setImageResource(R.drawable.ic_baseline_visibility_off_24);
 
                 //Hide Password
                 etRepeatPassword.setTransformationMethod(PasswordTransformationMethod.getInstance());
             }
+            etRepeatPassword.setSelection(etRepeatPassword.getText().length());
         }
     }
 

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,9 +18,13 @@ import android.widget.Toast;
 
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.classes.DefectCode;
+import com.app.ps19.tipsapp.classes.JourneyPlanOpt;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +35,7 @@ import static com.app.ps19.tipsapp.Shared.Globals.defectDivider;
 import static com.app.ps19.tipsapp.Shared.Globals.defectSelection;
 import static com.app.ps19.tipsapp.Shared.Globals.defectSelectionCopy;
 import static com.app.ps19.tipsapp.Shared.Globals.getSelectedTask;
+import static com.app.ps19.tipsapp.Shared.Globals.isSingleDefCode;
 import static com.app.ps19.tipsapp.Shared.Globals.isSingleDefectSelection;
 
 public class defectCodeAdapter extends BaseExpandableListAdapter {
@@ -40,23 +46,61 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
     private List<DefectCode> listDataGroup;
 
     // child data in format of header title, child title
-    private HashMap<DefectCode, List<DefectCode>> listDataChild;
+    //private HashMap<DefectCode, List<DefectCode>> listDataChild;
+    //private HashMap<DefectCode, List<DefectCode>> listDataChildFull;
+    private ArrayList<DefectCode> codeList;
+    private ArrayList<DefectCode> codeListFull;
 
     // If activity in edit mode
     boolean isEdit = false;
-
+    private boolean isCodeString=false;
     public defectCodeAdapter(Context context, List<DefectCode> listDataGroup,
                              HashMap<DefectCode, List<DefectCode>> listChildData, boolean isEdit) {
         this.context = context;
         this.listDataGroup = listDataGroup;
-        this.listDataChild = listChildData;
-        this.isEdit = isEdit;
+        //this.listDataChild = listChildData;
+        //this.listDataChildFull=copyHashmap(listChildData,"");
+        this.codeList=new ArrayList<>();
+        this.codeListFull=new ArrayList<>();
+        Object [] data=listChildData.keySet().toArray();
+        for(Object o:data){
+            this.codeListFull.add((DefectCode) o);
+        }
+        //Checking if code list is string or numeric
+        isCodeString=false;
+        for(DefectCode defectCode:this.codeListFull){
+            try {
+                float code=Float.parseFloat(defectCode.getCode());
+            }catch (Exception e){
+                isCodeString=true;
+                break;
+            }
+        }
+
+        Collections.sort(this.codeListFull, new Comparator<DefectCode>() {
+            @Override
+            public int compare(DefectCode o1, DefectCode o2) {
+                return o1.getTitle().trim().compareTo(o2.getTitle().trim());
+            }
+        });
+        this.codeList.addAll(this.codeListFull);
+        try {
+            sortCodeList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    this.isEdit = isEdit;
     }
 
     @Override
     public DefectCode getChild(int groupPosition, int childPosititon) {
-        return this.listDataChild.get(this.listDataGroup.get(groupPosition))
-                .get(childPosititon);
+//        return this.listDataChild.get(this.listDataGroup.get(groupPosition))
+ //               .get(childPosititon);
+        //return this.listDataChild.get(getGroup(groupPosition))
+        //        .get(childPosititon);
+        return this.codeList.get(groupPosition).getDetails().get(childPosititon);
+
     }
 
     @Override
@@ -130,14 +174,20 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
                 if (isChecked) {
                     //String gId = getGroup(groupPosition).getCode() + defectDivider + getGroup(groupPosition).getTitle();
                     //String cId = getChild(groupPosition, childPosition).getCode() + defectDivider + getChild(groupPosition, childPosition).getTitle();
-                    defectSelection.put(gId, cId);
-                    boolean singleSelection = false;
-                   /* if(singleSelection){
-                        if(Globals.defectCodeDetails.size()>0){
+                    //defectSelection.put(gId, cId);
+                    boolean singleSelection = true;
+                    if(isSingleDefCode){
+                        if(Globals.defectSelection.size()>0){
                             Toast.makeText(context, R.string.single_selection_defect, Toast.LENGTH_SHORT).show();
                             cbDefectCode.setChecked(false);
                             return;
+                        } else {
+                            defectSelection.put(gId, cId);
                         }
+                    } else {
+                        defectSelection.put(gId, cId);
+                    }
+                   /*
                         if(!Globals.defectCodeSelection.contains(getChild(groupPosition, childPosition).getCode())){
                             Globals.defectCodeSelection.set(Globals.defectCodeSelection.indexOf(""),getChild(groupPosition, childPosition).getCode());
                             String title;
@@ -249,18 +299,27 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return this.listDataChild.get(this.listDataGroup.get(groupPosition))
-                .size();
+//        return this.listDataChild.get(this.listDataGroup.get(groupPosition))
+//                .size();
+        //return this.listDataChild.get(getGroup(groupPosition))
+        //        .size();
+        return getGroup(groupPosition).getDetails().size();
     }
 
     @Override
     public DefectCode getGroup(int groupPosition) {
-        return this.listDataGroup.get(groupPosition);
+        //return this.listDataGroup.get(groupPosition);
+        //Object [] items= this.listDataChild.keySet().toArray();
+        //return  (DefectCode) items[groupPosition];
+        return this.codeList.get(groupPosition);
     }
 
     @Override
     public int getGroupCount() {
-        return this.listDataGroup.size();
+        //Object[] items= this.listDataChild.keySet().toArray();
+        //return items.length;
+        //return this.listDataGroup.size();
+        return this.codeList.size();
     }
 
     @Override
@@ -271,7 +330,8 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(int groupPosition, boolean isExpanded,
                              View convertView, ViewGroup parent) {
-        String headerTitle = getGroup(groupPosition).getTitle();
+        DefectCode group=getGroup(groupPosition);
+        String headerTitle = group.getTitle();
         if (convertView == null) {
             LayoutInflater layoutInflater = (LayoutInflater) this.context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -313,13 +373,16 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
         TextView textViewGroup = convertView
                 .findViewById(R.id.textViewGroup);
         textViewGroup.setTypeface(null, Typeface.NORMAL);
+
         textViewGroup.setText(headerTitle);
         TextView tvMainId = convertView.findViewById(R.id.tv_main_id);
-        tvMainId.setText(getGroup(groupPosition).getCode());
+        tvMainId.setText(group.getCode());
         ExpandableListView mExpandableListView = (ExpandableListView) parent;
         if(headerTitle.equals(Globals.issueTitle)){
             mExpandableListView.expandGroup(groupPosition);
         }
+        TextView tvRowCount=convertView.findViewById(R.id.tvRowCount);
+        tvRowCount.setText(String.valueOf(group.getDetails().size()));
 
         return convertView;
     }
@@ -341,4 +404,86 @@ public class defectCodeAdapter extends BaseExpandableListAdapter {
                 r.getDisplayMetrics()
         );
     }
+    private void sortCodeList(){
+        //boolean isCodeString=false;
+        if(isCodeString){
+            Collections.sort(this.codeList, new Comparator<DefectCode>() {
+                @Override
+                public int compare(DefectCode o1, DefectCode o2) {
+                    return o1.getCode().compareTo( o2.getCode());
+                }
+            });
+
+        }else {
+            Collections.sort(this.codeList, new Comparator<DefectCode>() {
+                @Override
+                public int compare(DefectCode o1, DefectCode o2) {
+                    return Integer.valueOf((int) (Float.valueOf(o1.getCode()) - Float.valueOf(o2.getCode())));
+                }
+            });
+        }
+    }
+    public void filterData(String query){
+        query = query.toLowerCase();
+        Log.v("defectCodeAdapter", String.valueOf(this.codeList.size()));
+        this.codeList.clear();
+
+        if(query.isEmpty()){
+            this.codeList.addAll(this.codeListFull);
+            for(DefectCode defectCode:this.codeListFull){
+                defectCode.setFilterText("");
+            }
+            //listDataChild.putAll(listDataChildFull);
+        }
+        else {
+            ArrayList<DefectCode> _codeList=new ArrayList<>();
+            for(DefectCode defectCode:this.codeListFull){
+                defectCode.setFilterText(query);
+                if(defectCode.getDetails().size()>0){
+                    _codeList.add(defectCode);
+                }
+            }
+            this.codeList=_codeList;
+            sortCodeList();
+        }
+        Log.v("MyListAdapter", String.valueOf(this.codeList.size()));
+        notifyDataSetChanged();
+
+    }
+    private HashMap<DefectCode,List<DefectCode>> copyHashmap(HashMap<DefectCode,List<DefectCode>> hashMap,String filterText){
+        HashMap<DefectCode,List<DefectCode>> _copiedHash=new HashMap<>();
+        for (DefectCode d:hashMap.keySet()){
+            List<DefectCode> list=hashMap.get(d);
+            List<DefectCode> _list=new ArrayList<>();
+            if(filterText.equals("")){
+                _list.addAll(list);
+            }else{
+                for(DefectCode d1:list){
+                    if(d1.getTitle().toLowerCase().contains(filterText)){
+                        _list.add(d1);
+                    }
+                }
+            }
+            if(_list.size()>0){
+                _copiedHash.put(d,_list);
+            }
+        }
+        return _copiedHash;
+    }
+/*    public void filterDataX(String query){
+
+        query = query.toLowerCase();
+        Log.v("defectCodeAdapter", String.valueOf(listDataChild.size()));
+        listDataChild.clear();
+
+        if(query.isEmpty()){
+            listDataChild.putAll(listDataChildFull);
+        }
+        else {
+
+            listDataChild=copyHashmap(listDataChildFull,query);
+        }
+        Log.v("MyListAdapter", String.valueOf(listDataChild.size()));
+        notifyDataSetChanged();
+    }*/
 }

@@ -44,7 +44,7 @@ const TopBarView = (props) => {
         type="text/css"
         dangerouslySetInnerHTML={{
           __html:
-            "@media print{.report-controls,.report-print,header,div#sideNav,.report-arrow,.nav-wrapper{display: none;}.main-content-area{top:0 !important;left:0 !important;position:relative !important;background:#fff}}.comment-box { page-break-inside: avoid !important; }",
+            "@media print{.report-controls,.report-print,header,div#sideNav,.report-arrow,.nav-wrapper{display: none;visibility:hidden,opacity:0}.main-content-area{top:0 !important;left:0 !important;position:relative !important;background:#fff}}.comment-box { page-break-inside: avoid !important; }",
         }}
         //@page { size:auto;margin: 10px 0 2px 0; }
         //@page{size: auto; margin: 0mm;}
@@ -78,7 +78,14 @@ const TopBarView = (props) => {
             <li style={{ display: "inline-block" }}>
               <div className={`notification-bar-click ${notificationCount > 0 ? "active" : ""}`} onClick={props.toggleRight}>
                 <Gravatar style={themeService(topBarStyle.iconStyle)} email={props.userName.email} size={30} />
-                <span>{notificationCount}</span>
+                <span
+                  style={{
+                    backgroundColor: themeService({ retro: "var(--first)", electric: "rgb(8, 27, 48)" }),
+                    color: "var(--fifth)",
+                  }}
+                >
+                  {notificationCount}
+                </span>
                 {/* <Icon style={iconStyle} size={32} icon={ic_arrow_drop_down} /> */}
               </div>
             </li>

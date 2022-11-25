@@ -1,7 +1,7 @@
 /* eslint eqeqeq: 0 */
 import React, { Component } from "react";
 import { CRUDFunction } from "reduxCURD/container";
-import { Row, Col, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import { Row, Col, Modal, ModalHeader, ModalBody, ModalFooter, Button } from "reactstrap";
 import { ModalStyles } from "components/Common/styles.js";
 import AssetImageArea from "./AssetImageArea";
 import AssetDocumentsArea from "./AssetDocumentsArea";
@@ -9,7 +9,7 @@ import ImageGallery from "components/Common/ImageGallery/index";
 import DocumentGallery from "components/Common/DocumentGallery/index";
 // import AssetTypeFieldsTabs from "./AssetTypeFieldsTabs";
 import { getAppMockupsTypes } from "reduxRelated/actions/diagnosticsActions";
-import _ from "lodash";
+import _, { result } from "lodash";
 import "components/Common/commonform.css";
 import { curdActions } from "reduxCURD/actions";
 import { languageService } from "../../../Language/language.service";
@@ -27,15 +27,23 @@ import { themeService } from "../../../theme/service/activeTheme.service";
 // import { commonStyles } from "../../../theme/commonStyles";
 import * as turf from "@turf/turf";
 import { ToastContainer, toast } from "react-toastify";
-import ReactMapboxGl, { GeoJSONLayer, Marker } from "react-mapbox-gl";
+import ReactMapboxGl, { GeoJSONLayer, Marker, Layer, Feature, Popup } from "react-mapbox-gl";
 import { getGeoJsonCoordinates, getGeoJsonStrCoordinates, validateGeoJsonStr } from "../../../utils/GISUtils";
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import permissionCheck from "../../../utils/permissionCheck";
 import BulkAdd from "./BulkAdd/BulkAdd";
 import { createMultipleAssets } from "reduxRelated/actions/assetHelperAction";
-
+import { getServerEndpoint } from "../../../utils/serverEndpoint";
+import { primaryTrackAssetTypeChecks, getyTrackMarkerATypeCheck } from "../../../AssetTypeConfig/LampAssets/AddAsset";
+import Dialog from "../../../libraries/Dialog";
+import AppFormCustomAttrs from "../../AppFormCustomAttrs";
+import DrawControl from 'react-mapbox-gl-draw';
+import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import { containsNumber } from "@turf/turf";
+import { findAssetStatus, findLocationTypeStatusColor } from "../../../utils/findInspectionStatus";
+import "./addAssets.css"
 var Map = ReactMapboxGl({
-  accessToken: "pk.eyJ1IjoidXNtYW5xdXJlc2hpIiwiYSI6ImNqdzlmNG0yazBpcHA0OHBkYmgyZHdyZjAifQ.2O9HKhWB6EG-OZk3g4zdOg",
+  accessToken: "pk.eyJ1Ijoib3NhbWExNTciLCJhIjoiY2w3OTNsbTB4MGZ4MDNub2xteGNhanNjbSJ9.gET6tPcC1dG6MTRDqk4f8w",
 });
 
 const MyButton = (props) => (
@@ -47,7 +55,6 @@ const MyButton = (props) => (
 class AddAssets extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
       commonFields: _.cloneDeep(commonFields),
       //locationGPSFields: _.cloneDeep(locationGPSFields),
@@ -73,7 +80,35 @@ class AddAssets extends Component {
       mapCenter: null,
       mapBound: null,
       zoom: [11],
-      showBulkAdd: false
+      showBulkAdd: false,
+      mapBound2: null,
+      openAppFormAttrsDialog: false,
+      assetsLocArray: [],
+      assetsLocArrayLength: 0,
+      markers: [],
+      pointDrawControlStatus: true,
+      latitude: null,
+      longitude: null,
+      submitCoordBtnStatus: true,
+      latlngFieldStatus: false,
+      popSubmitLatLong: false,
+      latitudeErr: false,
+      longitudeErr: false,
+      inspectionCheckboxes: {},
+      location_type: null,
+      datesFormStatus: true,
+      inspectionsStatus: {},
+      newPointOnMapArray: [],
+      inspectionDates: {},
+      lastInspReq: {},
+      locationTypeStatus: null,
+      inspectionTypes: [],
+      minDate: null,
+      maxDate: null,
+      maxDate_Next: null,
+      assetIsInInspection: {},
+      popUpShow: "block",
+      validateLineType: true
     };
     this.geoJsonData = null;
     this.updateFrom = this.updateFrom.bind(this);
@@ -89,33 +124,98 @@ class AddAssets extends Component {
     this.reverseGeoJson = this.reverseGeoJson.bind(this);
     this.updatePrimaryTrackValidation = this.updatePrimaryTrackValidation.bind(this);
     this.bulkAddCallback = this.bulkAddCallback.bind(this);
+    this.handleExportChildren = this.handleExportChildren.bind(this);
+    this.openAppFormAttrsView = this.openAppFormAttrsView.bind(this);
+    this.updateAppFormAttrsCallback = this.updateAppFormAttrsCallback.bind(this);
+
+  }
+  componentDidMount() {
+
   }
 
+
   componentDidUpdate(prevProps, prevState) {
+    //console.log(this.props.plannableLocations[0]);
+
     if (this.props.modalState !== prevProps.modalState && this.props.modalState == "Add") {
+      //this.setState({ popUpShow: "none" })
       let parentAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
 
-      this.setAssetTypeField(parentAsset);
+      // for dynamicaly rendering inspection dates and checkboxes
+      this.filterInspections(this.props.modalState);
 
+      this.setAssetTypeField(parentAsset);
+      // let pAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
+      // let assetsList = this.props.assetsList ? this.props.assetsList : [];
+      this.state.mapBound = null;
+      // this.changeMapAccordingToLocation(assetsList, pAsset);
+
+      this.addModalDefaultValues();
+      this.limitMinAndMaxDatesOnPicker();
       // this.props.assets && this.props.assets.assetsTypes && this.props.takeAssetTypeFromAddAsset(this.props.assets.assetsTypes);
     }
     if (this.props.modalState !== prevProps.modalState && this.props.modalState == "Edit") {
-      //this.geoJsonData = null;
+
+      this.filterInspections(this.props.modalState);
+      this.limitMinAndMaxDatesOnPicker();
+      this.geoJsonData = null;
+      //this.state.newPointOnMapArray=[];
+
+      this.setState({ newPointOnMapArray: [] });
+      //this.setState({ popUpShow: "none" })
+      //this.state.lastInspReq.stray = false;
+      //this.state.lastInspReq.structure = false;
+      this.state.latitudeErr = false;
+      this.state.longitudeErr = false;
+      let selectedAsset = this.props.selectedAsset;
+      if (selectedAsset) {
+        this.fillValuesToFormFieldsEdit(selectedAsset);
+      }
 
       this.mapSelectedAssetToFormFields();
+      let assetsList = this.props.assetsList ? this.props.assetsList : [];
+      let pAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
+      this.changeMapAccordingToLocation(assetsList, pAsset);
       /*       if (this.state.lampAttributes && this.state.lampAttributes.geoJsonCord && this.state.lampAttributes.geoJsonCord.value != "") {
         this.validateGeoJson();
       }
  */
+      this.state.commonFields.assetType.labelText = !this.props.showMap ? "Location" : this.state.commonFields.assetType.labelText;
     } else if (this.props.modalState == "Edit") {
+
       //console.log(this.state.commonFields.unitId.value);
       //console.log(prevState.commonFields.unitId.value);
       if (this.state.commonFields.unitId.value != prevState.commonFields.unitId.value) {
         //this.mapSelectedAssetToFormFields();
+        // osama Iqbal
         this.validateGeoJson();
+        this.limitMinAndMaxDatesOnPicker();
+        this.geoJsonData = null;
         //console.log(this.geoJsonData.name);
+        let assetsList = this.props.assetsList ? this.props.assetsList : [];
+        let pAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
+        this.changeMapAccordingToLocation(assetsList, pAsset);
+        this.setState({ newPointOnMapArray: [] });
+        this.setState({ submitCoordBtnStatus: false });
+        this.setState({ latlngFieldStatus: true });
+       // this.setState({ popUpShow: "none" })
+        // if (this.props.showMap) {
+        //   const { commonFields } = this.state;
+        //   let updatedCommonFields = _.cloneDeep(commonFields);
+        //   updatedCommonFields.assetType.labelText = "Asset Type";
+        //   console.log(updatedCommonFields);
+        //   this.setState({ commonFields: updatedCommonFields });
+        // }
+
       }
+      this.state.commonFields.assetType.labelText = !this.props.showMap ? "Location" : this.state.commonFields.assetType.labelText
     }
+    if (!prevState.mapBound) {
+      let pAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
+      let assetsList = this.props.assetsList ? this.props.assetsList : [];
+      this.changeMapAccordingToLocation(assetsList, pAsset);
+    }
+
 
     // if ((this.state.lampAttributes && !prevState.lampAttributes) || this.state.lampAttributes &&
     //     this.state.lampAttributes.primaryTrack &&
@@ -126,16 +226,117 @@ class AddAssets extends Component {
 
     if (
       this.state.commonFields.lineId.value !== prevState.commonFields.lineId.value &&
-      this.state.commonFields.assetType.value === "track"
+      _.find(primaryTrackAssetTypeChecks, (t) => {
+        return t === this.state.commonFields.assetType.value;
+      })
     ) {
       this.updatePrimaryTrackValidation();
     }
+    if (this.props.actionType === "ADDASSET_READ_SUCCESS" && this.props.actionType !== prevProps.actionType) {
+      let url = getServerEndpoint() + "assetsExports/" + "assetExport.csv";
+      window.open(url, "_blank");
+    }
+    if (this.props.actionType === "ADDASSET_READ_FAILURE" && this.props.actionType !== prevProps.actionType) {
+      window.alert("Export failed");
+    }
+  }
+
+  fillValuesToFormFieldsEdit(selectedAsset) {
+    if (selectedAsset.hasOwnProperty('inspectionDates')) {
+      this.state.inspectionDates = selectedAsset.inspectionDates;
+    }
+    if (selectedAsset.hasOwnProperty('inspectionCheckboxes')) {
+      this.state.inspectionCheckboxes = selectedAsset.inspectionCheckboxes;
+    }
+    if (selectedAsset.assetsLocArray.length) {
+      this.setState({ latitude: selectedAsset.assetsLocArray[0][0] });
+      this.setState({ longitude: selectedAsset.assetsLocArray[0][1] });
+    }
+    if (selectedAsset.location_type) {
+      this.setState({ location_type: selectedAsset.location_type });
+      if (selectedAsset.location_type == "Not Located") {
+        this.setState({ datesFormStatus: false });
+      }
+    }
+    if (selectedAsset.hasOwnProperty("assetIsInInspection")) {
+      this.setState({ assetIsInInspection: selectedAsset.assetIsInInspection });
+    }
+  }
+  addModalDefaultValues() {
+    this.setState({ assetsLocArray: [] });
+    this.setState({ latitude: null });
+    this.setState({ longitude: null });
+    this.setState({ location_type: "Located" });
+    this.setState({ latitudeErr: false });
+    this.setState({ longitudeErr: false });
+    this.setState({ inspectionDate: {} });
+    this.setState({ submitCoordBtnStatus: true });
+    this.setState({ newPointOnMapArray: [] });
+    this.setState({ latlngFieldStatus: false });
+    this.setState({ inspectionDates: {} });
+    this.setState({ datesFormStatus: true });
+    this.setState({ lastInspReq: {} });
+    this.setState({ assetIsInInspection: {} })
+
+    // last inspection date cant be greater than todays date
+    // next inspection date cant be todays or less than today
+
+  }
+  limitMinAndMaxDatesOnPicker() {
+    var maxformatedDate = moment().format('YYYY-MM-DD');
+    this.setState({ maxDate: maxformatedDate });
+
+    var minformatedDate = moment().add(1, 'day').format('YYYY-MM-DD');
+    this.setState({ minDate: minformatedDate });
+  }
+  filterInspections(modalState) {
+    this.props.getApplookup().then((lookUps) => {
+      if (lookUps && lookUps.response) {
+        let lookUpsList = lookUps.response;
+        if (lookUpsList && lookUpsList.length > 0) {
+          let inspectionType = lookUpsList.filter(({ listName }) => listName == "inspectionTypes");
+          this.setState({ inspectionTypes: inspectionType });
+          if (modalState == "Add") {
+            if (inspectionType) {
+              inspectionType.forEach((type) => {
+                if (type) {
+                  this.setState({
+                    ...this.state,
+                    inspectionCheckboxes: {
+                      ...this.state.inspectionCheckboxes,
+                      [type.opt1.checkBoxName]: true
+                    }
+                  })
+                }
+              })
+            }
+          }
+        }
+      }
+    }
+    )
+  }
+  openAppFormAttrsView(open) {
+    this.setState({ openAppFormAttrsDialog: open });
+  }
+  updateAppFormAttrsCallback(attrs) {
+    alert("TODO: updated on server required");
+  }
+  handleExportChildren() {
+    let parentAsset = this.props.selectedAsset;
+    this.props.getAddAsset("locAssetCSV/" + parentAsset._id);
   }
   updatePrimaryTrackValidation() {
     let lampAttributes = _.cloneDeep(this.state.lampAttributes);
     let isPrimaryTrack = this.checkIfPrimaryTrack(this.state.commonFields.lineId.value, this.props.assets.assetsList);
 
-    if (this.state.commonFields.assetType.value === "track" && lampAttributes && lampAttributes.primaryTrack) {
+    if (
+      _.find(primaryTrackAssetTypeChecks, (t) => {
+        return t === this.state.commonFields.assetType.value;
+      }) &&
+      lampAttributes &&
+      lampAttributes.primaryTrack
+    ) {
       if (this.props.modalState === "Add") lampAttributes.primaryTrack.value = false;
       if (lampAttributes.primaryTrack.value) isPrimaryTrack = false;
       lampAttributes.primaryTrack.config.disabled = isPrimaryTrack;
@@ -144,7 +345,13 @@ class AddAssets extends Component {
   }
   checkIfPrimaryTrack(selectedLocation, assetList) {
     let filterListBySelectedLocation = assetList.filter(
-      (al) => al.lineId === selectedLocation && al.assetType === "track" && al.attributes.primaryTrack,
+      (al) =>
+        al.lineId === selectedLocation &&
+        _.find(primaryTrackAssetTypeChecks, (t) => {
+          return t === al.assetType;
+        }) &&
+        al.attributes &&
+        al.attributes.primaryTrack,
     );
 
     return !!(filterListBySelectedLocation && filterListBySelectedLocation.length > 0);
@@ -212,8 +419,33 @@ class AddAssets extends Component {
         updatedCommonFields.lineId.value = updatedCommonFields.lineId.config.options[0].val;
       }
     } else if (this.props.modalState == "Edit") {
-      updatedCommonFields.lineId.value = this.props.selectedAsset.locationId;
-      updatedCommonFields.lineId.config.disabled = true;
+      // updatedCommonFields.lineId.value = this.props.selectedAsset.locationId;
+      // updatedCommonFields.lineId.config.disabled = true;
+      let allowEditLocation = permissionCheck("Asset Edit", "lineid update");
+      allowEditLocation =
+        allowEditLocation &&
+        this.props.plannableLocations.find((l) => {
+          return l._id === this.props.selectedAsset._id;
+        }) == undefined;
+      if (allowEditLocation) {
+        if (this.props.parentAsset && !_.find(this.props.plannableLocations, { _id: this.props.parentAsset._id })) {
+          updatedCommonFields.lineId.value = this.props.parentAsset.locationId;
+          updatedCommonFields.lineId.config.disabled = true;
+        } else {
+          updatedCommonFields.lineId.config.disabled = false;
+          let locationValue = updatedCommonFields.lineId.config.options.find((l) => {
+            return l.val === this.props.parentAsset._id;
+          });
+          updatedCommonFields.lineId.value =
+            locationValue && locationValue.val ? locationValue.val : updatedCommonFields.lineId.config.options[0].val;
+        }
+      } else {
+        // use self _id for location assets (that do not have a locationId)
+        updatedCommonFields.lineId.value = this.props.selectedAsset.locationId
+          ? this.props.selectedAsset.locationId
+          : this.props.selectedAsset._id;
+        updatedCommonFields.lineId.config.disabled = true;
+      }
     }
   }
   setAssetTypeField(parentAsset) {
@@ -221,6 +453,7 @@ class AddAssets extends Component {
       let updatedCommonFields, parentAssetType, attributesObject;
       updatedCommonFields = _.cloneDeep(commonFields);
       let lmpfs = _.cloneDeep(locationMilepostFields);
+
       this.setLocationField(updatedCommonFields);
       parentAssetType = _.find(this.props.assets.assetsTypes, { assetType: parentAsset.assetType });
       attributesObject = {};
@@ -279,7 +512,7 @@ class AddAssets extends Component {
   getAttributesField(attributeObject) {
     let assetTypeAttributeFields = null;
     attributeObject.forEach((item) => {
-      let newField = createFieldFromTemplate(item.name, "", item.name);
+      let newField = createFieldFromTemplate(item.name, "", item.labelText || item.name);
 
       if (item.name === "geoJsonCordFile") {
         newField.element = "file";
@@ -341,8 +574,8 @@ class AddAssets extends Component {
         newField.config.options =
           item.values && item.values.length
             ? item.values.map((v) => {
-                return { val: v, text: v };
-              })
+              return { val: v, text: v };
+            })
             : [];
         newField.config.options[0] && (newField.value = newField.config.options[0]);
       }
@@ -397,7 +630,6 @@ class AddAssets extends Component {
     }
     for (let key in data) {
       let item = data[key];
-
       if (key in updatedCommonFields) {
         updatedCommonFields[key].value = item;
         updatedCommonFields[key].valid = true;
@@ -406,6 +638,7 @@ class AddAssets extends Component {
           if (allowEditType) {
             let parentAsset = this.props.parentAsset ? this.props.parentAsset : this.props.plannableLocations[0];
             let assetTypesToCheck = this.props && this.props.assets && this.props.assets.assetsTypes;
+
             if (assetTypesToCheck) {
               let parentAssetType = _.find(assetTypesToCheck, { assetType: parentAsset.assetType });
               updatedCommonFields[key].config.options = this.allowedAssetTypesOptions(parentAssetType, assetTypesToCheck);
@@ -413,6 +646,7 @@ class AddAssets extends Component {
               updatedCommonFields[key].config.options = [{ text: item, val: item }];
               updatedCommonFields[key].config.disabled = true;
             }
+
           } else {
             updatedCommonFields[key].config.disabled = true;
             updatedCommonFields[key].config.options = [{ text: item, val: item }];
@@ -476,7 +710,7 @@ class AddAssets extends Component {
             let key = ak.name;
             let template = ak.template;
 
-            let newField = createFieldFromTemplate(key, "", key, template.value, template.order);
+            let newField = createFieldFromTemplate(key, "", template.labelText || key, template.value, template.order);
 
             if (key === "timezone") {
               newField.element = "select";
@@ -506,8 +740,8 @@ class AddAssets extends Component {
               newField.config.type = "checkbox";
               newField.value = item[key] || false;
             } else if (key === "Marker Start" || key === "Marker End") {
-              newField.element = "select";
-              newField.config.options = this.getList("SwitchNames", this.state.commonFields.lineId.value);
+              newField.element = template.element; //"select";
+              newField.config.options = template.config.options; //this.getList("SwitchNames", data.locationId);
             }
 
             newField.config.required = template.config.required === false ? false : true;
@@ -628,15 +862,15 @@ class AddAssets extends Component {
 
     return result;
   }
-  getList(listName, lineId = null) {
+  getList(listName, lineId = null, validation) {
     let retVal = [],
       emptyItem = { val: "    ", text: "    " };
     if (listName === "SwitchNames") {
       let assetsList = this.props.assets && this.props.assets.assetsList ? this.props.assets.assetsList : []; //this.props.assetsList;
       retVal = assetsList
         .filter((a) => {
-          if (!lineId) return a.assetType == "Switch";
-          else return a.assetType == "Switch" && lineId === a.lineId;
+          if (!lineId) return getyTrackMarkerATypeCheck(a.assetType);
+          else return getyTrackMarkerATypeCheck(a.assetType) && lineId === a.lineId;
         })
         .map((a) => {
           return { val: a.unitId, text: a.unitId };
@@ -695,16 +929,43 @@ class AddAssets extends Component {
     }
   };
 
+
+  checkInspectionDates = () => {
+    //this.state.inspectionTypes
+    let required = true;
+    this.state.inspectionTypes.forEach((type) => {
+      if (this.state.location_type == "Located" && type) {
+
+        if ((this.state.inspectionCheckboxes[type.opt1.checkBoxName] == true) && (this.state.inspectionDates[type.opt1.lastInspFieldName] == undefined || this.state.inspectionDates[type.opt1.lastInspFieldName] == null || this.state.inspectionDates[type.opt1.lastInspFieldName] == '')) {
+          this.state.lastInspReq[type.opt1.lastInspFieldName] = true;
+          required = false;
+        }
+        else {
+          this.state.lastInspReq[type.opt1.lastInspFieldName] = false;
+        }
+      }
+      else {
+        this.state.lastInspReq[type.opt1.lastInspFieldName] = false;
+      }
+    })
+    // summaries result
+    return required;
+  }
+
   handleSubmitAsset = (formType) => () => {
+
+    // if (this.state.geoJsonMsg !== "Invalid GeoJson Line Type" || this.state.geoJsonMsg == "" ) {
     let {
       commonFields,
       //    locationGPSFields,
       locationMilepostFields,
       imageList,
       lampAttributes,
-
       documentList,
       systemAttributes,
+      inspectionDates,
+      location_type,
+
     } = this.state;
 
     //   let coordinates = this.processGPSFields(locationGPSFields);
@@ -718,9 +979,41 @@ class AddAssets extends Component {
 
     if (systemAttributes) formIsValid = checkFormIsValid(systemAttributes) && formIsValid;
     if (lampAttributes) formIsValid = checkFormIsValid(lampAttributes) && formIsValid;
-
+    let inspectionDatesAreValid = true;
+    if (this.props.showMap) {
+      console.log(this.state.location_type)
+      if ( this.state.location_type == "Located" && this.state.latitude === null || this.state.location_type == "Located" && this.state.latitude == '') {
+        this.state.latitudeErr = true;
+      }
+      else {
+        this.state.latitudeErr = false;
+      }
+      if (this.state.location_type == "Located" && this.state.longitude === null || this.state.location_type == "Located" && this.state.longitude == '') {
+        this.state.longitudeErr = true;
+      }
+      else {
+        this.state.longitudeErr = false;
+      }
+      inspectionDatesAreValid = this.checkInspectionDates();
+    }
+    if (!this.props.showMap) {
+      if (!this.state.validateLineType) {
+        this.geoJsonData = null;
+        this.showToastError(languageService("Invalid GeoJson Line Type, only Polygon is allowed"));
+        return;
+      }
+      else if (lampAttributes && !this.validateJson(lampAttributes.geoJsonCord.value)) {
+        this.geoJsonData = null;
+        this.showToastError(languageService("Valid Json is required."));
+        return
+      }
+    }
     let images = imageList.map((image) => ({ imgName: image }));
-    if (formIsValid) {
+    let formIsValidLoc = this.props.showMap == true || (!lampAttributes) || (lampAttributes && !lampAttributes.geoJsonCord);
+    let formIsValidAsset = !this.props.showMap && lampAttributes && lampAttributes.geoJsonCord && this.validateJson(lampAttributes.geoJsonCord.value) && this.state.geoJsonMsg == "";
+
+
+    if (formIsValid && this.state.latitudeErr == false && this.state.longitudeErr == false && inspectionDatesAreValid && (formIsValidLoc && !formIsValidAsset || !formIsValidLoc && formIsValidAsset) && this.state.validateLineType == true) {
       let newState = {
         ...commonFields1,
         ...locationMilepostFields1,
@@ -732,7 +1025,14 @@ class AddAssets extends Component {
 
       newState.start = parseFloat(newState.start).toFixed(2);
       newState.end = parseFloat(newState.end).toFixed(2);
+      this.state.inspectionsStatus = findAssetStatus(this.state.inspectionCheckboxes, this.state.inspectionDates, this.state.inspectionTypes);
 
+      newState.assetsLocArray = this.state.assetsLocArray ? this.state.assetsLocArray : '';
+      newState.location_type = this.state.location_type ? this.state.location_type : '';
+      newState.inspectionsStatus = this.state.inspectionsStatus;
+      newState.locationTypeStatus = this.state.locationTypeStatus ? this.state.locationTypeStatus : '';
+      newState.inspectionCheckboxes = this.state.inspectionCheckboxes ? this.state.inspectionCheckboxes : '',
+        newState.inspectionDates = this.state.inspectionDates;
       if (parseFloat(newState.start) <= parseFloat(newState.end)) {
         newState.assetLength = newState.end - newState.start;
       } else {
@@ -742,6 +1042,8 @@ class AddAssets extends Component {
 
       this.props.handleSubmitForm(newState, formType);
     } else {
+      this.geoJsonData = null;
+      this.state.lampAttributes = null;
       this.setFormValidation(commonFields, "commonFields");
       this.setFormValidation(locationMilepostFields, "locationMilepostFields");
 
@@ -752,7 +1054,8 @@ class AddAssets extends Component {
         this.setFormValidation(lampAttributes, "lampAttributes");
       }
     }
-  };
+
+  }
 
   setFormValidation = (data, stateVarName) => {
     const msg = languageService("Validation failed") + ": ";
@@ -775,12 +1078,12 @@ class AddAssets extends Component {
   };
 
   bulkAddDisplayToggle = () => {
-    this.setState({showBulkAdd: !this.state.showBulkAdd});
-  }
+    this.setState({ showBulkAdd: !this.state.showBulkAdd });
+  };
 
   handleBulkAdd = () => {
     this.bulkAddDisplayToggle();
-  }
+  };
 
   addDocumentHandle = () => {
     this.setState(({ showDocsGal }) => ({ showDocsGal: !showDocsGal }));
@@ -805,6 +1108,12 @@ class AddAssets extends Component {
       //lampAttributes.geoJsonCord
       //let geoJsonCord = { ...this.state.lampAttributes.geoJsonCord };
       //geoJsonCord.fileData = reader.result;
+      if (this.state.lampAttributes && !this.validateGeoJson(this.state.lampAttributes.geoJsonCord.value)) {
+        let lampAttributes = _.cloneDeep(this.state.lampAttributes);
+        lampAttributes.geoJsonCord.value = "";
+        this.geoJsonData = null;
+        this.setState({ lampAttributes: lampAttributes });
+      }
       try {
         this.geoJsonData = JSON.parse(reader.result);
         let lampAttributes = _.cloneDeep(this.state.lampAttributes);
@@ -822,7 +1131,17 @@ class AddAssets extends Component {
 
     //file.text().then(data){console.log(data)}
   }
+  validateJson(data) {
+    try {
+      JSON.parse(data);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   validateGeoJson = (la) => {
+
     try {
       let obj = null;
       let lampAttributes = null;
@@ -833,33 +1152,40 @@ class AddAssets extends Component {
       }
 
       if (lampAttributes && lampAttributes.geoJsonCord && lampAttributes.geoJsonCord.value != "") {
-        obj = JSON.parse(lampAttributes.geoJsonCord.value);
-        this.geoJsonData = obj;
+        if (this.validateJson(lampAttributes.geoJsonCord.value)) {
+          obj = JSON.parse(lampAttributes.geoJsonCord.value);
+          this.geoJsonData = obj;
+        } else {
+          this.geoJsonData = null;
+        }
       } else if (this.geoJsonData) {
         obj = this.geoJsonData;
       } else {
-        this.setState({ geoJsonLenMiles: "0.0", geoJsonLenKm: "0.0", geoJsonMsg: "", mapBound: null });
+        this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "", mapBound: null });
         this.geoJsonData = null;
         return;
       }
       //obj = this.geoJsonData;
       if (obj) {
         if (obj.features && obj.features[0]) {
-          if (obj.features[0].geometry.type === "LineString") {
-            let lineString = turf.lineString(obj.features[0].geometry.coordinates, { name: "l1" });
+          if (obj.features[0].geometry.type === "Polygon") {
+            this.state.validateLineType = true;
+            let lineString = turf.polygon([obj.features[0].geometry.coordinates[0]]);
             let length = parseFloat(turf.length(lineString, { units: "miles" })).toFixed(2);
             let lengthKm = parseFloat(turf.length(lineString, { units: "kilometers" })).toFixed(2);
-            let fitBound = this.getBounds(obj.features[0].geometry.coordinates);
-            this.setState({ geoJsonLenMiles: length, geoJsonLenKm: lengthKm, geoJsonMsg: "", mapBound: fitBound });
+            let fitBound = this.getBounds(obj.features[0].geometry.coordinates[0]);
+            this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "", mapBound: fitBound });
           } else {
-            this.setState({ geoJsonLenMiles: "0.0", geoJsonLenKm: "0.0", geoJsonMsg: "Invalid GeoJson Line Type", mapBound: null });
+            this.state.validateLineType = false;
+            this.geoJsonData = null;
+            this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Invalid GeoJson Line Type, only Polygon is allowed", mapBound: null });
           }
         } else {
-          this.setState({ geoJsonLenMiles: "0.0", geoJsonLenKm: "0.0", geoJsonMsg: "Invalid GeoJson Data", mapBound: null });
+          this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Invalid GeoJson Data", mapBound: null });
         }
       }
     } catch (err) {
-      this.setState({ geoJsonLenMiles: "0.0", geoJsonLenKm: "0.0", geoJsonMsg: "Error Loading GeoJson Data", mapBound: null });
+      this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Error Loading GeoJson Data", mapBound: null });
     }
   };
   updateFrom = (newState, e) => {
@@ -868,22 +1194,28 @@ class AddAssets extends Component {
         this.updateAssetTypeOption(newState.commonFields.assetType.value);
 
       if (this.state.commonFields.lineId.value !== newState.commonFields.lineId.value) {
+
+        this.state.assetsLocArray = [];
         let updatedLocationMilepostFields = _.cloneDeep(locationMilepostFields);
         let assetsList = this.props.assets && this.props.assets.assetsList ? this.props.assets.assetsList : this.props.assetsList;
         let parentAsset = assetsList.find((a) => {
           return a._id === newState.commonFields.lineId.value;
         });
+        this.state.commonFields.lineId.value = parentAsset._id;
+        this.state.latitude = null;
+        this.state.longitude = null;
+        //console.log(parentAsset);
         // console.log('parentasset ', parentAsset.start, parentAsset.end);
         updatedLocationMilepostFields = this.addLineLimitsToCaptionsAndValidations(parentAsset, updatedLocationMilepostFields);
 
         let additionalFields = _.cloneDeep(this.state.lampAttributes);
-        for (let key in additionalFields) {
-          if (key === "Marker Start" || key === "Marker End") {
-            let field = additionalFields[key];
-            field.config.options = this.getList("SwitchNames", newState.commonFields.lineId.value);
-          }
-        }
-
+        let updateMapOnSelect = this.changeMapAccordingToLocation(assetsList, parentAsset);
+        // for (let key in additionalFields) {
+        //   if (key === "Marker Start" || key === "Marker End") {
+        //     let field = additionalFields[key];
+        //     field.config.options = this.getList("SwitchNames", newState.commonFields.lineId.value, key === "Marker End" ? false : true);
+        //   }
+        // }
         this.setState({ locationMilepostFields: updatedLocationMilepostFields, lampAttributes: additionalFields });
       }
     }
@@ -896,6 +1228,23 @@ class AddAssets extends Component {
     if (e.target.name === "geoJsonCordFile") {
       this.handleFileChange(newState, e);
       return;
+    }
+    if (e.target.name === "Marker Start" || e.target.name === "Marker End") {
+      let locationMilepostFields = _.cloneDeep(this.state.locationMilepostFields);
+      let targetSwitch = _.find(this.props.assets.assetsList, (asset) => {
+        return asset.unitId === e.target.value;
+      });
+      if (targetSwitch) {
+        if (e.target.name === "Marker Start") {
+          locationMilepostFields.start.value = targetSwitch.start;
+          !_.find(this.props.assets.assetsList, (asset) => {
+            return asset.unitId === this.state.lampAttributes["Marker End"].value;
+          }) && (locationMilepostFields.end.value = targetSwitch.end);
+        } else {
+          e.target.name === "Marker End" && (locationMilepostFields.end.value = targetSwitch.end);
+        }
+        this.setState({ locationMilepostFields: locationMilepostFields });
+      }
     }
   };
   getMinOrMax(markersObj, minOrMax, latOrLng) {
@@ -921,6 +1270,48 @@ class AddAssets extends Component {
     var northEast = [maxLng + lngPadding, maxLat + lngPadding];
     return [southWest, northEast];
   }
+  changeMapAccordingToLocation(assetsList, assetInfo) {
+    try {
+      if (assetInfo) {
+        this.state.markers = [];
+        if (assetInfo.assetsLocArray && assetsList) {
+          let childAssets = assetsList.filter(({ parentAsset }) => parentAsset == assetInfo._id);
+          this.state.markers.push(childAssets);
+        }
+        if (assetInfo && assetInfo.attributes && assetInfo.attributes.geoJsonCord && this.state.validateLineType) {
+          let la = JSON.parse(assetInfo.attributes.geoJsonCord);
+
+          try {
+            let obj = la;
+            this.geoJsonData = obj;
+            if (obj) {
+              if (obj.hasOwnProperty('features') && obj.features[0]) {
+                if (obj.features[0].geometry.type === "Polygon") {
+                  let lineString = turf.polygon([obj.features[0].geometry.coordinates[0]]);
+
+                  // let length = parseFloat(turf.length(lineString, { units: "miles" })).toFixed(2);
+                  // let lengthKm = parseFloat(turf.length(lineString, { units: "kilometers" })).toFixed(2);
+                  let fitBound = this.getBounds(obj.features[0].geometry.coordinates[0]);
+                  this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "", mapBound: fitBound });
+                } else {
+                  this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Invalid GeoJson Line Type, only Polygon is allowed", mapBound: null });
+                }
+              } else {
+                this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Invalid GeoJson Data", mapBound: null });
+              }
+            }
+          } catch (err) {
+            //console.log(err);
+            this.setState({ geoJsonLenMiles: 0.0, geoJsonLenKm: 0.0, geoJsonMsg: "Error Loading GeoJson Data", mapBound: null });
+          }
+        }
+        //console.log(JSON.parse(assetInfo.attributes.geoJsonCord));
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   reverseGeoJson() {
     if (this.state.lampAttributes && this.state.lampAttributes.geoJsonCord && this.state.lampAttributes.geoJsonCord.value) {
       let lampAttributes = _.cloneDeep(this.state.lampAttributes);
@@ -945,64 +1336,261 @@ class AddAssets extends Component {
   }
 
   bulkAddCallback(assetsList) {
-     // console.log('Add these assets', assetsList);
-     this.props.createMultipleAssets(assetsList);
-     this.props.toggle();
+    // console.log('Add these assets', assetsList);
+    this.props.createMultipleAssets(assetsList);
+    this.props.toggle();
   }
 
   onMapZoom = (map, e) => {
     //this.setState({ mapBound: e.getBounds() });
     if (e && e.originalEvent && e.originalEvent.type === "wheel") {
       const mapCenter = map.getCenter();
-      this.setState({ mapBound: null, mapCenter: mapCenter });
+      this.setState({ mapCenter: mapCenter });
     }
     this.setState({ zoom: [map.getZoom()] });
     //console.log(e);
   };
   onMapClick = (map, e) => {
     const mapCenter = map.getCenter();
-    this.setState({ mapBound: null, mapCenter: mapCenter });
+    this.setState({ mapCenter: mapCenter });
+    // if (this.props.showMap == true) {
+    //   this.setState({ popUpShow: "none" })
+    // }
+    //console.log(e);
+  };
+
+  onMarkerClick = (map, e) => {
+    if (this.props.showMap == true) {
+      this.setState({ popUpShow: "block" });
+    }
     //console.log(e);
   };
   onDragEnd = (map, e) => {
     const mapCenter = map.getCenter();
-    this.setState({ mapBound: null, mapCenter: mapCenter });
+    this.setState({ mapCenter: mapCenter });
   };
+  //osama Iqbal
+  findCoordinateValidity = (coordinates) => {
+    try {
+      let geoJsonDataLength = this.geoJsonData.features[0].geometry.coordinates.length;
+      let firstCoordinate = this.geoJsonData.features[0].geometry.coordinates[0];
+      // to make first and last point same
+      if (firstCoordinate !== this.geoJsonData.features[0].geometry.coordinates[geoJsonDataLength - 1]) {
+        this.geoJsonData.features[0].geometry.coordinates.push(firstCoordinate);
+      }
+      let line = turf.polygon([this.geoJsonData.features[0].geometry.coordinates[0]]);
+      var point = turf.point(coordinates);
+      let result = turf.booleanPointInPolygon(point, line);
+
+      return result;
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  onDrawCreate = ({ features }) => {
+
+    if (features && features[0]) {
+      let coordinates = features[0].geometry.coordinates;
+      let result = this.findCoordinateValidity(coordinates);
+      if (result) {
+        if (this.state.assetsLocArray.length > 0) {
+          this.state.assetsLocArray.pop();
+        }
+        this.state.assetsLocArray.push(coordinates);
+        this.state.latitude = coordinates[0];
+        this.state.longitude = coordinates[1];
+      }
+      else {
+        alert("This point is not situated within this location, and will not be considered");
+      }
+    }
+  };
+  onDrawUpdate = ({ features }) => {
+
+    if (features && features[0]) {
+      let coordinates = features[0].geometry.coordinates;
+      let latitude = coordinates[0];
+      let longitude = coordinates[1];
+      let locArray = [];
+      locArray[0] = latitude;
+      locArray[1] = longitude;
+      let result = this.findCoordinateValidity(locArray);
+      if (result) {
+        this.state.latitude = latitude;
+        this.state.longitude = longitude;
+      }
+      else {
+        alert("This point is not situated within this location, and will not be considered");
+        this.state.latitude = '';
+        this.state.longitude = '';
+      }
+    }
+  }
+  manangeLongLatField = (e) => {
+
+    if (e.target.name == "latitude") {
+      this.setState({ latitude: e.target.value });
+    } else if (e.target.name == "longitude") {
+      this.setState({ longitude: e.target.value });
+    }
+  }
+  submitLatLong = () => {
+    // console.log(this.state.submitCoordBtnStatus);
+    if (this.state.submitCoordBtnStatus) {
+      // console.log(this.state.latitude);
+      // console.log(this.state.longitude);
+      if (this.state.latitude && this.state.longitude) {
+        let locArray = [];
+        locArray[0] = this.state.latitude;
+        locArray[1] = this.state.longitude;
+        let result = this.findCoordinateValidity(locArray);
+        if (result) {
+          if (this.state.assetsLocArray.length > 0) {
+            this.state.assetsLocArray.pop();
+          }
+
+          if (this.state.popSubmitLatLong == true) {
+            // this.state.markers.pop();
+            this.state.assetsLocArray.pop();
+          }
+
+          if (this.state.newPointOnMapArray.length > 0) {
+            this.state.newPointOnMapArray.pop();
+          }
+          this.setState({ popSubmitLatLong: true });
+
+          this.state.newPointOnMapArray.push([this.state.latitude, this.state.longitude]);
+          this.setState({ submitCoordBtnStatus: !this.state.submitCoordBtnStatus });
+          this.setState({ latlngFieldStatus: !this.state.latlngFieldStatus });
+
+
+          this.state.assetsLocArray.push(locArray);
+        } else {
+          alert("this point is not situated within this location, and will not be considered");
+          this.state.latitude = '';
+          this.state.longitude = '';
+        }
+      }
+    }
+    else {
+      this.setState({ submitCoordBtnStatus: !this.state.submitCoordBtnStatus });
+      this.setState({ latlngFieldStatus: !this.state.latlngFieldStatus });
+    }
+  }
+  lastInspectionDatesManager = (e, type) => {
+    let { value } = e.target;
+    let formatValue = moment(value).format('MM/DD/YYYY');
+    let minDate = moment().add(1, 'day').format('YYYY-MM-DD');
+    this.state.minDate = minDate;
+    if (type && type.opt1 && type.opt1.frequency && type.opt1.unit && type.opt1.binding) {
+
+      let next_date = moment(formatValue).add(type.opt1.frequency, type.opt1.unit).format('MM/DD/YYYY');
+      this.state.maxDate_Next = moment(next_date).endOf('year').format('YYYY-MM-DD');
+      this.setState({
+        ...this.state,
+        inspectionDates: {
+          ...this.state.inspectionDates,
+          [e.target.name]: moment(formatValue).format('MM/DD/YYYY'),
+          [type.opt1.binding.nextInspFieldName]: next_date
+        }
+      })
+    }
+    else {
+      this.setState({ [e.target.name]: formatValue })
+    }
+  }
+  nextInspectionDatesManager = (e, type) => {
+    let { value } = e.target;
+    let formatValue = moment(value).format('MM/DD/YYYY');
+    this.setState({
+      ...this.state,
+      inspectionDates: {
+        ...this.state.inspectionDates,
+        [type.opt1.binding.nextInspFieldName]: formatValue
+      }
+    })
+
+  }
+  manageInspectionCheckboxes = (e) => {
+    this.setState({
+      ...this.state,
+      inspectionCheckboxes: {
+        ...this.state.inspectionCheckboxes,
+        [e.target.name]: e.target.checked
+      }
+    })
+    if (e.target.checked == false) {
+      let lookUps = this.state.inspectionTypes.find(({ opt1 }) => opt1.checkBoxName == e.target.name);
+      let { description } = lookUps;
+      this.setState({
+        ...this.state,
+        inspectionDates: {
+          ...this.state.inspectionDates,
+          [e.target.dataset.label]: null,
+          [e.target.dataset.next]: null
+        },
+        assetIsInInspection: {
+          ...this.state.assetIsInInspection,
+          [description.flag]: false
+        }
+      })
+    }
+    this.state.inspectionCheckboxes[e.target.name] = e.target.checked;
+  }
+  manangeInspectionLocation = (e) => {
+
+    if (e.target.name == "location_type") {
+      this.setState({ location_type: e.target.value });
+      if (e.target.value == "Not Located") {
+        this.setState({ datesFormStatus: false });
+      } else {
+        this.setState({ datesFormStatus: true });
+      }
+    }
+
+  }
   render() {
-    //console.log(this.props.assetTypes);
     const { mapBound, mapCenter, zoom } = this.state;
     const center = mapBound ? null : mapCenter;
     let geoJsonDetails = this.state.lampAttributes && this.state.lampAttributes.geoJsonCord && (
       <div style={{ marginTop: "5px", fontSize: "12px", backgroundColor: "white", padding: "10px" }}>
-        <div>
+        {/*<div>
           {languageService("Total Length Miles")}: {this.state.geoJsonLenMiles}{" "}
         </div>
         <div>
           {languageService("Total Length Km")} : {this.state.geoJsonLenKm}
         </div>
+        */}
         <div style={{ paddingTop: "5px", color: "red" }}> {this.state.geoJsonMsg}</div>
+
       </div>
     );
-
-    if (this.state.lampAttributes && this.state.lampAttributes.geoJsonCord && this.state.geoJsonLenMiles && this.geoJsonData) {
+    let objData = this.geoJsonData;
+    if (this.state.lampAttributes && this.state.lampAttributes.geoJsonCord && this.geoJsonData) {
       let objData = this.geoJsonData;
+
       let objFeature = objData.features && objData.features[0] ? objData.features[0] : null;
-      let startPoint = objFeature.geometry.coordinates[0];
-      let endPoint = objFeature.geometry.coordinates[objFeature.geometry.coordinates.length - 1];
+      // let startPoint = objFeature.geometry.coordinates[0][0];
+      // let endPoint = objFeature.geometry.coordinates[0][objFeature.geometry.coordinates[0].length - 1];
       //let aryBounds = this.getBounds(objFeature.geometry.coordinates);
       geoJsonDetails = (
         <div style={{ marginTop: "5px", fontSize: "12px", backgroundColor: "white", padding: "10px" }}>
-          <div>
+          {/*<div>
             {languageService("Total Length Miles")}: {this.state.geoJsonLenMiles}{" "}
           </div>
           <div>
             {"Total Length Km"} : {this.state.geoJsonLenKm}
           </div>
-          <div style={{ paddingTop: "5px", color: "red" }}> {this.state.geoJsonMsg}</div>
           <button onClick={this.reverseGeoJson}>{languageService("Reverse")}</button>
-          <React.Fragment>
+          */}
+          <div style={{ paddingTop: "5px", color: "red" }}> {this.state.geoJsonMsg}</div>
+
+          <React.Fragment >
+
+
             {objFeature && objFeature.geometry.coordinates[0] && (
               <div style={{ display: "inline-block" }}>
+
                 {center && (
                   <Map
                     style="mapbox://styles/mapbox/streets-v9"
@@ -1018,20 +1606,22 @@ class AddAssets extends Component {
                     }}
                     fitBounds={mapBound}
                   >
-                    <GeoJSONLayer key="key1" data={objData} linePaint={{ "line-color": "#888", "line-width": 8 }} />
-                    <Marker key={"start"} coordinates={startPoint}>
+                    <GeoJSONLayer key="key12" data={objData} linePaint={{ "line-color": "#888", "line-width": 8 }} />
+                    {/* <Marker key={"start"} coordinates={startPoint}>
                       Start(0.00)
                     </Marker>
                     <Marker key={"end"} coordinates={endPoint}>
                       End({this.state.geoJsonLenMiles})
-                    </Marker>
+                  </Marker>*/}
+                    <DrawControl onDrawCreate={this.onDrawCreate} controls={{ line_string: false, point: false, polygon: false, combine_features: false, uncombine_features: false, trash: false }} />
                   </Map>
                 )}
                 {!center && (
+
                   <Map
                     style="mapbox://styles/mapbox/streets-v9"
                     onZoom={this.onMapZoom}
-                    onClick={this.onMapClick}
+                    //onClick={this.onMapClick}
                     onDragEnd={this.onDragEnd}
                     /* center={center}  */
 
@@ -1042,38 +1632,45 @@ class AddAssets extends Component {
                     fitBounds={mapBound}
                   >
                     <GeoJSONLayer key="key1" data={objData} linePaint={{ "line-color": "#888", "line-width": 8 }} />
-                    <Marker key={"start"} coordinates={startPoint}>
+                    {/*<Marker key={"start"} coordinates={startPoint}>
                       Start(0.00)
                     </Marker>
                     <Marker key={"end"} coordinates={endPoint}>
                       End({this.state.geoJsonLenMiles})
-                    </Marker>
+                  </Marker>*/}
+                    <DrawControl onDrawCreate={this.onDrawCreate} controls={{ line_string: false, point: false, polygon: false, combine_features: false, uncombine_features: false, trash: false }} />
                   </Map>
                 )}
               </div>
             )}
-          </React.Fragment>
-        </div>
+          </React.Fragment >
+        </div >
       );
     }
-
+    
     return (
+
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })
+        }
         isOpen={this.props.modal}
         toggle={this.props.toggle}
         style={{ maxWidth: "98vw" }}
       >
-        {this.props.modalState === "Add" && (
-          <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
-            {languageService("Add New Asset")}
-          </ModalHeader>
-        )}
-        {this.props.modalState === "Edit" && (
-          <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
-            {languageService("Edit Asset")}
-          </ModalHeader>
-        )}
+        {
+          this.props.modalState === "Add" && (
+            <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
+              {languageService("Add New Asset")}
+            </ModalHeader>
+          )
+        }
+        {
+          this.props.modalState === "Edit" && (
+            <ModalHeader style={(ModalStyles.modalTitleStyle, themeService(CommonModalStyle.header))}>
+              {languageService("Edit Asset")}
+            </ModalHeader>
+          )
+        }
         <ModalBody style={themeService(CommonModalStyle.body)}>
           {!(this.state.showImgGal || this.state.showDocsGal) && (
             <Row>
@@ -1098,36 +1695,104 @@ class AddAssets extends Component {
                     {this && this.props && this.props.parentAsset && this.props.parentAsset.unitId && this.props.parentAsset.assetType && (
                       <div style={themeService(formFeildStyle.feildStyle)}>
                         <label style={themeService(formFeildStyle.lblStyle)}>{languageService("Parent:")}</label>
-                        {this.props.parentAsset.unitId + " (" + this.props.parentAsset.assetType + ")"}
+                        {this.props.parentAsset.unitId + " (" + languageService(this.props.parentAsset.assetType) + ")"}
                       </div>
                     )}
                   </Col>
                 </Row>
                 <Row>
-                  <Col md={5}>
+                  <Col md={4}>
                     <div className={"commonform"}>
                       <FormFields commonFields={this.state.commonFields} fieldTitle={"commonFields"} change={this.updateFrom} />
-
-                      {/* <FormFields
-                        locationGPSFields={this.state.locationGPSFields}
+                      {/*<FormFields
+                       locationGPSFields={this.state.locationGPSFields}
                         fieldTitle={"locationGPSFields"}
-                        change={this.updateFrom}
+                    change={this.updateFrom}
                       /> */}
+                      {this.props.showMap && (
+                        <div>
+                          {/* osama */}
+                          <div style={{ display: 'flex', marginTop: '5px', marginBottom: '5px' }}>
+                            <label className="labelStyle">Location Type</label>
+                            <select name="location_type" style={{ color: 'rgb(24, 61, 102)' }} onChange={e => this.manangeInspectionLocation(e)}>
+                              <option selected>Select location type</option>
+                              <option value="Located" selected={this.state.location_type == "Located" ? true : false}>Located</option>
+                              <option value="Not Located" selected={this.state.location_type == "Not Located" ? true : false}>Not Located</option>
+                            </select>
+                            <br />
+                          </div>
 
-                      <FormFields
-                        locationMilepostFields={this.state.locationMilepostFields}
-                        fieldTitle={"locationMilepostFields"}
-                        change={this.updateFrom}
-                      />
+                          <div style={{ display: 'flex', marginTop: '10px', marginBottom: '5px' }}>
+                            <label className="labelStyle">Longitude:</label>
+                            <input type='text' style={{ color: 'rgb(24, 61, 102)' }} name="longitude" disabled={this.state.latlngFieldStatus} placeholder="longitude" value={this.state.longitude ? this.state.longitude : ''} onChange={this.manangeLongLatField} />
+                          </div>
+                          {this.state.longitudeErr == true && (<span style={{ color: 'red', fontSize: '12px', marginLeft: '30%' }}>Required</span>)}
+                          <div style={{ display: 'flex', marginTop: "20px" }}>
+                            <label className="labelStyle">Latititude:</label>
+                            <input type='text' style={{ color: 'rgb(24, 61, 102)' }} name="latitude" disabled={this.state.latlngFieldStatus} placeholder="Latititude" value={this.state.latitude ? this.state.latitude : ''} onChange={e => this.manangeLongLatField(e)} />
+                            <br />
+                          </div>
+                          {this.state.latitudeErr == true && (<span style={{ color: 'red', fontSize: '12px', marginLeft: '30%' }}>Required</span>)}
+
+                          {this.state.submitCoordBtnStatus && (<div style={{ display: 'flex', marginTop: "15px" }}>
+                            <Button type="submit" style={{ marginLeft: '30%' }} onClick={this.submitLatLong}>Submit coordinates</Button>
+                          </div>)}
+                          {!this.state.submitCoordBtnStatus && (<div style={{ display: 'flex', marginTop: "15px" }}>
+                            <Button type="submit" style={{ marginLeft: '30%' }} onClick={this.submitLatLong}>Edit coordinates</Button>
+                          </div>)}
+                          <div>
+                            {this.state.inspectionTypes && (
+                              this.state.inspectionTypes.map((type) => {
+                                if (type) {
+                                  let { inspectionCheckboxes, assetIsInInspection } = this.state;
+                                  let disable = this.state.location_type == "Not Located" ? true : this.props.modalState == "Add" && inspectionCheckboxes[type.opt1.checkBoxName] == false ? true : this.props.modalState == "Edit" && assetIsInInspection[type.description] && assetIsInInspection[type.description].flag == true ? true : false
+                                  return (
+                                    <div style={{ display: 'inline-grid', marginTop: '15px' }}>
+                                      <div style={{ display: 'flex' }}>
+                                        <div>
+                                          <label className="div">{type.description ? type.description : ''} Inspection</label></div>
+                                      </div>
+
+                                      <input type="checkbox" disabled={!this.state.datesFormStatus ? true : assetIsInInspection[type.description] && assetIsInInspection[type.description].flag == true ? true : false} name={type.opt1 ? type.opt1.checkBoxName : ''} defaultValue={false} checked={this.state.inspectionCheckboxes[type.opt1.checkBoxName] ? true : false} data-label={type.opt1.lastInspFieldName} data-next={type.opt1.binding.nextInspFieldName} value={this.state.inspectionCheckboxes[type.opt1.checkBoxName]} onChange={e => this.manageInspectionCheckboxes(e)} />
+                                      <div style={{ marginLeft: '10%' }}>
+
+                                        <label className="div">Last Inspection Date</label>
+                                        <div style={{ display: 'inline-flex' }}>
+                                          <div style={{ display: 'inline-flex' }}>
+                                            <input type='text' disabled={disable} style={{ color: 'rgb(24, 61, 102)' }} name={type.opt1.lastInspFieldName} placeholder="Last Inspection" value={this.state.inspectionDates[type.opt1.lastInspFieldName] ? moment(this.state.inspectionDates[type.opt1.lastInspFieldName]).format("MM/DD/YYYY") : ''} onChange={e => this.lastInspectionDatesManager(e, type)} />
+                                            <input type='date' max={this.state.maxDate ? this.state.maxDate : null} disabled={disable} style={{ width: '43px' }} name={type.opt1.lastInspFieldName} placeholder="Last Inspection" value={this.state.inspectionDates[type.opt1.lastInspFieldName] ? moment(this.state.inspectionDates[type.opt1.lastInspFieldName]).format('YYYY-MM-DD') : ''} onChange={e => this.lastInspectionDatesManager(e, type)} />
+                                          </div>
+                                          <div>
+                                            {assetIsInInspection[type.description] && assetIsInInspection[type.description].flag === true && (
+                                              <label className="labelFieldsStyle">This Asset is Part of Inspection: <b>{assetIsInInspection[type.description].inspection_name}</b></label>
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div>
+                                          {this.state.location_type == "Located" && this.state.lastInspReq[type.opt1.lastInspFieldName] && (<span style={{ color: 'red', fontSize: '12px' }}>Required</span>)}
+                                        </div>
+                                        <div style={{ display: 'inline-grid' }}>
+                                          <label className="div">Next Inspection Date</label>
+                                          <div style={{ display: 'inline-flex' }}>
+                                            <input type='text' disabled={disable} style={{ color: 'rgb(24, 61, 102)' }} name={type.opt1.nextInspFieldName} placeholder="Next Inspection" value={this.state.inspectionDates[type.opt1.nextInspFieldName] ? moment(this.state.inspectionDates[type.opt1.nextInspFieldName]).format("MM/DD/YYYY") : ''} onChange={e => this.nextInspectionDatesManager(e, type)} />
+                                            <input min={this.state.minDate ? this.state.minDate : null} max={this.state.maxDate_Next ? this.state.maxDate_Next : null} type='date' disabled={disable} style={{ width: '43px' }} name={type.opt1.nextInspFieldName} placeholder="Next Inspection" value={this.state.inspectionDates[type.opt1.nextInspFieldName] ? moment(this.state.inspectionDates[type.opt1.nextInspFieldName]).format('YYYY-MM-DD') : ''} onChange={e => this.nextInspectionDatesManager(e, type)} />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                }
+                              })
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
 
-                    {this.state.milePostValidationError && (
-                      <div style={{ marginTop: "5px", fontSize: "12px", color: "rgb(157, 7, 7)" }}>
-                        <span>{this.state.milePostValidationError}</span>
-                      </div>
-                    )}
+
+
                   </Col>
-                  <Col md={5}>
+                  <Col md={!this.props.showMap ? 7 : 2}>
                     <div className="commonform add-assets">
                       {this.state.systemAttributes && (
                         <React.Fragment>
@@ -1139,6 +1804,8 @@ class AddAssets extends Component {
                             fieldTitle={"systemAttributes"}
                             change={this.updateFrom}
                           />
+
+
                         </React.Fragment>
                       )}
                       {/*{this.state.timpsAttributes && (*/}
@@ -1164,8 +1831,80 @@ class AddAssets extends Component {
                       {geoJsonDetails}
                     </div>
                   </Col>
+                  {this.props.showMap && this.state.mapBound && (
+                    <Col md={4}>
+                      <div>
+                        <p style={{ fontSize: '16px', fontWeight: 'bold' }}>{languageService('Location:')}  {this.props.selectedAsset ? languageService(this.props.selectedAsset.locationName) : ''}</p>
+                        <Map
+                          style="mapbox://styles/mapbox/streets-v9"
+                          onZoom={this.onMapZoom}
+                          onClick={this.onMapClick}
+                          onDragEnd={this.onDragEnd}
+
+                          containerStyle={{
+                            height: "300px",
+                            width: "500px"
+                          }}
+                          fitBounds={this.state.mapBound}
+                        >
+                          <GeoJSONLayer key="key13" data={objData} linePaint={{ "line-color": "#888", "line-width": 8 }} />
+                          <DrawControl onDrawCreate={this.onDrawCreate} onDrawUpdate={this.onDrawUpdate} controls={{ line_string: false, point: true, polygon: false, combine_features: false, uncombine_features: false, trash: false }} />
+                          {
+                            this.state.markers && this.state.markers.length && (
+                              this.state.markers.map((marker) => {
+                                return (
+                                  marker.map((mark) => {
+                                    if (mark.assetsLocArray.length > 0) {
+                                      let statusColor = findLocationTypeStatusColor(mark.location_type, mark.inspectionsStatus)
+                                      return (
+                                        <div>
+                                          <Marker coordinates={[mark.assetsLocArray[0][0], mark.assetsLocArray[0][1]]} >
+                                            <button
+                                              style={{ width: '10px', height: '10px', borderRadius: '50%', background: statusColor, border: "1px solid white" }}
+                                              onClick={(e) => {
+                                                console.log(e)
+                                                this.setState({ popUpShow: "block" })
+                                              }}
+                                            >
+                                            </button>
+                                          </Marker>
+                                          <Popup
+                                            coordinates={[mark.assetsLocArray[0][0], mark.assetsLocArray[0][1]]} style={{ display: this.state.popUpShow }}
+                                            offset={-50}
+                                          >
+                                            {mark ? mark.unitId : ''}
+                                          </Popup>
+                                        </div>
+                                      )
+                                    }
+                                  })
+                                )
+                              }))
+                          }
+                          {
+
+                            this.state.newPointOnMapArray.length > 0 && (
+                              this.state.newPointOnMapArray.map((marker) => {
+                                if (marker && this.state.location_type) {
+                                  return (
+                                    <Marker coordinates={[marker[0], marker[1]]} anchor="bottom">
+                                      <div >
+                                        <div style={{ marginTop: '1px', width: '10px', height: '10px', borderRadius: '50%', background: "#7DF9FF" }}></div>
+                                      </div>
+                                    </Marker>
+                                  )
+                                }
+                              })
+                            )
+                          }
+                        </Map>
+                      </div>
+                    </Col>
+                  )}
                 </Row>
+
               </Col>
+
             </Row>
           )}
           {this.state.showImgGal && (
@@ -1179,6 +1918,26 @@ class AddAssets extends Component {
               uploadImageAllow
             />
             // </Modal>
+          )}
+
+          {this.state.openAppFormAttrsDialog && (
+            <AppFormCustomAttrs
+              open={this.openEquipmentView}
+              appFormAttributeList={[
+                {
+                  id: "nomenclature",
+                  value: ["XB", "B12", "B24"],
+                  allowedForms: ["battery"],
+                },
+                {
+                  id: "cities",
+                  value: ["Islamabad", "Lahore", "Rawalpindi"],
+                  allowedForms: ["cityForm"],
+                },
+              ]}
+              openCallback={this.openAppFormAttrsView}
+              updateFormAttributesCallback={this.updateAppFormAttrsCallback}
+            />
           )}
 
           {this.state.showDocsGal && (
@@ -1198,42 +1957,59 @@ class AddAssets extends Component {
             handleToggle={this.handleImageSliderClose}
           />
           {this.state.showBulkAdd && (
-            <BulkAdd isOpen={this.state.showBulkAdd} 
-              toggle={this.bulkAddDisplayToggle} 
-              parentAsset={this.props.selectedAsset}  
-              assetTypes={ this.props.assets && this.props.assets.assetsTypes ? this.props.assets.assetsTypes : this.props.assetTypes}
-              bulkAddCallback={this.bulkAddCallback} />
+            <BulkAdd
+              isOpen={this.state.showBulkAdd}
+              toggle={this.bulkAddDisplayToggle}
+              parentAsset={this.props.selectedAsset}
+              assetTypes={this.props.assets && this.props.assets.assetsTypes ? this.props.assets.assetsTypes : this.props.assetTypes}
+              bulkAddCallback={this.bulkAddCallback}
+            />
           )}
         </ModalBody>
-        {!(this.state.showImgGal || this.state.showDocsGal) && (
-          <ModalFooter style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.footer))}>
-            {this.props.modalState === "Add" && (
-              <MyButton
-                style={themeService(ButtonStyle.commonButton)}
-                type="submit"
-                onClick={this.handleSubmitAsset(FORM_SUBMIT_TYPES.ADD)}
-              >
-                {languageService("Add")}
+        {
+          !(this.state.showImgGal || this.state.showDocsGal) && (
+            <ModalFooter style={(ModalStyles.footerButtonsContainer, themeService(CommonModalStyle.footer))}>
+              {this.props.modalState === "Add" && (
+                <MyButton
+                  style={themeService(ButtonStyle.commonButton)}
+                  type="submit"
+                  onClick={this.handleSubmitAsset(FORM_SUBMIT_TYPES.ADD)}
+                >
+                  {languageService("Add")}
+                </MyButton>
+              )}
+              {/*this.props.modalState === "Edit" && (
+              <MyButton style={themeService(ButtonStyle.commonButton)} onClick={() => this.openAppFormAttrsView(true)}>
+                {"App Form Attributes"}{" "}
+              </MyButton>
+            )*/}
+              {this.props.modalState === "Edit" && (
+                <MyButton
+                  style={themeService(ButtonStyle.commonButton)}
+                  type="submit"
+                  onClick={this.handleSubmitAsset(FORM_SUBMIT_TYPES.EDIT)}
+                >
+                  {languageService("Update")}{" "}
+                </MyButton>
+              )}
+              {/*  {this.props.modalState === "Edit" && permissionCheck("Asset Edit", "asset bulkadd") && (
+              <MyButton style={themeService(ButtonStyle.commonButton)} type="button" onClick={this.handleBulkAdd}>
+                {languageService("Import Children")}
               </MyButton>
             )}
-            {this.props.modalState === "Edit" && (
-              <MyButton
-                style={themeService(ButtonStyle.commonButton)}
-                type="submit"
-                onClick={this.handleSubmitAsset(FORM_SUBMIT_TYPES.EDIT)}
-              >
-                {languageService("Update")}{" "}
+            {this.props.modalState === "Edit" && permissionCheck("Asset Edit", "asset export") && (
+              <MyButton style={themeService(ButtonStyle.commonButton)} type="button" onClick={this.handleExportChildren}>
+                {languageService("Export Children")}
               </MyButton>
             )}
-            {this.props.modalState === "Edit" && permissionCheck("Asset Edit", "asset bulkadd") && (
-              <MyButton style={themeService(ButtonStyle.commonButton)} type="button" onClick={this.handleBulkAdd}>Import Children...</MyButton>
-            )}
-            <MyButton style={themeService(ButtonStyle.commonButton)} type="button" onClick={this.handleClose}>
-              {languageService("Cancel")}
-            </MyButton>
-          </ModalFooter>
-        )}
-      </Modal>
+            */}
+              <MyButton style={themeService(ButtonStyle.commonButton)} type="button" onClick={this.handleClose}>
+                {languageService("Cancel")}
+              </MyButton>
+            </ModalFooter>
+          )
+        }
+      </Modal >
     );
   }
 }
@@ -1247,13 +2023,23 @@ let actionOptions = {
   others: { getAppMockupsTypes, getAssetType, createMultipleAssets },
 };
 
-let AddAssetsContainer = CRUDFunction(AddAssets, "AddAsset", actionOptions);
+let customAPICrud = [
+  {
+    name: "applookup",
+    apiName: "applicationlookups",
+  },
+];
+let AddAssetsContainer = CRUDFunction(AddAssets, "AddAsset", actionOptions, null, null, "asset", customAPICrud);
 export default AddAssetsContainer;
 
 const formFeildStyle = {
   feildStyle: {
     default: { fontSize: "12px" },
     retro: {
+      marginBottom: "15px",
+      fontSize: "12px",
+    },
+    electric: {
       marginBottom: "15px",
       fontSize: "12px",
     },
@@ -1266,6 +2052,13 @@ const formFeildStyle = {
       color: basicColors.first,
     },
     retro: {
+      marginBottom: "5px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      color: retroColors.second,
+      width: "30%",
+    },
+    electric: {
       marginBottom: "5px",
       fontSize: "14px",
       fontWeight: "bold",

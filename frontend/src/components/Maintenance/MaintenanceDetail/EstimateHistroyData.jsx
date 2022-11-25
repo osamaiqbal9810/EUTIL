@@ -3,10 +3,10 @@ import { Row, Col } from "reactstrap";
 import { isJSON } from "utils/isJson";
 import { isDate } from "moment";
 import { languageService } from "../../../Language/language.service";
-import { retroColors, basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { themeService } from "../../../theme/service/activeTheme.service";
 
-const EstimateHistoryData = props => {
+const EstimateHistoryData = (props) => {
   const { estimateData } = props;
   let columns = estimateData && estimateData.oldData && estimateData.newData ? 2 : 1;
   const IS_CHANGED = estimateData && estimateData.action == "Changed";
@@ -59,12 +59,12 @@ const EstimateHistoryData = props => {
 };
 export default EstimateHistoryData;
 
-const EstimateDataBox = props => {
+const EstimateDataBox = (props) => {
   let fieldsData = null;
 
   if (props.data) {
     let fieldKeys = Object.keys(props.data);
-    fieldsData = fieldKeys.map(field => {
+    fieldsData = fieldKeys.map((field) => {
       return <EstimateField fieldValue={props.data[field]} fieldName={field} key={field} />;
     });
   }
@@ -82,7 +82,7 @@ const EstimateDataBox = props => {
   );
 };
 
-const EstimateField = props => {
+const EstimateField = (props) => {
   return (
     <Row style={{ padding: "10px 20px" }}>
       <Col
@@ -132,6 +132,10 @@ const fontAndColor = {
     color: retroColors.second,
     fontSize: "12px",
   },
+  electric: {
+    color: electricColors.second,
+    fontSize: "12px",
+  },
 };
 
 const fieldStyle = {
@@ -146,6 +150,11 @@ const fieldStyle = {
     border: "1px solid " + retroColors.fourth,
     padding: "3px 5px",
   },
+  electric: {
+    background: electricColors.fifth,
+    border: "1px solid " + electricColors.fourth,
+    padding: "3px 5px",
+  },
 };
 
 const borderStyleField = {
@@ -154,6 +163,7 @@ const borderStyleField = {
     borderLeft: "0px",
   },
   retro: { borderLeft: "0px" },
+  electric: { borderLeft: "0px" },
 };
 
 const borderStyleLabel = {
@@ -161,4 +171,5 @@ const borderStyleLabel = {
     borderRadius: "0px 5px 5px 0px",
   },
   retro: {},
+  electric: {},
 };

@@ -1,16 +1,29 @@
 package com.app.ps19.scimapp;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.browser.customtabs.CustomTabsCallback;
+import androidx.browser.customtabs.CustomTabsClient;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.CustomTabsService;
+import androidx.browser.customtabs.CustomTabsServiceConnection;
+import androidx.browser.customtabs.CustomTabsSession;
 import androidx.constraintlayout.solver.GoalRow;
 
+import android.content.ComponentName;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.provider.Browser;
 import android.view.View;
 import android.view.Window;
 import android.webkit.JsResult;
@@ -18,8 +31,10 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import com.app.ps19.scimapp.Shared.Globals;
+import com.app.ps19.scimapp.Shared.SharedPref;
 import com.app.ps19.scimapp.Shared.Utilities;
 import com.app.ps19.scimapp.classes.CompRange;
 import com.app.ps19.scimapp.classes.JourneyPlan;
@@ -28,10 +43,15 @@ import com.app.ps19.scimapp.classes.Session;
 import com.app.ps19.scimapp.classes.User;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import static com.app.ps19.scimapp.Shared.Globals.appName;
 import static com.app.ps19.scimapp.Shared.Globals.appid;
+import static com.app.ps19.scimapp.Shared.Globals.dbContext;
+import static com.app.ps19.scimapp.Shared.Globals.getPrefixMp;
+import static com.app.ps19.scimapp.Shared.Globals.mPrefs;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 import static com.app.ps19.scimapp.Shared.Globals.wsDomainName;
 import static com.app.ps19.scimapp.Shared.Globals.wsWebPort;
@@ -39,6 +59,9 @@ import static com.app.ps19.scimapp.Shared.Globals.wsWebPort;
 public class ReportWebViewActivity extends AppCompatActivity {
     private WebView wView;
     String reportKey="";
+    private CustomTabsSession mSession;
+    private CustomTabsServiceConnection mConnection;
+    String url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +76,7 @@ public class ReportWebViewActivity extends AppCompatActivity {
         if(bundle!=null){
             reportKey=bundle.getString("reportId");
         }
+        showReport();
 
     }
     private void showReport(){
@@ -70,13 +94,18 @@ public class ReportWebViewActivity extends AppCompatActivity {
         boolean currentUserOnly=offlineMode;
         String inspectionType="";
         //String nextDueDate=wp.getNextDueDate();
-        Date date=wp.getNextDueDateToDate();
-        long dateDiff=0;
-        if(date !=null) {
-            dateDiff=Utilities.getDateDiffInDays(date);
-        }
-        if(dateDiff>0){
-            currentUserOnly=true;
+        long dateDiff= 0;
+        try {
+            Date date=wp.getNextDueDateToDate();
+            dateDiff = 0;
+            if(date !=null) {
+                dateDiff=Utilities.getDateDiffInDays(date);
+            }
+            if(dateDiff>0){
+                currentUserOnly=true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         if(jp.getTaskList().size()>0){
             if(!jp.getTaskList().get(0).getInspectionTypeTag().equals("required")){
@@ -180,7 +209,7 @@ public class ReportWebViewActivity extends AppCompatActivity {
             sb.append("</tr>");
 
             sb.append("<tr>");
-            sb.append("<td>&nbsp;</td><td>"+getResources().getString(R.string.location_start)+"</td><td>"+session.getStart()+"</td>");
+            sb.append("<td>&nbsp;</td><td>"+getResources().getString(R.string.location_start)+"</td><td>"+getPrefixMp(session.getStart())+"</td>");
             sb.append("</tr>");
 
             sb.append("<tr>");
@@ -188,7 +217,7 @@ public class ReportWebViewActivity extends AppCompatActivity {
             sb.append("</tr>");
 
             sb.append("<tr>");
-            sb.append("<td>&nbsp;</td><td>"+getResources().getString(R.string.location_end)+"</td><td>"+session.getEnd()+"</td>");
+            sb.append("<td>&nbsp;</td><td>"+getResources().getString(R.string.location_end)+"</td><td>"+getPrefixMp(session.getEnd())+"</td>");
             sb.append("</tr>");
 
             sb.append("<tr>");
@@ -265,6 +294,34 @@ public class ReportWebViewActivity extends AppCompatActivity {
         wView.setWebChromeClient(
                 new WebChromeClient() {
                     @Override
+                    public boolean onCreateWindow(WebView view, boolean isDialog,
+                                                  boolean isUserGesture, Message resultMsg) {
+
+
+
+                        WebView newWebView = new WebView(ReportWebViewActivity.this);
+                        newWebView.getSettings().setJavaScriptEnabled(true);
+                        newWebView.getSettings().setSupportZoom(true);
+                        newWebView.getSettings().setBuiltInZoomControls(true);
+                        newWebView.getSettings().setPluginState(WebSettings.PluginState.ON);
+                        newWebView.getSettings().setSupportMultipleWindows(true);
+                        view.addView(newWebView);
+                        WebView.WebViewTransport transport = (WebView.WebViewTransport) resultMsg.obj;
+                        transport.setWebView(newWebView);
+                        resultMsg.sendToTarget();
+
+                        newWebView.setWebViewClient(new WebViewClient() {
+                            @Override
+                            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                                view.loadUrl(url);
+                                return true;
+                            }
+                        });
+
+                        return true;
+                    }
+
+                    @Override
                     public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
                         //Required functionality here
                         return super.onJsAlert(view, url, message, result);
@@ -281,9 +338,97 @@ public class ReportWebViewActivity extends AppCompatActivity {
                     }
                 }
         );
-        String url = "http://" + wsDomainName + wsWebPort + "/reports";
-        wView.loadUrl(url);
-        wView.reload();
+
+        url = mPrefs.getString(wsDomainName, "http")+"://" + wsDomainName + wsWebPort + "/appReport/"+appid;
+        CustomTabsIntent intent = constructExtraHeadersIntent(mSession);
+        intent.launchUrl(ReportWebViewActivity.this, Uri.parse(url));
+        //wView.loadUrl(url);
+        //wView.reload();
+    }
+
+    private CustomTabsIntent constructExtraHeadersIntent(CustomTabsSession session) {
+        CustomTabsIntent intent = new CustomTabsIntent.Builder(session).build();
+
+        // Example non-cors-whitelisted headers.
+        Bundle headers = new Bundle();
+        //headers.putString("bearer-token", appid);
+        //headers.putString("redirect-url", url);
+        intent.intent.putExtra(Browser.EXTRA_HEADERS, headers);
+
+        return intent;
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(getIntent().getExtras()!=null){
+            Bundle bundle= getIntent().getExtras();
+            String reportKey = bundle.getString("reportId");
+            if(!reportKey.equals("sessions")){
+                try {
+                    // Set up a callback that launches the intent after session was validated.
+                    CustomTabsCallback callback = new CustomTabsCallback() {
+                        @Override
+                        public void onRelationshipValidationResult(int relation, @NonNull Uri requestedOrigin,
+                                                                   boolean result, @Nullable Bundle extras) {
+                            // Can launch custom tabs intent after session was validated as the same origin.
+                            //mExtraButton.setEnabled(true);
+                        }
+                    };
+
+                    // Set up a connection that warms up and validates a session.
+                    mConnection = new CustomTabsServiceConnection() {
+                        @Override
+                        public void onCustomTabsServiceConnected(@NonNull ComponentName name,
+                                                                 @NonNull CustomTabsClient client) {
+                            // Create session after service connected.
+                            mSession = client.newSession(callback);
+                            client.warmup(0);
+                            // Validate the session as the same origin to allow cross origin headers.
+                            mSession.validateRelationship(CustomTabsService.RELATION_USE_AS_ORIGIN,
+                                    Uri.parse(url), null);
+                        }
+
+                        @Override
+                        public void onServiceDisconnected(ComponentName componentName) {
+                        }
+                    };
+
+                    //Add package names for other browsers that support Custom Tabs and custom headers.
+                    List<String> packageNames = Arrays.asList(
+                            "com.google.android.apps.chrome",
+                            "com.chrome.canary",
+                            "com.chrome.dev",
+                            "com.chrome.beta",
+                            "com.android.chrome"
+                    );
+                    String packageName =
+                            CustomTabsClient.getPackageName(ReportWebViewActivity.this, packageNames, false);
+                    if (packageName == null) {
+                        Toast.makeText(getApplicationContext(), "Package name is null.", Toast.LENGTH_SHORT)
+                                .show();
+                    } else {
+                        // Bind the custom tabs service connection.
+                        CustomTabsClient.bindCustomTabsService(this, packageName, mConnection);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+    }
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Unbind from the service if we connected successfully and clear the session.
+        if (mSession != null) {
+            unbindService(mConnection);
+            mConnection = null;
+            mSession = null;
+        }
+        finish();
+        //mExtraButton.setEnabled(false);
     }
 
     public void writeData(){
@@ -324,7 +469,7 @@ public class ReportWebViewActivity extends AppCompatActivity {
     {
         super.onResume();
         //loadReport();
-        showReport();
+        //showReport();
     }
     @Override
     public void onConfigurationChanged(Configuration newConfig)

@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const NavElementStyle = {
   NavElement: {
     default: {
@@ -9,6 +9,12 @@ export const NavElementStyle = {
     },
     retro: {
       color: retroColors.second,
+      width: "100%",
+      marginBottom: "1px",
+    },
+
+    electric: {
+      color: electricColors.second,
       width: "100%",
       marginBottom: "1px",
     },
@@ -26,6 +32,13 @@ export const NavElementStyle = {
       verticalAlign: "middle",
       color: retroColors.third,
     },
+    electric: {
+      display: "inline-flex",
+      width: "20%",
+      fontSize: "24px",
+      verticalAlign: "middle",
+      color: electricColors.third,
+    },
   },
   NavText: {
     default: {
@@ -41,11 +54,20 @@ export const NavElementStyle = {
       textTransform: "Capitalize",
       verticalAlign: "middle",
     },
+    electric: {
+      textTransform: "uppercase",
+      width: "70%",
+      lineHeight: "26px",
+      fontWeight: "bold",
+      textTransform: "Capitalize",
+      verticalAlign: "middle",
+    },
   },
 };
 export const commonFieldsStyles = {
   checkBoxInput: {
-    default: { fontSize: "14px", verticalAlign: "top", color: " rgba(64, 118, 179)" },
+    default: { fontSize: "14px", verticalAlign: "top", color: "var(--first)" },
     retro: { fontSize: "14px", verticalAlign: "top", color: retroColors.second },
+    electric: { fontSize: "14px", verticalAlign: "top", color: electricColors.second },
   },
 };

@@ -25,6 +25,8 @@ let all = {
   assetImages: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/assetImages"),
   assetDocuments: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/assetDocuments"),
   giTestForms: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/giTestForms"),
+  assetsExports: path.join(path.normalize(__dirname + "../../../.."), "server/uploads/assetsExports"),
+  assetEquipmentData: path.join(path.normalize(__dirname + "../../../.."),"server/uploads/assetEquipmentData"),
   // Server port
   port: process.env.PORT || 4010,
 
@@ -66,4 +68,4 @@ let all = {
 // ==============================================
 //module.exports =all;
 
-module.exports = _.merge(all, require("./"+(process.env.NODE_ENV || "development")+".js") || {});
+module.exports = _.merge(all, require("./" + (process.env.NODE_ENV || "development") + ".js") || {});

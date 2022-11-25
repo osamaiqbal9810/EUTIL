@@ -7,10 +7,9 @@ import { checkmark } from "react-icons-kit/icomoon/checkmark";
 import { search } from "react-icons-kit/icomoon/search";
 import { spreadsheet } from "react-icons-kit/iconic/spreadsheet";
 import { themeService } from "theme/service/activeTheme.service";
-import { retroColors } from "style/basic/basicColors";
 import { tableCellStyle } from "./style/TableDayCell";
 // import { Tooltip } from "reactstrap";
-import { basicColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import CalendarDatesTable from "./Calendar";
 import { AssetTestCell } from "./TableDayCellFields/AssetTestCell";
 class TableDayCell extends Component {
@@ -168,7 +167,13 @@ class InspectionRowField extends Component {
               />
             </div>
             <div style={{ display: "inline-block" }}>
-              <div style={themeService({ default: { color: basicColors }, retro: { color: retroColors.second } })}>
+              <div
+                style={themeService({
+                  default: { color: basicColors },
+                  retro: { color: retroColors.second },
+                  electric: { color: electricColors.second },
+                })}
+              >
                 <SvgIcon
                   size={15}
                   icon={checkmark}

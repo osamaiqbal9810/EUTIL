@@ -1,52 +1,52 @@
-import React, { Component } from 'react'
-import { Row, Col, Button, Modal, ModalHeader, ModalBody, ModalFooter } from 'reactstrap'
-import Radium from 'radium'
-import IssueTypeFilter from './IssueTypeFilter'
+import React, { Component } from "react";
+import { Row, Col, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap";
+import Radium from "radium";
+import IssueTypeFilter from "./IssueTypeFilter";
 class IssueFilter extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       allFilter: false,
       todayFilter: true,
       trackIdFilter: false,
-      categoryFilter: true
-    }
+      categoryFilter: true,
+    };
 
-    this.handleFilterTodayAllClick = this.handleFilterTodayAllClick.bind(this)
+    this.handleFilterTodayAllClick = this.handleFilterTodayAllClick.bind(this);
   }
 
   handleFilterTodayAllClick(filterName) {
-    if (filterName == 'today') {
+    if (filterName == "today") {
       this.setState({
         todayFilter: true,
-        allFilter: false
-      })
-    } else if (filterName == 'all') {
+        allFilter: false,
+      });
+    } else if (filterName == "all") {
       this.setState({
         todayFilter: false,
-        allFilter: true
-      })
+        allFilter: true,
+      });
     }
-    this.props.checkTodayAllFilter(filterName)
+    this.props.checkTodayAllFilter(filterName);
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.props.filterTodayOrAll !== prevProps.filterTodayOrAll) {
-      if (this.props.filterTodayOrAll == 'today') {
+      if (this.props.filterTodayOrAll == "today") {
         this.setState({
           todayFilter: true,
-          allFilter: false
-        })
-      } else if (this.props.filterTodayOrAll == 'all') {
+          allFilter: false,
+        });
+      } else if (this.props.filterTodayOrAll == "all") {
         this.setState({
           todayFilter: false,
-          allFilter: true
-        })
+          allFilter: true,
+        });
       }
     }
   }
 
   render() {
-    const styles = getStyles(this.props, this.state)
+    const styles = getStyles(this.props, this.state);
     return (
       <Row>
         <Col md={6}>
@@ -54,8 +54,8 @@ class IssueFilter extends Component {
             <div
               style={styles.allTodayCommonStyleToday}
               key="today"
-              onClick={e => {
-                this.handleFilterTodayAllClick('today')
+              onClick={(e) => {
+                this.handleFilterTodayAllClick("today");
               }}
             >
               Today
@@ -66,8 +66,8 @@ class IssueFilter extends Component {
             <div
               style={styles.allTodayCommonStyleAll}
               key="all "
-              onClick={e => {
-                this.handleFilterTodayAllClick('all')
+              onClick={(e) => {
+                this.handleFilterTodayAllClick("all");
               }}
             >
               All
@@ -76,72 +76,72 @@ class IssueFilter extends Component {
           <IssueTypeFilter handleFilterPivotBy={this.props.handleFilterPivotBy} />
         </Col>
       </Row>
-    )
+    );
   }
 }
 
-export default Radium(IssueFilter)
+export default Radium(IssueFilter);
 
 let getStyles = (props, state) => {
   // Borders ALL TODAY
   let borders = {
     allToday: {
-      borderAllTop: '1px solid #e3e9ef',
-      borderHoverTopAll: '1px solid rgba(64, 118, 179)',
-      borderHoverTopToday: '1px solid rgba(64, 118, 179)',
-      borderTodayTop: '1px solid #e3e9ef'
-    }
-  }
+      borderAllTop: "1px solid #e3e9ef",
+      borderHoverTopAll: "1px solid var(--first)",
+      borderHoverTopToday: "1px solid var(--first)",
+      borderTodayTop: "1px solid #e3e9ef",
+    },
+  };
   if (state.allFilter) {
-    borders.allToday.borderAllTop = '3px solid rgba(64, 118, 179)'
-    borders.allToday.borderHoverTopAll = '3px solid rgba(64, 118, 179)'
+    borders.allToday.borderAllTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopAll = "3px solid var(--first)";
   }
   if (state.todayFilter) {
-    borders.allToday.borderTodayTop = '3px solid rgba(64, 118, 179)'
-    borders.allToday.borderHoverTopToday = '3px solid rgba(64, 118, 179)'
+    borders.allToday.borderTodayTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopToday = "3px solid var(--first)";
   }
 
   let commonStyle = {
-    display: 'inline-block',
-    padding: '5px',
-    margin: '5px',
-    color: 'rgba(64, 118, 179)',
-    cursor: 'pointer',
+    display: "inline-block",
+    padding: "5px",
+    margin: "5px",
+    color: "var(--first)",
+    cursor: "pointer",
 
-    borderBottom: '1px solid #e3e9ef',
-    borderLeft: '1px solid #e3e9ef',
-    borderRight: '1px solid #e3e9ef',
-    borderRadius: '5px'
-  }
+    borderBottom: "1px solid #e3e9ef",
+    borderLeft: "1px solid #e3e9ef",
+    borderRight: "1px solid #e3e9ef",
+    borderRadius: "5px",
+  };
   let hoverCommonStyle = {
-    color: 'rgba(64, 118, 179)',
-    borderBottom: '1px solid rgba(64, 118, 179)',
-    borderLeft: '1px solid rgba(64, 118, 179)',
-    borderRight: '1px solid rgba(64, 118, 179)'
-  }
+    color: "var(--first)",
+    borderBottom: "1px solid var(--first)",
+    borderLeft: "1px solid var(--first)",
+    borderRight: "1px solid var(--first)",
+  };
 
   // BORDERS
   return {
-    filterArea: { float: 'left', fontFamily: 'Arial', fontSize: '12px' },
+    filterArea: { float: "left", fontFamily: "Arial", fontSize: "12px" },
     allTodayCommonStyleToday: {
       ...commonStyle,
       borderTop: borders.allToday.borderTodayTop,
-      ':hover': {
+      ":hover": {
         ...hoverCommonStyle,
-        borderTop: borders.allToday.borderHoverTopToday
-      }
+        borderTop: borders.allToday.borderHoverTopToday,
+      },
     },
     allTodayCommonStyleAll: {
       ...commonStyle,
       borderTop: borders.allToday.borderAllTop,
-      ':hover': {
+      ":hover": {
         ...hoverCommonStyle,
-        borderTop: borders.allToday.borderHoverTopAll
-      }
+        borderTop: borders.allToday.borderHoverTopAll,
+      },
     },
     divider: {
-      display: 'inline-block',
-      color: 'rgba(64, 118, 179)'
-    }
-  }
-}
+      display: "inline-block",
+      color: "var(--first)",
+    },
+  };
+};

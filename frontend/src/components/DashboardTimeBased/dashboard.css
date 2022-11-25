@@ -13,7 +13,7 @@
   display: inline-block;
   padding: 10px;
   vertical-align: inherit;
-  color: #fff;
+  color: var(--fifth);
   margin-bottom: -99999px;
   padding-bottom: 99999px;
   width: 20%;
@@ -22,7 +22,7 @@
   display: inline-block;
   padding: 10px;
   background: rgba(255, 255, 255, 0.3);
-  color: #fff;
+  color: var(--fifth);
   width: 80%;
 }
 .summary-text .summary-value {

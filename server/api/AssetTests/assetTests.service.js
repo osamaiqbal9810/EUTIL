@@ -6,7 +6,7 @@ import { getEndTimePeriod, getNextTimePeriod } from "../../service/SchedulerServ
 import momentTz from "moment-timezone";
 import moment from "moment";
 class AssetTestsService {
-  async linkAssetTest(testForm, prevTestForm) {
+  async linkAssetTest(testForm, prevTestForm, assetsConfigList) {
     if (this.validateTestFormForAssetLink(testForm)) {
       let aTypesTests = testForm.opt2.config;
       let prevTests = prevTestForm && prevTestForm.opt2 && prevTestForm.opt2.config;
@@ -18,7 +18,7 @@ class AssetTestsService {
       } else if (this.checkIfNewTestLink(aTypesTests, prevTests)) {
         let newTest = aTypesTests[lengthAtypeTests - 1];
         let assetCrit = { assetType: newTest.assetType, isRemoved: false };
-        await this.createTestProcess(newTest, testForm, assetCrit);
+        await this.createTestProcess(newTest, testForm, assetCrit, assetsConfigList);
       } else {
         for (let i = 0; i < lengthAtypeTests; i++) {
           if (this.checkIfUpdateRequire(aTypesTests[i], prevTests[i])) {
@@ -64,7 +64,7 @@ class AssetTestsService {
       console.log(err);
     }
   }
-  async createTestProcess(testObject, testForm, assetsCriteria) {
+  async createTestProcess(testObject, testForm, assetsCriteria, assetsConfigList) {
     try {
       let allAssetsOfAssetType = await AssetsModel.find(assetsCriteria).exec();
       let timezoneMethodService = ServiceLocator.resolve("timezoneMethodService");
@@ -75,9 +75,11 @@ class AssetTestsService {
       let linearCheck = testForm.opt2 && testForm.opt2.classify == "linear" ? true : false;
       if (allAssetsOfAssetType) {
         for (let asset of allAssetsOfAssetType) {
+          let firstDateAssetObj = assetsConfigList && assetsConfigList.find((assetObj) => assetObj.id === asset.id);
           let testObj = initialTestObject(asset, testForm, testObject, linearCheck);
+          firstDateAssetObj && firstDateAssetObj.firstDate && (testObj.startDate = firstDateAssetObj.firstDate);
           let locationAsset = await fillLocationAssetOfInspectionAssets(locationAssets, asset);
-          let adjustDate = adjustDateToStartOfLocation(locationAsset, testObj.inspectionFrequencies.startDate);
+          let adjustDate = adjustDateToStartOfLocation(locationAsset, testObj.startDate);
           let locationTimezone = locationAsset && locationAsset.attributes && locationAsset.attributes.timezone;
           let execs = await scheduleExecutionOfTest(
             testObj,
@@ -93,11 +95,12 @@ class AssetTestsService {
           checkIfDateValuesToUpdate(testObj);
           let testExist = await AssetTestModel.findOne({ assetId: asset.id, testCode: testForm.code }).exec();
           if (!testExist) {
+            firstDateAssetObj && (testObj.disabled = firstDateAssetObj.disabled);
             await createNewAssetTest(testObj, asset, execs, testScheduleObserverService);
           } else {
             await updateAssetTest(testExist, testObj, testForm, asset, adjustDate, execs, testScheduleObserverService);
           }
-          testObjectsForTemplates[asset.id] = testObj;
+          !testObj.disabled && (testObjectsForTemplates[asset.id] = testObj);
         }
         let methodCriterias = {
           aType: testObject.assetType,
@@ -165,10 +168,11 @@ class AssetTestsService {
     }
     return resultObj;
   }
-  async getAssetTests(assetId) {
+  async getAssetTests(assetId, additionalCriteria) {
     let assetTests = [];
+    let addCriteria = additionalCriteria ? additionalCriteria : {};
     try {
-      let criteria = { assetId: assetId, isRemoved: false };
+      let criteria = { assetId: assetId, isRemoved: false, ...addCriteria };
       assetTests = await AssetTestModel.find(criteria).exec();
     } catch (err) {
       console.log(err);
@@ -200,6 +204,79 @@ class AssetTestsService {
     };
     assetTest && assetTest.linearProps && (testObjForTemplate.linearProps = assetTest.linearProps);
     return testObjForTemplate;
+  }
+  async testsByAssetTypeAndFreq(query) {
+    let resultObj = {};
+    let aType = query.aType;
+    let testCode = query.testCode;
+    let criteria = {};
+    try {
+      if (aType && testCode) {
+        criteria = [
+          { $match: { assetType: aType, isRemoved: false, testCode: testCode } },
+          {
+            $lookup: {
+              let: { asset_id: { $toObjectId: "$assetId" } },
+              from: "assets",
+              pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$asset_id"] } } }],
+              as: "assets",
+            },
+          },
+        ];
+        let assetTests = await AssetTestModel.aggregate(criteria);
+        resultObj.value = assetTests;
+        resultObj.status = 200;
+      } else {
+        resultObj.erroVal = "query is not valid";
+        resultObj.status = 404;
+      }
+    } catch (err) {
+      resultObj.erroVal = err;
+      resultObj.status = 500;
+    }
+    return resultObj;
+  }
+  async updateActiveMultiple(body) {
+    let resultObj = {};
+    try {
+      let assetTests = body;
+      let enableTests = [];
+      let disableTests = [];
+      for (let assetTest of assetTests) {
+        let aTest = await AssetTestModel.findOne({ _id: assetTest._id });
+        if (assetTest.disabled) {
+          aTest.disabled = true;
+          await this.assetTestEnableDisableInPlans(aTest, true);
+          disableTests.push(assetTest._id);
+        } else {
+          aTest.disabled = false;
+          await this.assetTestEnableDisableInPlans(aTest);
+          enableTests.push(assetTest._id);
+        }
+      }
+
+      await AssetTestModel.updateMany({ _id: { $in: enableTests } }, { $set: { disabled: false } });
+      await AssetTestModel.updateMany({ _id: { $in: disableTests } }, { $set: { disabled: true } });
+      resultObj.value = {};
+      resultObj.status = 200;
+    } catch (err) {
+      console.log("err at updateActiveMultiple: ", err);
+      resultObj.errorVal = err;
+      resultObj.status = 500;
+    }
+    return resultObj;
+  }
+  async assetTestEnableDisableInPlans(assetTest, toRemove) {
+    let workPlanModal = ServiceLocator.resolve("WorkPlanTemplateModel");
+    let criteria = { isRemoved: false, "tasks.units.id": assetTest.assetId };
+    let toPush = { $push: { "tasks.$[].units.$[unit].testForm": assetTest } };
+    let toPull = { $pull: { "tasks.$[].units.$[unit].testForm": { testCode: assetTest.testCode } } };
+    let arrayFilter = { arrayFilters: [{ "unit.id": assetTest.assetId }] };
+    try {
+      await workPlanModal.updateMany(criteria, toRemove ? toPull : toPush, arrayFilter);
+    } catch (err) {
+      console.log("err at assetTestEnableDisableInPlans: ", err);
+    }
   }
 }
 

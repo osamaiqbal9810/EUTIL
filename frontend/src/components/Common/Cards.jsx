@@ -1,9 +1,9 @@
 import React from "react";
 import { Col, Card, CardImg, CardText, CardBody, CardLink, CardTitle, CardSubtitle, Badge } from "reactstrap";
 import PropTypes from "prop-types";
-import {languageService} from "../../Language/language.service";
+import { languageService } from "../../Language/language.service";
 //import cardBackground from '../../images/cardBackground.png'
-export const CardTypeOne = props => {
+export const CardTypeOne = (props) => {
   const { topRightStyle } = props;
   const { centerNumberStyle } = props;
   let backImage = require("../../images/" + "cardBackground" + ".png");
@@ -28,8 +28,8 @@ export const CardTypeOne = props => {
       >
         <CardBody style={{ padding: "0px 15px 0px 0px" }}>
           {/*<CardTitle>1</CardTitle>*/}
-          <div style={{ ...topRightStyle, color: "#fff" }}>{props.topRight}</div>
-          <div style={{ ...centerNumberStyle, color: "#fff" }}>{props.number}</div>
+          <div style={{ ...topRightStyle, color: "var(--fifth)" }}>{props.topRight}</div>
+          <div style={{ ...centerNumberStyle, color: "var(--fifth)" }}>{props.number}</div>
         </CardBody>
 
         <CardBody style={{ padding: "0px 0px 8px 15px" }}>
@@ -39,7 +39,7 @@ export const CardTypeOne = props => {
     </Col>
   );
 };
-export const CardTypeTwo = props => {
+export const CardTypeTwo = (props) => {
   const { topRightStyle } = props;
   const { centerNumberStyle } = props;
   let backImage = require("../../images/" + "cardBackground" + ".png");
@@ -60,7 +60,7 @@ export const CardTypeTwo = props => {
             backgroundColor: props.numberColor,
           }}
         >
-          <div style={{ ...centerNumberStyle, color: "#fff" }}>{props.number}</div>
+          <div style={{ ...centerNumberStyle, color: "var(--fifth)" }}>{props.number}</div>
         </Badge>
 
         <h6
@@ -71,7 +71,7 @@ export const CardTypeTwo = props => {
             verticalAlign: "-webkit-baseline-middle",
           }}
         >
-            {languageService(props.text)}
+          {languageService(props.text)}
         </h6>
       </div>
     </Col>
@@ -106,7 +106,7 @@ CardTypeOne.defaultProps = {
   textStyle: {
     fontSamily: "Arial",
     fontSize: "14px",
-    color: "#fff",
+    color: "var(--fifth)",
     letterSpacing: "1.25px",
     float: "left",
     marginTop: "-5px",
@@ -114,7 +114,7 @@ CardTypeOne.defaultProps = {
   numberColor: "#37668B",
 };
 
-export const CardTypeThree = props => {
+export const CardTypeThree = (props) => {
   const { topRightStyle } = props;
   const { centerNumberStyle } = props;
   let backImage = require("../../images/" + "cardBackground" + ".png");
@@ -136,7 +136,7 @@ export const CardTypeThree = props => {
           textAlign: "left",
           fontSize: "18px",
           fontWeight: "bold",
-          backgroundColor: "#fff",
+          backgroundColor: "var(--fifth)",
         }}
       >
         <h6

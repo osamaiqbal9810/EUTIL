@@ -32,14 +32,18 @@ const ListsToEdit = [
 const ListTableCols = [
   // {id:"Select", header: "Select", type:"bool", field: "selected", editable: false, minWidth: 20},
   //{id:"id", header: "id", type:"text",field: "code", editable: false, minWidth: 100},
-  { id: "value", header: languageService("Value"), type: "text", field: "description", editable: false, minWidth: 100 },
+  { id: "value", header: languageService("Value"), type: "text", field: "description", editable: true, minWidth: 100 },
   {
     id: "actions",
     header: languageService("Actions"),
     type: "action",
     immediate: ["Edit", "Delete"],
     editMode: ["Save", "Cancel"],
-    editable: false,
+    permissionCheck: [
+      ["SETUP LIST DATA", "create"],
+      ["SETUP LIST DATA", "create"],
+    ],
+    editable: true,
     minWidth: 100,
   },
 ];
@@ -79,7 +83,7 @@ class ApplicationLists extends Component {
       page: 0,
     };
     this.backup = new Map();
-    this.originalApplicationListItem={};
+    this.originalApplicationListItem = {};
 
     if (this.state.categories && this.state.categories.length && this.state.categories.length > 0) {
       this.state.category = this.state.categories[0];
@@ -136,10 +140,10 @@ class ApplicationLists extends Component {
     });
 
     this.setApplicationLists(this.props.applicationlookupss, selectedCat);
-    this.setState({categories: cats, category: selectedCat, page: 0});
+    this.setState({ categories: cats, category: selectedCat, page: 0 });
   }
-  setApplicationLists(lists, newlySelectedCategory=null) {
-    let selectedCategory = !newlySelectedCategory ? this.state.category :  newlySelectedCategory;
+  setApplicationLists(lists, newlySelectedCategory = null) {
+    let selectedCategory = !newlySelectedCategory ? this.state.category : newlySelectedCategory;
     let listName = selectedCategory.listName;
     // Filter the lists and get selected category list
     let listToDisplay = lists.filter((v) => {
@@ -147,21 +151,28 @@ class ApplicationLists extends Component {
     });
 
     // if selected category is of type that holds all list in single field then extract list from field
-    if(selectedCategory.listField)
-    {
+    if (selectedCategory.listField) {
       // If this whole list resides in a field than more than one database entries will cause problems. Display error.
-      if(listToDisplay.length>1)
-        console.log('Applicationlists.index.setApplicationLists.warning: list', selectedCategory.listName, ' must not have more than one entry in database. The length is:', listToDisplay.length);
+      if (listToDisplay.length > 1)
+        console.log(
+          "Applicationlists.index.setApplicationLists.warning: list",
+          selectedCategory.listName,
+          " must not have more than one entry in database. The length is:",
+          listToDisplay.length,
+        );
 
-      if(listToDisplay[0] && listToDisplay[0][selectedCategory.listField])
-       { 
+      if (listToDisplay[0] && listToDisplay[0][selectedCategory.listField]) {
         this.originalApplicationListItem = _.cloneDeep(listToDisplay[0]);
-        listToDisplay = listToDisplay[0][selectedCategory.listField].map(t=>{return{_id:'id-'+t, id:'id-'+t, description: t}});
-       }
-      else
-        console.log('Applicationlists.index.setApplicationLists.error: list', selectedCategory.listName,' doesnt have the required field', selectedCategory.listField);
-      
-
+        listToDisplay = listToDisplay[0][selectedCategory.listField].map((t) => {
+          return { _id: "id-" + t, id: "id-" + t, description: t };
+        });
+      } else
+        console.log(
+          "Applicationlists.index.setApplicationLists.error: list",
+          selectedCategory.listName,
+          " doesnt have the required field",
+          selectedCategory.listField,
+        );
     }
 
     this.setState({ list: listToDisplay });
@@ -198,53 +209,47 @@ class ApplicationLists extends Component {
         } else if (action === "Delete") {
           deleteIndex = index;
         }
-         if(this.state.category.listField)  // If the whole list is in a field, then deal this list differently
-         {
-           let updateList=false;
-            if(deleteIndex!==null) // delete item from the list and update
-            {
-              list.splice(deleteIndex, 1);
+        if (this.state.category.listField) {
+          // If the whole list is in a field, then deal this list differently
+          let updateList = false;
+          if (deleteIndex !== null) {
+            // delete item from the list and update
+            list.splice(deleteIndex, 1);
+            updateList = true;
+          } else if (dirty) {
+            if (item.newItem) {
+              delete item.newItem;
+              delete item.editMode;
+              delete item._id;
+              list.push({ id: "id-" + item.description, description: item.description });
+              updateList = true;
+            } else {
+              delete item.editMode;
+              let itm = list.find((it) => {
+                return it.id == item.id;
+              });
+              itm.description = item.description;
+              itm.id = "id-" + item.description;
               updateList = true;
             }
-            else if(dirty)
-            {
-              if(item.newItem)
-              {
-                delete item.newItem;
-                delete item.editMode;
-                delete item._id;
-                list.push({id:'id-'+item.description, description: item.description});
-                updateList = true;
-              }
-              else
-              {
-                delete item.editMode;
-                let itm = list.find(it=>{return it.id==item.id});
-                itm.description = item.description;
-                itm.id = 'id-'+item.description;
-                updateList = true;
-              }
+          }
+          if (updateList) this.updateOriginalApplicationListItem(this.state.category, this.originalApplicationListItem, list);
+        } else {
+          if (deleteIndex != null) {
+            this.props.deleteApplicationlookups(item);
+            list.splice(deleteIndex, 1);
+          } else if (dirty) {
+            if (item.newItem) {
+              delete item.newItem; // delete before it goes to server
+              delete item.editMode;
+              delete item._id;
+              this.props.createApplicationlookups(item);
+            } else {
+              let itm = _.cloneDeep(item);
+              delete itm.editMode;
+              this.props.updateApplicationlookups(itm);
             }
-            if(updateList)
-              this.updateOriginalApplicationListItem(this.state.category, this.originalApplicationListItem, list);
-         }
-         else
-         {
-            if (deleteIndex != null) {
-              this.props.deleteApplicationlookups(item);
-              list.splice(deleteIndex, 1);
-            } else if (dirty) {
-              if (item.newItem) {
-                delete item.newItem; // delete before it goes to server
-                delete item.editMode;
-                delete item._id;
-                this.props.createApplicationlookups(item);
-              } else {
-                let itm = _.cloneDeep(item);
-                delete itm.editMode;
-                this.props.updateApplicationlookups(itm);
-              }
-            } 
+          }
         }
 
         this.setState({ list: list });
@@ -275,15 +280,16 @@ class ApplicationLists extends Component {
       }
     }
   }
-  updateOriginalApplicationListItem (category, originalApplicationListItem, list) {
+  updateOriginalApplicationListItem(category, originalApplicationListItem, list) {
     // put the list in desired field and issue update to server.
-    if(category && category.listField)
-    {
+    if (category && category.listField) {
       // todo: determine the type list field and store appropriately. Currently it's just text
-      originalApplicationListItem[category.listField] = list.map(item=>{return item.description;});
+      originalApplicationListItem[category.listField] = list.map((item) => {
+        return item.description;
+      });
       this.props.updateApplicationlookups(originalApplicationListItem);
     }
-  };
+  }
 
   handlePageSave(page, pageSize) {
     this.setState({
@@ -298,7 +304,6 @@ class ApplicationLists extends Component {
     });
   };
 
-  
   render() {
     return (
       <Col md="12">

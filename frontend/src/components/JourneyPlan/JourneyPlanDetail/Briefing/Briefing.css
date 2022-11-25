@@ -38,7 +38,7 @@
 .defect-code .data-row label,
 .defect-code .data-row span,
 .defect-code .data-row strong {
-  color: rgb(64, 118, 179);
+  color: var(--twelve);
   font-size: 12px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -47,13 +47,13 @@
 .retroModal .defect-code .data-row label,
 .retroModal .defect-code .data-row span,
 .retroModal .defect-code .data-row strong {
-  color: rgb(26, 26, 26);
+  color: var(--second);
 }
 
 .defect-code .signature-wrapper,
 .defect-code .comments-wrapper {
   padding: 0px 5px 5px 5px;
-  color: rgb(64, 118, 179);
+  color: var(--twelve);
   font-size: 14px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -85,7 +85,7 @@ body {
   display: block;
   background: #efefef;
   padding: 0px 5px 5px 5px;
-  color: rgb(64, 118, 179);
+  color: var(--twelve);
   font-size: 16px;
   font-family: Arial;
   letter-spacing: 0.3px;
@@ -94,7 +94,7 @@ body {
 .retroModal .defect-code span.signarure-caption,
 .retroModal .defect-code .signature-wrapper,
 .retroModal .defect-code .comments-wrapper {
-  color: rgb(26, 26, 26);
+  color: var(--second);
 }
 .signature-wrapper {
   padding: 5px 0 !important;
@@ -110,17 +110,17 @@ body {
   margin: 2px 0;
 }
 .signature-wrapper:nth-child(even) {
-  background: rgb(64, 118, 179);
-  color: #fff;
+  background: var(--first);
+  color: var(--fifth);
 }
 .signature-wrapper:nth-child(odd) {
-  background: rgb(227, 233, 239);
+  background: var(--eleventh);
 }
 .retroModal .signature-wrapper:nth-child(even) {
-  background: #b1b1b1;
-  color: rgb(26, 26, 26);
+  background: var(--fourth);
+  color: var(--second);
 }
 .retroModal .signature-wrapper:nth-child(odd) {
-  background: rgba(64, 118, 179, 0.3);
-  color: rgb(26, 26, 26);
+  background: rgba(138, 196, 63, 0.3);
+  color: var(--second);
 }

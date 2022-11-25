@@ -22,6 +22,28 @@ export async function addIfNotExist(model, criteria, newEntry) {
     console.log("addIfNotExist in dbHelperMethods.js, err:", err.toString());
   }
 }
+export async function deleteIfExist(model, criteria) {
+  console.log("hello");
+  if (!model) {
+    console.log("model not valid, exitting");
+    return;
+  }
+  if (!criteria || criteria == {}) {
+    console.log("Only one entry should be added, provide criteria");
+    return;
+  }
+ 
+  try {
+    let entry = await model.find({group_id: criteria}).exec();
+    console.log(entry);
+    if (entry) {
+      console.log("deleting entry ", entry);
+      await model.remove({_id: entry._id});
+    }
+  } catch (err) {
+    console.log("addIfNotExist in dbHelperMethods.js, err:", err.toString());
+  }
+}
 export async function update(model, query, key, value) {
   try {
     let rec = await model.findOne(query);

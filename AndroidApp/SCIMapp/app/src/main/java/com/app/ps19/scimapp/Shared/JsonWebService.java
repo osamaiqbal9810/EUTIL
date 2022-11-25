@@ -18,6 +18,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 /**
  * Created by Ajaz Ahmad Qureshi on 5/24/2017.
  */
@@ -25,57 +27,67 @@ import java.util.Map;
 public class JsonWebService {
 
     public static String getJSON(String url, int timeout) {
-        HttpURLConnection c = null;
-        try {
-            URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
-            c.setRequestMethod("GET");
-            c.setRequestProperty("Content-length", "0");
-            c.setRequestProperty("Authorization",(Globals.appid.equals("")?Globals.appid_temp:Globals.appid));
-            c.setUseCaches(false);
-            c.setAllowUserInteraction(false);
-            c.setConnectTimeout(timeout);
-            c.setReadTimeout(timeout);
-            c.connect();
-            int status = c.getResponseCode();
-            setLastWsReturnCode(status);
-            switch (status) {
-                case 200:
-                case 201:
-                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line+"\n");
-                    }
-                    br.close();
-                    //System.out.println(sb.toString());
-                    return sb.toString();
-                case 401:
 
+        String[] proto = url.split("://");
+        if(proto[0].equals("https")){
+            return makeSecureGetReq(url, timeout);
+        } else {
+            HttpURLConnection c = null;
+            try {
+                URL u = new URL(url);
+                c = (HttpURLConnection) u.openConnection();
+                c.setRequestMethod("GET");
+                c.setRequestProperty("Content-length", "0");
+                c.setRequestProperty("Authorization",(Globals.appid.equals("")?Globals.appid_temp:Globals.appid));
+                c.setUseCaches(false);
+                c.setAllowUserInteraction(false);
+                c.setConnectTimeout(timeout);
+                c.setReadTimeout(timeout);
+                c.connect();
+                int status = c.getResponseCode();
+                setLastWsReturnCode(status);
+                switch (status) {
+                    case 200:
+                    case 201:
+                        BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                        StringBuilder sb = new StringBuilder();
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            sb.append(line+"\n");
+                        }
+                        br.close();
+                        //System.out.println(sb.toString());
+                        return sb.toString();
+                    case 401:
+
+                }
+
+            } catch (MalformedURLException ex) {
+                setLastWsReturnCode(0);
+                ex.printStackTrace();
+            } catch (final java.net.SocketTimeoutException e) {
+                setLastWsReturnCode(0);
+                // connection timed out...let's try again
+                return null;
+            } catch (ConnectException e) {
+                setLastWsReturnCode(0);
+                // host and port combination not valid
+                return null;
             }
-
-        } catch (MalformedURLException ex) {
-            ex.printStackTrace();
-        } catch (final java.net.SocketTimeoutException e) {
-            // connection timed out...let's try again
-            return null;
-        } catch (ConnectException e) {
-            // host and port combination not valid
-            return null;
-        }
-        catch (IOException ex) {
-            ex.printStackTrace();
-            setLastWsReturnCode(0);
-            setLastConnectionError(ex.getMessage());
-        }  finally {
-            if (c != null) {
-                try {
-                    c.disconnect();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+            catch (IOException ex) {
+                ex.printStackTrace();
+                setLastWsReturnCode(0);
+                setLastConnectionError(ex.getMessage());
+            }  finally {
+                if (c != null) {
+                    try {
+                        c.disconnect();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
+
         }
         return null;
     }
@@ -125,127 +137,146 @@ public class JsonWebService {
         return null;
     }
     public static  String postJSON(String url1, String  jsonData,int timeOut) throws IOException, JSONException {
-        URL url = new URL(url1);
-        String charset = "UTF-8";
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
-        conn.setRequestProperty("Authorization",Globals.appid);
-        conn.setConnectTimeout(timeOut);
-        conn.setReadTimeout(timeOut);
-        //String getParams=getQuery(apiParams);
-
-        conn.setDoOutput(true); // Triggers POST.
-        conn.setRequestProperty("Accept-Charset", charset);
-        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
-
-        String getParams=jsonData;
-
-        OutputStream os = conn.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(os, "UTF-8"));
-        writer.write(jsonData);
-        writer.flush();
-        writer.close();
-        os.close();
-        conn.connect();
-
-        int status = conn.getResponseCode();
-        setLastWsReturnCode(status);
-        switch (status) {
-            case 200:
-            case 201:
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line+"\n");
-                }
-                br.close();
-                System.out.println(sb.toString());
-                return sb.toString();
-            case 400:
-            case 401:
-            case 403:
-
-        }
-
-
-        if (conn != null) {
+        String[] proto = url1.split("://");
+        if(proto[0].equals("https")){
             try {
-                conn.disconnect();
-            } catch (Exception ex) {
+                return makeSecurePostReq(url1, jsonData,timeOut);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            URL url = new URL(url1);
+            String charset = "UTF-8";
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Authorization",Globals.appid);
+            conn.setConnectTimeout(timeOut);
+            conn.setReadTimeout(timeOut);
+            //String getParams=getQuery(apiParams);
+
+            conn.setDoOutput(true); // Triggers POST.
+            conn.setRequestProperty("Accept-Charset", charset);
+            conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+
+            String getParams=jsonData;
+
+            OutputStream os = conn.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(jsonData);
+            writer.flush();
+            writer.close();
+            os.close();
+            conn.connect();
+
+            int status = conn.getResponseCode();
+            setLastWsReturnCode(status);
+            switch (status) {
+                case 200:
+                case 201:
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line+"\n");
+                    }
+                    br.close();
+                    System.out.println(sb.toString());
+                    return sb.toString();
+                case 400:
+                case 401:
+                case 403:
+
+            }
+
+
+            if (conn != null) {
+                try {
+                    conn.disconnect();
+                } catch (Exception ex) {
+                }
             }
         }
         return null;
     }
 
     public static  String putJSON(String url1, String  jsonData,int timeOut) throws IOException, JSONException {
-        URL url = new URL(url1);
-        String charset = "UTF-8";
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("PUT");
-        conn.setDoInput(true);
-        conn.setDoOutput(true);
-        conn.setRequestProperty("Authorization",Globals.appid);
-        conn.setConnectTimeout(timeOut);
-        conn.setReadTimeout(timeOut);
-        //String getParams=getQuery(apiParams);
+        String[] proto = url1.split("://");
+        if(proto[0].equals("https")){
+            try {
+                return makeSecurePutReq(url1, jsonData, timeOut);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            URL url = new URL(url1);
+            String charset = "UTF-8";
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("PUT");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+            conn.setRequestProperty("Authorization",Globals.appid);
+            conn.setConnectTimeout(timeOut);
+            conn.setReadTimeout(timeOut);
+            //String getParams=getQuery(apiParams);
 
-        conn.setDoOutput(true); // Triggers POST.
-        conn.setRequestProperty("Accept-Charset", charset);
-        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+            conn.setDoOutput(true); // Triggers POST.
+            conn.setRequestProperty("Accept-Charset", charset);
+            conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
 
-        String getParams=jsonData;
+            String getParams=jsonData;
 
-        OutputStreamWriter  writer = new OutputStreamWriter(conn.getOutputStream());
+            OutputStreamWriter  writer = new OutputStreamWriter(conn.getOutputStream());
         /*BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(os, "UTF-8"));*/
-        writer.write(jsonData);
-        writer.flush();
-        // writer.close();
-        //os.close();
-        conn.connect();
+            writer.write(jsonData);
+            writer.flush();
+            // writer.close();
+            //os.close();
+            conn.connect();
 
-        int status = conn.getResponseCode();
-        setLastWsReturnCode(status);
-        switch (status) {
-            case 200:
-            case 201:
-                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line+"\n");
+            int status = conn.getResponseCode();
+            setLastWsReturnCode(status);
+            switch (status) {
+                case 200:
+                case 201:
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line+"\n");
+                    }
+                    br.close();
+                    System.out.println(sb.toString());
+                    return sb.toString();
+                case 400:
+                case 401:
+                    BufferedReader brr = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sbb = new StringBuilder();
+                    String line1;
+                    while ((line1 = brr.readLine()) != null) {
+                        sbb.append(line1);
+                    }
+                    brr.close();
+                    System.out.println(sbb.toString());
+                    setLastWsReturnCode(status);
+                    return sbb.toString();
+
+                case 403:
+
+            }
+
+
+            if (conn != null) {
+                try {
+                    conn.disconnect();
+                } catch (Exception ex) {
                 }
-                br.close();
-                System.out.println(sb.toString());
-                return sb.toString();
-            case 400:
-            case 401:
-                BufferedReader brr = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder sbb = new StringBuilder();
-                String line1;
-                while ((line1 = brr.readLine()) != null) {
-                    sbb.append(line1);
-                }
-                brr.close();
-                System.out.println(sbb.toString());
-                setLastWsReturnCode(status);
-                return sbb.toString();
-
-            case 403:
-
-        }
-
-
-        if (conn != null) {
-            try {
-                conn.disconnect();
-            } catch (Exception ex) {
             }
         }
+
         return null;
     }
 
@@ -374,6 +405,188 @@ public class JsonWebService {
             e.printStackTrace();
         }
         return result;
+    }
+    private static String makeSecureGetReq (String url, int timeout){
+        HttpsURLConnection c = null;
+        try {
+            URL u = new URL(url);
+            c = (HttpsURLConnection) u.openConnection();
+            c.setRequestMethod("GET");
+            c.setRequestProperty("Content-length", "0");
+            c.setRequestProperty("Authorization",(Globals.appid.equals("")?Globals.appid_temp:Globals.appid));
+            c.setUseCaches(false);
+            c.setAllowUserInteraction(false);
+            c.setConnectTimeout(timeout);
+            c.setReadTimeout(timeout);
+            c.connect();
+            int status = c.getResponseCode();
+            setLastWsReturnCode(status);
+            switch (status) {
+                case 200:
+                case 201:
+                    BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        sb.append(line+"\n");
+                    }
+                    br.close();
+                    //System.out.println(sb.toString());
+                    return sb.toString();
+                case 401:
+
+            }
+
+        } catch (MalformedURLException ex) {
+            setLastWsReturnCode(0);
+            ex.printStackTrace();
+        } catch (final java.net.SocketTimeoutException e) {
+            setLastWsReturnCode(0);
+            // connection timed out...let's try again
+            return null;
+        } catch (ConnectException e) {
+            setLastWsReturnCode(0);
+            // host and port combination not valid
+            return null;
+        }
+        catch (IOException ex) {
+            ex.printStackTrace();
+            setLastWsReturnCode(0);
+            setLastConnectionError(ex.getMessage());
+        }  finally {
+            if (c != null) {
+                try {
+                    c.disconnect();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
+    private static String makeSecurePostReq(String url1, String jsonData, int timeOut)throws Exception{
+        URL url = new URL(url1);
+        String charset = "UTF-8";
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Authorization",Globals.appid);
+        conn.setConnectTimeout(timeOut);
+        conn.setReadTimeout(timeOut);
+        //String getParams=getQuery(apiParams);
+
+        conn.setDoOutput(true); // Triggers POST.
+        conn.setRequestProperty("Accept-Charset", charset);
+        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+
+        String getParams=jsonData;
+
+        OutputStream os = conn.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(os, "UTF-8"));
+        writer.write(jsonData);
+        writer.flush();
+        writer.close();
+        os.close();
+        conn.connect();
+
+        int status = conn.getResponseCode();
+        setLastWsReturnCode(status);
+        switch (status) {
+            case 200:
+            case 201:
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+                System.out.println(sb.toString());
+                return sb.toString();
+            case 400:
+            case 401:
+            case 403:
+
+        }
+
+
+        if (conn != null) {
+            try {
+                conn.disconnect();
+            } catch (Exception ex) {
+            }
+        }
+        return null;
+    }
+
+    private static String makeSecurePutReq(String url1, String jsonData, int timeOut)throws Exception,IOException,JSONException{
+        URL url = new URL(url1);
+        String charset = "UTF-8";
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.setRequestMethod("PUT");
+        conn.setDoInput(true);
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Authorization",Globals.appid);
+        conn.setConnectTimeout(timeOut);
+        conn.setReadTimeout(timeOut);
+        //String getParams=getQuery(apiParams);
+
+        conn.setDoOutput(true); // Triggers POST.
+        conn.setRequestProperty("Accept-Charset", charset);
+        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+
+        String getParams=jsonData;
+
+        OutputStreamWriter  writer = new OutputStreamWriter(conn.getOutputStream());
+        /*BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(os, "UTF-8"));*/
+        writer.write(jsonData);
+        writer.flush();
+        // writer.close();
+        //os.close();
+        conn.connect();
+
+        int status = conn.getResponseCode();
+        setLastWsReturnCode(status);
+        switch (status) {
+            case 200:
+            case 201:
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line+"\n");
+                }
+                br.close();
+                System.out.println(sb.toString());
+                return sb.toString();
+            case 400:
+            case 401:
+                BufferedReader brr = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sbb = new StringBuilder();
+                String line1;
+                while ((line1 = brr.readLine()) != null) {
+                    sbb.append(line1);
+                }
+                brr.close();
+                System.out.println(sbb.toString());
+                setLastWsReturnCode(status);
+                return sbb.toString();
+
+            case 403:
+
+        }
+
+
+        if (conn != null) {
+            try {
+                conn.disconnect();
+            } catch (Exception ex) {
+            }
+        }
+        return null;
     }
 }
 

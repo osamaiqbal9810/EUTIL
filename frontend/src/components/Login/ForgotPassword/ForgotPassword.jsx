@@ -6,9 +6,9 @@ import { CRUDFunction } from "reduxCURD/container";
 import { curdActions } from "reduxCURD/actions";
 import { sendEmailForPasswordReset } from "reduxRelated/actions/forgotPassword.js";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
-import { retroColors } from "style/basic/basicColors.js";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors.js";
 import { themeService } from "theme/service/activeTheme.service";
-import {toast} from "react-toastify";
+import { toast } from "react-toastify";
 import * as types from "../../../reduxRelated/ActionTypes/actionTypes";
 class ForgotPassword extends Component {
   constructor(props) {
@@ -28,13 +28,18 @@ class ForgotPassword extends Component {
     this.props.sendEmailForPasswordReset(this.state.email);
   }
   componentDidUpdate(prevProps, prevState, snapshot) {
-
-    if (this.props.forgotPasswordActionType !== prevProps.forgotPasswordActionType && this.props.forgotPasswordActionType === 'EMAIL_RESET_PASSWORD_FAILURE') {
-      toast.error(languageService(this.props.forgotPasswordErrorMessage))
+    if (
+      this.props.forgotPasswordActionType !== prevProps.forgotPasswordActionType &&
+      this.props.forgotPasswordActionType === "EMAIL_RESET_PASSWORD_FAILURE"
+    ) {
+      toast.error(languageService(this.props.forgotPasswordErrorMessage));
     }
 
-    if (this.props.forgotPasswordActionType !== prevProps.forgotPasswordActionType && this.props.forgotPasswordActionType === 'EMAIL_RESET_PASSWORD_SUCCESS') {
-      toast.success(languageService('Email sent, please check your email'));
+    if (
+      this.props.forgotPasswordActionType !== prevProps.forgotPasswordActionType &&
+      this.props.forgotPasswordActionType === "EMAIL_RESET_PASSWORD_SUCCESS"
+    ) {
+      toast.success(languageService("Email sent, please check your email"));
     }
   }
 
@@ -52,6 +57,12 @@ class ForgotPassword extends Component {
               width: "520px",
               height: " 300px",
             },
+            electric: {
+              borderRadius: "0",
+              backgroundColor: electricColors.nine,
+              width: "520px",
+              height: " 300px",
+            },
           })}
         >
           <Container style={props.formContainerStyle}>
@@ -65,6 +76,7 @@ class ForgotPassword extends Component {
                     style={themeService({
                       default: { ...props.formLabelStyle },
                       retro: { fontWeight: "bold", display: "inline-block", width: "20%", color: retroColors.second },
+                      electric: { fontWeight: "bold", display: "inline-block", width: "20%", color: electricColors.second },
                     })}
                   >
                     {languageService("Email")}
@@ -84,6 +96,13 @@ class ForgotPassword extends Component {
                         color: retroColors.second,
                         borderRadius: "0",
                         border: "1px solid" + retroColors.fourth,
+                        display: "inline-block",
+                      },
+                      electric: {
+                        width: "80%",
+                        color: electricColors.second,
+                        borderRadius: "0",
+                        border: "1px solid" + electricColors.fourth,
                         display: "inline-block",
                       },
                     })}
@@ -169,7 +188,7 @@ ForgotPassword.defaultProps = {
   loginButtonStyle: {
     width: "100%",
     height: "40px",
-    backgroundColor: "rgba(64, 118, 179)",
+    backgroundColor: "var(--first)",
     border: "none",
     borderRadius: "2px",
     cursor: "pointer",
@@ -180,7 +199,7 @@ ForgotPassword.defaultProps = {
   },
 
   formContainerStyle: {
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
   },
   //forgotPassButtonStyle: ForgotPasswordButton
 };

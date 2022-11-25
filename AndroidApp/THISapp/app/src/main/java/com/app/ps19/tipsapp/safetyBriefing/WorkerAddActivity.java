@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -53,6 +54,7 @@ public class WorkerAddActivity extends AppCompatActivity {
         setLocale(this);
         setTitle(R.string.activity_title_worker_add);
         setContentView(R.layout.activity_worker_add);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         etAcct = findViewById(R.id.et_worker_acct);
         etName = findViewById(R.id.et_worker_name);
         ivSignature = findViewById(R.id.iv_worker_signature);
@@ -270,6 +272,7 @@ public class WorkerAddActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 String result = data.getStringExtra("result");

@@ -33,8 +33,10 @@ import java.util.Observable;
 import java.util.Observer;
 
 import static com.app.ps19.scimapp.Shared.Globals.FULL_DATE_FORMAT;
-import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+//import static com.app.ps19.scimapp.Shared.Globals.selectedTask;
+import static com.app.ps19.scimapp.Shared.Globals.getSelectedTask;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
+import static com.app.ps19.scimapp.Shared.Globals.setSelectedTask;
 
 public class InboxActivity extends AppCompatActivity implements Observer{
 
@@ -127,7 +129,7 @@ public class InboxActivity extends AppCompatActivity implements Observer{
                 //Date currentDate = new Date();
                 //SimpleDateFormat _format = new SimpleDateFormat("dd MMMM yyyy");
                 //   if (_format.format(currentDate).equals(Globals.selectedJPlan.getDate())) {
-                Globals.selectedTask = Globals.selectedJPlan.getTaskList().get(position);
+                setSelectedTask(Globals.selectedJPlan.getTaskList().get(position));
                 Globals.selectedUnit = null;
                 //Setting yard inspection
                 findAndSetYardInspection();
@@ -436,9 +438,9 @@ public class InboxActivity extends AppCompatActivity implements Observer{
         }
     }
     private void findAndSetYardInspection(){
-        for(Units asset: selectedTask.getWholeUnitList()){
+        for(Units asset: getSelectedTask().getWholeUnitList()){
             if(asset.getAssetTypeObj().isMarkerMilepost()){
-                selectedTask.setYardInspection(true);
+                getSelectedTask().setYardInspection(true);
                 break;
             }
         }

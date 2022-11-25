@@ -9,8 +9,9 @@ import AssetTypeAttributeDetail from "./../../components/AssetType/AttributeDeta
 import ApplicationLists from "./../../components/ApplicationLists";
 import Team from "../../components/Team/index";
 import LocationSetup from "../../components/LocationSetup/LocationSetup";
-import GITestAssetTypes from "../../components/SetupPage/GITestAssetTypes/index"
-
+import GITestAssetTypes from "../../components/SetupPage/GITestAssetTypes/index";
+import GeneralInfo from "../../components/GeneralInfo/GeneralInfo";
+import LocationPrefixEditor from "../../components/LocationPrefixEditor/LocationPrefixEditor";
 const commonRoutes = [
   { path: "/setup/staff", component: User, permissionCheckFirstArg: "USER", permissionCheckSecondArg: "view", permissionCheck: true },
   {
@@ -21,6 +22,7 @@ const commonRoutes = [
     permissionCheck: true,
   },
   { path: "/setup/setting", component: Settings, permissionCheck: false },
+  { path: "/setup/locationPrefix", component: LocationPrefixEditor, permissionCheck: false },
   { path: "/setup/alerts", component: Alerts, permissionCheck: false },
   { path: "/setup/team", component: Team, permissionCheckFirstArg: "TEAM", permissionCheckSecondArg: "view", permissionCheck: true },
   { path: "/setup/line", component: Line },
@@ -30,7 +32,7 @@ const commonRoutes = [
   { path: "/setup/applicationLists", component: ApplicationLists, permissionCheck: false },
   { path: "/setup/locationSetup", component: LocationSetup, permissionCheck: false },
   { path: "/setup/assetTypetestForms", component: GITestAssetTypes, permissionCheck: false },
-
+  { path: "/setup/generalInfo", component: GeneralInfo, permissionCheck: false },
 ];
 
 export default commonRoutes;

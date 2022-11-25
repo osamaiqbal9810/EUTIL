@@ -67,7 +67,7 @@ class InspectionsLinearView extends Component {
           {!checkIfToShow && (
             <div
               className="scrollbarHor"
-              style={{ margin: "10px 15px", overflowX: "scroll", background: "#fff", marginBottom: "15px", paddingBottom: "5px" }}
+              style={{ margin: "10px 15px", overflowX: "scroll", background: "var(--fifth)", marginBottom: "15px", paddingBottom: "5px" }}
             >
               {!this.props.mode && (
                 <LinearViewContainer

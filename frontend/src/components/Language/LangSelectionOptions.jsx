@@ -7,7 +7,7 @@ import { CRUDFunction } from "reduxCURD/container";
 import { getAppMockupsTypes } from "reduxRelated/actions/diagnosticsActions";
 import { setDynamicWords } from "Language/DynamicLanguage";
 import moment from "moment";
-import { retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 import { themeService } from "theme/service/activeTheme.service";
 import options from "./option";
 class LangSelectionOptions extends Component {
@@ -71,7 +71,7 @@ class LangSelectionOptions extends Component {
           style={{
             height: "auto",
             width: "250px",
-            background: "#fff",
+            background: "var(--fifth)",
           }}
         >
           {options.options.map((item) => (
@@ -87,9 +87,9 @@ class LangSelectionOptions extends Component {
                   display: "block",
                   background: "#e3e9ef",
                   margin: "5px",
-                  color: "rgba(64, 118, 179)",
+                  color: "var(--twelve)",
                   ":hover": {
-                    background: "rgba(64, 118, 179)",
+                    background: "var(--first)",
                     color: "#e3e9ef",
                   },
                 },
@@ -100,6 +100,16 @@ class LangSelectionOptions extends Component {
                   color: retroColors.second,
                   ":hover": {
                     background: retroColors.second,
+                    color: "#e3e9ef",
+                  },
+                },
+                electric: {
+                  display: "block",
+                  background: "#e3e9ef",
+                  margin: "5px",
+                  color: electricColors.second,
+                  ":hover": {
+                    background: electricColors.second,
                     color: "#e3e9ef",
                   },
                 },

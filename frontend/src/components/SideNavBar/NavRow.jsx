@@ -27,7 +27,8 @@ class Navrow extends Component {
   render() {
     let styles = getNavrowStyle(this.props, this.state);
     return (this.NavStr = this.props.navBarItems.map((item, index) => {
-      return permissionCheck(item.permissionCheckFirstArg, item.permissionCheckSecondArg) || item.permissionCheck == false ? (
+     return permissionCheck(item.permissionCheckFirstArg, item.permissionCheckSecondArg) || item.permissionCheck == false ? (
+      (  
         <NavElement className="navBar " key={item.navId}>
           <div style={themeService(styles.navWrapper)} key={index + "div>"}>
             <NavLink
@@ -54,7 +55,8 @@ class Navrow extends Component {
             </UncontrolledTooltip>
           )} */}
         </NavElement>
-      ) : <React.Fragment/>;
+      )
+     ) : <React.Fragment/>;
     }));
   }
 }

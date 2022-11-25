@@ -1,22 +1,16 @@
 package com.app.ps19.scimapp.Shared;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.location.Location;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.Html;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
@@ -31,45 +25,37 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.app.ps19.scimapp.R;
-import com.app.ps19.scimapp.SessionDashboard;
 import com.app.ps19.scimapp.classes.CompRange;
 import com.app.ps19.scimapp.classes.DUnit;
 import com.app.ps19.scimapp.classes.JourneyPlan;
 import com.app.ps19.scimapp.classes.JourneyPlanOpt;
-import com.app.ps19.scimapp.classes.LatLong;
 import com.app.ps19.scimapp.classes.Session;
-import com.app.ps19.scimapp.classes.Task;
 import com.app.ps19.scimapp.classes.Units;
 import com.app.ps19.scimapp.classes.User;
 import com.app.ps19.scimapp.inspMemberAdapter;
-import com.app.ps19.scimapp.sessionsAdapter;
+import com.app.ps19.scimapp.location.LocationUpdatesService;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import static com.app.ps19.scimapp.Shared.Globals.CURRENT_LOCATION;
 import static com.app.ps19.scimapp.Shared.Globals.NEARBY_ASSETS_LIST_SIZE;
-import static com.app.ps19.scimapp.Shared.Globals.TASK_IN_PROGRESS_STATUS;
 import static com.app.ps19.scimapp.Shared.Globals.angleOffset;
+import static com.app.ps19.scimapp.Shared.Globals.initialInspection;
+import static com.app.ps19.scimapp.Shared.Globals.initialRun;
 import static com.app.ps19.scimapp.Shared.Globals.isInspectionTypeReq;
 import static com.app.ps19.scimapp.Shared.Globals.isMpReq;
 import static com.app.ps19.scimapp.Shared.Globals.isTraverseReq;
-import static com.app.ps19.scimapp.Shared.Globals.isUseDefaultAsset;
 import static com.app.ps19.scimapp.Shared.Globals.isWConditionReq;
-import static com.app.ps19.scimapp.Shared.Globals.initialInspection;
-import static com.app.ps19.scimapp.Shared.Globals.initialRun;
 import static com.app.ps19.scimapp.Shared.Globals.lastKnownLocation;
 import static com.app.ps19.scimapp.Shared.Globals.selectedTraverseBy;
 import static com.app.ps19.scimapp.Shared.Globals.setLocale;
 import static com.app.ps19.scimapp.Shared.Globals.showNearByAssets;
-import static com.app.ps19.scimapp.Shared.Globals.userEmail;
-import static com.app.ps19.scimapp.Shared.Globals.userID;
 import static com.app.ps19.scimapp.Shared.Utilities.isInRange;
 import static com.app.ps19.scimapp.Shared.Utilities.selectFirstVisibleRadioButton;
 
@@ -87,7 +73,6 @@ public class StartInspectionActivity extends AppCompatActivity {
     Button btnCancel;
     String latitude;
     String longitude;
-    private MyReceiver myReceiver;
     Location lastLocation;
     Spinner spAssetsAhead;
     Spinner spAssetsBehind;
@@ -110,10 +95,6 @@ public class StartInspectionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setLocale(this);
         setContentView(R.layout.activity_start_inspection);
-        myReceiver = new MyReceiver();
-        if (Utils.requestingLocationUpdates(this)) {
-
-        }
         context = this;
         initialRun = initialInspection.getTaskList().get(0);
 
@@ -156,8 +137,12 @@ public class StartInspectionActivity extends AppCompatActivity {
         String startMsg;
         final ArrayList<Units> tracks = new ArrayList<>();
         for (Units _track : initialRun.getWholeUnitList()) {
-            if (_track.getAssetType().equals("track")) {
-                tracks.add(_track);
+            //Now adding all linear assets instead of "track"
+            //if (_track.getAssetType().equals("track")) {
+            if(_track.isLinear()){
+                if(!_track.getAssetTypeObj().isMarkerMilepost()){
+                    tracks.add(_track);
+                }
             }
         }
         assetsAhead = new ArrayList<>();
@@ -313,7 +298,7 @@ public class StartInspectionActivity extends AppCompatActivity {
         if (!showNearByAssets) {
             llNearByAssets.setVisibility(View.GONE);
             try {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
+                // LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -326,7 +311,7 @@ public class StartInspectionActivity extends AppCompatActivity {
             etStartMp.setText(initialRun.getMpStart());
             etExpEndMp.setText(initialRun.getMpEnd());
             try {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
+                //  LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -518,8 +503,8 @@ public class StartInspectionActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         if(showNearByAssets){
-            LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver,
-                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
+/*            LocalBroadcastManager.getInstance(context).registerReceiver(myReceiver,
+                    new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));*/
         }
     }
     @Override
@@ -527,7 +512,7 @@ public class StartInspectionActivity extends AppCompatActivity {
         super.onPause();
         if(showNearByAssets){
             try {
-                LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);
+                /*                LocalBroadcastManager.getInstance(context).unregisterReceiver(myReceiver);*/
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -546,9 +531,9 @@ public class StartInspectionActivity extends AppCompatActivity {
         return lineName;
     }
 
-    /**
+    /*    *//**
      * Receiver for broadcasts sent by {@link LocationUpdatesService}.
-     */
+     *//*
     private class MyReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -563,7 +548,7 @@ public class StartInspectionActivity extends AppCompatActivity {
                 listUpdate(mLocation);
                 lastLocation = mLocation;
             }
-        }}
+        }}*/
     private void listUpdate(Location mLocation){
 
         try {
@@ -625,6 +610,7 @@ public class StartInspectionActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+
     private double normalizeDegree(double value) {
         if (value >= 0.0f && value <= 180.0f) {
             return value;

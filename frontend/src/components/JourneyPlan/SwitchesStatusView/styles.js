@@ -1,4 +1,4 @@
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 
 export const inspectionSwitchStatusStyle = {
   assetWithIcon: getAssetWithIconStyle,

@@ -6,6 +6,17 @@
         <item>Spanish</item>
         <item>French</item>
     </string-array>
+    <string name="weather_prompt">Choose a weather</string>
+    <string-array name="weather_values">
+        <item>Sunny</item>
+        <item>Cloudy</item>
+        <item>Light rain</item>
+        <item>Heavy rain</item>
+        <item>Fog</item>
+        <item>Snow</item>
+        <item>Dark</item>
+        <item>Other</item>
+    </string-array>
     <string name="temp_prompt">Choose a Temperature</string>
     <string-array name="temp_values">
         <item>-40</item>

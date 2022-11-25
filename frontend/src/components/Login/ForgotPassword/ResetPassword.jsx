@@ -6,7 +6,7 @@ import { AvForm, AvInput, AvFeedback, AvGroup } from "availity-reactstrap-valida
 import { updatePassword } from "reduxRelated/actions/userActions";
 import { CRUDFunction } from "reduxCURD/container";
 import { ButtonStyle } from "style/basic/commonControls";
-import { retroColors } from "style/basic/basicColors.js";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors.js";
 import { themeService } from "theme/service/activeTheme.service";
 class ResetPassword extends Component {
   constructor(props) {
@@ -76,6 +76,12 @@ class ResetPassword extends Component {
               width: "520px",
               height: " 300px",
             },
+            electric: {
+              borderRadius: "0",
+              backgroundColor: electricColors.nine,
+              width: "520px",
+              height: " 300px",
+            },
           })}
         >
           <Container style={props.formContainerStyle}>
@@ -90,6 +96,7 @@ class ResetPassword extends Component {
                       style={themeService({
                         default: { ...props.formLabelStyle },
                         retro: { fontWeight: "bold", display: "inline-block", width: "20%", color: retroColors.second },
+                        electric: { fontWeight: "bold", display: "inline-block", width: "20%", color: electricColors.second },
                       })}
                       for="examplePassword"
                     >
@@ -112,6 +119,13 @@ class ResetPassword extends Component {
                           border: "1px solid" + retroColors.fourth,
                           display: "inline-block",
                         },
+                        electric: {
+                          width: "80%",
+                          color: electricColors.second,
+                          borderRadius: "0",
+                          border: "1px solid" + electricColors.fourth,
+                          display: "inline-block",
+                        },
                       })}
                     />
                     <AvFeedback tooltip>{languageService("Password Required")}</AvFeedback>
@@ -123,6 +137,7 @@ class ResetPassword extends Component {
                       style={themeService({
                         default: { ...props.formLabelStyle },
                         retro: { fontWeight: "bold", display: "inline-block", width: "20%", color: retroColors.second },
+                        electric: { fontWeight: "bold", display: "inline-block", width: "20%", color: electricColors.second },
                       })}
                       for="examplePassword"
                     >
@@ -143,6 +158,13 @@ class ResetPassword extends Component {
                           color: retroColors.second,
                           borderRadius: "0",
                           border: "1px solid" + retroColors.fourth,
+                          display: "inline-block",
+                        },
+                        electric: {
+                          width: "80%",
+                          color: electricColors.second,
+                          borderRadius: "0",
+                          border: "1px solid" + electricColors.fourth,
                           display: "inline-block",
                         },
                       })}
@@ -235,7 +257,7 @@ ResetPassword.defaultProps = {
   loginButtonStyle: {
     width: "100%",
     height: "40px",
-    backgroundColor: "rgba(64, 118, 179)",
+    backgroundColor: "var(--first)",
     border: "none",
     borderRadius: "2px",
     cursor: "pointer",
@@ -246,7 +268,7 @@ ResetPassword.defaultProps = {
   },
 
   formContainerStyle: {
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
   },
   passwordMatchStyle: {
     fontSize: "12px",
@@ -255,7 +277,7 @@ ResetPassword.defaultProps = {
   passwordUpdatedStyle: {
     fontSize: "12px",
     fontWeight: 600,
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
   },
   //forgotPassButtonStyle: ForgotPasswordButton
 };

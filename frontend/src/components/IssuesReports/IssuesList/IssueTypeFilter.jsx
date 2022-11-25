@@ -31,7 +31,7 @@ class IssueTypeFilter extends Component {
         <div
           style={styles.pivotByCommonStyleCategory}
           key="category"
-          onClick={e => {
+          onClick={(e) => {
             this.handleFilterPivotBy("category");
           }}
         >
@@ -43,7 +43,7 @@ class IssueTypeFilter extends Component {
         <div
           style={styles.pivotByCommonStyleTrackId}
           key="trackId "
-          onClick={e => {
+          onClick={(e) => {
             this.handleFilterPivotBy("trackId");
           }}
         >
@@ -61,33 +61,33 @@ let getStyles = (props, state) => {
   let borders = {
     pivotBy: {
       borderAllTop: "1px solid #e3e9ef",
-      borderHoverTopAll: "1px solid rgba(64, 118, 179)",
-      borderHoverTopToday: "1px solid rgba(64, 118, 179)",
+      borderHoverTopAll: "1px solid var(--first)",
+      borderHoverTopToday: "1px solid var(--first)",
       borderTodayTop: "1px solid #e3e9ef",
     },
   };
   if (state.allFilter) {
-    borders.allToday.borderAllTop = "3px solid rgba(64, 118, 179)";
-    borders.allToday.borderHoverTopAll = "3px solid rgba(64, 118, 179)";
+    borders.allToday.borderAllTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopAll = "3px solid var(--first)";
   }
   if (state.todayFilter) {
-    borders.allToday.borderTodayTop = "3px solid rgba(64, 118, 179)";
-    borders.allToday.borderHoverTopToday = "3px solid rgba(64, 118, 179)";
+    borders.allToday.borderTodayTop = "3px solid var(--first)";
+    borders.allToday.borderHoverTopToday = "3px solid var(--first)";
   }
   if (state.trackIdFilter) {
-    borders.pivotBy.borderAllTop = "3px solid rgba(64, 118, 179)";
-    borders.pivotBy.borderHoverTopAll = "3px solid rgba(64, 118, 179)";
+    borders.pivotBy.borderAllTop = "3px solid var(--first)";
+    borders.pivotBy.borderHoverTopAll = "3px solid var(--first)";
   }
   if (state.categoryFilter) {
-    borders.pivotBy.borderTodayTop = "3px solid rgba(64, 118, 179)";
-    borders.pivotBy.borderHoverTopToday = "3px solid rgba(64, 118, 179)";
+    borders.pivotBy.borderTodayTop = "3px solid var(--first)";
+    borders.pivotBy.borderHoverTopToday = "3px solid var(--first)";
   }
 
   let commonStyle = {
     display: "inline-block",
     padding: "5px",
     margin: "5px",
-    color: "rgba(64, 118, 179)",
+    color: "var(--first)",
     cursor: "pointer",
 
     borderBottom: "1px solid #e3e9ef",
@@ -96,10 +96,10 @@ let getStyles = (props, state) => {
     borderRadius: "5px",
   };
   let hoverCommonStyle = {
-    color: "rgba(64, 118, 179)",
-    borderBottom: "1px solid rgba(64, 118, 179)",
-    borderLeft: "1px solid rgba(64, 118, 179)",
-    borderRight: "1px solid rgba(64, 118, 179)",
+    color: "var(--first)",
+    borderBottom: "1px solid var(--first)",
+    borderLeft: "1px solid var(--first)",
+    borderRight: "1px solid var(--first)",
   };
 
   // BORDERS
@@ -107,7 +107,7 @@ let getStyles = (props, state) => {
     filterArea: { float: "left", fontFamily: "Arial", fontSize: "12px" },
     divider: {
       display: "inline-block",
-      color: "rgba(64, 118, 179)",
+      color: "var(--first)",
     },
     pivotByCommonStyleCategory: {
       ...commonStyle,

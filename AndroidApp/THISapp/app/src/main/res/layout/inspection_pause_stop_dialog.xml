@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/rl_sessions_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:visibility="visible"
+        android:background="@color/title_background">
+
+        <ImageView
+            android:id="@+id/iv_sessions_dialog_title"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:drawableTint="@android:color/black"
+            android:src="@drawable/ic_play_arrow_gray_24dp"
+            android:layout_marginStart="30dp" />
+
+        <TextView
+            android:id="@+id/tv_session_pause_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/session_starting_title"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/iv_sessions_dialog_title"
+            android:fontFamily="@font/cabin"
+            android:textColor="@color/title_text" />
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/tv_confirmation_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp10"
+        android:fontFamily="@font/cabin"
+        android:textStyle="bold"
+        android:text="Do you want to Pause or Stop inspection?" />
+
+    <Button
+        android:id="@+id/btn_resume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cabin"
+        android:background="@color/mintColorAccent"
+        android:layout_marginBottom="@dimen/dp10"
+        android:text="@string/resume"/>
+    <Button
+        android:id="@+id/btn_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cabin"
+        android:background="@color/mintColorAccent"
+        android:layout_marginBottom="@dimen/dp10"
+        android:text="@string/pause"/>
+    <Button
+        android:id="@+id/btn_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/cabin"
+        android:textColor="@color/credentials_white"
+        android:background="@color/cancel_btn_background"
+        android:text="@string/stop"/>
+
+</LinearLayout>

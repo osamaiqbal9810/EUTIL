@@ -6,7 +6,8 @@ let track_route = require("./api/track/index");
 let wPlanSchedules_route = require("./api/wPlanSchedules/index");
 let workPlanTemplate_route = require("./api/wPlanTemplate/index");
 let testSchedule_route = require("./api/testSchedules/index");
-module.exports = function() {
+let ativData_route = require("./api/ATIVData/index");
+module.exports = function () {
   api_routes.use("/journeyPlan", journeyPlan_route);
   api_routes.use("/track", track_route);
   api_routes.use("/workPlanTemplate", workPlanTemplate_route);
@@ -14,4 +15,5 @@ module.exports = function() {
   api_routes.use("/journeyPlanTask", journeyPlanTask_route);
   api_routes.use("/wPlanSchedules", wPlanSchedules_route);
   api_routes.use("/testSchedule", testSchedule_route);
+  api_routes.use("/ATIVData", ativData_route);
 };

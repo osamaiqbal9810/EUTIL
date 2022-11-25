@@ -13,10 +13,10 @@ import {
   validateAssetGeoJsonStr,
   validateGeoJsonStr,
 } from "../../utils/GISUtils";
-let baseUrl = "http://" + getServerEndpoint() + "assetImages/";
+let baseUrl = getServerEndpoint() + "assetImages/";
 
 var Map = ReactMapboxGl({
-  accessToken: "pk.eyJ1IjoidXNtYW5xdXJlc2hpIiwiYSI6ImNqdzlmNG0yazBpcHA0OHBkYmgyZHdyZjAifQ.2O9HKhWB6EG-OZk3g4zdOg",
+  accessToken: "pk.eyJ1Ijoib3NhbWExNTciLCJhIjoiY2w3OTNsbTB4MGZ4MDNub2xteGNhanNjbSJ9.gET6tPcC1dG6MTRDqk4f8w",
 });
 
 const lineLayout = {

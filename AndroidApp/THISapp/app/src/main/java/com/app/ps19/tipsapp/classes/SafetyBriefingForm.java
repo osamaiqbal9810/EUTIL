@@ -598,13 +598,16 @@ public class SafetyBriefingForm implements  IConvertHelper{
     }
 
     public boolean setImageStatus(HashMap<String , Integer> items){
-        Boolean blnDataChanged=false;
-        for(Worker worker: workers){
-            boolean retValue = worker.setImgStatus(items);
-            if(retValue){
-                blnDataChanged=true;
+        boolean blnDataChanged=false;
+        if(workers!=null){
+            for(Worker worker: workers){
+                boolean retValue = worker.setImgStatus(items);
+                if(retValue){
+                    blnDataChanged=true;
+                }
             }
         }
+
         return blnDataChanged;
     }
 }

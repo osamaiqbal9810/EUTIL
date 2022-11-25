@@ -15,9 +15,9 @@ function getMPLocation(Locs) {
         : Locs.length > 1 && Locs[1].type === "Milepost"
           ? Locs[1]
           : { start: 0, end: 0 }; //null;
-if(l.start>l.end)  l = {start: l.end, end: l.start};
-//if(l.end - l.start < 0.1)  l.end = l.start + 0.01; // add minimum length, but first fix the display because display should be actual value
-return l;
+  if (l.start > l.end) l = { start: l.end, end: l.start };
+  //if(l.end - l.start < 0.1)  l.end = l.start + 0.01; // add minimum length, but first fix the display because display should be actual value
+  return l;
 }
 
 function precisionRound(number, precision) {
@@ -198,7 +198,7 @@ function getMWOWiseDisplay(lineMaintenances, range, props, heading) {
   ]; //['black', 'green', 'red', 'blue','cyan', 'magenta'];
   //scale
   let inc = 0.1;
-  
+
   for (let i = intStart; i <= intEnd;) {
     let n = { start: i, end: precisionRound(i + inc, 2), text: " " + Math.floor(i) };
     scaleData.push(n);
@@ -277,6 +277,7 @@ function getMWOWiseDisplay(lineMaintenances, range, props, heading) {
         width: "100%",
         scroll: "auto",
         overflow: "auto",
+        marginBottom: "15px"
       }}
       key={"div:" + start + "," + end}
     >

@@ -35,7 +35,7 @@ class TrackSummary extends Component {
             <Row style={trackSummaryStyle.allCardSummaryContainer}>
               <Col md="2" style={trackSummaryStyle.cardContainer}>
                 {summaryDesc.first && (
-                  <CardTypeOne number={summaryVals.first} numberColor="rgba(64, 118, 179)" topRight={assigned.first} text={summaryDesc.first} />
+                  <CardTypeOne number={summaryVals.first} numberColor="var(--first)" topRight={assigned.first} text={summaryDesc.first} />
                 )}
               </Col>
               <Col md="2" style={trackSummaryStyle.cardContainer}>
@@ -83,7 +83,7 @@ class TrackSummary extends Component {
                     activeBorder="3px solid #e3e2ef "
                     iconStyle={{
                       color: "#c4d4e4",
-                      background: "#fff",
+                      background: "var(--fifth)",
                       borderRadius: "50%",
                       border: "3px solid ",
                     }}

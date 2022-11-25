@@ -8,7 +8,7 @@ import { languageService } from "../../Language/language.service.js";
 //import PropTypes from 'prop-types';
 import { themeService } from "theme/service/activeTheme.service";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
-import { retroColors } from "../../style/basic/basicColors.js";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors.js";
 
 class LoginPage extends React.Component {
   constructor(props) {
@@ -140,6 +140,9 @@ class LoginPage extends React.Component {
         <div className="App-login" style={themeService({
           default: {}, retro: {
             borderRadius: "0", backgroundColor: retroColors.nine, width: "520px",
+            height: " 300px"
+          }, electric: {
+            borderRadius: "0", backgroundColor: electricColors.nine, width: "520px",
             height: " 300px"
           }
         })}>

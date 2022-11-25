@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 
 export const NavrowStyle = {
   navWrapper: {
@@ -17,6 +17,13 @@ export const NavrowStyle = {
         color: retroColors.second,
       },
     },
+    electric: {
+      color: electricColors.second,
+      ":hover": {
+        background: electricColors.first,
+        color: electricColors.second,
+      },
+    },
   },
 
   navElement: {
@@ -31,14 +38,17 @@ export const NavrowStyle = {
       marginBottom: "1px",
     },
     retro: { color: retroColors.second },
+    electric: { color: retroColors.second },
   },
   navActive: {
     default: { background: basicColors.fourth, color: basicColors.first },
     retro: { color: retroColors.second, background: retroColors.first },
+    electric: { color: electricColors.second, background: electricColors.first },
   },
   navIconSize: {
     default: { size: 20 },
     retro: { size: 25 },
+    electric: { size: 25 },
   },
 };
 

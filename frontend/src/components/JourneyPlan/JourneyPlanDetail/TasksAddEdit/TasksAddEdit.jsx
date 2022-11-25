@@ -12,7 +12,7 @@ import { languageService } from "../../../../Language/language.service";
 import { Label, Field, MyButton, Required } from "../../../Common/Forms/formsMiscItems";
 import { themeService } from "../../../../theme/service/activeTheme.service";
 import { formFeildStyle } from "../../../../wigets/forms/style/formFields";
-import { retroColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 
 class TasksAddEdit extends Component {
@@ -63,7 +63,7 @@ class TasksAddEdit extends Component {
         default: {
           fontSize: "12px",
           minHeight: "30px",
-          color: "rgba(64, 118, 179)",
+          color: "var(--first)",
           padding: "12px 10px 6px 12px",
           borderLeft: "1px solid #e3e9ef",
           borderRight: "1px solid #e3e9ef",
@@ -78,7 +78,25 @@ class TasksAddEdit extends Component {
           fontSize: "12px",
           lineHeight: "1.42857143",
           color: retroColors.second,
-          backgroundColor: "#fff",
+          backgroundColor: "var(--fifth)",
+          backgroundImage: "none",
+          border: "1px solid #e3e9ef",
+          borderRadius: "2px",
+          WebkitBoxShadow: "inset 0 1px 1px rgba(0, 0, 0, 0.05)",
+          boxShadow: "inset 0 1px 1px rgba(0, 0, 0, 0.05)",
+          WebkitTransition: "border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+          OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
+          transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+          display: "inline-block",
+        },
+        electric: {
+          width: "70%",
+          height: "34px",
+          padding: "6px 12px",
+          fontSize: "12px",
+          lineHeight: "1.42857143",
+          color: electricColors.second,
+          backgroundColor: "var(--fifth)",
           backgroundImage: "none",
           border: "1px solid #e3e9ef",
           borderRadius: "2px",
@@ -128,7 +146,7 @@ class TasksAddEdit extends Component {
       }),
       option: (base, state) => ({
         ...base,
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       }),
       placeholder: (styles) => ({
@@ -591,7 +609,7 @@ class TasksAddEdit extends Component {
                   style={{
                     marginTop: "5px",
                     fontSize: "12px",
-                    color: "rgba(64, 118, 179)",
+                    color: "var(--first)",
                   }}
                 >
                   {this.state.fileSizeLimitWarn}{" "}
@@ -639,6 +657,7 @@ class TasksAddEdit extends Component {
                   style={themeService({
                     default: {},
                     retro: { display: "inline-block", width: "30%", color: retroColors.second, fontWeight: "bold" },
+                    electric: { display: "inline-block", width: "30%", color: electricColors.second, fontWeight: "bold" },
                   })}
                 >
                   {languageService("Assets")} :<Required />

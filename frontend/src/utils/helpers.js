@@ -97,7 +97,7 @@ export const validate = (element, formData)=>{
     if (element.validation.min || element.validation.min === 0) {
       const valid = parseFloat(element.value) >= element.validation.min;
       const message = (element.validation.min !== element.validation.max) ?
-                       `${!valid ? languageService('Must be greater than or equal to') +" " + element.validation.min + languageService('characters') : ""}`
+                       `${!valid ? languageService('Must be greater than or equal to') +" " + element.validation.min : ""}`
                       :`${!valid ? languageService('Must be equal to') +" " + element.validation.min : ""}`;
 
       error = !valid ? [valid, message] : error;
@@ -106,7 +106,7 @@ export const validate = (element, formData)=>{
     if (element.validation.max) {
       const valid = parseFloat(element.value) <= element.validation.max;
       const message = (element.validation.max !== element.validation.min) ?
-                      `${!valid ? languageService('Must be less than or equal to')+" " + element.validation.max + languageService('characters') : ""}`
+                      `${!valid ? languageService('Must be less than or equal to')+" " + element.validation.max : ""}`
                      :`${!valid ? languageService('Must be equal to')+" " + element.validation.max : ""}`;
 
       error = !valid ? [valid, message] : error;

@@ -1,11 +1,31 @@
 package com.app.ps19.scimapp.classes;
 
+import com.app.ps19.scimapp.Shared.Globals;
+
 import java.util.Comparator;
 
 public class DUnit {
     private Units unit;
     private double distance;
     private double bearing;
+    private boolean freeze=false;
+
+    public void setFreeze(boolean freeze) {
+        this.freeze = freeze;
+        if(unit!=null){
+            if(freeze != unit.isFreeze()){
+                unit.setFreeze(freeze);
+                Globals.getSelectedTask().setDirty(true);
+            }
+        }
+    }
+
+    public boolean isFreeze() {
+        if(unit!=null){
+            this.freeze=unit.isFreeze();
+        }
+        return freeze;
+    }
 
     public double getBearing() {
         return bearing;

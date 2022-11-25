@@ -251,7 +251,7 @@ public class WorkerAddActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         //code it to launch an intent to the activity you want
         //if (!etAcct.getText().toString().equals("") || !etName.getText().toString().equals("") || !signatureImg.getImgName().equals("")) {
-        showDialog();
+            showDialog();
         //} else {
         //    finish();
         //}

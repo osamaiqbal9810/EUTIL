@@ -29,7 +29,7 @@
 .fullWidth {
   width: 100%;
   font-size: 14px;
-  color: rgba(64, 118, 179);
+  color: var(--first);
 }
 
 .icon-tools {
@@ -39,8 +39,8 @@
 }
 .icon-tools button {
   margin-right: 10px;
-  background: rgb(64, 118, 179);
-  color: #fff;
+  background: var(--first);
+  color: var(--fifth);
   padding: 5px 5px;
   border-radius: 5px;
   height: 28px;

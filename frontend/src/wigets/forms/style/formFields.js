@@ -1,9 +1,14 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const formFeildStyle = {
   feildStyle: {
     default: {},
     retro: {
       marginBottom: "15px",
+
+    },
+    electric: {
+      marginBottom: "15px",
+
     },
   },
   lblStyle: {
@@ -18,6 +23,13 @@ export const formFeildStyle = {
       fontSize: "14px",
       fontWeight: "bold",
       color: retroColors.second,
+      width: "30%",
+    },
+    electric: {
+      marginBottom: "5px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      color: electricColors.second,
       width: "30%",
     },
   },
@@ -35,6 +47,13 @@ export const formFeildStyle = {
       color: retroColors.second,
       width: "auto",
     },
+    electric: {
+      marginBottom: "5px",
+      fontSize: "14px",
+      fontWeight: "bold",
+      color: electricColors.second,
+      width: "auto",
+    },
   },
   inputStyle: {
     default: {
@@ -43,8 +62,8 @@ export const formFeildStyle = {
       padding: "6px 12px",
       fontSize: "12px",
       lineHeight: "1.42857143",
-      color: "rgba(64, 118, 179)",
-      backgroundColor: "#fff",
+      color: "var(--first)",
+      backgroundColor: "var(--fifth)",
       backgroundImage: "none",
       border: "1px solid #e3e9ef",
       borderRadius: "2px",
@@ -69,6 +88,21 @@ export const formFeildStyle = {
       OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
       transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
     },
+    electric: {
+      width: "70%",
+      height: "34px",
+      padding: "6px 6px 6px 6px",
+      fontSize: "12px",
+      lineHeight: "1.42857143",
+      color: electricColors.second,
+      backgroundColor: electricColors.fifth,
+      backgroundImage: "none",
+      border: "1px solid" + electricColors.ten,
+      borderRadius: "0px",
+      WebkitTransition: "border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+      OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
+      transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+    },
   },
   selectInputFieldContainer: {
     default: {},
@@ -76,15 +110,28 @@ export const formFeildStyle = {
       width: "70%",
       position: "relative",
     },
+    electric: {
+      width: "70%",
+      position: "relative",
+    },
   },
 
   selectInputCaret: {
-    default: { height: "34px", padding: "6px 12px", background: "#fff" },
+    default: { height: "34px", padding: "6px 12px", background: "var(--fifth)" },
     retro: {
       height: "34px",
 
       padding: "6px 6px 6px 6px",
-      background: "#fff",
+      background: "var(--fifth)",
+      border: "0px solid grey",
+      borderLeft: "none",
+      cursor: "pointer",
+    },
+    electric: {
+      height: "34px",
+
+      padding: "6px 6px 6px 6px",
+      background: "var(--fifth)",
       border: "0px solid grey",
       borderLeft: "none",
       cursor: "pointer",
@@ -103,7 +150,20 @@ export const formFeildStyle = {
       WebkitBoxShadow: " 0px 3px 5px 0px rgba(0,0,0,0.75)",
       MozBoxShadow: "0px 3px 5px 0px rgba(0,0,0,0.75)",
       boxShadow: "0px 3px 5px 0px rgba(0,0,0,0.75)",
-      background: "#fff",
+      background: "var(--fifth)",
+    },
+    electric: {
+      border: "0",
+      position: "absolute",
+      bottom: "-68px",
+      height: "68px",
+      overflow: "auto",
+      width: "100%",
+      zIndex: "10",
+      WebkitBoxShadow: " 0px 3px 5px 0px rgba(0,0,0,0.75)",
+      MozBoxShadow: "0px 3px 5px 0px rgba(0,0,0,0.75)",
+      boxShadow: "0px 3px 5px 0px rgba(0,0,0,0.75)",
+      background: "var(--fifth)",
     },
   },
   inputSelectFieldStyle: {
@@ -126,13 +186,38 @@ export const formFeildStyle = {
       OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
       transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
     },
+    electric: {
+      height: "34px",
+      width: "-webkit-calc(100% - 77px)",
+      width: " -moz-calc(100% - 77x)",
+      width: "      calc(100% - 77px)",
+      padding: "6px 12px",
+      fontSize: "12px",
+      lineHeight: "1.42857143",
+      color: electricColors.second,
+      backgroundColor: electricColors.fifth,
+      backgroundImage: "none",
+      border: "0px solid grey",
+      borderRadius: "0px",
+      borderRight: "none",
+      WebkitTransition: "border-color ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+      OTransition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s",
+      transition: "border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s, -webkit-box-shadow ease-in-out 0.15s",
+    },
   },
   inputSelectRowContainer: {
     default: {},
     retro: {
       height: "34px",
       padding: "6px 12px 9px",
-      background: "#fff",
+      background: "var(--fifth)",
+      border: "0px solid darkgrey",
+      cursor: "pointer",
+    },
+    electric: {
+      height: "34px",
+      padding: "6px 12px 9px",
+      background: "var(--fifth)",
       border: "0px solid darkgrey",
       cursor: "pointer",
     },

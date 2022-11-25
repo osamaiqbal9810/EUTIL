@@ -34,9 +34,9 @@ export function CRUDFunction(Component, name, actionOptions, variablesList, addi
         if (valid) {
           let customApiName = item.apiName ? item.apiName : apiName ? apiName : name;
           let customActionOpts = item.actionOptions ? item.actionOptions : { ...actionOptions };
-          let customActionItems = createActionTypes(item.name, customActionOpts, customApiName);
-          customActionRelated = { ...customActionRelated, ...customActionItems.actionTasks };
-          CURDACTIONS.setCommonTasks(customActionItems.actionTypes);
+          let customActionMethods = createActionTypes(item.name, customActionOpts, customApiName);
+          customActionRelated = { ...customActionRelated, ...customActionMethods.actions };
+          CURDACTIONS.setCommonTasks(customActionMethods.actionTypes);
           setcommonReducers(item.name);
         }
       }
@@ -115,7 +115,7 @@ export function CRUDFunction(Component, name, actionOptions, variablesList, addi
       let customActionkeys = Object.keys(customActionRelated);
       customActionkeys.forEach((funcName) => {
         dispatchActions[funcName] = (arg, id) => {
-          return dispatch(customActions[funcName](arg, id));
+          return dispatch(customActionRelated[funcName](arg, id));
         };
       });
       return {

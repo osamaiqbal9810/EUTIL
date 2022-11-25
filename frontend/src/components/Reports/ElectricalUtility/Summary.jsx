@@ -49,7 +49,7 @@ class Summary extends Component {
     // });
     return (
       <React.Fragment>
-        <div className="table-report electric-utility summary">
+        <div className="table-report electric-utility summary" id="mainContent">
           <Row>
             <Col md={12}>
               <Row>

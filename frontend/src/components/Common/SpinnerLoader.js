@@ -3,7 +3,7 @@ import { Row, Col, Button, Modal, ModalHeader, ModalBody, ModalFooter } from "re
 import PropagateLoader from "react-spinners/PropagateLoader";
 import { sidebarWidth, topBarHeight } from "components/Common/Variables/CommonVariables";
 import { themeService } from "../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 class SpinnerLoader extends Component {
   render() {
     let spinnerObj = (
@@ -32,7 +32,7 @@ class SpinnerLoader extends Component {
         >
           <PropagateLoader
             loading={this.props.spinnerLoading}
-            color={themeService({ default: basicColors.first, retro: retroColors.first })}
+            color={themeService({ default: basicColors.first, retro: retroColors.first, electric: electricColors.first })}
             sizeUnit={"px"}
             size={10}
           />

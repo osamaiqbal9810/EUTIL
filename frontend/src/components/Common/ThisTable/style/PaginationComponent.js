@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const paginationStyle = {
   myButtonNext: {
     default: {
@@ -26,6 +26,20 @@ export const paginationStyle = {
       fontFamily: "Arial",
       letterSpacing: "0.28px",
       color: retroColors.second,
+      transition: "all 0.1s ease",
+      cursor: "pointer",
+      outline: "none",
+      textTransform: "Capitalize",
+      fontSize: "11px !important",
+    },
+    electric: {
+      backgroundColor: electricColors.fourth,
+      display: "block",
+      borderRadius: "0px",
+      padding: "8px",
+      fontFamily: "Arial",
+      letterSpacing: "0.28px",
+      color: electricColors.second,
       transition: "all 0.1s ease",
       cursor: "pointer",
       outline: "none",
@@ -67,14 +81,31 @@ export const paginationStyle = {
       textTransform: "Capitalize",
       fontSize: "11px !important",
     },
+    electric: {
+      backgroundColor: electricColors.fourth,
+      display: "block",
+      borderRadius: "0px ",
+      padding: "8px",
+      fontFamily: "Arial",
+      fontsize: "11px",
+      letterSpacing: "0.28px",
+      color: electricColors.second,
+      transition: "all 0.1s ease",
+      cursor: "pointer",
+      outline: "none",
+      textTransform: "Capitalize",
+      fontSize: "11px !important",
+    },
   },
   paginationCustom: {
     default: { float: "right" },
     retro: { float: "right", marginRight: "15px", marginBottom: "20px" },
+    electric: { float: "right", marginRight: "15px", marginBottom: "20px" },
   },
   customCenter: {
     default: { display: "inline-block" },
     retro: { display: "none" },
+    electric: { display: "none" },
   },
   entriesContainer: {
     default: {
@@ -84,6 +115,7 @@ export const paginationStyle = {
       color: "#a7cdb8",
     },
     retro: { display: "none" },
+    electric: { display: "none" },
   },
   entriesContainerRetro: {
     default: {
@@ -98,6 +130,21 @@ export const paginationStyle = {
       fontSize: "10px",
       letterSpacing: "0.28px",
       color: retroColors.second,
+      transition: "all 0.1s ease",
+      cursor: "pointer",
+      outline: "none",
+      margin: "0 10px",
+      verticalAlign: "top",
+    },
+    electric: {
+      backgroundColor: electricColors.fourth,
+      display: "inline-block",
+      borderRadius: "0px ",
+      padding: "8px",
+      fontFamily: "Arial",
+      fontSize: "10px",
+      letterSpacing: "0.28px",
+      color: electricColors.second,
       transition: "all 0.1s ease",
       cursor: "pointer",
       outline: "none",

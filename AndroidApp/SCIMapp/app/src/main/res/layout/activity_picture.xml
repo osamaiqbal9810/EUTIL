@@ -33,19 +33,17 @@
 
     <ImageButton
         android:id="@+id/btRetake"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:background="@drawable/camera_border_round"
         android:scaleType="fitXY"
         android:src="@drawable/ic_close_white_24dp" />
 
     <ImageButton
         android:id="@+id/btSelect"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-
-
-        android:layout_marginLeft="20dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginBottom="0dp"
 
         android:background="@drawable/camera_border_round"

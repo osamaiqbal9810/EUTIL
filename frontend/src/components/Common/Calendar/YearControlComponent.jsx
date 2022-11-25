@@ -4,14 +4,14 @@ import { angleLeft } from "react-icons-kit/fa/angleLeft";
 import { angleRight } from "react-icons-kit/fa/angleRight";
 import DropDownMonths from "./DropDownMonths";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { basicColors, retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 class YearControlComponent extends Component {
   render() {
     return (
       <div
         style={{
           textAlign: "center",
-          background: themeService({ default: basicColors.second, retro: retroColors.fourth }),
+          background: themeService({ default: basicColors.second, retro: retroColors.fourth, electric: electricColors.fourth }),
           border: "1px solid #d0d0d0",
         }}
       >

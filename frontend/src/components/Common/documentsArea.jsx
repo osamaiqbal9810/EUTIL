@@ -7,14 +7,14 @@ import { processFileExtension } from "../Common/helperFunctions";
 import { getServerEndpoint } from "utils/serverEndpoint";
 import { languageService } from "../../Language/language.service";
 import { themeService } from "../../theme/service/activeTheme.service";
-import { retroColors, basicColors } from "../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../style/basic/basicColors";
 
 class DocumentsArea extends Component {
   onClick(index) {
     if (this.props.allowClickDownload) {
       // start document download
       let doc = this.props.documentList[index];
-      let url = "http://" + getServerEndpoint() + this.props.path + "/" + doc;
+      let url = getServerEndpoint() + this.props.path + "/" + doc;
       //   console.log("documentArea: openning ", url);
 
       // // window.open(url, 'download');
@@ -37,17 +37,21 @@ class DocumentsArea extends Component {
       { row1: [], row2: [] },
     );
 
-    const showDocuments = documents =>
+    const showDocuments = (documents) =>
       documents.map((doc, index) => {
         if (doc) {
-          let url = "http://" + getServerEndpoint() + this.props.path + "/" + doc;
+          let url = getServerEndpoint() + this.props.path + "/" + doc;
           return (
             <div style={{ display: "inline-block", margin: "0 3% 0 0", cursor: "pointer", fontSize: "12px" }} key={doc + index}>
               <a href={url} download={doc} target={"_blank"}>
                 <DocumentComp
                   index={index}
                   docName={doc}
-                  borderStyle={themeService({ default: "1px solid" + basicColors.first, retro: "0px solid " + retroColors.second })}
+                  borderStyle={themeService({
+                    default: "1px solid" + basicColors.first,
+                    retro: "0px solid " + retroColors.second,
+                    electric: "0px solid " + electricColors.second,
+                  })}
                   width={"100%"}
                 />
               </a>
@@ -61,8 +65,9 @@ class DocumentsArea extends Component {
         <Col md={12}>
           <h5
             style={themeService({
-              default: { padding: "10px 0px", font: "18px sans-serif", color: "rgba(64, 118, 179)" },
+              default: { padding: "10px 0px", font: "18px sans-serif", color: "var(--first)" },
               retro: { padding: "10px 0px", font: "18px sans-serif", color: retroColors.second },
+              electric: { padding: "10px 0px", font: "18px sans-serif", color: electricColors.second },
             })}
           >
             {" "}
@@ -80,8 +85,10 @@ class DocumentsArea extends Component {
           <Col md={2} style={{ padding: "0px" }}>
             <div
               style={themeService({
-                default: { padding: "15px 0px", margin: "auto", width: "50%", color: "rgba(64, 118, 179)", cursor: "pointer" },
+                default: { padding: "15px 0px", margin: "auto", width: "50%", color: "var(--first)", cursor: "pointer" },
                 retro: { padding: "15px 0px", margin: "auto", width: "50%", color: retroColors.second, cursor: "pointer" },
+
+                electric: { padding: "15px 0px", margin: "auto", width: "50%", color: electricColors.second, cursor: "pointer" },
               })}
             >
               <SvgIcon onClick={this.props.addDocument} icon={plus} size={20} />
@@ -100,7 +107,7 @@ class DocumentComp extends Component {
     tooltip: null,
   };
 
-  toggleTooltip = tooltip => {
+  toggleTooltip = (tooltip) => {
     if (this.state.tooltip) {
       this.setState({ tooltip: null });
     } else {
@@ -116,7 +123,7 @@ class DocumentComp extends Component {
     return (
       <div
         id={`doc_${this.props.index + 1}`}
-        style={{ padding: "5px 5px", border: this.props.borderStyle ? this.props.borderStyle : "3px solid rgba(64, 118, 179)" }}
+        style={{ padding: "5px 5px", border: this.props.borderStyle ? this.props.borderStyle : "3px solid var(--first)" }}
       >
         <img
           src={extensionImage[extension]}

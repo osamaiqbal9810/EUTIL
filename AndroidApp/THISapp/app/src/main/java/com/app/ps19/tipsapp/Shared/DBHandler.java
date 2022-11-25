@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -13,8 +14,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import static android.content.ContentValues.TAG;
+import static com.app.ps19.tipsapp.Shared.Globals.isDbLocked;
 
 /**
  * Created by Ajaz Ahmad Qureshi on 6/19/2017.
@@ -293,9 +296,11 @@ public class DBHandler extends SQLiteOpenHelper{
 
                 }while(cursor.moveToNext());
             }
+            cursor.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         return items;
     }
     public List<StaticListItem> getListItems(String listName , String orgCode , String code , String  criteria)
@@ -310,6 +315,9 @@ public class DBHandler extends SQLiteOpenHelper{
         }
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor= db.rawQuery(sql,null);
+        /*if(cursor.getCount() == 0){
+            System.out.println("Row Count:"+cursor.getCount());
+        }*/
         //System.out.println("Row Count:"+cursor.getCount());
         if(cursor.moveToFirst())
         {
@@ -325,8 +333,55 @@ public class DBHandler extends SQLiteOpenHelper{
 
             }while(cursor.moveToNext());
         }
+        cursor.close();
         return items;
     }
+/*
+    public List<StaticListItem> getListItemsA(String listName , String orgCode , String code , String  criteria)
+    {
+
+        try {
+            return new AsyncTask<String[], Void  ,List<StaticListItem>>(){
+
+                @Override
+                protected List<StaticListItem> doInBackground(String[]... strings) {
+                    List<StaticListItem> items=new ArrayList<StaticListItem>();
+                    String sql="SELECT * FROM  " + TABLE_APPLICATIONLOOKUPS +
+                            " WHERE LISTNAME='" + listName + "' AND " +
+                            " ORGCODE = '" + orgCode +"'" ;
+                    if(!criteria.equals("") )
+                    {
+                        sql+= " AND "+criteria;
+                    }
+                    SQLiteDatabase db=Globals.db.getReadableDatabase();
+                    Cursor cursor= db.rawQuery(sql,null);
+                    //System.out.println("Row Count:"+cursor.getCount());
+                    if(cursor.moveToFirst())
+                    {
+                        do{
+                            StaticListItem item=new StaticListItem();
+                            item.setOrgCode(cursor.getString(0));
+                            item.setListName(cursor.getString(1));
+                            item.setCode(cursor.getString(2));
+                            item.setDescription(cursor.getString(3));
+                            item.setOptParam1(cursor.getString(4));
+                            item.setOptParam2(cursor.getString(5)) ;
+                            items.add(item);
+
+                        }while(cursor.moveToNext());
+                    }
+                    return items;
+
+                }
+            }.execute(new String[]{listName,orgCode,criteria}).get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+*/
 
     public int getListItemCount(String listName , String orgCode , String  criteria)
     {
@@ -373,11 +428,12 @@ public class DBHandler extends SQLiteOpenHelper{
                 item.setDescription(cursor.getString(3));
                 item.setOptParam1(cursor.getString(4));
                 item.setOptParam2(cursor.getString(5)) ;
-                item.setStatus(cursor.getInt(cursor.getColumnIndex("STATUS")));
+                item.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow("STATUS")));
                 items.add(item);
 
             }while(cursor.moveToNext());
         }
+        cursor.close();
         return items;
 
     }
@@ -403,11 +459,12 @@ public class DBHandler extends SQLiteOpenHelper{
                 item.setDescription(cursor.getString(3));
                 item.setOptParam1(cursor.getString(4));
                 item.setOptParam2(cursor.getString(5)) ;
-                item.setStatus(cursor.getInt(cursor.getColumnIndex("STATUS")));
+                item.setStatus(cursor.getInt(cursor.getColumnIndexOrThrow("STATUS")));
                 items.add(item);
 
             }while(cursor.moveToNext());
         }
+        cursor.close();
         return items;
     }
 
@@ -514,6 +571,38 @@ public class DBHandler extends SQLiteOpenHelper{
                 count++;
             }
         }
+        return count;
+    }
+    public int RemoveMsgListItems(List<StaticListItem> array,String orgCode,int status)
+    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        int count=0;
+        for(StaticListItem item:array) {
+            if(item.getStatus()==status) {
+                item.setHoldCode(false);
+                String sql = "Delete from " + TABLE_MSG_APPLICATIONLOOKUPS +
+                        " WHERE ORGCODE='" + orgCode + "' AND " +
+                        " LISTNAME='" + item.getListName() + "' AND Code='"+ item.getCode() +"'";
+                db.execSQL(sql);
+                count++;
+            }
+        }
+        return count;
+    }
+    public int RemoveMsgListItem(StaticListItem item)
+    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        int count=0;
+
+
+            item.setHoldCode(false);
+            String sql = "Delete from " + TABLE_MSG_APPLICATIONLOOKUPS +
+                    " WHERE ORGCODE='" + item.getOrgCode() + "' AND " +
+                    " LISTNAME='" + item.getListName() + "' AND Code='"+ item.getCode() +"'";
+            db.execSQL(sql);
+            count++;
+
+
         return count;
     }
 
@@ -746,7 +835,8 @@ public class DBHandler extends SQLiteOpenHelper{
 
             }while(cursor.moveToNext());
         }
-        db.close();
+        cursor.close();
+        //db.close();
         return items;
 
     }
@@ -835,8 +925,8 @@ public class DBHandler extends SQLiteOpenHelper{
     }
     public HashMap<String, String> getLookupListObj(String strListName, String desc){
         String sql="SELECT CODE, DESCRIPTION,OPTPARAM1 FROM "+ TABLE_APPLICATIONLOOKUPS
-                +" WHERE ORGCODE='"+Globals.orgCode+"' AND LISTNAME='"+ strListName
-                +"' AND DESCRIPTION='"+ desc +"'" ;
+                +" WHERE ORGCODE='"+Globals.orgCode+"' AND LISTNAME='"+ strListName +"'"
+                +(desc.equals("")?"": " AND DESCRIPTION='"+ desc +"'") ;
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor= db.rawQuery(sql,null);
         HashMap<String ,String >list=new HashMap<>();
@@ -885,7 +975,7 @@ public class DBHandler extends SQLiteOpenHelper{
         DBHandler dbHandler=Globals.db;//new DBHandler(Globals.getDBContext());
         String sql="SELECT * FROM "+ TABLE_APPLICATIONLOOKUPS
                 +" WHERE ORGCODE='"+Globals.orgCode+"' AND LISTNAME='"+  Globals.WPLAN_TEMPLATE_LIST_NAME +"'";
-        List<StaticListItem> items = dbHandler.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
+        List<StaticListItem> items = Globals.db.getListItems(Globals.WPLAN_TEMPLATE_LIST_NAME, Globals.orgCode, "", "code<>''");
         SQLiteDatabase db=this.getReadableDatabase();
         ArrayList<JSONObject> _journeyPlans = new ArrayList<>();
         Cursor cursor= db.rawQuery(sql,null);
@@ -902,6 +992,7 @@ public class DBHandler extends SQLiteOpenHelper{
                 e.printStackTrace();
             }
         }
+        cursor.close();
         return _journeyPlans;
     }
 

@@ -56,7 +56,7 @@ class Team extends Component {
   handleModalQuitOnButtons(response, usersToAdd) {
     if (response) {
       let usersEmails = [];
-      usersToAdd.forEach((user) => {
+      usersToAdd.forEach(user => {
         let simple = {
           email: user.email,
         };
@@ -95,7 +95,7 @@ class Team extends Component {
       let teamMembers = [];
       let teamMembersId = [];
       let availableUsers = [];
-      this.state.usersAll.forEach((user) => {
+      this.state.usersAll.forEach(user => {
         if (user.group_id == "inspector" && !user.teamLead) {
           unAssignUsers.push(user);
         } else if (user.group_id == "inspector" && user.teamLead) {
@@ -108,8 +108,8 @@ class Team extends Component {
         email: this.state.selectedSupervisor.email,
       });
       if (currentSuperVisor) {
-        currentSuperVisor.team.forEach((teamMember) => {
-          assignedInspectors.forEach((assignedMember) => {
+        currentSuperVisor.team.forEach(teamMember => {
+          assignedInspectors.forEach(assignedMember => {
             if (teamMember.email == assignedMember.email) {
               teamMembers.push(assignedMember);
               teamMembersId.push(assignedMember._id);
@@ -120,7 +120,7 @@ class Team extends Component {
         if (currentSuperVisor.subdivision == "All" || currentSuperVisor.subdivision == "") {
           availableUsers = unAssignUsers;
         } else {
-          unAssignUsers.forEach((availUsers) => {
+          unAssignUsers.forEach(availUsers => {
             if (availUsers.subdivision == currentSuperVisor.subdivision) {
               availableUsers.push(availUsers);
             }
@@ -155,7 +155,7 @@ class Team extends Component {
       let plans = _.cloneDeep(this.props.workplans);
       //let userPlan = [];
 
-      plans.forEach((plan) => {
+      plans.forEach(plan => {
         let userfound = _.find(users, { _id: plan.user.id });
         if (userfound) {
           if (!userfound["plans"]) {
@@ -193,8 +193,8 @@ class Team extends Component {
       let teamMembers = [];
       let teamMembersId = [];
       if (user.team) {
-        user.team.forEach((teamMember) => {
-          assigned.forEach((assignedMember) => {
+        user.team.forEach(teamMember => {
+          assigned.forEach(assignedMember => {
             if (teamMember.email == assignedMember.email) {
               teamMembers.push(assignedMember);
               teamMembersId.push(assignedMember._id);
@@ -206,7 +206,7 @@ class Team extends Component {
       if (user.subdivision == "All" || user.subdivision == "") {
         availableUsers = this.state.unAssignUsers;
       } else {
-        this.state.unAssignUsers.forEach((availUsers) => {
+        this.state.unAssignUsers.forEach(availUsers => {
           if (availUsers.subdivision == user.subdivision) {
             availableUsers.push(availUsers);
           }
@@ -290,7 +290,7 @@ class Team extends Component {
               {this.state.mode == "viewTeams" && (
                 <AllMembers
                   userList={this.state.teamLeaders}
-                  headerName={languageService("Supervisor")}
+                  headerName={languageService("Track Managers")}
                   handleViewTeam={this.handleViewTeam}
                   ComponentName="SupervisorsList"
                 />

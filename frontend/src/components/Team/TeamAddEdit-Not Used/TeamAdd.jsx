@@ -46,7 +46,7 @@ class TeamAdd extends Component {
       control: (styles) => ({ ...styles, fontSize: "12px", backgroundColor: "white", height: "15px" }),
       option: (base, state) => ({
         ...base,
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       }),
     };
@@ -54,7 +54,7 @@ class TeamAdd extends Component {
       control: (styles) => ({ ...styles, fontSize: "12px", backgroundColor: "white", height: "15px" }),
       option: (base, state) => ({
         ...base,
-        color: "rgba(64, 118, 179)",
+        color: "var(--first)",
         fontSize: "12px",
       }),
     };

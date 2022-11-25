@@ -1,4 +1,4 @@
-import { basicColors, retroColors } from "style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "style/basic/basicColors";
 export const calenderCellStyle = {
     dayColmns: {
         default: {
@@ -16,6 +16,15 @@ export const calenderCellStyle = {
             borderRight: "1px solid " + retroColors.fourth,
             textTransform: "capitalize"
 
+        },
+        electric: {
+            color: electricColors.second,
+            padding: "10px",
+            width: "14.28%",
+            fontSize: "14px",
+            borderRight: "1px solid " + electricColors.fourth,
+            textTransform: "capitalize"
+
         }
     },
     dayRow: {
@@ -23,7 +32,7 @@ export const calenderCellStyle = {
             WebkitBoxShadow: "0 2px 15px 0 rgba(0, 0, 0, 0.15)",
             boxShadow: "0 2px 15px 0 rgba(0, 0, 0, 0.15)",
             border: "none",
-            backgroundColor: "rgb(227, 233, 239)",
+            backgroundColor: "var(--eleventh)",
             height: "20px"
         },
         retro: {
@@ -31,11 +40,17 @@ export const calenderCellStyle = {
             border: "none",
             backgroundColor: retroColors.first,
             height: "20px"
+        },
+        electric: {
+
+            border: "none",
+            backgroundColor: electricColors.first,
+            height: "20px"
         }
     },
     dateCell: {
         default: {
-            color: "#fff",
+            color: "var(--fifth)",
             fontSize: "12px", fontFamily: "Arial",
             letterSpacing: "0.3px",
             height: "120px",
@@ -47,6 +62,13 @@ export const calenderCellStyle = {
             height: "140px",
             overflow: "hidden",
             border: "1px solid" + retroColors.fourth,
+            padding: "0",
+
+        },
+        electric: {
+            height: "140px",
+            overflow: "hidden",
+            border: "1px solid" + electricColors.fourth,
             padding: "0",
 
         }

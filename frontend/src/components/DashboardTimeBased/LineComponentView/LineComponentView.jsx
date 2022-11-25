@@ -20,7 +20,7 @@ class LineComponentView extends Component {
   }
   render() {
     return (
-      <div style={{ background: "#fff" }}>
+      <div style={{ background: "var(--fifth)" }}>
         <div>
           <LineNameArea name={this.props.line.name} />
           <LineSmartSummary smartSummary={this.state.smartSummary} />
@@ -34,17 +34,17 @@ class LineComponentView extends Component {
 
 export default LineComponentView;
 
-const LineNameArea = props => {
+const LineNameArea = (props) => {
   return <div style={{ display: "inline-block" }}> {props.name}</div>;
 };
 
-const DropDownIcon = props => {
+const DropDownIcon = (props) => {
   let iconShowHideStyle = {
     background: "transparent",
     border: "none",
     display: "inline-block",
     verticalAlign: "bottom",
-    color: "rgb(64, 118, 179)",
+    color: "var(--first)",
     transition: "all .3s ease-in-out",
     cursor: "pointer",
     outline: "0px",
@@ -54,7 +54,7 @@ const DropDownIcon = props => {
   return (
     <div style={{ display: "inline-block" }}>
       <button onClick={props.handleDisplayClick} style={iconShowHideStyle}>
-        <Icon size={"24"} icon={props.icon} style={{ color: "rgba(64, 118, 179)", verticalAlign: "top" }} />
+        <Icon size={"24"} icon={props.icon} style={{ color: "var(--first)", verticalAlign: "top" }} />
       </button>
     </div>
   );

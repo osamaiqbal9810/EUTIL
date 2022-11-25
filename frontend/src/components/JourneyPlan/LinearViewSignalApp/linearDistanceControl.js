@@ -4,7 +4,7 @@ import moment from "moment";
 import { certificate } from "react-icons-kit/fa/certificate";
 import SvgIcon from "react-icons-kit";
 
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { truncateNumber } from "../../../utils/utils";
 class LinearDistance extends Component {
   calculateXAxis() {
@@ -66,7 +66,7 @@ class LinearDistance extends Component {
         );
       });
     return (
-      <Table style={{ background: "#fff", marginBottom: "0px" }}>
+      <Table style={{ background: "var(--fifth)", marginBottom: "0px" }}>
         <thead>{/* <tr style={themeService(calenderCellStyle.dayRow)}>{this.dayNamesHeaderComp}</tr> */}</thead>
         <tbody>
           <tr style={{ height: "35px", background: retroColors.fourth }} key={this.props.dataSet && this.props.dataSet.headingLabel}>

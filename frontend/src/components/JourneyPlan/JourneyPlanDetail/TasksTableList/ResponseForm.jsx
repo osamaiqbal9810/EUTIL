@@ -8,7 +8,7 @@ import { curdActions } from "reduxCURD/actions";
 import _ from "lodash";
 import Switch from "react-switch";
 import { languageService } from "../../../../Language/language.service";
-import { retroColors } from "../../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../../style/basic/basicColors";
 import { CommonModalStyle, ButtonStyle } from "style/basic/commonControls";
 import { themeService } from "theme/service/activeTheme.service";
 const MyButton = (props) => (
@@ -342,7 +342,7 @@ class ResponseForm extends Component {
 
     return (
       <Modal
-        contentClassName={themeService({ default: this.props.className, retro: "retroModal" })}
+        contentClassName={themeService({ default: this.props.className, retro: "retroModal", electric: "electricModal" })}
         isOpen={this.props.modal}
         toggle={this.props.toggle}
       >
@@ -354,7 +354,7 @@ class ResponseForm extends Component {
             <div
               style={themeService({
                 default: {
-                  color: "rgba(64, 118, 179)",
+                  color: "var(--first)",
                   fontSize: "18px",
                   fontWeight: 600,
                   marginBottom: "15px",
@@ -363,6 +363,14 @@ class ResponseForm extends Component {
                 },
                 retro: {
                   color: retroColors.second,
+                  fontSize: "18px",
+                  fontWeight: 600,
+                  marginBottom: "15px",
+                  borderBottom: "1px solid grey",
+                  paddingBottom: "10px",
+                },
+                electric: {
+                  color: electricColors.second,
                   fontSize: "18px",
                   fontWeight: 600,
                   marginBottom: "15px",
@@ -421,7 +429,11 @@ class ResponseFormFieldArea extends Component {
     }
     return (
       <div
-        style={themeService({ default: { fontSize: "12px", color: "rgba(64, 118, 179)" }, retro: { fontSize: "12px", color: retroColors.second } })}
+        style={themeService({
+          default: { fontSize: "12px", color: "var(--first)" },
+          retro: { fontSize: "12px", color: retroColors.second },
+          electric: { fontSize: "12px", color: electricColors.second },
+        })}
       >
         <div style={{ fontWeight: "700", fontSize: "14px", paddingLeft: "5px" }}> {languageService(this.props.field.title)}</div>
         {row}
@@ -521,7 +533,7 @@ class SwitchButton extends Component {
           checked={this.props.checked}
           onColor="#63b3b3"
           onChange={(e) => {}}
-          onHandleColor="rgba(64, 118, 179)"
+          onHandleColor="var(--first)"
           handleDiameter={22}
           uncheckedIcon={false}
           checkedIcon={false}

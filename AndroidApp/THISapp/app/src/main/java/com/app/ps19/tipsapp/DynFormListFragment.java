@@ -22,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.app.ps19.tipsapp.Shared.Globals;
+import com.app.ps19.tipsapp.classes.dynforms.DynControlBinding;
 import com.app.ps19.tipsapp.classes.dynforms.DynForm;
 import com.app.ps19.tipsapp.classes.dynforms.DynFormControl;
 import com.app.ps19.tipsapp.classes.dynforms.OnValueChangeEventListener;
@@ -283,6 +284,10 @@ public class DynFormListFragment extends Fragment implements OnValueChangeEventL
         String itemName=item.getFormControlList().get(0).getCurrentValue() +"["+ control.getFieldName()+"]";
         Toast.makeText(getActivity(),"Item Clicked on "+itemName,Toast.LENGTH_SHORT).show();
 
+    }
+
+    @Override
+    public void onObjectPropertyChange(DynControlBinding binding, String value,String originalValue) {
     }
 
     @Override

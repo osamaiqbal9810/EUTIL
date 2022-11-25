@@ -11,57 +11,97 @@ import { checkmark } from "react-icons-kit/icomoon/checkmark";
 import SvgIcon from "react-icons-kit";
 import _ from "lodash";
 import moment from "moment";
+import { MyButton } from "../../../Common/Forms/formsMiscItems";
+import { ButtonStyle } from "../../../../style/basic/commonControls";
 import { iconToShow, iconTwoShow } from "../../variables";
 
 import { SignatureImage } from "../../utils/SignatureImage";
+import { NoExceptionsFound } from "./NoExceptionsFound";
+import { getServerEndpoint } from "../../../../utils/serverEndpoint";
 
 class DefectReportView extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {};
+    this.state = {
+      displayModified: this.props.InspectionReportType === "All" ? true : false,
+
+      loadedImages: [],
+    };
     this.config = {
       minAssetRows: 4,
       minIssueRows: 8,
     };
+    // this.handleClick = this.handleClick.bind(this);
+    // this.onImageLoad = this.onImageLoad.bind(this);
+    this.checkFRACompliance = this.checkFRACompliance.bind(this);
   }
+  // handleClick() {
+  //   this.setState({ displayModified: !this.state.displayModified });
+  // }
+  checkFRACompliance(repairDate, RemedialAction) {
+    if (this.state.displayModified) {
+      return repairDate;
+    } else {
+      if (RemedialAction === "Repaired") return repairDate;
+      else return "";
+    }
+  }
+
   render() {
-    let issuesData = this.props.issuesData.map((issue, index) => {
-      return (
-        <tr key={issue.issueId}>
-          <td>{issue.MP}</td>
-          <td>{issue.Deficiency && <SvgIcon icon={checkmark} />}</td>
-          <td>{issue.FRADefect && <SvgIcon icon={checkmark} />}</td>
-          <td>{issue.Code}</td>
-          <td>{issue.DefectDescription}</td>
-          <td>{issue.RemedialAction}</td>
-          <td>{issue.Needed && <SvgIcon icon={checkmark} />}</td>
-          <td>{issue.comments}</td>
-          <td>{issue.repairDate}</td>
-        </tr>
-      );
-    });
-
-    let assetsData = this.props.assetsData.map((asset, index) => {
-      return (
-        <tr key={asset.unitId + index}>
-          <td>
-            {asset.attributes.primaryTrack && (
-              <div style={{ width: "20px", marginRight: "10px", display: "inline-block", color: "rgb(58, 179, 74)" }}>
-                <SvgIcon icon={ruble} />
-              </div>
+    let issuesData = [];
+    this.props.issuesData &&
+      (issuesData = this.props.issuesData.map((issue, index) => {
+        let comments = issue.RemedialAction && issue.RemedialAction;
+        comments = issue.comments ? comments + " / " + issue.comments : comments;
+        let selfRepair = issue.RemedialAction === "Repaired";
+        let img = selfRepair ? this.props.signatureImage : issue.repairBySignature ? issue.repairBySignature : null;
+        let repairByName = selfRepair ? this.props.userName : issue.repairByName ? issue.repairByName : null;
+        return (
+          <tr key={issue.issueId}>
+            <td>{issue.assetName}</td>
+            <td>{issue.MP}</td>
+            <td>{issue.Deficiency && <SvgIcon icon={checkmark} />}</td>
+            <td>{issue.FRADefect && <SvgIcon icon={checkmark} />}</td>
+            <td>{issue.Code}</td>
+            <td>{issue.DefectDescription}</td>
+            {/* <td>{issue.RemedialAction}</td> */}
+            <td>{comments}</td>
+            {!this.props.disableRule213Config && <td>{issue.rule213Applied && <SvgIcon icon={checkmark} />}</td>}
+            {this.state.displayModified && (
+              <React.Fragment>
+                <td>{img && <SignatureImage signatureImage={img} placement={"tableCell"} userName={repairByName} />}</td>
+                <td>{this.checkFRACompliance(issue.repairDate, issue.RemedialAction)}</td>
+              </React.Fragment>
             )}
+          </tr>
+        );
+      }));
+    let assetsData = [];
+    this.props.assetsData &&
+      (assetsData = this.props.assetsData.map((asset, index) => {
+        return (
+          <tr key={asset.unitId + index}>
+            <td>
+              {asset.attributes.primaryTrack && (
+                <div style={{ marginRight: "10px", display: "inline-block" }}>
+                  <span className="primary-track-logo" style={{ padding: "0" }}>
+                    P
+                  </span>
+                </div>
+              )}
 
-            {<div style={{ display: "inline-block", width: "80%", verticalAlign: "middle" }}>{asset.unitId}</div>}
-          </td>
-          <td>{asset.start}</td>
-          <td>{asset.end}</td>
-          <td>{asset.HighRail}</td>
-          <td>{asset.Walk}</td>
-          <td>{asset.Observe}</td>
-        </tr>
-      );
-    });
+              {<div style={{ display: "inline-block", width: "80%", verticalAlign: "middle", textAlign: "left" }}>{asset.unitId}</div>}
+            </td>
+            <td>{asset.start}</td>
+            <td>{asset.end}</td>
+            <td>{asset.HighRail}</td>
+            <td>{asset.Walk}</td>
+            <td>{asset.Train}</td>
+            <td>{asset.Observe}</td>
+          </tr>
+        );
+      }));
     return (
       <React.Fragment>
         <div className="table-report" style={{ ...themeService(trackReportStyle.mainStyle), pageBreakAfter: "always" }}>
@@ -71,12 +111,32 @@ class DefectReportView extends Component {
                 <Col md={2}>
                   <img src={themeService(iconToShow)} alt="Logo" style={themeService(trackReportStyle.logoStyle)} />
                 </Col>
-                <Col md={8}>
-                  <h2 style={themeService(trackReportStyle.headingStyle)}>{"Line Inspection and Repair Report"}</h2>
+                <Col md={8} style={{ textAlign: "center" }}>
+                  <h2 style={{ ...themeService(trackReportStyle.headingStyle), transform: "initial" }}>{this.props.header}</h2>
+                  {/*   <MyButton
+                    className="d-print-none"
+                    onClick={this.handleClick}
+                    type="submit"
+                    style={{
+                      ...themeService(ButtonStyle.commonButton),
+                      backgroundColor: "var(--first)",
+                      boxShadow: "2px 2px 5px 0px rgb(0 0 0 / 75%)",
+                      borderColor: "var(--first)",
+                      whiteSpace: "pre-line",
+                      height: "60px",
+                    }}
+                  >
+                     {this.state.displayModified ? "FRA Report \n (Original)" : "Copy of Report \n (with Comments)"}
+                  </MyButton>*/}
                 </Col>
                 <Col md={2}>
-                  <img src={themeService(iconTwoShow)} alt="Logo" style={themeService(trackReportStyle.logoStyle)} />
+                  <img
+                    src={themeService(iconTwoShow)}
+                    alt="Logo"
+                    style={{ ...themeService(trackReportStyle.logoStyle), maxHeight: "125px" }}
+                  />
                 </Col>
+                <span className="spacer"></span>
                 <Col md={12}>
                   <table>
                     <thead>
@@ -146,6 +206,9 @@ class DefectReportView extends Component {
                         <th data-field="walk" style={{ width: "10px" }}>
                           {"Walk"}
                         </th>
+                        <th data-field="train" style={{ width: "10px" }}>
+                          {"Train"}
+                        </th>
                         <th data-field="observe" style={{ width: "10px" }}>
                           {"Observe"}
                         </th>
@@ -153,7 +216,7 @@ class DefectReportView extends Component {
                     </thead>
                     <tbody key={"assetBody"}>
                       {assetsData}
-                      {addEmptyColsIfNotEnough(assetsData, this.config.minAssetRows, 6)}
+                      {addEmptyColsIfNotEnough(assetsData, this.config.minAssetRows, 7)}
                     </tbody>
                   </table>
                 </Col>
@@ -164,14 +227,17 @@ class DefectReportView extends Component {
                   <table>
                     <thead>
                       <tr>
+                        <th data-field="name" style={{ width: "10px" }}>
+                          {"Asset"}
+                        </th>
                         <th data-field="mp" style={{ width: "10px" }}>
                           {"MP"}
                         </th>
-                        <th data-field="deficiency" style={{ width: "9px" }}>
-                          {"Deficiency"}
+                        <th data-field="deficiency" style={{ width: "5px" }}>
+                          {"Def"}
                         </th>
                         <th data-field="fradefect" style={{ width: "5px" }}>
-                          {"FRA Defect"}
+                          {"Defect"}
                         </th>
                         <th data-field="code" style={{ width: "10px" }}>
                           {"Code"}
@@ -179,24 +245,39 @@ class DefectReportView extends Component {
                         <th data-field="defectdescription" style={{ width: "20px" }}>
                           {"Defect / Deficiency Description"}
                         </th>
-                        <th data-field="remidialaction" style={{ width: "20px" }}>
+                        {/* <th data-field="remidialaction" style={{ width: "20px" }}>
                           {"Remedial Action"}
+                        </th> */}
+
+                        <th data-field="comments" style={{ width: "28px" }}>
+                          {"Remedial Action / Comments"}
                         </th>
-                        <th data-field="2139Bneeded" style={{ width: "5px" }}>
-                          {"213.9B Needed"}
-                        </th>
-                        <th data-field="comments" style={{ width: "18px" }}>
-                          {"Comments"}
-                        </th>
-                        <th data-field="daterepaired" style={{ width: "10px" }}>
-                          {"Date Repaired"}
-                        </th>
+                        {!this.props.disableRule213Config && (
+                          <th data-field="2139Bneeded" style={{ width: "5px" }}>
+                            {"213.9B Needed"}
+                          </th>
+                        )}
+                        {this.state.displayModified && (
+                          <React.Fragment>
+                            <th data-field="signature" style={{ width: "15px" }}>
+                              {"Maintainer \n Signature"}
+                            </th>
+                            <th data-field="daterepaired" style={{ width: "10px" }}>
+                              {"Date \n Repaired"}
+                            </th>
+                          </React.Fragment>
+                        )}
                       </tr>
                     </thead>
 
                     <tbody key={"issueBody"}>
                       {issuesData}
-                      {addEmptyColsIfNotEnough(issuesData, this.config.minIssueRows, 9)}
+                      {addEmptyColsIfNotEnough(
+                        issuesData,
+                        this.config.minIssueRows,
+                        colCalculator(this.state.displayModified, this.props.disableRule213Config),
+                      )}
+                      <NoExceptionsFound issuesData={issuesData} />
                     </tbody>
                   </table>
                 </Col>
@@ -219,7 +300,9 @@ class DefectReportView extends Component {
                   <span style={themeService(trackReportStyle.spanStyle)}>{"Inspector Signature"}</span>
                 </Col>
                 <Col md={2}>
-                  <div style={{ ...themeService(trackReportStyle.lineStyle) }}></div>
+                  <div style={{ ...themeService(trackReportStyle.lineStyle), textAlign: "center", position: "relative" }}>
+                    <span style={{ position: "absolute", bottom: "0", right: "0", left: "0" }}>{this.props.basicData.Date}</span>
+                  </div>
                   <span style={themeService(trackReportStyle.spanStyle)}>{"Date"}</span>
                 </Col>
               </Row>
@@ -230,6 +313,10 @@ class DefectReportView extends Component {
     );
   }
 }
+DefectReportView.defaultProps = {
+  basicData: {},
+  assetsData: [],
+};
 
 export default DefectReportView;
 
@@ -252,4 +339,10 @@ function getCols(num) {
     cols.push(<td key={i + "emptyCol"}></td>);
   }
   return cols;
+}
+function colCalculator(displayRepaired, disableRule213) {
+  let col = 10;
+  col = displayRepaired ? col : 8;
+  col = disableRule213 ? col - 1 : col;
+  return col;
 }

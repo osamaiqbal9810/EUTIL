@@ -14,14 +14,43 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static android.content.ContentValues.TAG;
+import static android.os.Parcelable.PARCELABLE_WRITE_RETURN_VALUE;
 
 public class UnitAttributes  implements IConvertHelper  {
+    private Units parent;
     private boolean isPrimary;
     private String trackOrientation;
     ArrayList<String> directionList;
     private boolean showDirection;
+    private String group;
     private HashMap<String, Object> hmBackupValues;
     private boolean changeOnly=false;
+    private RelayAttributes relayAttributes;
+
+    public RelayAttributes getRelayAttributes() {
+        return relayAttributes;
+    }
+
+    public void setRelayAttributes(RelayAttributes relayAttributes) {
+        this.relayAttributes = relayAttributes;
+    }
+
+    public void setParent(Units parent) {
+        this.parent = parent;
+    }
+
+    public Units getParent() {
+        return parent;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
+    }
+
     public boolean isChangeOnly() {
         return changeOnly;
     }
@@ -76,6 +105,10 @@ public class UnitAttributes  implements IConvertHelper  {
         setPrimary(jsonObject.optBoolean("primaryTrack", false));
         setTrackOrientation(jsonObject.optString("trackOrientation", ""));
         setShowDirection(jsonObject.optBoolean("showDirection", false));
+        setGroup(jsonObject.optString("group",""));
+        if(parent.getAssetTypeObj().getAssetType().equals("Relay")){
+            setRelayAttributes(new RelayAttributes(jsonObject));
+        }
         ArrayList<String> _directions = new ArrayList<>();
         if(jsonObject.has("railOptions")){
             JSONArray jaDirection = jsonObject.optJSONArray("railOptions");
@@ -106,7 +139,20 @@ public class UnitAttributes  implements IConvertHelper  {
             jo.put("primaryTrack",isPrimary());
             jo.put("trackOrientation", getTrackOrientation());
             jo.put("showDirection", isShowDirection());
+            jo.put("group",getGroup());
+            RelayAttributes relayAttributes=getRelayAttributes();
+            if(relayAttributes!=null){
+                if(!relayAttributes.getColumn().equals("")){
+                    jo.put("column",relayAttributes.getColumn());
+                }
+                if(!relayAttributes.getRow().equals("")){
+                    jo.put("row",relayAttributes.getRow());
+                }
+                if(!relayAttributes.getRack().equals("")){
+                    jo.put("rack",relayAttributes.getRack());
+                }
 
+            }
             if(getDirectionList()!=null){
                 for(String value: getDirectionList()){
                     jaDirections.put(value);
@@ -134,6 +180,12 @@ public class UnitAttributes  implements IConvertHelper  {
                 for(String value: getDirectionList()){
                     jaDirections.put(value);
                 }
+            }
+            putJSONProperty(jo,"group",getGroup());
+            if(getRelayAttributes()!=null){
+                putJSONProperty(jo,"column",getRelayAttributes().getColumn());
+                putJSONProperty(jo,"row",getRelayAttributes().getRow());
+                putJSONProperty(jo,"rack",getRelayAttributes().getRack());
             }
             putJSONProperty(jo,"railOptions", jaDirections);
             if(jo !=null && jo.length()!=0){
@@ -165,6 +217,7 @@ public class UnitAttributes  implements IConvertHelper  {
         ua.setTrackOrientation(getTrackOrientation());
         ua.setShowDirection(isShowDirection());
         ua.setDirectionList(getDirectionList());
+        ua.setRelayAttributes(getRelayAttributes());
         return ua;
     }
 }

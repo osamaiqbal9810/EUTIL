@@ -1,7 +1,7 @@
 /* eslint eqeqeq: 0 */
 import React from "react";
 import { themeService } from "../../../theme/service/activeTheme.service";
-import { retroColors } from "../../../style/basic/basicColors";
+import { basicColors, retroColors, electricColors } from "../../../style/basic/basicColors";
 import { languageService } from "../../../Language/language.service";
 import { Col, Input, Row } from "reactstrap";
 

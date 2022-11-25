@@ -101,6 +101,7 @@ class MaintenanceService {
           subdivision: subdivision,
           issueId: issue.uniqueGuid ? issue.uniqueGuid : "",
           maintenanceRole: issue.serverObject && issue.serverObject.maintenanceRole,
+          issue: _.cloneDeep(issue),
         };
         if ((issue.startMP && issue.endMP) || (issue.startMp && issue.endMp)) {
           let start = utils.toFixed(issue.startMP ? issue.startMP : issue.startMp);
@@ -552,6 +553,7 @@ class MaintenanceService {
     maintenanceList,
     valuesObj, // {status: 'Planned', dueDate:'12/12/12'}
     checkComplete,
+    user,
   ) {
     try {
       if (maintenanceList && maintenanceList.length) {
@@ -582,12 +584,10 @@ class MaintenanceService {
 
             if (associatedIssue) {
               if (!associatedIssue.serverObject) associatedIssue.serverObject = {};
-
-              associatedIssue.closeReason = m1.mrNumber;
-
+              // associatedIssue.closeReason = m1;
               let issueObj = { action: "Close", issue: associatedIssue };
               await jpService.updateIssue(issueObj, null);
-
+              user && (associatedIssue.serverObject.repairedBy = user);
               associatedIssue.serverObject.repairDate = valuesObj.closedDate;
               await jpService.updateIssue({ action: "serverChanges", issue: associatedIssue }, null);
             }

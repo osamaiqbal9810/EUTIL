@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.RectShape;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -32,9 +33,11 @@ import android.widget.TextView;
 import com.app.ps19.tipsapp.R;
 import com.app.ps19.tipsapp.Shared.Globals;
 import com.app.ps19.tipsapp.Shared.IConvertHelper;
+import com.app.ps19.tipsapp.Shared.Utilities;
 import com.app.ps19.tipsapp.classes.DimensionConverter;
 import com.app.ps19.tipsapp.classes.Units;
 import com.app.ps19.tipsapp.classes.UnitsTestOpt;
+import com.app.ps19.tipsapp.classes.equipment.Equipment;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,11 +51,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static com.app.ps19.tipsapp.Shared.Globals.JOB_BRIEFING_TARGET;
 import static com.app.ps19.tipsapp.Shared.Utilities.createDashedLined;
 
 public class DynForm implements IConvertHelper,Cloneable,IViewController {
     private String formId;
     private String formName;
+    private String formKey;
+    private String formCode;
     private boolean hasData=false;
     private ArrayList<DynFormControl> formControlList;
     private HashMap<String, DynFormControl> formControlListMap;
@@ -68,7 +74,61 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
     private boolean defaultValuesExists=false;
     private Units selectedUnit;
     private UnitsTestOpt unitsTestOpt;
+    private Equipment selectedEquipment;
     private String formCompleteId;
+    private boolean loading=false;
+    private DynForm parentForm=null;
+    private boolean newForm=false;
+
+    public Equipment getSelectedEquipment() {
+        return selectedEquipment;
+    }
+
+    public void setSelectedEquipment(Equipment selectedEquipment) {
+        this.selectedEquipment = selectedEquipment;
+        //set Code
+        setFormCode(selectedEquipment.getId());
+    }
+
+    public String getFormCode() {
+        return formCode;
+    }
+
+    public void setFormCode(String formCode) {
+        this.formCode = formCode;
+    }
+
+    public boolean isNewForm() {
+        return newForm;
+    }
+
+    public void setNewForm(boolean newForm) {
+        this.newForm = newForm;
+    }
+
+    public String getFormKey() {
+        return formKey;
+    }
+
+    public void setFormKey(String formKey) {
+        this.formKey = formKey;
+    }
+
+    public void setParentForm(DynForm parentForm) {
+        this.parentForm = parentForm;
+    }
+
+    public DynForm getParentForm() {
+        return parentForm;
+    }
+
+    public boolean isLoading() {
+        return loading;
+    }
+
+    public void setLoading(boolean loading) {
+        this.loading = loading;
+    }
 
     public String getFormCompleteId() {
         return formCompleteId;
@@ -194,6 +254,16 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
         }
         return fileList;
     }
+    public ArrayList<String> getFormPdfFiles(){
+        ArrayList<String> fileList=new ArrayList<>();
+        if(formSettings!=null && (formSettings.getConfigs()==null || formSettings.getConfigs().size()==0)){
+            ArrayList<String> files= formSettings.getAllowedInstructions();
+            if(files!=null && files.size()>0){
+                    fileList.addAll(files);
+            }
+        }
+        return fileList;
+    }
     public boolean isAssetTypeExists(){
         if(formSettings !=null){
             return formSettings.getAssetTypes().size()>0;
@@ -205,6 +275,24 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
             return formSettings.getAssetTypes().size() == 0 && formSettings.getTarget().equals("task");
         }
         return false;
+    }
+    public boolean isEquipmentTypeInList(String equipmentType){
+        ArrayList<String> _equipmentTypeList=formSettings.getEquipmentTypes();
+        if(_equipmentTypeList!=null) {
+            for (String type : _equipmentTypeList) {
+                if (type.equals(equipmentType)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public boolean isBriefingForm(){
+        if(formSettings!=null){
+            return formSettings.getTarget().equals(JOB_BRIEFING_TARGET);
+        } else {
+            return false;
+        }
     }
     public boolean isAssetTypeInList(String assetType){
         ArrayList<String> _assetTypeList=getFormAssetTypes();
@@ -272,6 +360,14 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
             }
         }
     }
+    public String validateForm(){
+        for(DynFormControl control:formControlList){
+            if(control.isRequired() && (control.getCurrentValue() ==null || control.getCurrentValue().equals(""))){
+                return "Value required for "+ control.getFieldName();
+            }
+        }
+        return "";
+    }
     public void updateForm(){
         if(this.layoutListItem !=null){
             TextView tvTitle=this.layoutListItem.findViewById(R.id.tvTitle_ior);
@@ -285,7 +381,20 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                 tvTitle.setText(strCaption);
             }
         }
+        if(getParentForm()!=null){
+            //Sync formTable with currentValue
+           /* JSONArray jaFormData=new JSONArray();
+            for(DynForm dynForm:getParentControl().getFormTable().getFormData()){
+                jaFormData.put(dynForm.getJsonObject());
+            }
+            getParentControl().setCurrentValue(jaFormData.toString());*/
+            getParentControl().setCurrentValueFromTable();
+            getParentForm().getCurrentValues().put(getParentControl().getId(),getParentControl().getCurrentValue());
+            getParentForm().updateForm();
+        }
+
         this.copyCurrentValues=copyCurrentValues(this.currentValues);
+        setDefaultValuesExists(false);
         setDirty(false);
     }
     public void resetForm(){
@@ -303,30 +412,63 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
             }
             control.setCurrentValue(value);
         }
-        refresh();
+        if(this.layout !=null){
+            refresh();
+        }
         setDirty(false);
     }
     public void resetFormToNull(){
-        this.currentValues=copyCurrentValues(this.copyCurrentValues);
+        HashMap<String, String>_currentValues=copyCurrentValues(this.copyCurrentValues);
+
         for(DynFormControl control:this.formControlList){
+            control.setActive(false);
             control.setCurrentValue(null);
         }
-        refresh();
+        //refresh();
         if(isDefaultValuesExists()){
             this.copyCurrentValues=null;
             this.currentValues=null;
             setDefaultValuesExists(false);
+            _currentValues=null;//copyCurrentValues(this.copyCurrentValues);
         }
-        this.currentValues=copyCurrentValues(this.copyCurrentValues);
+        if(isValueChanged(this.currentValues,_currentValues)){
+            this.currentValues=_currentValues;
+        }
+
+        //this.currentValues=copyCurrentValues(this.copyCurrentValues);
         setDirty(false);
     }
+    private boolean isValueChanged(HashMap<String, String> values1, HashMap<String, String> values2){
+        //cannot compare if one of object or both null
+        if(values1==null && values2==null){
+            return false;
+        }
+        if(values1 ==null || values2==null){
+            return true;
+        }
+        if(values1.size() !=values2.size()){
+            return true;
+        }
+        for (String key : values1.keySet()) {
+            if(values2.containsKey(key)) {
+                if (!values2.get(key).equals( values1.get(key))) {
+                    return true;
+                }
+            }else{
+                return true;
+            }
 
+        }
+        return false;
+    }
     private HashMap<String, String> copyCurrentValues(HashMap<String, String > sourceValues){
         HashMap<String, String> values=new HashMap<>();
         if(sourceValues!=null) {
             for (String key : sourceValues.keySet()) {
                 values.put(key, sourceValues.get(key));
             }
+        }else{
+            return null;
         }
         return values;
     }
@@ -340,55 +482,75 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
         if(currentValues ==null){
             currentValues=new HashMap<>();
         }
-        currentValues.put(id, value);
+        //currentValues.put(id, value);
         DynFormControl control=formControlListMap.get(id);
-        if(control !=null){
-            control.setCurrentValue(value);
+        if(control !=null && control.getCurrentValue()!=null){
+            if(control.getCurrentValue().equals(value)){
+                return;
+            }
         }
-
-        setDirty(true);
-        if(this.changeEventListener !=null){
-            this.changeEventListener.onValueChange(id, value);
+        if(control.getCurrentValue()==null && (value==null || value.equals(""))){
+            return;
+        }
+        currentValues.put(id, value);
+        control.setCurrentValue(value);
+        if(!isLoading()) {
+            setDirty(true);
+            if (this.changeEventListener != null) {
+                this.changeEventListener.onValueChange(id, value);
+            }
         }
     }
     public void refresh(){
-        for(DynFormControl control:this.formControlList){
-            String id=control.getId();
-            String value=control.getCurrentValue();
-            String defaultValue=control.getDefaultValue();
-            if(value ==null || value.equals("")){
-                value=defaultValue;
-            }
-            View view=this.layout.findViewWithTag(id);
-            DynControlType type=control.getFieldType();
-            if(type.equals(DynControlType.Text)){
-                ((EditText) view).setText(control.getCurrentValue());
-            }else if(type.equals(DynControlType.Checkbox)){
-                if(value.equals("true")){
-                    ((CheckBox) view).setChecked(true);
-                }else if(value.equals("false")){
-                    ((CheckBox) view).setChecked(false);
+        for(DynFormControl control:this.formControlList) {
+            if (control.isDataField()) {
+                control.setActive(true);
+                String id = control.getId();
+                String value = control.getCurrentValue();
+                String defaultValue = control.getDefaultValue();
+                if (value == null || value.equals("")) {
+                    value = defaultValue;
                 }
-            }
-            else if(type.equals(DynControlType.List)){
-                if(((Spinner)view).getCount()>0) {
-                    ((Spinner) view).setSelection(0);
-                }
-            }else if(type.equals(DynControlType.RadioList)){
-                RadioGroup rg=(RadioGroup) view;
-                for(int i=0;i<rg.getChildCount();i++){
-                    RadioButton radioButton= (RadioButton) rg.getChildAt(i);
-                    if(radioButton.getText().toString().equals(value)){
-                        radioButton.setChecked(true);
-                    }else
-                    {
-                        radioButton.setChecked(false);
+                View view = this.layout.findViewWithTag(id);
+                DynControlType type = control.getFieldType();
+                if (type.equals(DynControlType.Text)) {
+                    ((EditText) view).setText(control.getCurrentValue());
+                } else if (type.equals(DynControlType.Checkbox)) {
+                    if (value.equals("true")) {
+                        ((CheckBox) view).setChecked(true);
+                    } else if (value.equals("false")) {
+                        ((CheckBox) view).setChecked(false);
+                    }
+                } else if (type.equals(DynControlType.List)) {
+                    Spinner spinner = ((Spinner) view);
+                    if (control.getCurrentValue() != null) {
+                        for (int i = 0; i < spinner.getCount(); i++) {
+                            if (spinner.getAdapter().getItem(i).equals(control.getCurrentValue())) {
+                                spinner.setSelection(i, false);
+                                break;
+                            }
+                        }
+                    } else {
+                        spinner.setSelection(0, false);
+                    }
+                } else if (type.equals(DynControlType.RadioList)) {
+                    RadioGroup rg = (RadioGroup) view;
+                    if(!value.equals("")) {
+                        for (int i = 0; i < rg.getChildCount(); i++) {
+                            RadioButton radioButton = (RadioButton) rg.getChildAt(i);
+                            if (radioButton.getText().toString().equals(value)) {
+                                radioButton.setChecked(true);
+                            } else {
+                                radioButton.setChecked(false);
+                            }
+                        }
                     }
                 }
             }
         }
     }
     public boolean generateLayout(Context context){
+        LinearLayout parentLayout = null;
         LinearLayout layout=null;
         if(context !=null){
             this.context=context;
@@ -399,13 +561,13 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
         }
 
         if(this.formControlList.size()>0){
-            layout=new LinearLayout(this.context);
-            layout.setOrientation(LinearLayout.VERTICAL);
-            layout.setVisibility(View.VISIBLE);
-            layout.setLayoutParams(new ViewGroup.LayoutParams(
+            parentLayout=new LinearLayout(this.context);
+            parentLayout.setOrientation(LinearLayout.VERTICAL);
+            parentLayout.setVisibility(View.VISIBLE);
+            parentLayout.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT));
-            setMargins(layout,30,10,10,10);
+            setMargins(parentLayout,30,10,10,10);
 
         }
         for(int i=0;i<this.formControlList.size();i++){
@@ -413,11 +575,15 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                 DynFormControl control=this.formControlList.get(i);
                 DynControlType fieldType=control.getFieldType();
                 String fieldName=control.getFieldName();
+                String groupId=control.getGroupId();
+                String numberMin=control.getNumberMin();
+                String numberMax=control.getNumberMax();
                 final  String fieldId=control.getId();
                 String defaultValue=translateDefaultValue(fieldType,control.getDefaultValue());
                 JSONArray jaOptions=control.getOptions();
                 boolean required=control.isRequired();
                 boolean fieldEnabled=control.isFieldEnabled();
+                int visibility=control.isVisible()?View.VISIBLE:View.GONE;
                 String currentValue="";
                 String fontSize =control.getFontSize();
                 if(this.currentValues !=null){
@@ -427,6 +593,28 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                     }
                 }else{
                     currentValue=defaultValue;
+                }
+                //check valid layout
+                if(!groupId.equals("")){
+                    layout=parentLayout.findViewWithTag(groupId);
+                    if(layout==null){
+                        String groupVisible=control.getGroupVisibility();
+                        layout=new LinearLayout(this.context);
+                        layout.setOrientation(LinearLayout.VERTICAL);
+                        if(groupVisible.equals("true") || groupVisible.equals("")){
+                            layout.setVisibility(View.VISIBLE);
+                        }else{
+                            layout.setVisibility(View.GONE);
+                        }
+                        layout.setLayoutParams(new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.WRAP_CONTENT));
+                        setMargins(layout,30,10,10,10);
+                        layout.setTag(groupId);
+                        parentLayout.addView(layout);
+                    }
+                }else {
+                    layout =parentLayout;
                 }
                 if(fieldType!=DynControlType.Checkbox && fieldType != DynControlType.Table) {
                     TextView tvName = new TextView(this.context);
@@ -447,16 +635,20 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                             String _fontSize = "8dp";
                             tvName.setTextSize(TypedValue.COMPLEX_UNIT_SP, DimensionConverter.stringToDimension(_fontSize,context.getResources().getDisplayMetrics()));
                         }
-
+                        tvName.setTag(fieldId);
+                    }else{
+                        tvName.setTag("lbl-"+fieldId);
                     }
-                    tvName.setVisibility(View.VISIBLE);
+                    tvName.setVisibility(visibility);
                     layout.addView(tvName);
                 }
                 if(fieldType==DynControlType.Text
                         || fieldType==DynControlType.Date
+                        || fieldType==DynControlType.DateTime
                         || fieldType==DynControlType.Number) {
                     final EditText editText = new EditText(this.context);
                     final boolean isDateField=fieldType.equals(DynControlType.Date);
+                    final boolean isDateTimeField=fieldType.equals(DynControlType.DateTime);
                     final  boolean isNumberField=fieldType.equals(DynControlType.Number);
                     final  boolean isDecimalField=control.isNumberDecimal();
                     final  boolean isSignedField=control.isNumberSigned();
@@ -470,14 +662,42 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                         editText.setInputType(type);
                         //editText.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_NUMBER_FLAG_SIGNED);
                         //editText.setInputType(InputType.TYPE_CLASS_NUMBER | (isDecimalField?InputType.TYPE_NUMBER_FLAG_DECIMAL:0));
-
+                        if(!numberMin.equals("") && !numberMax.equals("")){
+                            editText.setFilters(new InputFilter[]{ new InputFilterMinMax(numberMin, numberMax)});
+                        }
                     }
-                    editText.setVisibility(View.VISIBLE);
+                    editText.setVisibility(visibility);
                     if(isDateField){
                         editText.setFocusable(false);
                         editText.setClickable(true);
-                        new DynEditTextDatePicker(getContext(),editText);
+                        DynEditTextDatePicker dynEditTextDatePicker=new DynEditTextDatePicker(getContext(),editText);
+                        dynEditTextDatePicker.setOnlyDate(true);
                     }
+                    if(isDateTimeField){
+                        editText.setFocusable(false);
+                        editText.setClickable(true);
+                        new DynEditTextDateTimePicker(getContext(),editText,currentValue);
+                    }
+                    editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View view, boolean b) {
+                            Log.d("DynForm","EditText Focus Changed:"+b);
+                            if(!editText.getText().toString().equals("")){
+                                if(isNumberField && !numberMin.equals("") && !numberMax.equals("")) {
+                                    if(!isDecimalField){
+                                        int value = Integer.parseInt(editText.getText().toString());
+                                        int minValue=Integer.parseInt(numberMin);
+                                        int maxValue=Integer.parseInt(numberMax);
+                                        if(value < minValue){
+                                            editText.setText(String.valueOf(minValue));
+                                        }else if(value > maxValue){
+                                            editText.setText(String.valueOf(maxValue));
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
                     editText.addTextChangedListener(new TextWatcher() {
                         @Override
                         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -604,8 +824,9 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                     DynFormTable table = control.getFormTable();
                     if(table!=null){
                         if(table.generateListLayout(context,this.changeEventListener)){
-
+                            //layout.setTag("table-"+fieldId);
                             layout.addView(table.getLayoutTable());
+                            table.getLayoutTable().setTag("table-"+fieldId);
                         }
                     }
 
@@ -712,12 +933,15 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
         view.setBottom(b);
     }
 
-    protected Object clone() throws CloneNotSupportedException {
+    public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
-       // hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
+        hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
+        setFormKey(jsonObject.optString("key", ""));
+        setFormCode(jsonObject.optString("code",""));
+        setFormId(jsonObject.optString("id", ""));
         ArrayList<DynFormControl> _formControlList=new ArrayList<>();
         HashMap<String , DynFormControl> _formControlListMap=new HashMap<>();
         try{
@@ -735,6 +959,17 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
             }
             this.formControlList=_formControlList;
             this.formControlListMap=_formControlListMap;
+            //set binding parameters
+            for(DynFormControl control:_formControlList){
+                if(control.getBinding()!=null){
+                    DynControlBinding binding=control.getBinding();
+                    binding.setSource(control);
+                    if(!binding.getTargetControl().equals("")){
+                        String targetControlKey=binding.getTargetControl();
+                        binding.setTarget(_formControlListMap.get(targetControlKey));
+                    }
+                }
+            }
         }catch (Exception e){
             Log.e("DynForm parseJsonObject",e.toString());
             return  false;
@@ -766,10 +1001,27 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                 jsonObject=new JSONObject();
                 jsonObject.put("id", this.formId);
                 jsonObject.put("name", this.formName);
+                if(getFormCode().equals("")){
+                    jsonObject.put("code", getFormCode());
+                }
+                if(getFormSettings() !=null && !getFormSettings().getParentTestCode().equals("")){
+                    jsonObject.put("parentTestCode", getFormSettings().getParentTestCode());
+                }
+                if(getFormSettings() !=null && !getFormSettings().getType().equals("")){
+                    jsonObject.put("type", getFormSettings().getType());
+                }
+                if(getFormKey().equals("")){
+                    jsonObject.put("key",Utilities.getUniqueId());
+                }else{
+                    jsonObject.put("key",getFormKey());
+                }
                 if(getParentControl() ==null){
                     //jsonObject.put("__replace", true);
                 }
                 jsonObject.put("form", jsonArray);
+            }
+            if(jsonObject!=null){
+                hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
             }
         }catch (Exception e){
             Log.e("DynForm",e.toString());
@@ -780,10 +1032,14 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
     public JSONObject getJsonObjectChanged() {
         JSONObject jsonObject=null;
         JSONArray jsonArray=new JSONArray();
+        boolean isTableFieldExists =false;
         try {
             boolean dataChanged=false;
             for (DynFormControl control : this.formControlList) {
                 if(control.isDataField()) {
+                    if(control.getFieldType()==DynControlType.Table){
+                        isTableFieldExists=true;
+                    }
                     JSONObject jsonObject1 = control.getJsonObject();
                     if (jsonObject1 != null) {
                         jsonArray.put(jsonObject1);
@@ -797,10 +1053,23 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                 jsonObject=new JSONObject();
                 jsonObject.put("id", this.formId);
                 jsonObject.put("name", this.formName);
+                if(!getFormCode().equals("")){
+                    jsonObject.put("code", getFormCode());
+                }
+                if(getFormSettings() !=null && !getFormSettings().getParentTestCode().equals("")){
+                    jsonObject.put("parentTestCode", getFormSettings().getParentTestCode());
+                }
+                if(getFormSettings() !=null && !getFormSettings().getType().equals("")){
+                    jsonObject.put("type", getFormSettings().getType());
+                }
                 if(getParentControl() ==null){
                     //jsonObject.put("__replace", true);
                 }
-                jsonObject.put("form", jsonArray);
+                // only add * if form contains TABLE type
+                jsonObject.put((isTableFieldExists?"*":"")+"form", jsonArray);
+            }
+            if(jsonObject!=null){
+                hmBackupValues= Utilities.getHashMapJSONObject(jsonObject);
             }
         }catch (Exception e){
             Log.e("DynForm",e.toString());
@@ -815,6 +1084,13 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
         for(DynFormControl control:formControlList){
             try {
                 DynFormControl newControl=(DynFormControl) control.clone();
+//                if(control.getFieldType().equals(DynControlType.Table)){
+
+                    newControl.cloneFieldList();
+//                }
+                if(newControl.getBinding()!=null){
+                    newControl.getBinding().setSource(newControl);
+                }
                 newControl.setListener(this.changeEventListener);
                 newControl.setParentControl(this);
                 _controlList.add(newControl);
@@ -824,8 +1100,19 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
                 e.printStackTrace();
             }
         }
+
         this.formControlList=_controlList;
         this.formControlListMap=_formControlListMap;
+        for(DynFormControl control:_controlList){
+            if(control.getBinding()!=null){
+                DynControlBinding binding=control.getBinding();
+                binding.setSource(control);
+                if(!binding.getTargetControl().equals("")){
+                    String targetControlKey=binding.getTargetControl();
+                    binding.setTarget(_formControlListMap.get(targetControlKey));
+                }
+            }
+        }
     }
 
     @Override
@@ -865,5 +1152,9 @@ public class DynForm implements IConvertHelper,Cloneable,IViewController {
             }
         }
 
+    }
+
+    public void controlValueChanged(String id, String currentValue) {
+        valueChanged(id,currentValue);
     }
 }
