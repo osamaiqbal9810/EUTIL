@@ -76,7 +76,7 @@ class MainPage extends Component {
       sideNavDispaly: "0px",
       hideToolTip: window.innerWidth <= 760,
       mainSectionLeft: this.isLoggedOn() ? sidebarWidth : 0,
-      applicationType: null,
+      applicationType: "EUtility",
       featureset: [],
     };
     this.AttendanceBtnHandler = this.AttendanceBtnHandler.bind(this);
@@ -198,6 +198,7 @@ class MainPage extends Component {
   // }
 
   versionLoaded(versionInfo) {
+    console.log(versionInfo);
     let routeToLoad = timpsRoutes;
     if (versionInfo.isLAMP()) routeToLoad = lampRoutes;
     if (versionInfo.isEUtility()) {
@@ -209,7 +210,7 @@ class MainPage extends Component {
       require("../../utils/retro-colors.css");
     }
     //let rc = routeToLoad.map((route, index) => {return <Route key={route.path} path={route.path} component={route.component} />;});
-    this.setState({ applicationType: versionInfo.getApplicationType(), routesToLoad: routeToLoad });
+    this.setState({ applicationType: "EUtility", routesToLoad: routeToLoad });
 
     tabTitle();
 
@@ -257,6 +258,7 @@ class MainPage extends Component {
         {routeComponent}
       </Switch>
     );
+    
     return (
       <React.Fragment>
         <div className={"App " + this.state.theme}>
@@ -265,7 +267,9 @@ class MainPage extends Component {
           {topBarVisible && (
             <TopBar sidebarToggle={this.sidebarToggle} hideToolTip={this.state.hideToolTip} toggleRight={this.toggleRight} />
           )}
-          {this.isLoggedOn() && this.state.showSideNav && !this.isApp() && this.state.applicationType && (
+          
+          {
+          this.isLoggedOn() && this.state.showSideNav && !this.isApp() && this.state.applicationType && (
             <SideNavBar
               hideNav={window.innerWidth}
               textDisplay={this.state.textDisplay}

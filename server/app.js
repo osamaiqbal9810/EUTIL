@@ -185,16 +185,16 @@ let mongoURLSource = "default",
   databaseNameSource = "default";
 
 // if environment has databse url and port then make a new url
-if (process.env.DB_URL && process.env.DB_PORT) {
-  mongoURL = "mongodb://" + process.env.DB_URL + ":" + process.env.DB_PORT + "/";
-  mongoURLSource = "environment";
-}
-// use database from environment if available
-if (process.env.DB_NAME) {
-  mongoURL = mongoURL + process.env.DB_NAME;
-  config.mongo.uri = mongoURL;
-  databaseNameSource = "environment";
-}
+// if (process.env.DB_URL && process.env.DB_PORT) {
+//   mongoURL = "mongodb://" + process.env.DB_URL + ":" + process.env.DB_PORT + "/";
+//   mongoURLSource = "environment";
+// }
+// // use database from environment if available
+// if (process.env.DB_NAME) {
+//   mongoURL = mongoURL + process.env.DB_NAME;
+//   config.mongo.uri = mongoURL;
+//   databaseNameSource = "environment";
+// }
 
 // if customer data file contains information, it would override other sources
 // let customerData = versionCompatibility.loadCustomerDataFile();
@@ -211,7 +211,6 @@ if (process.env.DB_NAME) {
 
 //   config.mongo.uri = mongoURL;
 // }
-mongoURL = "mongodb+srv://osamaiqbal:Powersoft19@eutilitycluster.obaziv6.mongodb.net/?retryWrites=true&w=majority"; // default mongo db url
 config.mongo.uri = mongoURL;
 let infoBreakdown = config.mongo.uri.split("/");
 console.log("Database URL Source:", mongoURLSource);
