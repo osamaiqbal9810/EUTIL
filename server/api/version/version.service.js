@@ -16,8 +16,8 @@ export default class VersionService {
   }
   async getDBMigration(forceReload) {
     if(!this.dbMigration || forceReload) {
-      let migrationService = ServiceLocator.resolve("MigrationsService");
-      this.dbMigration = await migrationService.getLastDBMigration();
+    //  let migrationService = ServiceLocator.resolve("MigrationsService");
+    //  this.dbMigration = await migrationService.getLastDBMigration();
     }
     return this.dbMigration;
   }

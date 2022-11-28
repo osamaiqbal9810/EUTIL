@@ -24,7 +24,7 @@ export default class MigrationService {
         console.log("Latest Available: ", latestAvailable, " while current:", this.current());
       }
 
-      let dbMigration = await this.getLastDBMigration();
+      //let dbMigration = await this.getLastDBMigration();
       console.log(dbMigration);
       console.log(this.config.current);
       if (this.config.current !== dbMigration) {
@@ -70,7 +70,7 @@ export default class MigrationService {
   // Migrate to a specific version by running required migration scripts
   //
   async migrateTo(version) {
-    let dbMigration = await this.getLastDBMigration();
+   // let dbMigration = await this.getLastDBMigration();
     if (this.config.current !== dbMigration) {
       let list = this.getIntermediateFiles(dbMigration, this.config.current);
       if (list && list.length) {
@@ -183,8 +183,8 @@ export default class MigrationService {
     // return $last_version == $current_version;
     //
     //
-    let lastDbMigration = await this.getLastDBMigration();
-    if (lastDbMigration === this.config.current) return true;
+   // let lastDbMigration = await this.getLastDBMigration();
+    //if (lastDbMigration === this.config.current) return true;
 
     return false;
   }
