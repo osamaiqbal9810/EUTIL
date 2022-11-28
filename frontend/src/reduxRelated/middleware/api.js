@@ -23,7 +23,7 @@ function callApi(endpoint, authenticated, config = {}) {
     config["mode"] = "cors";
   }
   //  console.log( domainName+'api/'+ endpoint, config);
-//domainName = "https://electric-utility-inspection-system.onrender.com/";
+domainName = "https://electric-utility-inspection-system.onrender.com/";
   return fetch(domainName + "api/" + endpoint, config)
     .then(status)
     .then((res) => text(res, config.headers))
