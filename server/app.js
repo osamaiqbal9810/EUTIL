@@ -340,26 +340,26 @@ if (config.seedDB) {
   startupLogger.info("Seed disabled");
 }
 
-let migrations = ServiceLocator.resolve("MigrationsService");
-if (migrations) {
-  migrations.performStatusChecks();
-}
+// let migrations = ServiceLocator.resolve("MigrationsService");
+// if (migrations) {
+//   migrations.performStatusChecks();
+// }
 
 /**
  * Run Alerts cronJobs
  */
 // let alertService = ServiceLocator.resolve('AlertService');
-alertService.startAlertsMonitoring();
+// alertService.startAlertsMonitoring();
 
 /**
  * CronJob for notification service
  */
 
-schedule.scheduleJob("NotificationCronJob", "*/1 * * * *", async (fireDate) => {
-  // Cron job logic for notification service.
-  // console.log("Cron job of notification service called: " + fireDate);
-  notificationService.sendNewNotifications();
-});
+// schedule.scheduleJob("NotificationCronJob", "*/1 * * * *", async (fireDate) => {
+//   // Cron job logic for notification service.
+//   // console.log("Cron job of notification service called: " + fireDate);
+//   notificationService.sendNewNotifications();
+// });
 
 // For testing recaluculateMethod uncomment this
 // alertService.recalculateAlertMonitoringByModelId('5f86ffcf81d9305668f2015a");
