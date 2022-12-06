@@ -7,45 +7,45 @@ let GroupPermission = require("../api/permission/permission.model");
 export default class AppAccessService {
   constructor() {
     this.assetTypeAccessPermission = [
-      { name: "SYSTEM_ACCESS_ASSETTYPE_TIMPS", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_TIMPS" },
-      { name: "SYSTEM_ACCESS_ASSETTYPE_SCIM", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_SCIM" },
-      { name: "SYSTEM_ACCESS_ASSETTYPE_BRIDGE", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_BRIDGE" },
+      // { name: "SYSTEM_ACCESS_ASSETTYPE_TIMPS", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_TIMPS" },
+      // { name: "SYSTEM_ACCESS_ASSETTYPE_SCIM", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_SCIM" },
+      // { name: "SYSTEM_ACCESS_ASSETTYPE_BRIDGE", resource: "SYSTEM_ACCESS", action: "ASSETTYPE_BRIDGE" },
     ];
     this.systemUserGroups = [
      // { group_id: "manager", name: "Management", permissions: [], isAdmin: false, level: 1, category: "Role" },
       // { group_id: "supervisor", name: "Track Manager", permissions: [], isAdmin: false, level: 2, category: "Role" },
       { group_id: "inspector", name: "Inspection Team", permissions: [], isAdmin: false, level: 3, category: "Role" },
-      {
-        group_id: "trackSwitch",
-        name: "Track And Switch",
-        permissions: this.assetTypeAccessPermission[0].name,
-        isAdmin: false,
-        level: 4,
-        category: "Department",
-      },
-      {
-        group_id: "signalCrossing",
-        name: "Signal And Crossing",
-        permissions: this.assetTypeAccessPermission[1].name,
-        isAdmin: false,
-        level: 4,
-        category: "Department",
-      },
-      {
-        group_id: "bridge",
-        name: "Bridge",
-        permissions: this.assetTypeAccessPermission[2].name,
-        isAdmin: false,
-        level: 4,
-        category: "Department",
-      },
+      // {
+      //   group_id: "trackSwitch",
+      //   name: "Track And Switch",
+      //   permissions: this.assetTypeAccessPermission[0].name,
+      //   isAdmin: false,
+      //   level: 4,
+      //   category: "Department",
+      // },
+      // {
+      //   group_id: "signalCrossing",
+      //   name: "Signal And Crossing",
+      //   permissions: this.assetTypeAccessPermission[1].name,
+      //   isAdmin: false,
+      //   level: 4,
+      //   category: "Department",
+      // },
+      // {
+      //   group_id: "bridge",
+      //   name: "Bridge",
+      //   permissions: this.assetTypeAccessPermission[2].name,
+      //   isAdmin: false,
+      //   level: 4,
+      //   category: "Department",
+      // },
     ];
     this.relations = [
-      { assetType: "track", permission: this.assetTypeAccessPermission[0].name },
-      { assetType: "Switch", permission: this.assetTypeAccessPermission[0].name },
-      { assetType: "Signal", permission: this.assetTypeAccessPermission[1].name },
-      { assetType: "Crossing", permission: this.assetTypeAccessPermission[1].name },
-      { assetType: "Bridge", permission: this.assetTypeAccessPermission[2].name },
+      // { assetType: "track", permission: this.assetTypeAccessPermission[0].name },
+      // { assetType: "Switch", permission: this.assetTypeAccessPermission[0].name },
+      // { assetType: "Signal", permission: this.assetTypeAccessPermission[1].name },
+      // { assetType: "Crossing", permission: this.assetTypeAccessPermission[1].name },
+      // { assetType: "Bridge", permission: this.assetTypeAccessPermission[2].name },
     ];
   }
   async getPermissions(permType) {
