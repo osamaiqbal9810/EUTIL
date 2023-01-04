@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="TekTrackingCore.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:TekTrackingCore.Views"
+ FlyoutBehavior="Flyout"
+Shell.FlyoutItemIsVisible="True"
+
+   >
+
+
+    <!--<ShellContent
+       FlyoutItemIsVisible="False"
+        Title="Login"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="login"/>-->
+
+
+
+    <TabBar  Shell.NavBarHasShadow="True" Route="Login"  >
+
+        <ShellContent Title="Login"
+             Route="LoginPage"
+              Icon="signinn"  ContentTemplate="{DataTemplate views:LoginPage}"  />
+
+  
+    </TabBar>
+
+    <TabBar  Shell.NavBarHasShadow="True" Route="UserProfile"  >
+
+        <ShellContent Title="User Profile"
+             Route="UserProfilePage"
+              Icon="signinn"  ContentTemplate="{DataTemplate views:UserProfilePage}"  />
+
+
+    </TabBar>
+
+    <TabBar  Shell.NavBarHasShadow="True" Route="UpdatePassword"  >
+
+        <ShellContent Title="Update Password"
+             Route="UpdatePassword"
+              Icon="signinn"  ContentTemplate="{DataTemplate views:UpdatePassword}"  />
+
+
+    </TabBar>
+
+    <TabBar  Shell.NavBarHasShadow="True" Route="UserSignature">
+
+        <ShellContent Title="User Signature"
+             Route="UserSignature"
+              Icon="signinn"  ContentTemplate="{DataTemplate views:UserSignature}"  />
+
+
+    </TabBar>
+
+    <TabBar Route="Briefing">
+
+        <Tab Title="Briefing"
+            Icon="breifing.png"
+             Route="Briefing">
+            <ShellContent ContentTemplate="{DataTemplate views:Briefing}" />
+        </Tab>
+
+        <Tab Title="List"
+            Icon="hos.png"
+              Route="ExpandableView">
+            <ShellContent ContentTemplate="{DataTemplate views:ExpandableView}" />
+        </Tab>
+
+        <Tab Title="HOS"
+            Icon="hos.png"
+              Route="Hos">
+            <ShellContent ContentTemplate="{DataTemplate views:Hos}" />
+        </Tab>
+
+    </TabBar>
+
+    <Shell.FlyoutHeader>
+    
+        <StackLayout Padding="20">
+            <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
+
+        </StackLayout>
+    </Shell.FlyoutHeader>
+
+    <Shell.FlyoutFooter >
+
+        <StackLayout Padding="20">
+            <Button Text="Sign Out" Command="{Binding SignOutCommand}" BackgroundColor="#191970" CornerRadius="0"/>
+
+        </StackLayout>
+
+
+    </Shell.FlyoutFooter>
+
+</Shell>

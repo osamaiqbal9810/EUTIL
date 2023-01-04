@@ -1,1 +1,0 @@
-export const MenuDashBoardIcon = "../menu-dashboard.svg";

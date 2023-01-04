@@ -1,8 +1,0 @@
-.sortContainer {
-  display: inline-block;
-  margin: 1px;
-}
-
-.sortContainer :hover {
-  border: 0.2px solid #a6a8ab;
-}
