@@ -17,7 +17,16 @@ namespace TekTrackingCore.Services
 
         Task<int> AddUserSignature(UserSignatureModel userSignatureModel);
 
+        Task<int> AddServerSetting(SettingModel settingModel);
+
         Task<List<UserModel>> ReadUserDetail();
+
+        Task<List<SettingModel>> ReadSettingsDetails();
+
+        Task<int> DeleteServer(SettingModel settingModel);
+
+
         Task<List<UserSignatureModel>> ReadUserSigDetail();
+
     }
 }

@@ -1,58 +1,72 @@
 
-using TekTrackingCore.Models;
-using TekTrackingCore.Services;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Graphics.Platform;
 
 namespace TekTrackingCore.Views;
 
 public partial class UserSignature : ContentPage
 {
-   
     public UserSignature()
-	{
-		InitializeComponent();
-      
-    }
-
-    private async void DrawingView_DrawingLineCompleted(object sender, CommunityToolkit.Maui.Core.DrawingLineCompletedEventArgs e)
     {
-        UserSignatureModel userSignatureModel = new UserSignatureModel();
-        var stream = await DrawingViewControl.GetImageStream(GestureImage.Width, GestureImage.Height);
-       var xyz= stream.ReadByte();
-        GestureImage.Source = ImageSource.FromStream(() => stream);
-        Preferences.Set("userSignature", stream.ToString());
-       string abc= Preferences.Get("userSignature", "");
-     
-       
-      
-  
-
-
+        InitializeComponent();
     }
 
 
-    //public async void onSignatureClicked(object sender, CommunityToolkit.Maui.Core.DrawingLineCompletedEventArgs e)
-    //{
-    //    UserSignatureModel userSignatureModel = new UserSignatureModel();
 
-    //    userSignatureModel.signature = imageView.Source.ToString();
+    private void ClearDrawing(object sender, EventArgs e)
+    {
+        drawingView.Clear();
+    }
 
-    //    await studentService.AddUserSignature(userSignatureModel);
+    private async void ConvertToImage(object sender, EventArgs e)
+    {
+        var stream = await drawingView.GetImageStream(300, 300);
+        //image.Source = ImageSource.FromStream(() => stream);
 
-    //}
+        string path = FileSystem.Current.AppDataDirectory;
+        string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, "abc");
 
-    //public async void btnLogin_Clicked(object sender, System.EventArgs e)
-    //{
-    //    UserSignatureModel userSignatureModel = new UserSignatureModel();
+        string localFilePath = Path.Combine(FileSystem.CacheDirectory, "abc");
 
-    //    //userSignatureModel.signature = imageView.Source;
 
-    //    //await studentService.AddUserSignature(userSignatureModel);
-    //}
+        Microsoft.Maui.Graphics.IImage newimage;
 
-    //async void GetCurrentDrawingViewImageClicked(object sender, EventArgs e)
-    //{
-       
 
-    //}
+        using FileStream localFileStream = File.OpenWrite(localFilePath);
 
+        {
+            newimage = PlatformImage.FromStream(stream);
+
+            newimage.Save(localFileStream);
+            localFileStream.Close();
+        }
+
+
+
+
+        //using FileStream InputStream = System.IO.File.OpenRead(localFilePath);
+        //using StreamReader reader = new StreamReader(InputStream);
+
+        //var text = await reader.ReadToEndAsync();
+
+        image.Source = ImageSource.FromFile(localFilePath);
+        //Console.WriteLine(text, "path");
+
+
+        imageActionsPanel.IsVisible = false;
+        drawingView.IsVisible = false;
+        drawingView.Clear();
+
+        image.IsVisible = true;
+        reDrawButton.IsVisible = true;
+
+    }
+
+    private void ReDraw(object sender, EventArgs e)
+    {
+        image.IsVisible = false;
+        reDrawButton.IsVisible = false;
+        drawingView.IsVisible = true;
+        imageActionsPanel.IsVisible = true;
+    }
 }

@@ -22,10 +22,10 @@
                 <Frame BackgroundColor="Green" WidthRequest="250" CornerRadius="100" Margin="0,10,0,0" BorderColor="Black">
                     <Frame.GestureRecognizers HeightRequest="40">
                             <TapGestureRecognizer 
-                                Tapped="OnBackToDashBoard"/>
+                                Tapped="OnBackToDashBoard" Command="{Binding }" />
                         </Frame.GestureRecognizers>
                     <FlexLayout JustifyContent="SpaceAround" AlignItems="Center" HeightRequest="36">
-                        <Image Source="accountarrow.png" />
+                        <ImageButton Source="accountarrow.png"  Command="{Binding UserProfileBackCommand}"/>
                         <Label Text="Back To Dashboard" TextColor="White" BackgroundColor="Green"/>
                     </FlexLayout>
                     

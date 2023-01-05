@@ -78,7 +78,13 @@ namespace TekTrackingCore.ViewModels
             await Shell.Current.GoToAsync($"//{nameof(UserSignature)}");
         }
 
-       
+        [RelayCommand]
+        async public void UserProfileBack()
+        {
+            await Shell.Current.GoToAsync($"//{nameof(Briefing)}");
+        }
+
+
 
 
 

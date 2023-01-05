@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TekTrackingCore.Views.PopUpPage"
+       xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+          
+            >
+    <VerticalStackLayout BackgroundColor="White" HeightRequest="270" WidthRequest="330" >
+        <StackLayout>
+
+            <StackLayout HorizontalOptions="Center">
+                <Label Text="Server Info" FontSize="18" FontAttributes="Bold" Margin="0,10,0,0"/>
+            </StackLayout>
+            <Entry  Placeholder="Display name" PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="displayName"/>
+            <BoxView  BackgroundColor="Black" HeightRequest="2" Margin="1,8,0,0"/>
+
+            <Entry Keyboard="Numeric" Placeholder="Server address"  PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="serverAddress"/>
+              <BoxView  BackgroundColor="Black" HeightRequest="2" Margin="1,8,0,0"/>
+
+            <Entry Keyboard="Numeric" Placeholder="Port"  PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="portNumber"/>
+            <BoxView  BackgroundColor="Black" HeightRequest="2" Margin="1,8,0,0"/>
+              
+            <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween" HeightRequest="60" Margin="10,20,10,0" >
+                <Button CornerRadius="0"  Text="Close" Clicked="PopupClosed"/>
+                <Button CornerRadius="0"  Text="Save" Clicked="PopupSave"/>
+            </FlexLayout>
+
+        </StackLayout>
+        
+    </VerticalStackLayout>
+</mct:Popup>

@@ -69,4 +69,7 @@ public partial class UserProfilePage : ContentPage
     {
         await Shell.Current.GoToAsync($"//{nameof(Briefing)}");
     }
+
+  
+
 }

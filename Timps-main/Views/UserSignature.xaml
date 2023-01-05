@@ -2,53 +2,40 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.UserSignature"
-            xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+             xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
+             Title="MainPage">
+    <VerticalStackLayout HorizontalOptions="FillAndExpand"
+                         BackgroundColor="Gray"
+                         Spacing="20"
+                         Padding="20,40,20,40"
+                         VerticalOptions="FillAndExpand">
 
-             Title="UserSignature">
+        <Image x:Name="image" 
+               IsVisible="True"
+               HeightRequest="300"
+               WidthRequest="300"
+               Aspect="AspectFit"/>
+
+        <toolkit:DrawingView x:Name="drawingView"
+                            HeightRequest="300"
+                            WidthRequest="300"
+                            LineColor="Black"
+                            BackgroundColor="White"
+                            IsMultiLineModeEnabled="True"/>
+
+        <HorizontalStackLayout Spacing="20" x:Name="imageActionsPanel" HorizontalOptions="CenterAndExpand">
+            <Button   BackgroundColor="#191970" Text="Convert as Image" Clicked="ConvertToImage"/>
+            <Button   BackgroundColor="#191970" Text="Clear" Clicked="ClearDrawing"/>
+        </HorizontalStackLayout>
+
+        <Button x:Name="reDrawButton"
+                Text="Re-Draw"
+                IsVisible="False"
+                HorizontalOptions="CenterAndExpand"
+                BackgroundColor="#191970"
+                Clicked="ReDraw"/>
+
+    </VerticalStackLayout>
 
 
-    <ScrollView>
-        <VerticalStackLayout
-            Spacing="25"
-            Padding="30,0"
-            VerticalOptions="Center">
-
-            <Image
-                x:Name="GestureImage"
-                SemanticProperties.Description="Cute dot net bot waving hi to you!"
-                HeightRequest="200"
-                HorizontalOptions="Center" />
-
-            <mct:DrawingView
-                x:Name="DrawingViewControl"
-                BackgroundColor="LightGray"
-                WidthRequest="200"
-                HeightRequest="200"
-                IsMultiLineModeEnabled="False"
-                LineColor="Green"
-                LineWidth="1"
-                DrawingLineCompleted="DrawingView_DrawingLineCompleted"
-            
-                HorizontalOptions="Center" />
-
-            <Label
-                Text="Welcome to .NET Multi-platform App UI"
-                SemanticProperties.HeadingLevel="Level2"
-                SemanticProperties.Description="Welcome to dot net Multi platform App U I"
-                FontSize="18"
-                HorizontalOptions="Center" />
-
-            <!--<Button
-                x:Name="CounterBtn"
-                Text="Click me"
-                Clicked="onSignatureClicked"
-                HorizontalOptions="Center" />-->
-
-            <!--<Button
-                Text="click me"
-                Clicked="btnLogin_Clicked"
-                />-->
-
-        </VerticalStackLayout>
-    </ScrollView>
 </ContentPage>

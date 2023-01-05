@@ -29,7 +29,9 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("workPlansPage", typeof(ExpandableView));
         Routing.RegisterRoute(nameof(UpdatePassword), typeof(UpdatePassword));
         Routing.RegisterRoute(nameof(UserSignature), typeof(UserSignature));
-       
+        Routing.RegisterRoute(nameof(Setting), typeof(Setting));
+        Routing.RegisterRoute(nameof(MapPage), typeof(MapPage));
+
 
     }
 }

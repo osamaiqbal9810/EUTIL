@@ -20,8 +20,6 @@ using SQLite;
 using TekTrackingCore.Sample.Models;
 using TekTrackingCore.ViewModels;
 using System.Security.Cryptography.X509Certificates;
-using Plugin.AudioRecorder;
-using TekTrackingCore.Models;
 
 public class MyEntry : Entry
 {
@@ -61,9 +59,8 @@ namespace TekTrackingCore.Services
         private CreateTableResult SavedUnitsList;
         private Dictionary<string, string> formvalue = new Dictionary<string, string>();
         private StaticListItemViewModel staticListItemViewModel;
-        private AudioRecorderService recorder;
         public List<SessionModel> workPlanList;
-        private string audioFilePath;
+       
 
         public async System.Threading.Tasks.Task SetUpDb()
         {
@@ -211,62 +208,6 @@ namespace TekTrackingCore.Services
             }
         }
 
-        public async void OnRecordButtonClick()
-        {
-            recorder = new AudioRecorderService
-            {
-                StopRecordingOnSilence = true, //will stop recording after 2 seconds (default)
-                StopRecordingAfterTimeout = true,  //stop recording after a max timeout (defined below)
-                TotalAudioTimeout = TimeSpan.FromSeconds(15)//audio will stop recording after 15 seconds
-            };
-            try
-            {
-                await recorder.StartRecording();
-                recorder.AudioInputReceived += Recorder_AudioInputReceived;   
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.ToString(), "OnRecordButtonClick");
-            };
-        }
-
-        public void OnRecordStopButtonClick()
-        {
-            string appDirec = FileSystem.Current.AppDataDirectory;
-            recorder.StopRecording();
-            recorder.AudioInputReceived += Recorder_AudioInputReceived;
-        }
-
-        private async void Recorder_AudioInputReceived(object sender, string audioFile)
-        {
-            // / data / user / 0 / com.companyname.tektrackingcore / cache / ARS_recording.wav 
-            Console.WriteLine(Path.Combine("Images", "hello"));
-            Stream stream = new MemoryStream();
-            using (var ms = new FileStream("", FileMode.Create))
-            {
-                await stream.CopyToAsync(ms);
-            }
-                try
-                {
-                    //Directory.SetCurrentDirectory(dir);
-                    string destinationFolder = @"D:\E-utility-New-Inspection\ElectricUtility\server\uploads\audio";
-
-                    //string destinationFolder = @"C:\Desktop";
-                    Console.WriteLine(destinationFolder);
-                    var audioStream = recorder.GetAudioFileStream();
-                    var filePath = (AudioRecorderService)sender;
-                    audioFilePath = filePath.FilePath;
-
-                    AudioPlayer player = new AudioPlayer();
-                    player.Play(audioFilePath);
-
-                    System.IO.File.Move(audioFilePath, Directory.GetCurrentDirectory(), true);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString(), "Recorder_AudioInputReceived");
-                }
-        }
         public async void OnsubmitButtonClicked()
         {
             var wp = Preferences.Get("SelectedWorkPlan", "");

@@ -4,58 +4,40 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:TekTrackingCore.Views"
+     xmlns:loc="clr-namespace:TekTrackingCore"
  FlyoutBehavior="Flyout"
 Shell.FlyoutItemIsVisible="True"
-
    >
-
-
     <!--<ShellContent
        FlyoutItemIsVisible="False"
         Title="Login"
         ContentTemplate="{DataTemplate local:LoginPage}"
         Route="login"/>-->
-
-
-
     <TabBar  Shell.NavBarHasShadow="True" Route="Login"  >
-
         <ShellContent Title="Login"
              Route="LoginPage"
               Icon="signinn"  ContentTemplate="{DataTemplate views:LoginPage}"  />
-
-  
     </TabBar>
 
     <TabBar  Shell.NavBarHasShadow="True" Route="UserProfile"  >
-
         <ShellContent Title="User Profile"
              Route="UserProfilePage"
               Icon="signinn"  ContentTemplate="{DataTemplate views:UserProfilePage}"  />
-
-
     </TabBar>
 
     <TabBar  Shell.NavBarHasShadow="True" Route="UpdatePassword"  >
-
         <ShellContent Title="Update Password"
              Route="UpdatePassword"
               Icon="signinn"  ContentTemplate="{DataTemplate views:UpdatePassword}"  />
-
-
     </TabBar>
 
     <TabBar  Shell.NavBarHasShadow="True" Route="UserSignature">
-
         <ShellContent Title="User Signature"
              Route="UserSignature"
               Icon="signinn"  ContentTemplate="{DataTemplate views:UserSignature}"  />
-
-
     </TabBar>
 
     <TabBar Route="Briefing">
-
         <Tab Title="Briefing"
             Icon="breifing.png"
              Route="Briefing">
@@ -74,24 +56,24 @@ Shell.FlyoutItemIsVisible="True"
             <ShellContent ContentTemplate="{DataTemplate views:Hos}" />
         </Tab>
 
+        <Tab Title="Map"
+            Icon="hos.png"
+              Route="MapPage">
+            <ShellContent ContentTemplate="{DataTemplate loc:MapPage}" />
+        </Tab>
+
     </TabBar>
 
     <Shell.FlyoutHeader>
-    
         <StackLayout Padding="20">
             <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
-
         </StackLayout>
     </Shell.FlyoutHeader>
 
     <Shell.FlyoutFooter >
-
         <StackLayout Padding="20">
             <Button Text="Sign Out" Command="{Binding SignOutCommand}" BackgroundColor="#191970" CornerRadius="0"/>
-
         </StackLayout>
-
-
     </Shell.FlyoutFooter>
-
+    
 </Shell>

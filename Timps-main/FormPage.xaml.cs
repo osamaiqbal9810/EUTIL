@@ -3,7 +3,6 @@ using CommunityToolkit.Maui.Markup;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Plugin.AudioRecorder;
 using TekTrackingCore.Framework;
 using TekTrackingCore.Sample.Models;
 using TekTrackingCore.Services;
@@ -19,8 +18,7 @@ public partial class FormPage : ContentPage
         InitializeComponent();
         BindingContext = viewmodel;
         viewmodel.setRenderCallBack = RenderForm;
-        service = new InspectionService();
-       
+        service = new InspectionService();      
     }
 
     public async void RenderForm(string json)
@@ -34,7 +32,6 @@ public partial class FormPage : ContentPage
             var verticalStackLayout = new VerticalStackLayout();
             verticalStackLayout.Spacing = 25;
             // verticalStackLayout.BackgroundColor = Color.FromRgb(232, 227, 227);
-
             var unitOb = Preferences.Get("SelectedUnit", "");
             var unitObj = JsonConvert.DeserializeObject<Sample.Models.Unit>(unitOb);
             var savedFormsList = new List<UnitModel>();
@@ -50,24 +47,11 @@ public partial class FormPage : ContentPage
                 }
 
             }
-            HorizontalStackLayout hr = new HorizontalStackLayout();
-            hr.Spacing = 20;
-            hr.Margin = 10;
-            Button recordButton = new Button { Text = "Start Recording", VerticalOptions = LayoutOptions.Start };
-            recordButton.Clicked += async (sender, args) => service.OnRecordButtonClick();
-            Button stopButton = new Button { Text = "Stop Recording", VerticalOptions = LayoutOptions.End };
-            stopButton.Clicked += async (sender, args) => service.OnRecordStopButtonClick();
-            hr.Children.Add(recordButton);
-            hr.Children.Add(stopButton);
-            verticalStackLayout.Children.Add(hr);
             foreach (var tab in opt)
             {
-                
                 foreach (var section in tab.sections)
                 {
-                   
                     verticalStackLayout.Children.Add(new Label { Text = section.section_name, FontSize = 16, TextColor = Color.FromRgb(5, 5, 5), FontAttributes = FontAttributes.Bold });
-                   
                     foreach (var field in section.fields)
                     {
                        service.mapFields(verticalStackLayout, field, savedFormValues);
@@ -76,10 +60,10 @@ public partial class FormPage : ContentPage
                 }
             }
 
-            Button saveButton = new Button { Text = "Save", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center };
+            Button saveButton = new Button { Text = "Save", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center};
             saveButton.Clicked += async (sender, args) => service.OnsaveButtonClicked();
 
-            Button button = new Button { Text = "Submit", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center };
+            Button button = new Button { Text = "Submit", VerticalOptions = LayoutOptions.Center, HorizontalOptions = LayoutOptions.Center};
             button.Clicked += async (sender, args) => service.OnsubmitButtonClicked();
 
             HorizontalStackLayout hLayout = new HorizontalStackLayout();
@@ -87,9 +71,7 @@ public partial class FormPage : ContentPage
             hLayout.Children.Add(button);
             hLayout.Children.Add(saveButton);
 
-
             verticalStackLayout.Children.Add(hLayout);
-
             verticalStackLayout.Paddings(25, 25, 25, 25);
 
             scrollView.Content = verticalStackLayout;
@@ -99,7 +81,4 @@ public partial class FormPage : ContentPage
             //Console.WriteLine(formObj);
         }
     }
-    
-
-
 }

@@ -7,7 +7,6 @@ public partial class Hos : ContentPage
     public Hos()
     {
         InitializeComponent();
-
     }
 
 

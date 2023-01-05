@@ -103,7 +103,7 @@
            
             <FlexLayout JustifyContent="Center" AlignItems="Center" Margin="0,5,0,5" >
 
-                <Button BackgroundColor="#191970" TextColor="White" Text="Settings" WidthRequest="150"  HeightRequest="40" CornerRadius="0" Margin="5,0,5,0"/>
+                <Button Command="{Binding SettingCommand}" BackgroundColor="#191970" TextColor="White" Text="Settings" WidthRequest="150"  HeightRequest="40" CornerRadius="0" Margin="5,0,5,0"/>
                 <Button BackgroundColor="#191970" TextColor="White" Text="Language" WidthRequest="150"  HeightRequest="40" CornerRadius="0"  Margin="5,0,5,0"/>
             </FlexLayout>
 

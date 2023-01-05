@@ -9,10 +9,8 @@
                 <Frame BorderColor="Gray"
                         CornerRadius="0" HeightRequest="90">
                     <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center">
-
                         <Label x:Name="label1" Text="{Binding UnitId}" Margin="0,0,0,0" />
-                        <Button x:Name="startInspectionBtns" IsVisible="{Binding StartInspButtonStatus}"  Padding="10" Text=">" TextColor="Black" BackgroundColor="BurlyWood" CornerRadius="100" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=TestCommand}" CommandParameter="{Binding .}"/>
-
+                        <ImageButton x:Name="startInspectionBtns" IsVisible="{Binding StartInspButtonStatus}" WidthRequest="50" Source="arrowcircle.png"    Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=TestCommand}" CommandParameter="{Binding .}"/>
                     </FlexLayout>
                 </Frame>
             </DataTemplate>

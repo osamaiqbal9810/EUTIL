@@ -37,13 +37,8 @@ namespace TekTrackingCore.ViewModels
                 IsLoading = true;
                 loginRepository.Proceed();
 
-
             }
         }
-
-
-
-     
 
         [ObservableProperty]
         private string email;
@@ -60,8 +55,7 @@ namespace TekTrackingCore.ViewModels
 
         //   UserInfo info = await loginRepository.Login(email, password); 
         //    if(info == null) 
-        //    {
-
+        //    {       
         //    }
         //    else 
         //    { // Route to DashBoard.
@@ -94,8 +88,6 @@ namespace TekTrackingCore.ViewModels
             }
         }
 
-
-
         [RelayCommand]
         private async Task<Task> Login()
         {
@@ -116,20 +108,18 @@ namespace TekTrackingCore.ViewModels
         }
 
      
-     
-
         [RelayCommand]
         public void Proceed()
         {
             loginRepository.Proceed();
         }
 
+        [RelayCommand]
+        public async void Setting()
+        {
+            await Shell.Current.GoToAsync("Setting");
 
-
-
-        
-         
-      
+        }
 
     }
 }

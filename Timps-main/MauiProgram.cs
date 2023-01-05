@@ -8,6 +8,7 @@ using Syncfusion.Maui.ListView.Hosting;
 using Syncfusion.Maui.Core.Hosting;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui;
+using TekTrackingCore.Handlers;
 
 namespace TekTrackingCore;
 
@@ -20,8 +21,12 @@ public static class MauiProgram
     public static MauiApp CreateMauiApp()
     {
         var builder = MauiApp.CreateBuilder();
+
+
         builder
             .UseMauiApp<App>()
+            .UseMauiMaps()
+
             .UseMauiCommunityToolkit()
             .ConfigureSyncfusionCore()
              .UseMauiCommunityToolkitMarkup()
@@ -29,8 +34,11 @@ public static class MauiProgram
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-            });
-
+            })
+        .ConfigureMauiHandlers(handlers =>
+         {
+             handlers.AddHandler(typeof(MapView), typeof(MapHandler));
+         });
 
         //Routing.RegisterRoute("dashboard", typeof(MainPage));
         //Routing.RegisterRoute("login", typeof(LoginPage));
@@ -52,6 +60,9 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<UserProfileViewModel>();
         builder.Services.AddSingleton<UserProfilePage>();
+        builder.Services.AddTransient<SettingViewModelcs>();
+
+        builder.Services.AddTransient<Setting>();
 
         //builder.Services.AddSingleton<StaticListItemPage>();
 
