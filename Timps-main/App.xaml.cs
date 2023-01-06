@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Maui.Markup;
+using System.Collections.ObjectModel;
 using TekTrackingCore.Handlers;
 using TekTrackingCore.Model;
 using TekTrackingCore.Views;
@@ -57,7 +58,8 @@ public class MapPage : ContentPage
         
         mapView.markerPositions.Add(new Location(31.611631, 74.383153));
 
-        Content = mapView;
+
+           Content = mapView;
 
         Button button = new Button
         {
@@ -65,8 +67,8 @@ public class MapPage : ContentPage
             VerticalOptions = LayoutOptions.Center,
             HorizontalOptions = LayoutOptions.Center
         };
-        
 
+ 
 
 
 

@@ -3,20 +3,16 @@
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon" android:supportsRtl="true" android:usesCleartextTraffic="true" android:label="Tek-E-Utility">
 		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyD54olbVH86RCwCYdn4z-wtHCvJAt-Pv28" />
 		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version" />
-
 	</application>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 	<uses-permission android:name="android.permission.INTERNET" />
-	
 	<uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 	<uses-permission android:name="android.permission.WAKE_LOCK" />
-	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<!-- Notice here that we have the package name of our application as a prefix on the permissions. -->
 	<uses-feature android:glEsVersion="0x00020000" android:required="true" />
-
 	<uses-permission android:name="de.cayas.sensebox.permission.MAPS_RECEIVE" />
 	<permission android:name="de.cayas.sensebox.permission.MAPS_RECEIVE" android:protectionLevel="signature" />
-	
-	<uses-sdk android:targetSdkVersion="31" android:minSdkVersion="26" />
+	<uses-sdk android:targetSdkVersion="31" android:minSdkVersion="28" />
 </manifest>

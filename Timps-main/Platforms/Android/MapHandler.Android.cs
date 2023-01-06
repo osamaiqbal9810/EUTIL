@@ -14,6 +14,8 @@ namespace TekTrackingCore.Handlers
 
         public List<Location> markerPositions;
 
+
+
         internal static Bundle Bundle { get; set; }
 
         public MapHandler(IPropertyMapper mapper, CommandMapper commandMapper = null) : base(mapper, commandMapper)
@@ -42,16 +44,14 @@ namespace TekTrackingCore.Handlers
         {
             _mapHelper.Map.UiSettings.ZoomControlsEnabled = true;
             _mapHelper.Map.UiSettings.CompassEnabled = true;
-            _mapHelper.Map.UiSettings.MapToolbarEnabled = true;
-            _mapHelper.Map.UiSettings.TiltGesturesEnabled   = true;
-            _mapHelper.Map.UiSettings.MyLocationButtonEnabled = true;
 
 
             int x = 0;
             foreach (Location l in markerPositions) {
                 x++;
-                _mapHelper.Map.AddMarker(new MarkerOptions().SetPosition(new LatLng(l.Latitude, l.Longitude)).SetTitle("Marker"+x).SetSnippet("tHIS :"+x ));
-               var markers= _mapHelper.Map.AddMarker(new MarkerOptions());
+                if (l!=null)
+                _mapHelper.Map.AddMarker(new MarkerOptions().SetPosition(new LatLng(l.Latitude, l.Longitude)).SetTitle("Marker"+x).SetSnippet("Asset Id :"+x ));
+               
                
 
             }
@@ -65,6 +65,7 @@ namespace TekTrackingCore.Handlers
         {
             if (markerPositions == null) markerPositions = new List<Location>();
             markerPositions.Add(l);
+
         }
     }
 

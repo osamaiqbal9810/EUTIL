@@ -25,8 +25,6 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
-            .UseMauiMaps()
-
             .UseMauiCommunityToolkit()
             .ConfigureSyncfusionCore()
              .UseMauiCommunityToolkitMarkup()

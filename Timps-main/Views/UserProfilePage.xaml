@@ -52,7 +52,7 @@
                 </StackLayout>
 
 
-                <StackLayout  Margin="0,0,0,20">
+                <!--<StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Password"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
 
@@ -70,7 +70,7 @@
                         </FlexLayout>
 
                     </Frame>
-                </StackLayout>
+                </StackLayout>-->
 
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Mobile"/>
@@ -98,7 +98,6 @@
 
                             <Entry IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Phone}"   PlaceholderColor="Black"   FontSize="18"   Text="{Binding Password}"/>
 
-
                         </FlexLayout>
 
                     </Frame>
@@ -110,11 +109,7 @@
 
                         <FlexLayout AlignItems="Center">
                             <Image Source="useremail.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
-
                             <Entry IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Email}"  PlaceholderColor="Black"   FontSize="18" IsPassword="true" Text="{Binding Password}"/>
-
-
                         </FlexLayout>
 
                     </Frame>
@@ -123,17 +118,11 @@
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="14" Text="Signature"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <!--<FlexLayout AlignItems="Center">
                             <Image Source="usersignature.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
-
                             <Entry  IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="N/A"   FontSize="Large" IsPassword="true" />
-
-
                         </FlexLayout>-->
-
-
+                        
                         <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween">
                             <StackLayout>
                                 <FlexLayout>
@@ -142,12 +131,8 @@
                                     <Entry  IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="N/A"   FontSize="Large" IsPassword="true" />
                                 </FlexLayout>
                             </StackLayout>
-
                             <ImageButton   Command="{Binding UserSignatureCommand}"  Source="useredit" Margin="0,0,5,0"/>
-
                         </FlexLayout>
-
-
                     </Frame>
                 </StackLayout>
             </StackLayout>
