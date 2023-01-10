@@ -48,6 +48,7 @@ public partial class FormPage : ContentPage
                 }
 
             }
+           
             foreach (var tab in opt)
             {
                 foreach (var section in tab.sections)

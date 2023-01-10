@@ -422,7 +422,8 @@ namespace TekTrackingCore.ViewModels
                     foreach(var wp in workPlanList)
                     {
                         string idToRemove;
-                        bool allInspectionsCompletedFlag = true;
+                        bool allInspectionsCompletedFlagPause = true;
+                        bool allInspectionsCompletedFlagResume = false;
                         if (wp.Id == session.Id)
                         {
                             wp.msg = session.startInspBtnState;
@@ -439,10 +440,10 @@ namespace TekTrackingCore.ViewModels
                                 }
                                 if (unit.Status != "Finished")
                                 {
-                                    allInspectionsCompletedFlag = false;
+                                    allInspectionsCompletedFlagPause = false;
                                 }
                             }
-                            if (allInspectionsCompletedFlag == true)
+                            if (allInspectionsCompletedFlagPause == true)
                             {
                                 wp.AssetInspectionDone = true;
                                 wp.HideBtnOnInspectionComplete = false;
@@ -452,15 +453,36 @@ namespace TekTrackingCore.ViewModels
 
                             }
                         }
-                        //else
-                        //{
-                        //    handleInspectionBtnStatus();
-                        //}
                         if (session.startInspBtnState == "pause")
                         {
                             if (wp.Id != session.Id)
                             {
                                 wp.inspectionBtnStatus = false;
+                            }
+                        }else if(session.startInspBtnState == "Resume")
+                        {
+                            var allUnits = wp.AllUnits;
+                            foreach( var unit in allUnits)
+                            {
+                                if(unit.Status ==  "Finished" && wp.msg != "start")
+                                {
+                                    unit.StartInspButtonStatus = false;
+                                    unit.AssetInspectionDone = true;
+                                    allInspectionsCompletedFlagResume = true;
+                                }
+                                //if (unit.Status != "Finished")
+                                //{
+                                //    allInspectionsCompletedFlagResume = false;
+                                //}
+                            }
+                            if (allInspectionsCompletedFlagResume == true)
+                            {
+                                wp.AssetInspectionDone = true;
+                                wp.HideBtnOnInspectionComplete = false;
+                                idToRemove = wp.Id.ToString();
+
+                                handleInspectionBtnStatus(idToRemove);
+
                             }
                         }
                     }

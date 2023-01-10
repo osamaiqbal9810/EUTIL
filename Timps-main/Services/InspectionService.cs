@@ -63,9 +63,9 @@ namespace TekTrackingCore.Services
         private Dictionary<string, string> formvalue = new Dictionary<string, string>();
         private StaticListItemViewModel staticListItemViewModel;
         public ExtendedObservableCollection<WorkPlanDto> workPlanList;
-       // public Action<dynamic> setUnitGreenTick { get; set; }
-       // public List<WorkPlanDto> wPlanList;
-       public InspectionService() { }
+        // public Action<dynamic> setUnitGreenTick { get; set; }
+        private List<string> selectFieldsArray = new List<string>();
+        public InspectionService() { }
         public void setWorkPlanList(dynamic list)
         {
             workPlanList = list;
@@ -111,10 +111,12 @@ namespace TekTrackingCore.Services
 
         public void mapFields(dynamic verticalStackLayout, dynamic field, dynamic savedFormValues)
         {
+            
             try
             {
                 if (field.field_type == "select")
                 {
+                    selectFieldsArray.Add(field.field_name.ToString());
                     var selectOptions = new List<string>();
                     foreach (var option in field.options)
                     {
@@ -237,127 +239,149 @@ namespace TekTrackingCore.Services
 
         public async void OnsubmitButtonClicked()
         {
+            bool completeFilledOrNot = false;
+            Console.WriteLine(selectFieldsArray);
+            foreach (var obj in formvalue)
+            {
+                string key = obj.Key;
+                if (selectFieldsArray.Contains(key))
+                {
+                    completeFilledOrNot = true;
+                }
+                else
+                {
+                    completeFilledOrNot = false;
+                }
+            }
             bool ackResp = await App.Current.MainPage.DisplayAlert("Do you really want to submit the inspection?", "You will not be able to edit this in future", "Yes", "No");
             if (ackResp == true)
             {
-                try {
-                    var wp = Preferences.Get("SelectedWorkPlan", "");
-                    var unitOb = Preferences.Get("SelectedUnit", "");
-                    if (wp != "" && unitOb != "")
+                if (completeFilledOrNot == true)
+                {
+                    try
                     {
-                        DateTime currentDateTime = DateTime.Now;
-
-                        JObject jPlan = new JObject();
-                        JArray tasks = new JArray();
-                        JObject jObject = new JObject();
-                        JArray units = new JArray();
-                        JArray formValuesArray = new JArray();
-                        ///units
-                        var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
-                        var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-
-
-                        foreach (var obj in formvalue)
+                        var wp = Preferences.Get("SelectedWorkPlan", "");
+                        var unitOb = Preferences.Get("SelectedUnit", "");
+                        if (wp != "" && unitOb != "")
                         {
-                            jObject.Add(obj.Key, obj.Value);
-                        }
+                            DateTime currentDateTime = DateTime.Now;
 
-                        formValuesArray.Add(jObject);
-                        JObject unit = new JObject();
-                        unit.Add("id", unitObj.assetId);
-                        unit.Add("unitId", unitObj.unitId);
-                        unit.Add("assetType", unitObj.assetType);
-                        unit.Add("status", "Finished");
-                        unit.Add("appForms", formValuesArray);
-                        unit.Add("testForm", unitObj.testForm);
-                        unit.Add("inspection_type", unitObj.inspection_type);
-                        unit.Add("inspection_freq", unitObj.inspection_freq);
-                        unit.Add("wPlanId", unitObj.wPlanId);
-                        unit.Add("locationType", unitObj.locationType);
-                        unit.Add("coordinates", unitObj.coordinates);
-                        unit.Add("parent_id", unitObj.parent_id);
-                        units.Add(unit);
-                        // tasks
-                        JObject task = new JObject();
-                        task.Add("taskId", "");
-                        task.Add("startLocation", "");
-                        task.Add("endLocation", "");
-                        task.Add("startTime", "");
-                        task.Add("endTime", "");
-                        task.Add("title", wpObj[0].title);
-                        task.Add("description", "Perform Inspection");
-                        task.Add("notes", "Default Inspection Notes");
-                        task.Add("units", units);
-                        tasks.Add(task);
+                            JObject jPlan = new JObject();
+                            JArray tasks = new JArray();
+                            JObject jObject = new JObject();
+                            JArray units = new JArray();
+                            JArray formValuesArray = new JArray();
+                            ///units
+                            var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
+                            var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
 
-                        jPlan.Add("title", wpObj[0].title);
-                        jPlan.Add("workplanTemplateId", wpObj[0]._id);
-                        jPlan.Add("lineId", wpObj[0].lineId);
-                        jPlan.Add("status", "Finished");
-                        jPlan.Add("user", wpObj[0].user);
-                        jPlan.Add("date", currentDateTime.ToString());
-                        jPlan.Add("tasks", tasks);
 
-                        var httpclient = new HttpClient();
-                        string formDataObj = JsonConvert.SerializeObject(jPlan);
-
-                        if (formDataObj != null)
-                        {
-                            string url = string.Format(AppConstants.JourneyPlanStart_URL);
-                            StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
-                            HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
-                            if (response.IsSuccessStatusCode)
+                            foreach (var obj in formvalue)
                             {
-                                var toast = Toast.Make("Inspection Submitted Successfully!", ToastDuration.Long);
-                               await toast.Show();
-                                foreach (var workP in workPlanList)
+                                jObject.Add(obj.Key, obj.Value);
+                            }
+
+                            formValuesArray.Add(jObject);
+                            JObject unit = new JObject();
+                            unit.Add("id", unitObj.assetId);
+                            unit.Add("unitId", unitObj.unitId);
+                            unit.Add("assetType", unitObj.assetType);
+                            unit.Add("status", "Finished");
+                            unit.Add("appForms", formValuesArray);
+                            unit.Add("testForm", unitObj.testForm);
+                            unit.Add("inspection_type", unitObj.inspection_type);
+                            unit.Add("inspection_freq", unitObj.inspection_freq);
+                            unit.Add("wPlanId", unitObj.wPlanId);
+                            unit.Add("locationType", unitObj.locationType);
+                            unit.Add("coordinates", unitObj.coordinates);
+                            unit.Add("parent_id", unitObj.parent_id);
+                            units.Add(unit);
+                            // tasks
+                            JObject task = new JObject();
+                            task.Add("taskId", "");
+                            task.Add("startLocation", "");
+                            task.Add("endLocation", "");
+                            task.Add("startTime", "");
+                            task.Add("endTime", "");
+                            task.Add("title", wpObj[0].title);
+                            task.Add("description", "Perform Inspection");
+                            task.Add("notes", "Default Inspection Notes");
+                            task.Add("units", units);
+                            tasks.Add(task);
+
+                            jPlan.Add("title", wpObj[0].title);
+                            jPlan.Add("workplanTemplateId", wpObj[0]._id);
+                            jPlan.Add("lineId", wpObj[0].lineId);
+                            jPlan.Add("status", "Finished");
+                            jPlan.Add("user", wpObj[0].user);
+                            jPlan.Add("date", currentDateTime.ToString());
+                            jPlan.Add("tasks", tasks);
+
+                            var httpclient = new HttpClient();
+                            string formDataObj = JsonConvert.SerializeObject(jPlan);
+
+                            if (formDataObj != null)
+                            {
+                                string url = string.Format(AppConstants.JourneyPlanStart_URL);
+                                StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
+                                HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
+                                if (response.IsSuccessStatusCode)
                                 {
-                                    bool allInspectionsCompletedFlag = true;
-                                    var allUnits = workP.AllUnits;
-                                    if (allUnits.Count > 0)
+                                    var toast = Toast.Make("Inspection Submitted Successfully!", ToastDuration.Long);
+                                    await toast.Show();
+                                    foreach (var workP in workPlanList)
                                     {
-                                        foreach (var pUnit in allUnits)
+                                        bool allInspectionsCompletedFlag = true;
+                                        var allUnits = workP.AllUnits;
+                                        if (allUnits.Count > 0)
                                         {
-                                            if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                                            foreach (var pUnit in allUnits)
                                             {
-                                                pUnit.StartInspButtonStatus = false;
-                                                pUnit.AssetInspectionDone = true;
-                                                pUnit.AssetInspectionSaved = false;
-                                                pUnit.Status = "Finished";
+                                                if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                                                {
+                                                    pUnit.StartInspButtonStatus = false;
+                                                    pUnit.AssetInspectionDone = true;
+                                                    pUnit.AssetInspectionSaved = false;
+                                                    pUnit.Status = "Finished";
 
+                                                }
+                                                //else
+                                                //{
+                                                //    pUnit.StartInspButtonStatus = true;
+                                                //    pUnit.AssetInspectionDone = false;
+                                                //     pUnit.AssetInspectionSaved = false;
+                                                //}
+
+                                                if (pUnit.Status != "Finished")
+                                                {
+                                                    allInspectionsCompletedFlag = false;
+                                                }
                                             }
-                                            //else
-                                            //{
-                                            //    pUnit.StartInspButtonStatus = true;
-                                            //    pUnit.AssetInspectionDone = false;
-                                            //     pUnit.AssetInspectionSaved = false;
-                                            //}
-
-                                            if(pUnit.Status != "Finished")
+                                            if (allInspectionsCompletedFlag == true)
                                             {
-                                                allInspectionsCompletedFlag = false;
+                                                workP.AssetInspectionDone = true;
+                                                workP.HideBtnOnInspectionComplete = false;
+                                                handleInspectionBtnStatus(workP.Id);
                                             }
                                         }
-                                        if (allInspectionsCompletedFlag == true)
-                                        {
-                                            workP.AssetInspectionDone = true;
-                                            workP.HideBtnOnInspectionComplete = false;
-                                            handleInspectionBtnStatus(workP.Id);
-                                        }
+
+
                                     }
-                                    
+                                    await Shell.Current.GoToAsync("workPlansPage");
 
                                 }
-                                await Shell.Current.GoToAsync("workPlansPage");
-                                
                             }
                         }
                     }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.ToString());
+                        return; // handle
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.ToString());
-                    return; // handle
+                    await App.Current.MainPage.DisplayAlert("Incomplete Form?", "Please fill the required fields carefully", "ok");
                 }
             }
         }
@@ -367,6 +391,8 @@ namespace TekTrackingCore.Services
             {
                 if (wp.Id == idToRemove)
                 {
+                   
+
                     SessionModel sm = new SessionModel();
                     sm.Title = wp.Title;
                     sm.startInspBtnState = "Resume";
