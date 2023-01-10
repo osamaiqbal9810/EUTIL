@@ -35,7 +35,8 @@
                                        FontAttributes="Bold"
                                        FontSize="{OnPlatform Android={OnIdiom Phone=14, Tablet=14}, iOS={OnIdiom Phone=12, Tablet=14}, MacCatalyst=14 , Default= 14 }"/>
                                     
-                                    <Button TextColor="White" CornerRadius="0" BackgroundColor="#191970" Text="{Binding msg}" IsEnabled="{Binding inspectionBtnStatus}" HeightRequest="50" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=StartInspectionCommand}" CommandParameter="{Binding .}"/>
+                                    <Button TextColor="White" CornerRadius="0" BackgroundColor="#191970" Text="{Binding msg}" IsVisible="{Binding HideBtnOnInspectionComplete}" IsEnabled="{Binding inspectionBtnStatus}" HeightRequest="50" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=StartInspectionCommand}" CommandParameter="{Binding .}"/>
+                                    <ImageButton x:Name="assetInspectionDone" IsVisible="{Binding AssetInspectionDone}" WidthRequest="40" HeightRequest="50" Source="assetinspectiondone.png" />
                                 </FlexLayout>
                             </StackLayout>
 

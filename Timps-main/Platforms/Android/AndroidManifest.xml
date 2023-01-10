@@ -15,4 +15,10 @@
 	<uses-permission android:name="de.cayas.sensebox.permission.MAPS_RECEIVE" />
 	<permission android:name="de.cayas.sensebox.permission.MAPS_RECEIVE" android:protectionLevel="signature" />
 	<uses-sdk android:targetSdkVersion="31" android:minSdkVersion="28" />
+	<!-- Text to Speech-->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.TTS_SERVICE" />
+		</intent>
+	</queries>
 </manifest>

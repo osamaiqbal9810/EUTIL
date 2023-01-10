@@ -20,6 +20,9 @@ using SQLite;
 using TekTrackingCore.Sample.Models;
 using TekTrackingCore.ViewModels;
 using System.Security.Cryptography.X509Certificates;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
 
 public class MyEntry : Entry
 {
@@ -59,9 +62,27 @@ namespace TekTrackingCore.Services
         private CreateTableResult SavedUnitsList;
         private Dictionary<string, string> formvalue = new Dictionary<string, string>();
         private StaticListItemViewModel staticListItemViewModel;
-        public List<SessionModel> workPlanList;
-       
-
+        public ExtendedObservableCollection<WorkPlanDto> workPlanList;
+       // public Action<dynamic> setUnitGreenTick { get; set; }
+       // public List<WorkPlanDto> wPlanList;
+       public InspectionService() { }
+        public void setWorkPlanList(dynamic list)
+        {
+            workPlanList = list;
+            updateWpList();
+            
+        }
+        public void updateWpList()
+        {
+            foreach (var wpList in workPlanList)
+            {
+                Console.WriteLine(wpList);
+                if (wpList.msg == "start" && wpList.inspectionBtnStatus == false)
+                {
+                    wpList.inspectionBtnStatus = true;
+                }
+            }
+        }
         public async System.Threading.Tasks.Task SetUpDb()
         {
             if(_dbConnection == null)
@@ -90,224 +111,344 @@ namespace TekTrackingCore.Services
 
         public void mapFields(dynamic verticalStackLayout, dynamic field, dynamic savedFormValues)
         {
-            if (field.field_type == "select")
+            try
             {
-                var selectOptions = new List<string>();
-                foreach (var option in field.options)
+                if (field.field_type == "select")
                 {
-                    string optionValue = option.label;
-                    selectOptions.Add(optionValue);
-                }
-                verticalStackLayout.Children.Add(new Label
-                {
-                    Text = field.field_label,
-                    FontSize = 14,
-                    Padding = 4,
-                    TextColor = Color.FromRgb(5, 5, 5)
-                });
-                MyPicker picker = new MyPicker { Title = field.field_label, TitleColor = Color.FromRgb(250, 250, 250), TextColor = Color.FromRgb(5, 5, 5), FontSize = 14 };
-                picker.fieldname = field.field_name;
-                picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
-                picker.ItemsSource = selectOptions;
-                
-
-                if (savedFormValues.Count > 0)
-                {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-
-                    if (savedForm.ContainsKey(fieldName))
+                    var selectOptions = new List<string>();
+                    foreach (var option in field.options)
                     {
-                        string value =(string) savedForm.GetValue(fieldName);
-                        int index = 0;
-                        for(int i=0; i < selectOptions.Count; i++)
-                        {  
-                            if (selectOptions[i] == value)
+                        string optionValue = option.label;
+                        selectOptions.Add(optionValue);
+                    }
+                    verticalStackLayout.Children.Add(new Label
+                    {
+                        Text = field.field_label,
+                        FontSize = 14,
+                        Padding = 4,
+                        TextColor = Color.FromRgb(5, 5, 5)
+                    });
+                    MyPicker picker = new MyPicker { Title = field.field_label, TitleColor = Color.FromRgb(250, 250, 250), TextColor = Color.FromRgb(5, 5, 5), FontSize = 14 };
+                    picker.fieldname = field.field_name;
+                    picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
+                    picker.ItemsSource = selectOptions;
+
+
+                    if (savedFormValues.Count > 0)
+                    {
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            string value = (string)savedForm.GetValue(fieldName);
+                            int index = 0;
+                            for (int i = 0; i < selectOptions.Count; i++)
                             {
-                                index = i;
+                                if (selectOptions[i] == value)
+                                {
+                                    index = i;
+                                }
                             }
+
+                            picker.SelectedIndex = index;
+
                         }
-                       
-                        picker.SelectedIndex = index;
-
                     }
-                }
-              
-                verticalStackLayout.Children.Add(picker);
 
-            }
-            else if (field.field_type == "text")
-            {
-                MyEntry entry = new MyEntry { Placeholder = field.field_label, TextColor = Color.FromRgb(5, 5, 5), FontSize = 16, PlaceholderColor = Color.FromRgb(5, 5, 5), Keyboard = Keyboard.Numeric };
-                entry.fieldname = field.field_name;
-                entry.TextChanged += OnEntryTextChanged;
-                if (savedFormValues.Count > 0)
+                    verticalStackLayout.Children.Add(picker);
+
+                }
+                else if (field.field_type == "text")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-
-                    if (savedForm.ContainsKey(fieldName))
+                    MyEntry entry = new MyEntry { Placeholder = field.field_label, TextColor = Color.FromRgb(5, 5, 5), FontSize = 16, PlaceholderColor = Color.FromRgb(5, 5, 5), Keyboard = Keyboard.Numeric };
+                    entry.fieldname = field.field_name;
+                    entry.TextChanged += OnEntryTextChanged;
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        entry.Text = value.ToString();
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            entry.Text = value.ToString();
+                        }
                     }
+                    verticalStackLayout.Children.Add(entry);
                 }
-                verticalStackLayout.Children.Add(entry);
-            }
-            else if (field.field_type == "checkbox")
-            {
-                HorizontalStackLayout flex = new HorizontalStackLayout();
-
-                Label myLabel = new Label { Text = field.field_label, FontSize = 14, Padding = 4, TextColor = Color.FromRgb(5, 5, 5) };
-                flex.Children.Add(myLabel);
-
-                MyCheckBox repairedCheck = new MyCheckBox { IsChecked = false };
-                repairedCheck.fieldname = field.field_name;
-                repairedCheck.CheckedChanged += OnCheckBoxCheckedChanged;
-
-                if (savedFormValues.Count > 0)
+                else if (field.field_type == "checkbox")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-                    Console.WriteLine(savedForm);
+                    HorizontalStackLayout flex = new HorizontalStackLayout();
 
-                    if (savedForm.ContainsKey(fieldName))
+                    Label myLabel = new Label { Text = field.field_label, FontSize = 14, Padding = 4, TextColor = Color.FromRgb(5, 5, 5) };
+                    flex.Children.Add(myLabel);
+
+                    MyCheckBox repairedCheck = new MyCheckBox { IsChecked = false };
+                    repairedCheck.fieldname = field.field_name;
+                    repairedCheck.CheckedChanged += OnCheckBoxCheckedChanged;
+
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        repairedCheck.IsChecked = (bool)value;
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+                        Console.WriteLine(savedForm);
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            repairedCheck.IsChecked = (bool)value;
+                        }
                     }
+
+                    flex.Children.Add(repairedCheck);
+
+                    verticalStackLayout.Children.Add(flex);
                 }
-
-                flex.Children.Add(repairedCheck);
-
-                verticalStackLayout.Children.Add(flex);
-            }
-            else if (field.field_type == "textArea")
-            {
-                MyEditor editor = new MyEditor { Placeholder = field.field_label, HeightRequest = 250, BackgroundColor = Color.FromRgb(231, 231, 231), FontSize = 14, PlaceholderColor = Color.FromRgb(5, 5, 5) };
-                editor.fieldname = field.field_name;
-                editor.TextChanged += OnEditorTextChanged;
-
-                if (savedFormValues.Count > 0)
+                else if (field.field_type == "textArea")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
+                    MyEditor editor = new MyEditor { Placeholder = field.field_label, HeightRequest = 250, BackgroundColor = Color.FromRgb(231, 231, 231), FontSize = 14, PlaceholderColor = Color.FromRgb(5, 5, 5) };
+                    editor.fieldname = field.field_name;
+                    editor.TextChanged += OnEditorTextChanged;
 
-                    if (savedForm.ContainsKey(fieldName))
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        editor.Text = value.ToString();
-                    }
-                }
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
 
-                verticalStackLayout.Children.Add(editor);
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            editor.Text = value.ToString();
+                        }
+                    }
+
+                    verticalStackLayout.Children.Add(editor);
+                }
+            }catch(Exception e)
+            {
+                Console.WriteLine("MAp Fields " + e);
             }
         }
 
         public async void OnsubmitButtonClicked()
         {
-            var wp = Preferences.Get("SelectedWorkPlan", "");
-            var unitOb = Preferences.Get("SelectedUnit", "");
-            if (wp != "" && unitOb != "")
+            bool ackResp = await App.Current.MainPage.DisplayAlert("Do you really want to submit the inspection?", "You will not be able to edit this in future", "Yes", "No");
+            if (ackResp == true)
             {
-                DateTime currentDateTime = DateTime.Now;
-
-                JObject jPlan = new JObject();
-                JArray tasks = new JArray();
-                JObject jObject = new JObject();
-                JArray units = new JArray();
-                JArray formValuesArray = new JArray();
-                ///units
-                var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
-                var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-
-
-                foreach (var obj in formvalue)
-                {
-                    jObject.Add(obj.Key, obj.Value);
-                }
-
-                formValuesArray.Add(jObject);
-                JObject unit = new JObject();
-                unit.Add("id", unitObj.assetId);
-                unit.Add("unitId", unitObj.unitId);
-                unit.Add("assetType", unitObj.assetType);
-                unit.Add("status", "Finished");
-                unit.Add("appForms", formValuesArray);
-                unit.Add("testForm", unitObj.testForm);
-                unit.Add("inspection_type", unitObj.inspection_type);
-                unit.Add("inspection_freq", unitObj.inspection_freq);
-                unit.Add("wPlanId", unitObj.wPlanId);
-                unit.Add("locationType", unitObj.locationType);
-                unit.Add("coordinates", unitObj.coordinates);
-                unit.Add("parent_id", unitObj.parent_id);
-                units.Add(unit);
-                // tasks
-                JObject task = new JObject();
-                task.Add("taskId", "");
-                task.Add("startLocation", "");
-                task.Add("endLocation", "");
-                task.Add("startTime", "");
-                task.Add("endTime", "");
-                task.Add("title", wpObj[0].title);
-                task.Add("description", "Perform Inspection");
-                task.Add("notes", "Default Inspection Notes");
-                task.Add("units", units);
-                tasks.Add(task);
-
-                jPlan.Add("title", wpObj[0].title);
-                jPlan.Add("workplanTemplateId", wpObj[0]._id);
-                jPlan.Add("lineId", wpObj[0].lineId);
-                jPlan.Add("status", "Finished");
-                jPlan.Add("user", wpObj[0].user);
-                jPlan.Add("date", currentDateTime.ToString());
-                jPlan.Add("tasks", tasks);
-
-                var httpclient = new HttpClient();
-                string formDataObj = JsonConvert.SerializeObject(jPlan);
-
-                if (formDataObj != null)
-                {
-                    string url = string.Format(AppConstants.JourneyPlanStart_URL);
-                    StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
-                    if (response.IsSuccessStatusCode)
+                try {
+                    var wp = Preferences.Get("SelectedWorkPlan", "");
+                    var unitOb = Preferences.Get("SelectedUnit", "");
+                    if (wp != "" && unitOb != "")
                     {
-                        formDataObj = null;
-                       
-                        await Shell.Current.GoToAsync("workPlansPage");
+                        DateTime currentDateTime = DateTime.Now;
+
+                        JObject jPlan = new JObject();
+                        JArray tasks = new JArray();
+                        JObject jObject = new JObject();
+                        JArray units = new JArray();
+                        JArray formValuesArray = new JArray();
+                        ///units
+                        var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
+                        var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
+
+
+                        foreach (var obj in formvalue)
+                        {
+                            jObject.Add(obj.Key, obj.Value);
+                        }
+
+                        formValuesArray.Add(jObject);
+                        JObject unit = new JObject();
+                        unit.Add("id", unitObj.assetId);
+                        unit.Add("unitId", unitObj.unitId);
+                        unit.Add("assetType", unitObj.assetType);
+                        unit.Add("status", "Finished");
+                        unit.Add("appForms", formValuesArray);
+                        unit.Add("testForm", unitObj.testForm);
+                        unit.Add("inspection_type", unitObj.inspection_type);
+                        unit.Add("inspection_freq", unitObj.inspection_freq);
+                        unit.Add("wPlanId", unitObj.wPlanId);
+                        unit.Add("locationType", unitObj.locationType);
+                        unit.Add("coordinates", unitObj.coordinates);
+                        unit.Add("parent_id", unitObj.parent_id);
+                        units.Add(unit);
+                        // tasks
+                        JObject task = new JObject();
+                        task.Add("taskId", "");
+                        task.Add("startLocation", "");
+                        task.Add("endLocation", "");
+                        task.Add("startTime", "");
+                        task.Add("endTime", "");
+                        task.Add("title", wpObj[0].title);
+                        task.Add("description", "Perform Inspection");
+                        task.Add("notes", "Default Inspection Notes");
+                        task.Add("units", units);
+                        tasks.Add(task);
+
+                        jPlan.Add("title", wpObj[0].title);
+                        jPlan.Add("workplanTemplateId", wpObj[0]._id);
+                        jPlan.Add("lineId", wpObj[0].lineId);
+                        jPlan.Add("status", "Finished");
+                        jPlan.Add("user", wpObj[0].user);
+                        jPlan.Add("date", currentDateTime.ToString());
+                        jPlan.Add("tasks", tasks);
+
+                        var httpclient = new HttpClient();
+                        string formDataObj = JsonConvert.SerializeObject(jPlan);
+
+                        if (formDataObj != null)
+                        {
+                            string url = string.Format(AppConstants.JourneyPlanStart_URL);
+                            StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
+                            HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
+                            if (response.IsSuccessStatusCode)
+                            {
+                                var toast = Toast.Make("Inspection Submitted Successfully!", ToastDuration.Long);
+                               await toast.Show();
+                                foreach (var workP in workPlanList)
+                                {
+                                    bool allInspectionsCompletedFlag = true;
+                                    var allUnits = workP.AllUnits;
+                                    if (allUnits.Count > 0)
+                                    {
+                                        foreach (var pUnit in allUnits)
+                                        {
+                                            if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                                            {
+                                                pUnit.StartInspButtonStatus = false;
+                                                pUnit.AssetInspectionDone = true;
+                                                pUnit.AssetInspectionSaved = false;
+                                                pUnit.Status = "Finished";
+
+                                            }
+                                            //else
+                                            //{
+                                            //    pUnit.StartInspButtonStatus = true;
+                                            //    pUnit.AssetInspectionDone = false;
+                                            //     pUnit.AssetInspectionSaved = false;
+                                            //}
+
+                                            if(pUnit.Status != "Finished")
+                                            {
+                                                allInspectionsCompletedFlag = false;
+                                            }
+                                        }
+                                        if (allInspectionsCompletedFlag == true)
+                                        {
+                                            workP.AssetInspectionDone = true;
+                                            workP.HideBtnOnInspectionComplete = false;
+                                            handleInspectionBtnStatus(workP.Id);
+                                        }
+                                    }
+                                    
+
+                                }
+                                await Shell.Current.GoToAsync("workPlansPage");
+                                
+                            }
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return; // handle
                 }
             }
         }
-        public async void OnsaveButtonClicked()
+        public async void handleInspectionBtnStatus(string idToRemove)
         {
-            var unitForm = new List<dynamic>();
-            JObject values = new JObject();
-
-            var unitOb = Preferences.Get("SelectedUnit", "");
-            var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-            Console.WriteLine(formvalue.ToString());
-            foreach (var obj in formvalue)
+            foreach (var wp in workPlanList)
             {
-                values.Add(obj.Key, obj.Value);
+                if (wp.Id == idToRemove)
+                {
+                    SessionModel sm = new SessionModel();
+                    sm.Title = wp.Title;
+                    sm.startInspBtnState = "Resume";
+                    sm.Id = wp.Id;
+                   await  UpdateWorkPlanDto(sm);
+
+                }
+                else if(wp.Id != idToRemove)
+                {
+                    wp.inspectionBtnStatus = true;
+                }
             }
-            unitForm.Add(values);
-            string unitFormObj = JsonConvert.SerializeObject(unitForm);
+        }
+        public async System.Threading.Tasks.Task OnsaveButtonClicked()
+        {
+            bool ackResp = await App.Current.MainPage.DisplayAlert( "Do you really want to save the inspection?","", "Yes", "No");
+            if (ackResp)
+            {
+                var unitForm = new List<dynamic>();
+                JObject values = new JObject();
 
-            UnitModel unitModel = new UnitModel();
-            unitModel.AssetId = unitObj.assetId;
-            unitModel.AssetName = unitObj.unitId;
-            unitModel.Values = unitFormObj;
+                var unitOb = Preferences.Get("SelectedUnit", "");
+                var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
+                Console.WriteLine(formvalue.ToString());
+                foreach (var obj in formvalue)
+                {
+                    values.Add(obj.Key, obj.Value);
+                }
+                unitForm.Add(values);
+                string unitFormObj = JsonConvert.SerializeObject(unitForm);
 
-            await InsertUnitForm(unitModel);
-            var unitFormList =await  GetSavedUnitForms();
-            Console.WriteLine(unitFormList.ToString());
-            await Shell.Current.GoToAsync("workPlansPage");
+                UnitModel unitModel = new UnitModel();
+                unitModel.AssetId = unitObj.assetId;
+                unitModel.AssetName = unitObj.unitId;
+                unitModel.Values = unitFormObj;
+
+                await InsertUnitForm(unitModel);
+                var unitFormList = await GetSavedUnitForms();
+                Console.WriteLine(unitFormList.ToString());
+                var toast = Toast.Make("Inspection saved Successfully!", ToastDuration.Long);
+                await toast.Show();
+                foreach (var workP in workPlanList)
+                {
+                    //bool allInspectionsCompletedFlag = true;
+                    var allUnits = workP.AllUnits;
+                    if (allUnits.Count > 0)
+                    {
+                        foreach (var pUnit in allUnits)
+                        {
+                            if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                            {
+                                pUnit.StartInspButtonStatus = true;
+                                pUnit.AssetInspectionSaved = true;
+                                pUnit.AssetInspectionDone = false;
+                                pUnit.Status = "In Progress";
+
+                            }
+                            //else
+                            //{
+                            //    pUnit.StartInspButtonStatus = true;
+                            //    pUnit.AssetInspectionSaved = false;
+                            //    pUnit.AssetInspectionDone = false;
+                            //}
+
+                            //if (pUnit.Status != "Finished")
+                            //{
+                            //    allInspectionsCompletedFlag = false;
+                            //}
+                        }
+                        //if (allInspectionsCompletedFlag == true)
+                        //{
+                        //    workP.AssetInspectionDone = true;
+                        //    workP.HideBtnOnInspectionComplete = false;
+                        //}
+                    }
+
+
+                }
+                await Shell.Current.GoToAsync("workPlansPage");
+
+                //await Shell.Current.GoToAsync("workPlansPage");
+            }
 
         }
         void OnPickerSelectedIndexChanged(object sender, EventArgs e)

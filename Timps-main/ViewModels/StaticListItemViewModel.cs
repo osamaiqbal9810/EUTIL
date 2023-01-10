@@ -47,6 +47,11 @@ namespace TekTrackingCore.ViewModels
             itemsAction(Items);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+
+        public static implicit operator ExtendedObservableCollection<T>(WorkPlanDto v)
+        {
+            throw new NotImplementedException();
+        }
     }
     public partial class StaticListItemViewModel : BaseViewModel, INotifyPropertyChanged
     {
@@ -60,22 +65,25 @@ namespace TekTrackingCore.ViewModels
         [ObservableProperty]
         public ExtendedObservableCollection<WorkPlanDto> workPlanList;
 
+        public ExtendedObservableCollection<WorkPlanDto> localWorkPlanList;
+
+
 
         private DatabaseSyncService service;
         private InspectionService inspectionService;
        
-        public StaticListItemViewModel()
+        public StaticListItemViewModel(InspectionService pService)
         {
             service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
             StaticListItemsList = new ExtendedObservableCollection<StaticListItemDTO1>();
             StaticListItemsList1 = new ExtendedObservableCollection<StaticListItemDTO1>();
             workPlanList = new ExtendedObservableCollection<WorkPlanDto>();
-            inspectionService = new InspectionService();
+            inspectionService = pService;
             //staticListItemsList.Add(new StaticListItemDTO1 { Code = "666", Description = "555", ListName = "444", OptParam1 = "3333", OptParam2 = "33", TenantId = "123" });
             service.SetSyncCallback = onSyncCallback;
-          
+           // inspectionService.setUnitGreenTick = enablingGreenTickAgainstUnit;
         }
-       
+
 
         [RelayCommand]
         public async void Test(Sample.Models.Unit unit)
@@ -103,6 +111,7 @@ namespace TekTrackingCore.ViewModels
         [RelayCommand]
         public async void StartInspection(WorkPlanDto obj)
         {
+            Console.WriteLine(obj.msg);
             await inspectionService.SetUpDb();
             // prepare data for session table
             SessionModel sm = new SessionModel();
@@ -131,6 +140,8 @@ namespace TekTrackingCore.ViewModels
                                 foreach (var otherUnit in OtherAssetsAllUnits)
                                 {
                                     otherUnit.StartInspButtonStatus = false;
+                                    otherUnit.AssetInspectionDone = false;
+                                   
                                 }
                             }
                             
@@ -143,7 +154,9 @@ namespace TekTrackingCore.ViewModels
                     var units = obj.AllUnits;
                     foreach (var unit in units)
                     {
-                        unit.StartInspButtonStatus = true;
+                       unit.StartInspButtonStatus = true;
+                       unit.AssetInspectionDone = false;
+                        
                     }
                     if (obj.msg == "start")
                     {
@@ -168,13 +181,16 @@ namespace TekTrackingCore.ViewModels
 
                     else if(obj.msg == "pause")
                     {
+                        var unitsPause = obj.AllUnits;
                         string nextState = obj.pause();
                         sm.startInspBtnState = nextState;
                        await  inspectionService.UpdateWorkPlanDto(sm);
-                        foreach (var unit in units)
+                        foreach (var unit in unitsPause)
                         {
-                            Console.WriteLine(unit.AssetId);
-                            unit.StartInspButtonStatus = false;
+                           
+                                unit.StartInspButtonStatus = false;
+                                unit.AssetInspectionDone = false;
+                            
                         }
 
                         foreach (var plan in workPlanList)
@@ -186,13 +202,23 @@ namespace TekTrackingCore.ViewModels
                     }
                     else if(obj.msg == "Resume")
                     {
+                        var unitsResume = obj.AllUnits;
                         string msg = obj.start();
                         sm.startInspBtnState = msg;
                         await inspectionService.UpdateWorkPlanDto(sm);
-                        foreach (var unit in units)
+                        foreach (var unit in unitsResume)
                         {
                             Console.WriteLine(unit.AssetId);
-                            unit.StartInspButtonStatus = true;
+                            if(unit.Status == "Finished")
+                            {
+                                unit.StartInspButtonStatus = false;
+                                unit.AssetInspectionDone = true;
+                            }
+                            else
+                            {
+                                unit.StartInspButtonStatus = true;
+                                unit.AssetInspectionDone = false;
+                            }
                             foreach (var plan in workPlanList)
                             {
                                 Console.WriteLine(plan);
@@ -213,6 +239,7 @@ namespace TekTrackingCore.ViewModels
         {
             if (obj != null)
             {
+               
                
                 JObject jPlan = new JObject();
                 JObject user = new JObject();
@@ -278,6 +305,15 @@ namespace TekTrackingCore.ViewModels
                     HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
                     if (response.IsSuccessStatusCode)
                     {
+                        foreach (var wPlan in workPlanList)
+                        {
+                            var getUnits = wPlan.AllUnits;
+                            foreach (var unit in getUnits)
+                            {
+                                unit.Status = "In Progress";
+                            }
+
+                        }
                         formDataObj = null;
                         await Shell.Current.GoToAsync("workPlansPage");
                     }
@@ -308,13 +344,10 @@ namespace TekTrackingCore.ViewModels
                 await Shell.Current.GoToAsync($"{nameof(FormPage)}", true, new Dictionary<string, object> { { "OptParam1", item }, { "SelectedWorkPlan", selectedWorkPlan }, { "UnitObj", unitObj } });
 
             }
-
-
-
         }
         public  void onSyncCallback()
         {
-            workPlanList.Clear();
+            //workPlanList.Clear();
             var filterdlist = (service.staticListItemDTOs.Where(p => p.ListName == "WorkPlanTemplate").Take(100));
             Console.WriteLine(filterdlist.ToString(), "filteredlist");
 
@@ -339,13 +372,13 @@ namespace TekTrackingCore.ViewModels
                     //items.Clear(); 
                     items.AddRange(filterdlist);
                 });
-
+                var itemsToAdd = new List<WorkPlanDto>();
                 foreach (var listItems in StaticListItemsList)
                 {
                     if (listItems.Code != "-1")
                     {
                         var item = listItems.OptParam1;
-
+                       
                         var jsonSettings = new JsonSerializerSettings
                         {
                             NullValueHandling = NullValueHandling.Ignore,
@@ -353,12 +386,24 @@ namespace TekTrackingCore.ViewModels
                         };
 
                         WorkPlanDto result = JsonConvert.DeserializeObject<WorkPlanDto>(item, jsonSettings); // jsonSettings are explicitly supplied
-
-                        workPlanList.Add(result);
+                        if(workPlanList.Count <= 0)
+                        {
+                            workPlanList.Add(result);
+                        }
+                        else
+                        {
+                            var alreadyExist = workPlanList.Where(plan => plan.Id == result.Id);
+                            if(alreadyExist.Count() <= 0)
+                            {
+                                workPlanList.Add(result);
+                                
+                            }
+                        }
                         updateWorkPlanDtoStatus();
                     }
                 }
                 
+                inspectionService.setWorkPlanList(workPlanList);
                 staticListItemsList.Clear();
             }
 
@@ -366,6 +411,7 @@ namespace TekTrackingCore.ViewModels
 
         public async void updateWorkPlanDtoStatus()
         {
+
             var sessions = await inspectionService.GetWorkPlanDtos();
             int count = sessions.Count;
             Console.WriteLine(sessions.Count);
@@ -375,7 +421,9 @@ namespace TekTrackingCore.ViewModels
                     var id = session.Id;
                     foreach(var wp in workPlanList)
                     {
-                        if(wp.Id == session.Id)
+                        string idToRemove;
+                        bool allInspectionsCompletedFlag = true;
+                        if (wp.Id == session.Id)
                         {
                             wp.msg = session.startInspBtnState;
                         }
@@ -384,24 +432,51 @@ namespace TekTrackingCore.ViewModels
                             var allUnits = wp.AllUnits;
                             foreach (var unit in allUnits)
                             {
-                                if (unit.Status == "Finished")
+                                if (unit.Status == "Finished" )
                                 {
                                     unit.StartInspButtonStatus = false;
+                                    unit.AssetInspectionDone = true;
                                 }
-                                else
+                                if (unit.Status != "Finished")
                                 {
-                                    unit.StartInspButtonStatus = true;
+                                    allInspectionsCompletedFlag = false;
                                 }
                             }
+                            if (allInspectionsCompletedFlag == true)
+                            {
+                                wp.AssetInspectionDone = true;
+                                wp.HideBtnOnInspectionComplete = false;
+                                idToRemove = wp.Id.ToString();
+
+                               handleInspectionBtnStatus(idToRemove);
+
+                            }
                         }
+                        //else
+                        //{
+                        //    handleInspectionBtnStatus();
+                        //}
                         if (session.startInspBtnState == "pause")
                         {
-                            if(wp.Id != session.Id)
+                            if (wp.Id != session.Id)
                             {
                                 wp.inspectionBtnStatus = false;
                             }
                         }
                     }
+                }
+            }
+
+            //to handle scenerio when i pause state all inspecions are completed then to enable inspectionBtnStatus
+        }
+
+        public void handleInspectionBtnStatus(string idToRemove)
+        {
+            foreach (var wp in workPlanList)
+            {
+                if (wp.Id != idToRemove)
+                {
+                    wp.inspectionBtnStatus = true;
                 }
             }
         }
@@ -418,6 +493,7 @@ namespace TekTrackingCore.ViewModels
                         if(unit.Status == "Finished")
                         {
                             unit.StartInspButtonStatus = false;
+                            unit.AssetInspectionDone = true;
                         }
                     }
                 }

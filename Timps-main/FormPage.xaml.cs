@@ -13,13 +13,14 @@ namespace TekTrackingCore;
 public partial class FormPage : ContentPage
 {
     private InspectionService service;
-    public FormPage(FormPageViewModel viewmodel)
+    public FormPage(FormPageViewModel viewmodel, InspectionService pService)
     { 
         InitializeComponent();
         BindingContext = viewmodel;
         viewmodel.setRenderCallBack = RenderForm;
-        service = new InspectionService();      
+        service = pService;    
     }
+
 
     public async void RenderForm(string json)
     {
