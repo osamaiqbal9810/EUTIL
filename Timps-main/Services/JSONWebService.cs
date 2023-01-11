@@ -37,6 +37,7 @@ namespace TekTrackingCore.Services
                 IncludeFields = true
             };
 
+
             Token = Preferences.Get(AppConstants.TOKEN_KEY, "");
             _client.DefaultRequestHeaders.Add("Authorization", Token);
         }

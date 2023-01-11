@@ -1,17 +1,31 @@
 ﻿
+using CommunityToolkit.Mvvm.ComponentModel;
+using System.ComponentModel;
 using TekTrackingCore.ViewModels;
 using TekTrackingCore.Views;
 
 namespace TekTrackingCore;
 
 public partial class AppShell : Shell
+   
+     
 {
+    
+
+
+
+
+
     public AppShell()
          
        
     {
         InitializeComponent();
         BindingContext = new AppShellViewModel();
+  
+
+
+
 
 
         Routing.RegisterRoute(nameof(Briefing), typeof(Briefing));
@@ -34,4 +48,6 @@ public partial class AppShell : Shell
 
 
     }
+
+  
 }

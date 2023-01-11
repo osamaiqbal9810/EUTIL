@@ -32,7 +32,7 @@ namespace TekTrackingCore.ViewModels
                 foreach (var item in list)
                 {
                     Settings.Add(item);
-                    //Preferences.Set(item.ServerAdress+":"+item.PortNumber, "serverEndpoint");
+                    Preferences.Set("serverEndpoint",item.ServerAdress+":"+item.PortNumber);
                 }
                 
             }
@@ -45,6 +45,8 @@ namespace TekTrackingCore.ViewModels
         public async void DeleteServer(SettingModel settingModel)
         {
             var delResponse = await _studentService.DeleteServer(settingModel);
+
+            Preferences.Clear();
 
             if (delResponse > 0)
             {

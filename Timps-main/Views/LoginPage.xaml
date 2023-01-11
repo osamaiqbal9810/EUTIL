@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:xct="http://maui.com/schemas/2022/toolkit"
              xmlns:xts="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
-             
+             Shell.NavBarIsVisible="False"
              x:Class="TekTrackingCore.Views.LoginPage"
               BackgroundColor="Grey"
              >
@@ -45,7 +45,7 @@
                 </Frame>
 
                 <Frame Padding="0" Margin="20,0,0,0" HasShadow="True" HeightRequest="45" CornerRadius="20" BorderColor="Black" HorizontalOptions="FillAndExpand">
-                    <Entry Margin="20,0,0,0" VerticalOptions="Center" Placeholder="Email" Keyboard="Email"  FontSize="Large" Text="{Binding Email}" >
+                    <Entry x:Name="emailField" Margin="20,0,0,0" VerticalOptions="Center" Placeholder="Email" Keyboard="Email"  FontSize="Large" Text="{Binding Email}" >
                         <Entry.Behaviors>
                             <xts:MultiValidationBehavior InvalidStyle="{StaticResource InvalidStyle}" x:Name="MultiValidationEmail">
                                 <xts:EmailValidationBehavior  xts:MultiValidationBehavior.Error="Invalid Email" RegexPattern="" />
@@ -69,7 +69,7 @@
 
 
                 <Frame Padding="0" Margin="20,0,0,0" HasShadow="True" HeightRequest="45" CornerRadius="20" BorderColor="Black" HorizontalOptions="FillAndExpand">
-                    <Entry  Margin="20,0,0,0" VerticalOptions="Center" Placeholder="Password"   FontSize="Large" IsPassword="true" Text="{Binding Password}">
+                    <Entry Keyboard="Text" x:Name="passwordField"  Margin="20,0,0,0" VerticalOptions="Center" Placeholder="Password"   FontSize="Large" IsPassword="true" Text="{Binding Password}">
                         <Entry.Behaviors >
                             <xts:MultiValidationBehavior InvalidStyle="{StaticResource InvalidStyle}" x:Name="MultiValidation">
                                 
@@ -104,7 +104,7 @@
             <FlexLayout JustifyContent="Center" AlignItems="Center" Margin="0,5,0,5" >
 
                 <Button Command="{Binding SettingCommand}" BackgroundColor="#191970" TextColor="White" Text="Settings" WidthRequest="150"  HeightRequest="40" CornerRadius="0" Margin="5,0,5,0"/>
-                <Button BackgroundColor="#191970" TextColor="White" Text="Language" WidthRequest="150"  HeightRequest="40" CornerRadius="0"  Margin="5,0,5,0"/>
+                <!--<Button BackgroundColor="#191970" TextColor="White" Text="Language" WidthRequest="150"  HeightRequest="40" CornerRadius="0"  Margin="5,0,5,0"/>-->
             </FlexLayout>
 
 

@@ -12,6 +12,8 @@ namespace TekTrackingCore.Services
 {
     public class DatabaseSyncService
     {
+
+
         public TimerDelegate<string> timerTask;
         public int count;
         public string results;
@@ -22,7 +24,7 @@ namespace TekTrackingCore.Services
         private JsonSerializerOptions _serializerOptions;
         public async void Start()
         {
-
+         
             staticListItemDTOs = new List<StaticListItemDTO1>();
             Poll();
 
@@ -51,12 +53,16 @@ namespace TekTrackingCore.Services
 
         public async void Poll()
         {
+            Server s = new Server();
+
             staticListItemDTOs.Clear();
-            System.Diagnostics.Debug.WriteLine("This is a log", AppConstants.LIST_URL);
+            System.Diagnostics.Debug.WriteLine("This is a log", s.LIST_URL);
 
             JSONWebService service = ServiceResolver.ServiceProvider.GetRequiredService<JSONWebService>();
-            string url = string.Format(AppConstants.LIST_URL, 300, LastTimestamp);
+            string url = string.Format(s.LIST_URL, 300, LastTimestamp);
             results = await service.GetJSONAsync(url, 10000);
+
+
             var responseDTO = JsonSerializer.Deserialize<MessageListResponseDTO>(results);
 
             //Preferences.Set(typeof(LoginInfo).ToString(), responseDTO.ToString());

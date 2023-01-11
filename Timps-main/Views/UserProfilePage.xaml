@@ -6,7 +6,7 @@
 
     <ScrollView>
         <VerticalStackLayout>
-            <StackLayout HeightRequest="200" x:Name="accounttop" BackgroundColor="#087cca">
+            <StackLayout  x:Name="accounttop" BackgroundColor="#087cca">
                 <Frame  HorizontalOptions="Center" VerticalOptions="Center" CornerRadius="75" WidthRequest="80" HeightRequest="80" BackgroundColor="#D3D3D3" BorderColor="White" Margin="0,10,0,0" IsClippedToBounds="True">
                     <Image VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="Fill" Source="userprofile.png"  HeightRequest="60" WidthRequest="60"   x:Name="imageStatus" />
                 </Frame>    
@@ -19,17 +19,16 @@
                 <Label Text="{Binding Name}" TextColor="White" HorizontalOptions="Center" Margin="0,10,0,0" FontSize="24" FontAttributes="Bold"/>
                 <Label Text="{Binding Email}" TextColor="White" HorizontalOptions="Center" FontSize="14"  />
 
-                <Frame BackgroundColor="Green" WidthRequest="250" CornerRadius="100" Margin="0,10,0,0" BorderColor="Black">
-                    <Frame.GestureRecognizers HeightRequest="40">
-                            <TapGestureRecognizer 
-                                Tapped="OnBackToDashBoard" Command="{Binding }" />
-                        </Frame.GestureRecognizers>
-                    <FlexLayout JustifyContent="SpaceAround" AlignItems="Center" HeightRequest="36">
-                        <ImageButton Source="accountarrow.png"  Command="{Binding UserProfileBackCommand}"/>
-                        <Label Text="Back To Dashboard" TextColor="White" BackgroundColor="Green"/>
-                    </FlexLayout>
+                <!--<Frame  BackgroundColor="Green" WidthRequest="250" CornerRadius="100" Margin="0,10,0,0" BorderColor="Black">-->
+                  
+                    <!--<FlexLayout JustifyContent="SpaceAround" AlignItems="Center" HeightRequest="36">-->
+                        <StackLayout Margin="0,10,0,5">
+                        <!--<ImageButton Source="accountarrow.png"  />-->
+                    <Button WidthRequest="280" Padding="23" FontSize="22" FontAttributes="Bold" CornerRadius="40"   Command="{Binding UserProfileBackCommand}" Text="Back To Dashboard" TextColor="White" BackgroundColor="#228b22"/>
+                        </StackLayout>
+                    <!--</FlexLayout>-->
                     
-                </Frame>
+                <!--</Frame>-->
             </StackLayout>
 
 

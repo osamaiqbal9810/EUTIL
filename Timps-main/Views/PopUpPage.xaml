@@ -14,7 +14,8 @@
             <Entry  Placeholder="Display name" PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="displayName"/>
             <BoxView  BackgroundColor="Black" HeightRequest="2" Margin="1,8,0,0"/>
 
-            <Entry Keyboard="Numeric" Placeholder="Server address"  PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="serverAddress"/>
+          
+            <Entry Placeholder="Server address"  PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="serverAddress"/>
               <BoxView  BackgroundColor="Black" HeightRequest="2" Margin="1,8,0,0"/>
 
             <Entry Keyboard="Numeric" Placeholder="Port"  PlaceholderColor="Grey" Margin="5,0,0,0" x:Name="portNumber"/>

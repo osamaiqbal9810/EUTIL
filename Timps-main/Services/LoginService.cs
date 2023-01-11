@@ -46,12 +46,16 @@ namespace TekTrackingCore.Services
             UserInfo userinfo;
             try
             {
+                
+                Server s = new Server();
                 showLoading(true);
                 IsLoadingLogin(true);
                   userinfo = new UserInfo();
                 var httpclient = new HttpClient();
                 //string url = Globals.wsBaseURL + "/login/";
-                string url = string.Format(AppConstants.Login_RestUrl);
+
+
+                string url = string.Format(s.Login_RestUrl);
                 //string url = "https://electric-utility-inspection-system.onrender.com/api/login";
                 //string userloginjson = @"{ ""user"":{ ""email"":""medmonds@tektracking.com"",""password"":""welcome""}}";
                 LoginRequest request = new LoginRequest();
@@ -65,7 +69,6 @@ namespace TekTrackingCore.Services
               
                 if (response.IsSuccessStatusCode)
                 {
-                   
 
 
                     Console.WriteLine(response.StatusCode + "response status");

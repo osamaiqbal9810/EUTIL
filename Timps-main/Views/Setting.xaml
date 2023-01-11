@@ -29,14 +29,14 @@
         <CollectionView ItemsSource="{Binding Settings}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:SettingModel">
-                  
-                    <StackLayout>
-                    
+
+                        <StackLayout>
+
                             <!--<Label Text="{Binding DisplayName }"/>
                             <Label Text="{Binding ServerAdress }"/>
                             <Label Text="{Binding PortNumber }"/>-->
-                        <Label Text="{Binding DisplayName}" HorizontalOptions="Center" FontAttributes="Bold" FontSize="18" TextColor="Grey" />
-                        <FlexLayout AlignItems="Center"  HeightRequest="45" JustifyContent="SpaceBetween" >
+                            <Label Text="{Binding DisplayName}" HorizontalOptions="Center" FontAttributes="Bold" FontSize="18" TextColor="Grey" />
+                            <FlexLayout AlignItems="Center"  HeightRequest="45" JustifyContent="SpaceBetween" >
                                 <StackLayout>
                                     <FlexLayout AlignItems="Center">
                                         <!--<FlexLayout.GestureRecognizers>
@@ -44,48 +44,42 @@
                                                                   />
                                         </FlexLayout.GestureRecognizers>
                                         <CheckBox CheckedChanged="{Binding }"  IsChecked="{Binding isCheckedOrNot}" Color="Blue"  />-->
-
-
                                         <CheckBox  IsChecked="{Binding isCheckedOrNot}" Color="Blue" >
                                             <CheckBox.GestureRecognizers >
                                                 <TapGestureRecognizer  Command="{Binding BindingContext.SettingCheckCommand, Source={x:Reference page }}" CommandParameter="{Binding .}"/>
                                             </CheckBox.GestureRecognizers>
                                         </CheckBox>
 
-
                                         <StackLayout>
-                                <Label  Text="{Binding ServerAdress}" FontSize="16" FontAttributes="Bold"/>
-                                <Label  Text="{Binding PortNumber}" FontSize="16" FontAttributes="Bold"/>
-                            </StackLayout>
+                                            <Label  Text="{Binding ServerAdress}" FontSize="16" FontAttributes="Bold"/>
+                                            <Label  Text="{Binding PortNumber}" FontSize="16" FontAttributes="Bold"/>
+                                        </StackLayout>
                                     </FlexLayout>
                                 </StackLayout>
-                            
-                            
+
                                 <StackLayout Margin="0,0,10,0" >
                                     <!--<Button BackgroundColor="Blue"  Command="{Binding BindingContext.DeleteServerCommand, Source={x:Reference page }}" CommandParameter="{Binding .}"  Text="Delete" 
                                >
                                        
                                     </Button>-->
-                
+
                                     <FlexLayout >
                                         <ImageButton  Command="{Binding BindingContext.DeleteServerCommand, Source={x:Reference page }}" CommandParameter="{Binding .}"   Margin="0,10,10,10" Padding="0,0,0,0" CornerRadius="0" Source="delete.png" HeightRequest="34" WidthRequest="34"/>
                                     </FlexLayout>
 
                                 </StackLayout>
-                        </FlexLayout>
+                            </FlexLayout>
                             <BoxView  BackgroundColor="Black" HeightRequest="1" Margin="1,8,0,0"/>
 
                         </StackLayout>
-
-                       
-
-
-                </DataTemplate>
+                    </DataTemplate>
             </CollectionView.ItemTemplate>
            
         </CollectionView>
-        <StackLayout HorizontalOptions="End" VerticalOptions="End" Margin="0,100,10,0">
-            <ImageButton Source="plus.png" WidthRequest="70" Clicked="PoppOpen"/>
+        <StackLayout   Margin="0,0,10,0">
+
+                <ImageButton  Source="plus.png" WidthRequest="100" Clicked="PoppOpen"  />
+            
         </StackLayout >
     </StackLayout>
     </ScrollView>

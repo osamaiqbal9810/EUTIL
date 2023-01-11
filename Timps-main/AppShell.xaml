@@ -64,14 +64,17 @@ Shell.FlyoutItemIsVisible="True"
 
     </TabBar>
 
-    <Shell.FlyoutHeader>
-        <StackLayout Padding="20">
+    
+    
+    <Shell.FlyoutHeader >
+        <StackLayout Padding="20" >
             <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
         </StackLayout>
     </Shell.FlyoutHeader>
 
     <Shell.FlyoutFooter >
-        <StackLayout Padding="20">
+        <StackLayout Padding="20" >
+            
             <Button Text="Sign Out" Command="{Binding SignOutCommand}" BackgroundColor="#191970" CornerRadius="0"/>
         </StackLayout>
     </Shell.FlyoutFooter>

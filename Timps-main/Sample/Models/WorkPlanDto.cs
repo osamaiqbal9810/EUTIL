@@ -400,7 +400,7 @@ namespace TekTrackingCore.Sample.Models
         public string AssetId { get; set; }
 
         [JsonProperty("coordinates")]
-        public List<object> Coordinates { get; set; }
+        public List<double[]> Coordinates { get; set; }
 
         [JsonProperty("assetType")]
         public string AssetType { get; set; }

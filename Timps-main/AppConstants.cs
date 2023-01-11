@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TekTrackingCore.Services;
 
 namespace TekTrackingCore
 {
     public static class AppConstants
     {
 
+   
+        
+
         // URL of REST service (Android does not use localhost)
         // Use http cleartext for local deployment. Change to https for production
 
         public static string LocalhostUrl = DeviceInfo.Platform == DevicePlatform.Android ? "172.19.91.167" : "172.19.91.167";
-        public static string ServerUrl = DeviceInfo.Platform == DevicePlatform.Android ? "https://electric-utility-inspection-system.onrender.com" : "https://electric-utility-inspection-system.onrender.com";
+        //public static string ServerUrl = DeviceInfo.Platform == DevicePlatform.Android ? "https://electric-utility-inspection-system.onrender.com" : "https://electric-utility-inspection-system.onrender.com";
         //    public static string LocalhostUrl = DeviceInfo.Platform == DevicePlatform.Android ? "192.168.1.8" : "localhost";
         public static string Scheme = "http"; // or https
         public static string Port = "4001"; // 5000 for http, 5001 for https

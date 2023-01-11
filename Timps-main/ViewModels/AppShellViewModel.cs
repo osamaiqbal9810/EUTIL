@@ -42,6 +42,9 @@ namespace TekTrackingCore.ViewModels
             await Shell.Current.GoToAsync($"//{nameof(UserProfilePage)}");
             Shell.Current.FlyoutIsPresented = false;
         }
+
+
+      
     }
 
 

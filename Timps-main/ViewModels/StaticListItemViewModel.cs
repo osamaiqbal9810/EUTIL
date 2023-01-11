@@ -273,7 +273,8 @@ namespace TekTrackingCore.ViewModels
 
                 if (formDataObj != null)
                 {
-                    string url = string.Format(AppConstants.JourneyPlanStart_URL);
+                    Server s = new Server();
+                    string url = string.Format(s.JourneyPlanStart_URL);
                     StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
                     HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
                     if (response.IsSuccessStatusCode)

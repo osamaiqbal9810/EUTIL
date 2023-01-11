@@ -10,7 +10,12 @@ public partial class LoginPage : ContentPage
     public LoginPage()
     {
         InitializeComponent();
-      
+
+     
+
+
+
+
     }
     public LoginPage(LoginViewModel vm)
     {
@@ -37,7 +42,7 @@ public partial class LoginPage : ContentPage
 
 
 
-    public void setStatusCode (string value , bool show)
+    public async void  setStatusCode (string value , bool show)
     {
       
         if (show == true)
@@ -50,6 +55,8 @@ public partial class LoginPage : ContentPage
           
         }
 
+     
+
         //var status = FindByName("status") as Label;
         //status.Text = value;
         //status.IsVisible= show;
@@ -59,4 +66,16 @@ public partial class LoginPage : ContentPage
 
 
     }
+
+
+   
+
+    protected override void OnDisappearing()
+    {
+        Unfocus();
+        base.OnDisappearing();
+        Platforms.KeyboardHelper.HideKeyboard();
+
+    }
 }
+

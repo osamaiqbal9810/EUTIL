@@ -3,7 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.ProceedPage"
               BackgroundColor="Grey"
+                 NavigationPage.HasBackButton="False"
              >
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsVisible="False" IsEnabled="False" />
+    </Shell.BackButtonBehavior>
+
     <ScrollView>
         <VerticalStackLayout
         x:Name="vLayout"
@@ -22,11 +28,11 @@
                 <Button BackgroundColor="#191970" TextColor="White" Text="Proceed" Command="{Binding ProceedCommand}" FontSize="Large"   CornerRadius="0" Margin="5,0,5,0"/>
             </StackLayout>
            
-            <FlexLayout JustifyContent="Center" AlignItems="Center" Margin="0,5,0,5" >
+            <!--<FlexLayout JustifyContent="Center" AlignItems="Center" Margin="0,5,0,5" >
 
                 <Button BackgroundColor="#191970" TextColor="White" Text="Settings" WidthRequest="150"  HeightRequest="40" CornerRadius="0" Margin="5,0,5,0"/>
                 <Button BackgroundColor="#191970" TextColor="White" Text="Language" WidthRequest="150"  HeightRequest="40" CornerRadius="0"  Margin="5,0,5,0"/>
-            </FlexLayout>
+            </FlexLayout>-->
 
             <Image Source="eutility.png"  WidthRequest="250" Margin="0,20,0,0"/>
 

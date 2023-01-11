@@ -91,7 +91,7 @@ namespace TekTrackingCore.ViewModels
         [RelayCommand]
         private async Task<Task> Login()
         {
-         
+
             //if (!IsLoggedIn)
             //{
 
@@ -102,7 +102,9 @@ namespace TekTrackingCore.ViewModels
             //else
             //{
 
-                return loginRepository.Login(email, password, showLoading, emailStatus);
+           
+
+            return loginRepository.Login(email, password, showLoading, emailStatus);
             //}
 
         }
