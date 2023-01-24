@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using SQLite;
+﻿using SQLite;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TekTrackingCore.Sample.Models
 {
-    public class SessionModel
+    public class ReportModel
     {
         [PrimaryKey]
         public string Id { get; set; }
@@ -16,7 +15,6 @@ namespace TekTrackingCore.Sample.Models
         public string startInspBtnState { get; set; }
         public bool PlanInspectionDone { get; set; }
         public string PlanStatus { get; set; }
-        public bool inspectionBtnStatus { get;  set; }
-        public bool OfflineInspectionStatus { get; set; }
+        public bool inspectionBtnStatus { get; set; }
     }
 }

@@ -10,8 +10,6 @@ namespace TekTrackingCore;
 public partial class App : Application
 {
     public static LoginInfo CurrentUserDetails { get; internal set; }
-
-
     public App()
     {
         InitializeComponent();
@@ -20,14 +18,7 @@ public partial class App : Application
 
 
 
-
-
-
-
-
         MainPage = new AppShell();
-
-
 
         //MainPage = new MapPage();
 

@@ -11,18 +11,33 @@ namespace TekTrackingCore.Services
     public class StudentService : IStudentService
     {
         private SQLiteAsyncConnection _dbConnection;
-
+        private CreateTableResult SettingModelInfo;
+        private CreateTableResult userSignatureModelInfo;
+        private CreateTableResult UserModelInfo;
         public async Task SetUpDb()
         {
             if (_dbConnection == null)
             {
                 string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Eutility.db3");
                 _dbConnection = new SQLiteAsyncConnection(dbPath);
-                await _dbConnection.CreateTableAsync<UserModel>();
-                await _dbConnection.CreateTableAsync<UserSignatureModel>();
-                await _dbConnection.CreateTableAsync<SettingModel>();
+                UserModelInfo = await _dbConnection.CreateTableAsync<UserModel>();
+                userSignatureModelInfo =  await _dbConnection.CreateTableAsync<UserSignatureModel>();
+                SettingModelInfo =  await _dbConnection.CreateTableAsync<SettingModel>();
             }
 
+            if (SettingModelInfo != SQLite.CreateTableResult.Created || SettingModelInfo != CreateTableResult.Migrated)
+            {
+                SettingModelInfo = await _dbConnection.CreateTableAsync<SettingModel>();
+            }
+
+            if (userSignatureModelInfo != SQLite.CreateTableResult.Created || userSignatureModelInfo != CreateTableResult.Migrated)
+            {
+                userSignatureModelInfo = await _dbConnection.CreateTableAsync<UserSignatureModel>();
+            }
+            if (UserModelInfo != SQLite.CreateTableResult.Created || UserModelInfo != CreateTableResult.Migrated)
+            {
+                UserModelInfo = await _dbConnection.CreateTableAsync<UserModel>();
+            }
         }
         public StudentService()
         {

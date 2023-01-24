@@ -29,15 +29,25 @@ namespace TekTrackingCore.Services
         public Server()
         {
             bool hasKey = Preferences.Default.ContainsKey("serverEndpoint");
-            string defaultUrl = "electric-utility-inspection-system.onrender.com";
-
+            string defaultUrl = "rmsportal.eastus.cloudapp.azure.com";
+            
             serverUrl = hasKey ? Preferences.Get("serverEndpoint", ""): defaultUrl;
 
-            ServerUrl= Scheme+"://"+serverAdd;
+            if (serverUrl == defaultUrl)
+            {
+                Scheme = "http";
+            }
+            else
+            {
+                Scheme = "http";
+            }
+            ServerUrl = Scheme+"://"+serverAdd;
             Login_RestUrl = $"{ServerUrl}/api/login";
             LIST_URL = $"{ServerUrl}/api/list/pull/300";
             JourneyPlan_URL = $"{ServerUrl}/api/journeyPlan";
-            JourneyPlanStart_URL = $"{ServerUrl}/api/journeyPlanStart";
+            JourneyPlanStart_URL = $"{ServerUrl}/api/journeyPlan/journeyPlanStart";
+            jPlanReportFinish = $"{ServerUrl}/api/journeyPlan/journeyPlanUpdate";
+
 
         }
        
@@ -50,19 +60,20 @@ namespace TekTrackingCore.Services
         public static string LocalhostUrl = DeviceInfo.Platform == DevicePlatform.Android ? "172.19.91.167" : "172.19.91.167";
         public string ServerUrl; /*DeviceInfo.Platform == DevicePlatform.Android ? serverAdd : serverAdd;*/
         //    public static string LocalhostUrl = DeviceInfo.Platform == DevicePlatform.Android ? "192.168.1.8" : "localhost";
-        public static string Scheme = "https"; // or https
+       // public static string Scheme = "http"; // or https
+        
         public static string Port = "4001"; // 5000 for http, 5001 for https
 
 
         //public static string LIST_URL = $"{Scheme}://{LocalhostUrl}:{Port}/api/list/pull/300";
         public  string LIST_URL; /*= $"{ServerUrl}/api/list/pull/300";*/
-
+        public string Scheme;
         //public static string JourneyPlan_URL = $"{Scheme}://{LocalhostUrl}:{Port}/api/journeyPlan";
         public  string JourneyPlan_URL; /* = $"{ServerUrl}/api/journeyPlan";*/
 
         //public static string JourneyPlanStart_URL = $"{Scheme}://{LocalhostUrl}:{Port}/api/journeyPlan/journeyPlanStart";
          public  string JourneyPlanStart_URL; /*= $"{ServerUrl}/api/journeyPlanStart";*/
-
+        public string jPlanReportFinish;
         //public static string Login_RestUrl = $"{Scheme}://{LocalhostUrl}:{Port}/api/login";
         public  string Login_RestUrl; /*= $"{ServerUrl}/api/login";*/
 

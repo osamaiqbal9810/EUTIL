@@ -3,39 +3,37 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.UserSignature"
              xmlns:toolkit="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
-             Title="MainPage">
+            NavigationPage.HasBackButton="True"
+    Title="User Signature">
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackCommand}"
+                            IconOverride="arrowleft.png" />
+    </Shell.BackButtonBehavior>
     <VerticalStackLayout HorizontalOptions="FillAndExpand"
                          BackgroundColor="Gray"
-                         Spacing="20"
-                         Padding="20,40,20,40"
+                         Spacing="0"
+                         Padding="20,0,20,40"
                          VerticalOptions="FillAndExpand">
-
-        <Image x:Name="image" 
+        <Image x:Name="image"
                IsVisible="True"
                HeightRequest="300"
                WidthRequest="300"
                Aspect="AspectFit"/>
-
         <toolkit:DrawingView x:Name="drawingView"
                             HeightRequest="300"
                             WidthRequest="300"
                             LineColor="Black"
                             BackgroundColor="White"
                             IsMultiLineModeEnabled="True"/>
-
-        <HorizontalStackLayout Spacing="20" x:Name="imageActionsPanel" HorizontalOptions="CenterAndExpand">
-            <Button   BackgroundColor="#191970" Text="Convert as Image" Clicked="ConvertToImage"/>
+        <HorizontalStackLayout Spacing="20" x:Name="imageActionsPanel" HorizontalOptions="CenterAndExpand" Margin="0,20,0,0" HeightRequest="50">
+            <Button   BackgroundColor="#191970" Text="Convert as Image" Clicked="ConvertToImage" HeightRequest="50"/>
             <Button   BackgroundColor="#191970" Text="Clear" Clicked="ClearDrawing"/>
         </HorizontalStackLayout>
-
         <Button x:Name="reDrawButton"
                 Text="Re-Draw"
                 IsVisible="False"
                 HorizontalOptions="CenterAndExpand"
                 BackgroundColor="#191970"
                 Clicked="ReDraw"/>
-
     </VerticalStackLayout>
-
-
 </ContentPage>

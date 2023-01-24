@@ -147,6 +147,9 @@ namespace TekTrackingCore.Sample.Models
         [JsonPropertyName("isvisible")]
         public bool IsVisible { get { return _isVisible; } set { SetProperty(ref _isVisible, value); } }
         private bool _isVisible;
+
+        public bool HideBtnOnInspectionComplete { get { return _hideBtnOnInspectionComplete; } set { SetProperty(ref _hideBtnOnInspectionComplete, value); } }
+        private bool _hideBtnOnInspectionComplete = true;
         //internal IEnumerable<object> tasks;
         public string msg { get { return _msg; } set { SetProperty(ref _msg, value); } }
             
@@ -156,6 +159,13 @@ namespace TekTrackingCore.Sample.Models
 
         private bool _inspectionBtnStatus = true;
 
+        [JsonProperty("AssetInspectionDone")]
+        public bool AssetInspectionDone { get { return _assetInspectionDone; } set { SetProperty(ref _assetInspectionDone, value); } }
+        private bool _assetInspectionDone = false;
+
+        [JsonProperty("OfflineInspection")]
+        public bool OfflineInspection { get { return _offlineInspection; } set { SetProperty(ref _offlineInspection, value); } }
+        private bool _offlineInspection = false;
         public WorkPlanDto()
         {
             IsVisible = false;
@@ -267,6 +277,9 @@ namespace TekTrackingCore.Sample.Models
         [JsonProperty("lastInspDateFieldName")]
         public string LastInspDateFieldName { get; set; }
 
+        [JsonProperty("workPlanStatusForMobile")]
+        public string WorkPlanStatusForMobile { get; set; }
+
         [JsonProperty("createdAt")]
         public DateTime CreatedAt { get; set; }
 
@@ -305,6 +318,11 @@ namespace TekTrackingCore.Sample.Models
                                               select item).ToList();
                 return allTestForm;
             }
+        }
+
+        public static implicit operator List<object>(WorkPlanDto v)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -376,9 +394,21 @@ namespace TekTrackingCore.Sample.Models
         public bool StartInspButtonStatus { get { return _startInspButtonStatus; } set { SetProperty(ref _startInspButtonStatus, value); } }
         private bool _startInspButtonStatus;
 
+        [JsonProperty("AssetInspectionDone")]
+        public bool AssetInspectionDone { get { return _assetInspectionDone; } set { SetProperty(ref _assetInspectionDone, value); } }
+        private bool _assetInspectionDone = false;
+
+        [JsonProperty("AssetInspectionSaved")]
+        public bool AssetInspectionSaved { get { return _assetInspectionSaved; } set { SetProperty(ref _assetInspectionSaved, value); } }
+        private bool _assetInspectionSaved = false;
+
+        [JsonProperty("OfflineInspection")]
+        public bool OfflineInspection { get { return _offlineInspection; } set { SetProperty(ref _offlineInspection, value); } }
+        private bool _offlineInspection = false;
         public Unit()
         {
             StartInspButtonStatus = false;
+            AssetInspectionDone = false;
         }
        
         public event PropertyChangedEventHandler PropertyChanged;

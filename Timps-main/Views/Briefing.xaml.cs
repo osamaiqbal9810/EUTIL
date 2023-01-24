@@ -18,7 +18,8 @@ public partial class Briefing : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await briefingViewModel.SetSesssion();
-        await briefingViewModel.SetActiveInspection();
+        briefingViewModel.SetSesssion();
+        briefingViewModel.SetActiveInspection();
+        briefingViewModel.SetReportCount();
     }
 }

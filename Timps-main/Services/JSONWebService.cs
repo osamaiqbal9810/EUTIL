@@ -37,7 +37,6 @@ namespace TekTrackingCore.Services
                 IncludeFields = true
             };
 
-
             Token = Preferences.Get(AppConstants.TOKEN_KEY, "");
             _client.DefaultRequestHeaders.Add("Authorization", Token);
         }
@@ -49,12 +48,6 @@ namespace TekTrackingCore.Services
             client.DefaultRequestHeaders.Add("Authorization", Token);
             try
             {
-
-
-
-
-
-
                 HttpResponseMessage response = await client.GetAsync(uri);
                 if (response.IsSuccessStatusCode)
                 {
@@ -67,10 +60,6 @@ namespace TekTrackingCore.Services
             {
                 Console.WriteLine(ex.ToString());
                 return "";
-            }
-            finally
-            {
-
             }
             return "";
 

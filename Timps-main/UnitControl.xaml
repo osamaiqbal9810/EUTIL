@@ -10,7 +10,10 @@
                         CornerRadius="0" HeightRequest="90">
                     <FlexLayout JustifyContent="SpaceBetween" AlignItems="Center">
                         <Label x:Name="label1" Text="{Binding UnitId}" Margin="0,0,0,0" />
+                        <ImageButton x:Name="assetInspectionSaved" IsVisible="{Binding AssetInspectionSaved}" WidthRequest="30" Source="saved.png" />
                         <ImageButton x:Name="startInspectionBtns" IsVisible="{Binding StartInspButtonStatus}" WidthRequest="50" Source="arrowcircle.png"    Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=TestCommand}" CommandParameter="{Binding .}"/>
+                        <ImageButton x:Name="assetInspectionDone" IsVisible="{Binding AssetInspectionDone}" WidthRequest="30" Source="assetinspectiondone.png" />
+                        <ImageButton x:Name="offlineInspection" IsVisible="{Binding OfflineInspection}" WidthRequest="40" HeightRequest="50" Source="cloudslash.png" />
                     </FlexLayout>
                 </Frame>
             </DataTemplate>

@@ -5,38 +5,29 @@
               BackgroundColor="Grey"
                  NavigationPage.HasBackButton="False"
              >
-
     <Shell.BackButtonBehavior>
         <BackButtonBehavior IsVisible="False" IsEnabled="False" />
     </Shell.BackButtonBehavior>
-
     <ScrollView>
         <VerticalStackLayout
         x:Name="vLayout"
         Spacing="30"
         Padding="10, 0"
         Margin="0 ,30,0,0"
-        
         >
             <Image Source="teklogo.png"  WidthRequest="250"/>
             <VerticalStackLayout Spacing="5">
                 <Label Text="Welcome" FontSize="28" TextColor="Black" HorizontalTextAlignment="Center"/>
-                <Label FontFamily="Poppins" Text="Electric Inspection ,Maintenance and Planning Sysytem " FontSize="22" TextColor="Black" HorizontalTextAlignment="Center"/>
+                <Label FontFamily="Poppins" Text="Electric Inspection, Maintenance and Planning System" FontSize="22" TextColor="Black" HorizontalTextAlignment="Center"/>
             </VerticalStackLayout>
-
             <StackLayout HorizontalOptions="Fill"  Margin="0,0,0,5">
                 <Button BackgroundColor="#191970" TextColor="White" Text="Proceed" Command="{Binding ProceedCommand}" FontSize="Large"   CornerRadius="0" Margin="5,0,5,0"/>
             </StackLayout>
-           
             <!--<FlexLayout JustifyContent="Center" AlignItems="Center" Margin="0,5,0,5" >
-
                 <Button BackgroundColor="#191970" TextColor="White" Text="Settings" WidthRequest="150"  HeightRequest="40" CornerRadius="0" Margin="5,0,5,0"/>
                 <Button BackgroundColor="#191970" TextColor="White" Text="Language" WidthRequest="150"  HeightRequest="40" CornerRadius="0"  Margin="5,0,5,0"/>
             </FlexLayout>-->
-
             <Image Source="eutility.png"  WidthRequest="250" Margin="0,20,0,0"/>
-
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

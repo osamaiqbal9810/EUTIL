@@ -4,7 +4,13 @@
              x:Class="TekTrackingCore.Views.Briefing"
              xmlns:viewmodel="clr-namespace:TekTrackingCore.ViewModels"
              x:DataType="viewmodel:BriefingViewModel"
+            
              Title="Briefing">
+    <Shell.TitleView>
+        <HorizontalStackLayout HorizontalOptions="End" IsVisible="{Binding IsNotConnected}">
+            <Image Source="offlineicon.png" WidthRequest="50" HeightRequest="50"/>
+        </HorizontalStackLayout>
+    </Shell.TitleView>
     <VerticalStackLayout>
 
         <Frame  BackgroundColor="LightSkyBlue" CornerRadius="0" Padding=" 20, 10">
@@ -24,10 +30,10 @@
                     <Label Margin="0,5,0,0" Text="{Binding LocationInfo}"
                       FontSize="14" />
 
-                    <Label Margin="0,5,0,0" Text="{Binding Latitude}"
+                    <!--<Label Margin="0,5,0,0" Text="{Binding Latitude}"
                       FontSize="14" />
                     <Label Margin="0,5,0,0" Text="{Binding Longitude}"
-                      FontSize="14" />
+                      FontSize="14" />-->
                 </HorizontalStackLayout>
             </ScrollView>
         </Frame>

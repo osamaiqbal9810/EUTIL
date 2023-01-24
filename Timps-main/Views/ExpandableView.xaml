@@ -6,7 +6,9 @@
              xmlns:localone="clr-namespace:TekTrackingCore"
              xmlns:localtwo="clr-namespace:TekTrackingCore"
              xmlns:ListView="clr-namespace:Syncfusion.Maui.ListView;assembly=Syncfusion.Maui.ListView"   
-             BackgroundColor="White">
+             BackgroundColor="White"
+             Shell.NavBarIsVisible="False"
+             >
     <!--<ContentPage.BindingContext>
         <local:StaticListItemViewModel/>
     </ContentPage.BindingContext>-->
@@ -17,9 +19,21 @@
     <ContentPage.Resources>
         <localone:Converter x:Name="Converter" x:Key="Converter"/>
     </ContentPage.Resources>
-
+    
     <ContentPage.Content>
-        <HorizontalStackLayout x:Name="mainGrid" BackgroundColor="#F0F0F0" Margin='{OnPlatform Android="5,0,0,0",iOS="5,0,0,0", Default="0,0,0,0"}'>
+        
+        <StackLayout x:Name="mainGrid" BackgroundColor="#F0F0F0" Margin='{OnPlatform Android="5,0,0,0",iOS="5,0,0,0", Default="0,0,0,0"}'>
+            <VerticalStackLayout HorizontalOptions="Center" IsVisible="{Binding ShowSpinner}" >
+                <ActivityIndicator x:Name="loadingSpinnery"  IsRunning="{Binding ShowSpinner}"  />
+            </VerticalStackLayout>
+            <VerticalStackLayout HorizontalOptions="Center" IsVisible="{Binding ShowNoInspections}">
+                <Label Text="No Inspections found" IsVisible="{Binding ShowNoInspections}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout HorizontalOptions="Center" IsVisible="{Binding ActivityIndicatorFlag}">
+                <ActivityIndicator IsRunning="{Binding ActivityIndicatorFlag}" />
+            </VerticalStackLayout>
+                
             <ListView:SfListView x:Name="listView"  ItemsSource="{Binding WorkPlanList}"
                                 AutoFitMode="DynamicHeight" SelectionMode="None" ItemSpacing="0,2.5,0,2.5">
                 <ListView:SfListView.ItemTemplate>
@@ -35,7 +49,9 @@
                                        FontAttributes="Bold"
                                        FontSize="{OnPlatform Android={OnIdiom Phone=14, Tablet=14}, iOS={OnIdiom Phone=12, Tablet=14}, MacCatalyst=14 , Default= 14 }"/>
                                     
-                                    <Button TextColor="White" CornerRadius="0" BackgroundColor="#191970" Text="{Binding msg}" IsEnabled="{Binding inspectionBtnStatus}" HeightRequest="50" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=StartInspectionCommand}" CommandParameter="{Binding .}"/>
+                                    <Button TextColor="White" CornerRadius="0" BackgroundColor="#191970" Text="{Binding msg}" IsVisible="{Binding HideBtnOnInspectionComplete}" IsEnabled="{Binding inspectionBtnStatus}" HeightRequest="50" Command="{Binding Source={RelativeSource AncestorType={x:Type local:StaticListItemViewModel}}, Path=StartInspectionCommand}" CommandParameter="{Binding .}"/>
+                                    <ImageButton x:Name="assetInspectionDone" IsVisible="{Binding AssetInspectionDone}" WidthRequest="40" HeightRequest="50" Source="assetinspectiondone.png" />
+                                    <ImageButton x:Name="offlineInspection" IsVisible="{Binding OfflineInspection}" WidthRequest="40" HeightRequest="50" Source="cloudslash.png" />
                                 </FlexLayout>
                             </StackLayout>
 
@@ -49,6 +65,6 @@
                     </DataTemplate>
                 </ListView:SfListView.ItemTemplate>
             </ListView:SfListView>
-        </HorizontalStackLayout>
+        </StackLayout>
     </ContentPage.Content>
 </ContentPage>

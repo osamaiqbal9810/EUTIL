@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui;
 using Plugin.ValidationRules.Rules;
@@ -27,15 +27,40 @@ namespace TekTrackingCore.ViewModels
         private readonly ILoginRepository loginRepository;
         public Action<bool> showLoading { get; set; }
         public Action<string,bool> emailStatus { get; set; }
+
+        public LoginService logInService;
         public LoginViewModel()
         {
-
+            IsLoading = true;
+            logInService = new LoginService();
+            getLoggedInUser();
             loginRepository = new LoginService();
-            bool flag = loginRepository.IsAlreadyLoggedIn();
-            if (flag == true)
+            //bool flag = loginRepository.IsAlreadyLoggedIn();
+            //if (flag == true)
+            //{
+            //    IsLoading = true;
+            //    // loginRepository.Proceed();
+
+            //}
+        }
+        public async void  getLoggedInUser()
+        {
+            var loggedInuser = await logInService.GetUserInfo();
+             if (loggedInuser.Count() > 0)
             {
-                IsLoading = true;
-                loginRepository.Proceed();
+                // because there will be only one loggedInUser everytime, if new user loggedin then already existing user
+                // will be replaced by new user
+                UserInfo userinfo = new UserInfo();
+                foreach (var user in loggedInuser)
+                {
+                    userinfo.UserName = user.UserName;
+                    userinfo.UserId = user.UserId;
+                    userinfo.Token = user.Token;
+
+                }
+                Preferences.Set(AppConstants.TOKEN_KEY, userinfo.Token);
+                IsLoading = false;
+                await logInService.Proceed();
 
             }
         }

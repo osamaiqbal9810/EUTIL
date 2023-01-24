@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SQLite;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
@@ -96,13 +97,13 @@ namespace TekTrackingCore.Framework.Types
 
         [JsonPropertyName("listName")]
         public string ListName { get; set; }
-
+        [PrimaryKey]
         [JsonPropertyName("code")]
         public string Code { get; set; }
 
         [JsonPropertyName("description")]
         public string Description { get; set; }
-
+  
         [JsonPropertyName("optParam1")]
         public string OptParam1 { get; set; }
 

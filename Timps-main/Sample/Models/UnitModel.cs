@@ -14,6 +14,7 @@ namespace TekTrackingCore.Sample.Models
         public int Index { get; set; }
         public string AssetId { get; set; }
         public string AssetName { get; set; }
+        public string InspType { get; set; }
         public string Values { get; set; }
     }
 }

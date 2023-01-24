@@ -2,118 +2,81 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.UserProfilePage"
-             Title="UserProfile">
-
+             Title="User Profile">
     <ScrollView>
         <VerticalStackLayout>
-            <StackLayout  x:Name="accounttop" BackgroundColor="#087cca">
+            <StackLayout  x:Name="accounttop" BackgroundColor="#087CCA">
                 <Frame  HorizontalOptions="Center" VerticalOptions="Center" CornerRadius="75" WidthRequest="80" HeightRequest="80" BackgroundColor="#D3D3D3" BorderColor="White" Margin="0,10,0,0" IsClippedToBounds="True">
                     <Image VerticalOptions="CenterAndExpand" HorizontalOptions="Center" Aspect="Fill" Source="userprofile.png"  HeightRequest="60" WidthRequest="60"   x:Name="imageStatus" />
-                </Frame>    
+                </Frame>
                 <StackLayout   AbsoluteLayout.LayoutBounds="112,130" Margin="66,-75,0,0">
                     <ImageButton  WidthRequest="30" Source="pluscircle.png" Clicked="OnPicturess" />
                 </StackLayout>
-       
-
-
                 <Label Text="{Binding Name}" TextColor="White" HorizontalOptions="Center" Margin="0,10,0,0" FontSize="24" FontAttributes="Bold"/>
                 <Label Text="{Binding Email}" TextColor="White" HorizontalOptions="Center" FontSize="14"  />
-
                 <!--<Frame  BackgroundColor="Green" WidthRequest="250" CornerRadius="100" Margin="0,10,0,0" BorderColor="Black">-->
-                  
-                    <!--<FlexLayout JustifyContent="SpaceAround" AlignItems="Center" HeightRequest="36">-->
-                        <StackLayout Margin="0,10,0,5">
-                        <!--<ImageButton Source="accountarrow.png"  />-->
-                    <Button WidthRequest="280" Padding="23" FontSize="22" FontAttributes="Bold" CornerRadius="40"   Command="{Binding UserProfileBackCommand}" Text="Back To Dashboard" TextColor="White" BackgroundColor="#228b22"/>
-                        </StackLayout>
-                    <!--</FlexLayout>-->
-                    
+                <!--<FlexLayout JustifyContent="SpaceAround" AlignItems="Center" HeightRequest="36">-->
+                <StackLayout Margin="0,10,0,5">
+                    <!--<ImageButton Source="accountarrow.png"  />-->
+                    <Button WidthRequest="280" Padding="23" FontSize="22" FontAttributes="Bold" CornerRadius="40"   Command="{Binding UserProfileBackCommand}" Text="Back To Dashboard" TextColor="White" BackgroundColor="#228B22"/>
+                </StackLayout>
+                <!--</FlexLayout>-->
                 <!--</Frame>-->
             </StackLayout>
-
-
             <StackLayout Margin="15,60,0,0">
                 <Label FontAttributes="Bold" FontSize="26" Text="Account Info"/>
             </StackLayout>
-
             <StackLayout  Margin="5,20,5,0">
-
                 <StackLayout Margin="0,0,0,20">
                     <Label x:Name="lableField" Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Name" />
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <FlexLayout AlignItems="Center">
                             <Image Source="maleprofile.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
                             <Entry IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Name}" PlaceholderColor="Black"   FontSize="18" />
                         </FlexLayout>
-
                     </Frame>
                 </StackLayout>
-
-
                 <!--<StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Password"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween">
                             <StackLayout>
                                 <FlexLayout>
                             <Image Source="userpassword.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
                                     <Entry  Margin="5,0,0,0" VerticalOptions="Center" Placeholder="password"   FontSize="18"  IsPassword="true" Text="{Binding HashedPassword}"/>
                                 </FlexLayout>
                             </StackLayout>
-
                             <ImageButton  Command="{Binding UserEditCommand}"  Source="useredit" Margin="0,0,5,0"/>
-
                         </FlexLayout>
-
                     </Frame>
                 </StackLayout>-->
-
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Mobile"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <FlexLayout AlignItems="Center">
                             <Image Source="usermobile.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
-
                             <Entry IsReadOnly="True"  Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Mobile}"  PlaceholderColor="Black"   FontSize="18"   Text="{Binding Password}"/>
-
-
                         </FlexLayout>
-
                     </Frame>
                 </StackLayout>
-
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Phone"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <FlexLayout AlignItems="Center">
                             <Image Source="userphone.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
-
                             <Entry IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Phone}"   PlaceholderColor="Black"   FontSize="18"   Text="{Binding Password}"/>
-
                         </FlexLayout>
-
                     </Frame>
                 </StackLayout>
-
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="16" Text="Email"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
-
                         <FlexLayout AlignItems="Center">
                             <Image Source="useremail.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
                             <Entry IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="{Binding Email}"  PlaceholderColor="Black"   FontSize="18" IsPassword="true" Text="{Binding Password}"/>
                         </FlexLayout>
-
                     </Frame>
                 </StackLayout>
-
                 <StackLayout  Margin="0,0,0,20">
                     <Label Margin="10,0,0,10" FontAttributes="Bold" FontSize="14" Text="Signature"/>
                     <Frame Padding="0" Margin="10,0,10,0" HasShadow="True" HeightRequest="45" CornerRadius="0" BorderColor="Black" HorizontalOptions="FillAndExpand">
@@ -121,12 +84,10 @@
                             <Image Source="usersignature.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
                             <Entry  IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="N/A"   FontSize="Large" IsPassword="true" />
                         </FlexLayout>-->
-                        
                         <FlexLayout AlignItems="Center" JustifyContent="SpaceBetween">
                             <StackLayout>
                                 <FlexLayout>
                                     <Image  Source="usersignature.png" HeightRequest="40" WidthRequest="40" Margin="5,0,0,0" />
-
                                     <Entry  IsReadOnly="True"   Margin="5,0,0,0" VerticalOptions="Center" Placeholder="N/A"   FontSize="Large" IsPassword="true" />
                                 </FlexLayout>
                             </StackLayout>
@@ -135,7 +96,6 @@
                     </Frame>
                 </StackLayout>
             </StackLayout>
-
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

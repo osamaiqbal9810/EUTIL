@@ -7,6 +7,9 @@
      xmlns:loc="clr-namespace:TekTrackingCore"
  FlyoutBehavior="Flyout"
 Shell.FlyoutItemIsVisible="True"
+
+
+   
    >
     <!--<ShellContent
        FlyoutItemIsVisible="False"
@@ -59,17 +62,25 @@ Shell.FlyoutItemIsVisible="True"
         <Tab Title="Map"
             Icon="hos.png"
               Route="MapPage">
-            <ShellContent ContentTemplate="{DataTemplate loc:MapPage}" />
+            <ShellContent ContentTemplate="{DataTemplate views:MapPinsView}" />
         </Tab>
 
     </TabBar>
 
     
     
+
+
     <Shell.FlyoutHeader >
+        <VerticalStackLayout>
         <StackLayout Padding="20" >
             <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
         </StackLayout>
+
+        <StackLayout Padding="20" >
+            <Button FontSize="18" FontAttributes="Bold" Text="Go To Dashboard" Command="{Binding MainDashbaordCommand}" BackgroundColor="#043927" CornerRadius="0"/>
+        </StackLayout>
+        </VerticalStackLayout>
     </Shell.FlyoutHeader>
 
     <Shell.FlyoutFooter >

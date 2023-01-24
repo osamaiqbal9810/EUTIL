@@ -13,7 +13,7 @@ namespace TekTrackingCore.Repositry
         Task<UserInfo> Login(string username, string password, Action<bool> isLoading ,Action<string, bool> emailStatus);
         public bool IsAlreadyLoggedIn();
         public bool IsLoadingLogin(bool status);
-        Task<UserInfo> Logout();
+        public void  Logout();
 
 
 

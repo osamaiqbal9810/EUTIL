@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TekTrackingCore.Views.MapPinsView"
+
+          xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             Title="MapPinsView">
+
+    <StackLayout>
+     
+        <maps:Map IsShowingUser="True"  x:Name="map" 
+                  ItemsSource="{Binding Positions}">
+            <maps:Map.ItemTemplate >
+                <DataTemplate>
+                    <maps:Pin MarkerClicked="Pin_MarkerClicked"    
+                              Location="{Binding Location}"
+                              Label="{Binding Description}"/>
+                </DataTemplate>
+            </maps:Map.ItemTemplate>
+        </maps:Map>
+
+
+        <StackLayout>
+            
+        </StackLayout>
+        
+    </StackLayout>
+
+</ContentPage>

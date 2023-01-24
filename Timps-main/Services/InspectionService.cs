@@ -20,6 +20,12 @@ using SQLite;
 using TekTrackingCore.Sample.Models;
 using TekTrackingCore.ViewModels;
 using System.Security.Cryptography.X509Certificates;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Maui.Alerts;
+using CommunityToolkit.Maui.Core;
+using Task = System.Threading.Tasks.Task;
+using System.ComponentModel;
+using TekTrackingCore.Models;
 
 public class MyEntry : Entry
 {
@@ -51,34 +57,63 @@ public class MyPicker : Picker
 
 namespace TekTrackingCore.Services
 {
-    public class InspectionService 
+    public class InspectionService
     {
         private SQLiteAsyncConnection _dbConnection;
         private CreateTableResult SessionTableInfo;
+        private CreateTableResult UnitSessionTableInfo;
         private CreateTableResult ActiveInspectionTableInfo;
         private CreateTableResult SavedUnitsList;
-        private Dictionary<string, string> formvalue = new Dictionary<string, string>();
+        private CreateTableResult ReportTableInfo;
+        private CreateTableResult ReportsToPushInfo;
+        private CreateTableResult InprogressToPushInfo;
+        public Dictionary<string, string> formvalue = new Dictionary<string, string>();
         private StaticListItemViewModel staticListItemViewModel;
-        public List<SessionModel> workPlanList;
-       
+        public ExtendedObservableCollection<WorkPlanDto> workPlanList;
+        private DatabaseSyncService service;
+        // public Action<dynamic> setUnitGreenTick { get; set; }
+        private List<string> selectFieldsArray = new List<string>();
+        public InspectionService() { }
+        public void setWorkPlanList(dynamic list)
+        {
+            workPlanList = list;
+            //updateWpList();
 
+        }
+        public void updateWpList()
+        {
+            foreach (var wpList in workPlanList)
+            {
+                if (wpList.msg == "start" && wpList.inspectionBtnStatus == false)
+                {
+                    wpList.inspectionBtnStatus = true;
+                }
+            }
+        }
+        public dynamic getLatestWpList()
+        {
+            return workPlanList;
+        }
         public async System.Threading.Tasks.Task SetUpDb()
         {
-            if(_dbConnection == null)
+            if (_dbConnection == null)
             {
                 string dbPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Eutility.db3");
                 _dbConnection = new SQLiteAsyncConnection(dbPath);
                 SessionTableInfo = await _dbConnection.CreateTableAsync<SessionModel>();
+                UnitSessionTableInfo = await _dbConnection.CreateTableAsync<UnitSessionModel>();
                 ActiveInspectionTableInfo = await _dbConnection.CreateTableAsync<ActiveInspections>();
                 SavedUnitsList = await _dbConnection.CreateTableAsync<ActiveInspections>();
-                Console.WriteLine(SessionTableInfo);
+                ReportTableInfo = await _dbConnection.CreateTableAsync<ReportModel>();
+                ReportsToPushInfo = await _dbConnection.CreateTableAsync<ReportsToPush>();
+                InprogressToPushInfo = await _dbConnection.CreateTableAsync<InprogressToPush>();
             }
-            
+
             if (SessionTableInfo != SQLite.CreateTableResult.Created || SessionTableInfo != CreateTableResult.Migrated)
             {
                 SessionTableInfo = await _dbConnection.CreateTableAsync<SessionModel>();
             }
-            if(ActiveInspectionTableInfo != SQLite.CreateTableResult.Created || ActiveInspectionTableInfo != CreateTableResult.Migrated)
+            if (ActiveInspectionTableInfo != SQLite.CreateTableResult.Created || ActiveInspectionTableInfo != CreateTableResult.Migrated)
             {
                 ActiveInspectionTableInfo = await _dbConnection.CreateTableAsync<ActiveInspections>();
             }
@@ -86,230 +121,697 @@ namespace TekTrackingCore.Services
             {
                 SavedUnitsList = await _dbConnection.CreateTableAsync<UnitModel>();
             }
+            if (UnitSessionTableInfo != SQLite.CreateTableResult.Created || UnitSessionTableInfo != CreateTableResult.Migrated)
+            {
+                UnitSessionTableInfo = await _dbConnection.CreateTableAsync<UnitSessionModel>();
+            }
+            if (ReportTableInfo != SQLite.CreateTableResult.Created || ReportTableInfo != CreateTableResult.Migrated)
+            {
+                ReportTableInfo = await _dbConnection.CreateTableAsync<ReportModel>();
+            }
+            if (ReportsToPushInfo != SQLite.CreateTableResult.Created || ReportsToPushInfo != CreateTableResult.Migrated)
+            {
+                ReportsToPushInfo = await _dbConnection.CreateTableAsync<ReportsToPush>();
+            }
+            if (InprogressToPushInfo != SQLite.CreateTableResult.Created || InprogressToPushInfo != CreateTableResult.Migrated)
+            {
+                InprogressToPushInfo = await _dbConnection.CreateTableAsync<InprogressToPush>();
+            }
         }
+
 
         public void mapFields(dynamic verticalStackLayout, dynamic field, dynamic savedFormValues)
         {
-            if (field.field_type == "select")
+            //formvalue = formvaluenew;
+            try
             {
-                var selectOptions = new List<string>();
-                foreach (var option in field.options)
+                if (field.field_type == "select")
                 {
-                    string optionValue = option.label;
-                    selectOptions.Add(optionValue);
-                }
-                verticalStackLayout.Children.Add(new Label
-                {
-                    Text = field.field_label,
-                    FontSize = 14,
-                    Padding = 4,
-                    TextColor = Color.FromRgb(5, 5, 5)
-                });
-                MyPicker picker = new MyPicker { Title = field.field_label, TitleColor = Color.FromRgb(250, 250, 250), TextColor = Color.FromRgb(5, 5, 5), FontSize = 14 };
-                picker.fieldname = field.field_name;
-                picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
-                picker.ItemsSource = selectOptions;
-                
-
-                if (savedFormValues.Count > 0)
-                {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-
-                    if (savedForm.ContainsKey(fieldName))
+                    selectFieldsArray.Add(field.field_name.ToString());
+                    var selectOptions = new List<string>();
+                    foreach (var option in field.options)
                     {
-                        string value =(string) savedForm.GetValue(fieldName);
-                        int index = 0;
-                        for(int i=0; i < selectOptions.Count; i++)
-                        {  
-                            if (selectOptions[i] == value)
+                        string optionValue = option.label;
+                        selectOptions.Add(optionValue);
+                    }
+                    verticalStackLayout.Children.Add(new Label
+                    {
+                        Text = field.field_label,
+                        FontSize = 14,
+                        Padding = 4,
+                        TextColor = Color.FromRgb(5, 5, 5)
+                    });
+                    MyPicker picker = new MyPicker { Title = field.field_label, TitleColor = Color.FromRgb(250, 250, 250), TextColor = Color.FromRgb(5, 5, 5), FontSize = 14 };
+                    picker.fieldname = field.field_name;
+                    picker.SelectedIndexChanged += OnPickerSelectedIndexChanged;
+                    picker.ItemsSource = selectOptions;
+
+
+                    if (savedFormValues.Count > 0)
+                    {
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            string value = (string)savedForm.GetValue(fieldName);
+                            int index = 0;
+                            for (int i = 0; i < selectOptions.Count; i++)
                             {
-                                index = i;
+                                if (selectOptions[i] == value)
+                                {
+                                    index = i;
+                                }
                             }
+
+                            picker.SelectedIndex = index;
+
                         }
-                       
-                        picker.SelectedIndex = index;
-
                     }
-                }
-              
-                verticalStackLayout.Children.Add(picker);
 
-            }
-            else if (field.field_type == "text")
-            {
-                MyEntry entry = new MyEntry { Placeholder = field.field_label, TextColor = Color.FromRgb(5, 5, 5), FontSize = 16, PlaceholderColor = Color.FromRgb(5, 5, 5), Keyboard = Keyboard.Numeric };
-                entry.fieldname = field.field_name;
-                entry.TextChanged += OnEntryTextChanged;
-                if (savedFormValues.Count > 0)
+                    verticalStackLayout.Children.Add(picker);
+
+                }
+                else if (field.field_type == "text")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-
-                    if (savedForm.ContainsKey(fieldName))
+                    MyEntry entry = new MyEntry { Placeholder = field.field_label, TextColor = Color.FromRgb(5, 5, 5), FontSize = 16, PlaceholderColor = Color.FromRgb(5, 5, 5), Keyboard = Keyboard.Numeric };
+                    entry.fieldname = field.field_name;
+                    entry.TextChanged += OnEntryTextChanged;
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        entry.Text = value.ToString();
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            entry.Text = value.ToString();
+                        }
                     }
+                    verticalStackLayout.Children.Add(entry);
                 }
-                verticalStackLayout.Children.Add(entry);
-            }
-            else if (field.field_type == "checkbox")
-            {
-                HorizontalStackLayout flex = new HorizontalStackLayout();
-
-                Label myLabel = new Label { Text = field.field_label, FontSize = 14, Padding = 4, TextColor = Color.FromRgb(5, 5, 5) };
-                flex.Children.Add(myLabel);
-
-                MyCheckBox repairedCheck = new MyCheckBox { IsChecked = false };
-                repairedCheck.fieldname = field.field_name;
-                repairedCheck.CheckedChanged += OnCheckBoxCheckedChanged;
-
-                if (savedFormValues.Count > 0)
+                else if (field.field_type == "checkbox")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
-                    Console.WriteLine(savedForm);
+                    HorizontalStackLayout flex = new HorizontalStackLayout();
 
-                    if (savedForm.ContainsKey(fieldName))
+                    Label myLabel = new Label { Text = field.field_label, FontSize = 14, Padding = 4, TextColor = Color.FromRgb(5, 5, 5) };
+                    flex.Children.Add(myLabel);
+
+                    MyCheckBox repairedCheck = new MyCheckBox { IsChecked = false };
+                    repairedCheck.fieldname = field.field_name;
+                    repairedCheck.CheckedChanged += OnCheckBoxCheckedChanged;
+
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        repairedCheck.IsChecked = (bool)value;
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
+                        Console.WriteLine(savedForm);
+
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            repairedCheck.IsChecked = (bool)value;
+                        }
                     }
+
+                    flex.Children.Add(repairedCheck);
+
+                    verticalStackLayout.Children.Add(flex);
                 }
-
-                flex.Children.Add(repairedCheck);
-
-                verticalStackLayout.Children.Add(flex);
-            }
-            else if (field.field_type == "textArea")
-            {
-                MyEditor editor = new MyEditor { Placeholder = field.field_label, HeightRequest = 250, BackgroundColor = Color.FromRgb(231, 231, 231), FontSize = 14, PlaceholderColor = Color.FromRgb(5, 5, 5) };
-                editor.fieldname = field.field_name;
-                editor.TextChanged += OnEditorTextChanged;
-
-                if (savedFormValues.Count > 0)
+                else if (field.field_type == "textArea")
                 {
-                    string fieldName = field.field_name;
-                    JObject savedForm = new JObject();
-                    savedForm = savedFormValues[0].ToObject<JObject>();
+                    MyEditor editor = new MyEditor { Placeholder = field.field_label, HeightRequest = 250, BackgroundColor = Color.FromRgb(231, 231, 231), FontSize = 14, PlaceholderColor = Color.FromRgb(5, 5, 5) };
+                    editor.fieldname = field.field_name;
+                    editor.TextChanged += OnEditorTextChanged;
 
-                    if (savedForm.ContainsKey(fieldName))
+                    if (savedFormValues.Count > 0)
                     {
-                        var value = savedForm.GetValue(fieldName);
-                        editor.Text = value.ToString();
-                    }
-                }
+                        string fieldName = field.field_name;
+                        JObject savedForm = new JObject();
+                        savedForm = savedFormValues[0].ToObject<JObject>();
 
-                verticalStackLayout.Children.Add(editor);
+                        if (savedForm.ContainsKey(fieldName))
+                        {
+                            var value = savedForm.GetValue(fieldName);
+                            editor.Text = value.ToString();
+                        }
+                    }
+
+                    verticalStackLayout.Children.Add(editor);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("MAp Fields " + e);
             }
         }
 
-        public async void OnsubmitButtonClicked()
+        public async void OnsubmitButtonClicked(string selectedWp, string selectedUnit)
         {
-            var wp = Preferences.Get("SelectedWorkPlan", "");
-            var unitOb = Preferences.Get("SelectedUnit", "");
-            if (wp != "" && unitOb != "")
+            bool completeFilledOrNot = false;
+            Console.WriteLine(selectFieldsArray);
+            foreach (var key in selectFieldsArray)
             {
-                DateTime currentDateTime = DateTime.Now;
-
-                JObject jPlan = new JObject();
-                JArray tasks = new JArray();
-                JObject jObject = new JObject();
-                JArray units = new JArray();
-                JArray formValuesArray = new JArray();
-                ///units
-                var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
-                var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-
-
-                foreach (var obj in formvalue)
+                string keyItem = key;
+                if (formvalue.ContainsKey(keyItem))
                 {
-                    jObject.Add(obj.Key, obj.Value);
+                    completeFilledOrNot = true;
+                }
+                else
+                {
+                    completeFilledOrNot = false;
+                }
+            }
+            bool ackResp = await App.Current.MainPage.DisplayAlert("Do you really want to submit the inspection?", "You will not be able to edit this in the future.", "Yes", "No");
+            if (ackResp == true)
+            {
+                // if (completeFilledOrNot == true)
+                //{
+                try
+                {
+                    NetworkAccess accessType = Connectivity.Current.NetworkAccess;
+
+                    var wp = Preferences.Get("SelectedWorkPlan", "");
+                    var unitOb = Preferences.Get("SelectedUnit", "");
+                    if (wp != "" && unitOb != "")
+                    {
+                        DateTime currentDateTime = DateTime.Now;
+
+                        JObject jPlan = new JObject();
+                        JArray tasks = new JArray();
+                        JObject jObject = new JObject();
+                        JArray units = new JArray();
+                        JArray formValuesArray = new JArray();
+                        ///units
+                        var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
+                        var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
+
+
+                        foreach (var obj in formvalue)
+                        {
+                            jObject.Add(obj.Key, obj.Value);
+                        }
+
+                        formValuesArray.Add(jObject);
+                        JObject unit = new JObject();
+                        unit.Add("id", unitObj.assetId);
+                        unit.Add("unitId", unitObj.unitId);
+                        unit.Add("assetType", unitObj.assetType);
+                        unit.Add("status", "Finished");
+                        unit.Add("appForms", formValuesArray);
+                        unit.Add("testForm", unitObj.testForm);
+                        unit.Add("inspection_type", unitObj.inspection_type);
+                        unit.Add("inspection_freq", unitObj.inspection_freq);
+                        unit.Add("wPlanId", unitObj.wPlanId);
+                        unit.Add("locationType", unitObj.locationType);
+                        unit.Add("coordinates", unitObj.coordinates);
+                        unit.Add("parent_id", unitObj.parent_id);
+                        units.Add(unit);
+                        // tasks
+                        JObject task = new JObject();
+                        task.Add("taskId", "");
+                        task.Add("startLocation", "");
+                        task.Add("endLocation", "");
+                        task.Add("startTime", "");
+                        task.Add("endTime", "");
+                        task.Add("title", wpObj[0].title);
+                        task.Add("description", "Perform Inspection");
+                        task.Add("notes", "Default Inspection Notes");
+                        task.Add("units", units);
+                        tasks.Add(task);
+
+                        jPlan.Add("title", wpObj[0].title);
+                        jPlan.Add("workplanTemplateId", wpObj[0]._id);
+                        jPlan.Add("lineId", wpObj[0].lineId);
+                        //jPlan.Add("status", "Finished");
+                        jPlan.Add("user", wpObj[0].user);
+                        jPlan.Add("date", currentDateTime.ToString());
+                        jPlan.Add("tasks", tasks);
+
+                        var httpclient = new HttpClient();
+                        string formDataObj = JsonConvert.SerializeObject(jPlan);
+
+                        if (formDataObj != null)
+                        {
+
+                            Server s = new Server();
+                            string url = string.Format(s.jPlanReportFinish);
+                            StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
+                            if (accessType == NetworkAccess.Internet)
+                            {
+                                //HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
+                                //if (response.IsSuccessStatusCode)
+                                //{
+                                ReportsToPush rpt = new ReportsToPush();
+                                rpt.Content = formDataObj;
+                                //rpt.UnitId = unitObj.assetId;
+                                rpt.WPId = wpObj[0]._id;
+                                await AddReportToPush(rpt);
+
+                                var toast = Toast.Make("Inspection Submitted Successfully!", ToastDuration.Long);
+                                await toast.Show();
+                                performPostSubmitOperations(unitObj, formDataObj);
+                                pushReportsToServer();
+                                // }
+
+                            }
+                            else
+                            {
+                                ReportsToPush rpt = new ReportsToPush();
+                                rpt.Content = formDataObj;
+                                //rpt.UnitId = unitObj.assetId;
+                                rpt.WPId = wpObj[0]._id;
+                                await AddReportToPush(rpt);
+
+                                var toast = Toast.Make("Inspection Submitted Offline!", ToastDuration.Long);
+                                await toast.Show();
+                                performPostSubmitOperations(unitObj, formDataObj, "OFFLINE");
+
+                            }
+                            var page = Application.Current.MainPage.Navigation.NavigationStack.Last();
+                            await Shell.Current.GoToAsync("workPlansPage", false);
+                            Application.Current.MainPage.Navigation.RemovePage(page);
+                        }
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                    return; // handle
+                }
+                //}
+                //else
+                //{
+                //    await App.Current.MainPage.DisplayAlert("Incomplete Form?", "Please fill the required fields carefully", "ok");
+                //}
+            }
+        }
+        public async void performPostSubmitOperations(dynamic unitObj, string content, string status = "ONLINE")
+        {
+            foreach (var workP in workPlanList)
+            {
+                if (workP.msg != "Finished")
+                {
+                    bool allInspectionsCompletedFlag = true;
+                    bool allInspectionsCompletedFlagOffline = true;
+                    var allUnits = workP.AllUnits;
+                    if (allUnits.Count > 0)
+                    {
+                        UnitSessionModel usm = new UnitSessionModel();
+                        foreach (var pUnit in allUnits)
+                        {
+                            if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                            {
+                                if (status == "ONLINE")
+                                {
+                                    pUnit.AssetInspectionDone = true;
+                                    pUnit.OfflineInspection = false;
+                                    pUnit.Status = "Completed";
+
+                                    usm.UnitId = pUnit.AssetId;
+                                    usm.WpId = workP.Id;
+                                    usm.AssetName = pUnit.UnitId;
+                                    usm.InspectionType = pUnit.InspectionType;
+                                    usm.AssetStatus = "Completed";
+                                    usm.AssetInspectionDone = true;
+                                    usm.AssetInspectionSaved = false;
+                                    usm.StartInspButtonStatus = false;
+                                    usm.OfflineInspectionDone = false;
+                                }
+                                else
+                                {
+                                    pUnit.AssetInspectionDone = false;
+                                    pUnit.OfflineInspection = true;
+                                    pUnit.Status = "Completed-Offline";
+
+                                    usm.UnitId = pUnit.AssetId;
+                                    usm.WpId = workP.Id;
+                                    usm.AssetName = pUnit.UnitId;
+                                    usm.InspectionType = pUnit.InspectionType;
+                                    usm.AssetStatus = "Completed-Offline";
+                                    usm.AssetInspectionDone = false;
+                                    usm.AssetInspectionSaved = false;
+                                    usm.StartInspButtonStatus = false;
+                                    usm.OfflineInspectionDone = true;
+                                }
+                                pUnit.StartInspButtonStatus = false;
+                                pUnit.AssetInspectionSaved = false;
+
+                                await UpdateUnitSession(usm);
+                            }
+                            else if(workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                            {
+                                var unitSessions = await GetUnitsSession();
+                                if (unitSessions.Count() > 0)
+                                {
+                                    var findSession = unitSessions.Find(session => session.UnitId == pUnit.Id && session.InspectionType == pUnit.InspectionType);
+                                    if (findSession != null)
+                                    {
+                                        pUnit.StartInspButtonStatus = findSession.StartInspButtonStatus;
+                                        pUnit.AssetInspectionDone = findSession.AssetInspectionDone;
+                                        pUnit.AssetInspectionSaved = findSession.AssetInspectionSaved;
+                                        pUnit.OfflineInspection = findSession.OfflineInspectionDone;
+                                    }
+                                }
+
+                            }
+                            if (status == "ONLINE")
+                            {
+                                if (pUnit.Status != "Completed")
+                                {
+                                    allInspectionsCompletedFlag = false;
+                                }
+                            }
+                            else
+                            {
+                                if (pUnit.Status != "Completed-Offline")
+                                {
+                                    allInspectionsCompletedFlagOffline = false;
+                                }
+                            }
+
+                        }
+                        if (status == "ONLINE")
+                        {
+                            if (allInspectionsCompletedFlag == true)
+                            {
+                                allInspectionsCompletedFlag = false;
+
+                                handleInspectionBtnStatus(workP.Id, content);
+                            }
+                        }
+                        else
+                        {
+                            if (allInspectionsCompletedFlagOffline == true)
+                            {
+                                allInspectionsCompletedFlagOffline = false;
+
+                                handleInspectionBtnStatus(workP.Id, content, "OFFLINE");
+                            }
+                        }
+                        // delete unit form from local database if it is stored here after inspection submission
+                        var getSavedUnitForms = await GetSavedUnitForms();
+                        if (getSavedUnitForms.Count > 0)
+                        {
+                            foreach (var localForms in getSavedUnitForms)
+                            {
+                                if (localForms.AssetId.ToString() == unitObj.assetId.ToString())
+                                {
+                                    await DeleteSavedUnitForms(localForms);
+                                }
+                            }
+                        }
+
+                    }
+
+
+                }
+            }
+        }
+        public async void handleInspectionBtnStatus(string idToRemove, string content, string status = "ONLINE")
+        {
+            service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
+            int index = 0;
+            foreach (var wp in workPlanList.ToList())
+            {
+                if (wp.msg != "Finished" && wp.Id == idToRemove)
+                {
+
+                    if (status == "ONLINE")
+                    {
+                        wp.msg = "Finished";
+                        wp.AssetInspectionDone = true;
+                        wp.HideBtnOnInspectionComplete = false;
+                        wp.OfflineInspection = false;
+                    }
+                    else
+                    {
+                        wp.msg = "In Progress";
+                        wp.AssetInspectionDone = false;
+                        wp.HideBtnOnInspectionComplete = false;
+                        wp.OfflineInspection = true;
+                    }
+                    var getSessions = await GetWorkPlanDtos();
+                    if (status == "ONLINE")
+                    {
+                        if (getSessions.Count() > 0)
+                        {
+                            var findSession = getSessions.Find(session => session.Id == wp.Id);
+                            if (findSession != null)
+                            {
+                                await DeleteWorkPlanDto(findSession);
+                            }
+                        }
+                        // UPDATE "WORKPLANSTATUSFORMOBILE"  status in local db
+
+                        var pullList = await service.GetMessageListResponseDTO();
+                        var filterdlist = pullList.FindAll(p => p.ListName == "WorkPlanTemplate");
+
+                        foreach (var listItems in filterdlist)
+                        {
+                            if (listItems.Code != "-1")
+                            {
+                                var item = listItems.OptParam1;
+                                var jsonSettings = new JsonSerializerSettings
+                                {
+                                    NullValueHandling = NullValueHandling.Ignore,
+                                    MissingMemberHandling = MissingMemberHandling.Ignore,
+                                };
+
+                                WorkPlanDto result = JsonConvert.DeserializeObject<WorkPlanDto>(item, jsonSettings); // jsonSettings are explicitly supplied
+                                if (result.Id == wp.Id)
+                                {
+                                    result.WorkPlanStatusForMobile = "Finished";
+                                    string serialized = JsonConvert.SerializeObject(result);
+                                    listItems.OptParam1 = serialized;
+                                    await service.UpdateMessageListResponseDTO(listItems);
+                                }
+                            }
+                        }
+
+                        ReportModel rp = new ReportModel();
+                        rp.Title = wp.Title;
+                        rp.startInspBtnState = "Finished";
+                        rp.Id = wp.Id;
+                        rp.PlanInspectionDone = true;
+                        rp.PlanStatus = "Completed";
+                        //await UpdateWorkPlanDto(sm);
+                        await AddReports(rp);
+
+                        // remove finished inspection from workplanList
+
+                        workPlanList.RemoveAt(index);
+
+                    }
+                    else
+                    {
+                        if (getSessions.Count() > 0)
+                        {
+                            var findSession = getSessions.Find(session => session.Id == wp.Id);
+                            if (findSession != null)
+                            {
+                                findSession.OfflineInspectionStatus = true;
+                                await UpdateWorkPlanDto(findSession);
+                            }
+                        }
+                    }
+
+                }
+                else if (wp.Id != idToRemove)
+                {
+                    wp.inspectionBtnStatus = true;
                 }
 
-                formValuesArray.Add(jObject);
-                JObject unit = new JObject();
-                unit.Add("id", unitObj.assetId);
-                unit.Add("unitId", unitObj.unitId);
-                unit.Add("assetType", unitObj.assetType);
-                unit.Add("status", "Finished");
-                unit.Add("appForms", formValuesArray);
-                unit.Add("testForm", unitObj.testForm);
-                unit.Add("inspection_type", unitObj.inspection_type);
-                unit.Add("inspection_freq", unitObj.inspection_freq);
-                unit.Add("wPlanId", unitObj.wPlanId);
-                unit.Add("locationType", unitObj.locationType);
-                unit.Add("coordinates", unitObj.coordinates);
-                unit.Add("parent_id", unitObj.parent_id);
-                units.Add(unit);
-                // tasks
-                JObject task = new JObject();
-                task.Add("taskId", "");
-                task.Add("startLocation", "");
-                task.Add("endLocation", "");
-                task.Add("startTime", "");
-                task.Add("endTime", "");
-                task.Add("title", wpObj[0].title);
-                task.Add("description", "Perform Inspection");
-                task.Add("notes", "Default Inspection Notes");
-                task.Add("units", units);
-                tasks.Add(task);
+                index++;
+            }
+        }
 
-                jPlan.Add("title", wpObj[0].title);
-                jPlan.Add("workplanTemplateId", wpObj[0]._id);
-                jPlan.Add("lineId", wpObj[0].lineId);
-                jPlan.Add("status", "Finished");
-                jPlan.Add("user", wpObj[0].user);
-                jPlan.Add("date", currentDateTime.ToString());
-                jPlan.Add("tasks", tasks);
-
-                var httpclient = new HttpClient();
-                string formDataObj = JsonConvert.SerializeObject(jPlan);
-
-                if (formDataObj != null)
+        public async System.Threading.Tasks.Task OnsaveButtonClicked()
+        {
+            try
+            {
+                bool ackResp = await App.Current.MainPage.DisplayAlert("Do you really want to save the inspection?", "", "Yes", "No");
+                if (ackResp)
                 {
-                    Server s = new Server(); 
-                    string url = string.Format(s.JourneyPlanStart_URL);
-                    StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
+                    var unitForm = new List<dynamic>();
+                    JObject values = new JObject();
+
+                    var wp = Preferences.Get("SelectedWorkPlan", "");
+                    var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
+
+                    var unitOb = Preferences.Get("SelectedUnit", "");
+                    var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
+                    Console.WriteLine(formvalue.ToString());
+                    foreach (var obj in formvalue)
+                    {
+                        values.Add(obj.Key, obj.Value);
+                    }
+                    unitForm.Add(values);
+                    string unitFormObj = JsonConvert.SerializeObject(unitForm);
+
+                    UnitModel unitModel = new UnitModel();
+                    unitModel.AssetId = unitObj.assetId;
+                    unitModel.AssetName = unitObj.unitId;
+                    unitModel.Values = unitFormObj;
+                    unitModel.InspType = unitObj.inspection_type;
+                    // saving form in local database
+                    await InsertUnitForm(unitModel);
+                    ;
+                    var toast = Toast.Make("Inspection saved Successfully!", ToastDuration.Long);
+                    await toast.Show();
+
+                    foreach (var workP in workPlanList)
+                    {
+                        if (workP.Id.ToString() == wpObj[0]._id.ToString())
+                        {
+                            bool allInspectionsCompletedFlag = true;
+                            var allUnits = workP.AllUnits;
+                            if (allUnits.Count > 0)
+                            {
+                                foreach (var pUnit in allUnits)
+                                {
+                                    if (pUnit.AssetId.ToString() == unitObj.assetId.ToString() && workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
+                                    {
+                                        pUnit.StartInspButtonStatus = true;
+                                        pUnit.AssetInspectionSaved = true;
+                                        pUnit.AssetInspectionDone = false;
+                                        pUnit.Status = "In Progress";
+                                        pUnit.OfflineInspection = false;
+
+                                        UnitSessionModel usm = new UnitSessionModel();
+                                        usm.UnitId = pUnit.AssetId;
+                                        usm.WpId = workP.Id;
+                                        usm.InspectionType = pUnit.InspectionType;
+                                        usm.AssetName = pUnit.UnitId;
+                                        usm.AssetStatus = "In Progress";
+                                        usm.AssetInspectionDone = false;
+                                        usm.AssetInspectionSaved = true;
+                                        usm.StartInspButtonStatus = true;
+                                        usm.OfflineInspectionDone = false;
+                                        await UpdateUnitSession(usm);
+
+                                    }
+
+
+                                    if (pUnit.Status != "Completed")
+                                    {
+                                        allInspectionsCompletedFlag = false;
+                                    }
+                                }
+                                if (allInspectionsCompletedFlag == true)
+                                {
+                                    workP.AssetInspectionDone = true;
+                                    workP.HideBtnOnInspectionComplete = false;
+                                    workP.OfflineInspection = false;
+                                }
+
+                            }
+
+
+                        }
+                    }
+                    var page = Application.Current.MainPage.Navigation.NavigationStack.Last();
+
+                    await Shell.Current.GoToAsync("workPlansPage", false);
+                    Application.Current.MainPage.Navigation.RemovePage(page);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("SavedButtonClicked_InspectionService " + e.ToString());
+            }
+
+        }
+
+
+        public async void pushReportsToServer()
+        {
+
+            /* 
+            whenever change in internet connectivity state occurs, this function will check the ReportToPush table,
+            which is basically a cache storage for submitted inspections wheninternet is off, this function will push all
+            inspections to backend server and remove the session table entry and add it to report model
+             */
+
+
+            Server s = new Server();
+
+            string url1 = string.Format(s.JourneyPlanStart_URL);
+
+            var inProgressToPush = await GetInprogressToPush();
+            if (inProgressToPush.Count() > 0)
+            {
+                foreach (var report in inProgressToPush)
+                {
+                    var httpclient = new HttpClient();
+                    StringContent content = new StringContent(report.Content, Encoding.UTF8, "application/json");
+                    HttpResponseMessage response = await httpclient.PostAsync(new Uri(url1), content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        int deleted = await DeleteInProgressToPush(report);
+
+                    }
+
+                }
+            }
+
+            SessionModel sm = new SessionModel();
+            ReportModel rp = new ReportModel();
+            string url = string.Format(s.jPlanReportFinish);
+            var unitsSession = await GetUnitsSession();
+
+            var reportsToPush = await GetReportsToPush();
+            if (reportsToPush.Count() > 0)
+            {
+
+                var sessionsList = await GetWorkPlanDtos();
+
+                foreach (var report in reportsToPush)
+                {
+                    var httpclient = new HttpClient();
+                    var allUnitsCompletedFlag = true;
+                    StringContent content = new StringContent(report.Content, Encoding.UTF8, "application/json");
                     HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
                     if (response.IsSuccessStatusCode)
                     {
-                        formDataObj = null;
-                       
-                        await Shell.Current.GoToAsync("workPlansPage");
+                        if (unitsSession.Count() > 0)
+                        {
+
+                            var findUnitSession = unitsSession.FindAll(unitSession => unitSession.WpId == report.WPId);
+                            if (findUnitSession.Count() > 0)
+                            {
+                                foreach (var session in findUnitSession)
+                                {
+                                    if (session.AssetStatus != "Completed-Offline")
+                                    {
+                                        allUnitsCompletedFlag = false;
+                                    }
+                                }
+                                if (allUnitsCompletedFlag == true)
+                                {
+                                    var findSession = sessionsList.Find(session => session.Id == report.WPId);
+                                    if (findSession != null)
+                                    {
+                                        rp.Title = findSession.Title;
+                                        rp.startInspBtnState = "Finished";
+                                        rp.Id = findSession.Id;
+                                        rp.PlanInspectionDone = true;
+                                        rp.PlanStatus = "Completed";
+                                        await AddReports(rp);
+                                        await DeleteWorkPlanDto(findSession);
+                                    }
+                                }
+                            }
+                            int deleted = await DeleteReportToPush(report);
+
+                        }
                     }
                 }
             }
-        }
-        public async void OnsaveButtonClicked()
-        {
-            var unitForm = new List<dynamic>();
-            JObject values = new JObject();
-
-            var unitOb = Preferences.Get("SelectedUnit", "");
-            var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-            Console.WriteLine(formvalue.ToString());
-            foreach (var obj in formvalue)
-            {
-                values.Add(obj.Key, obj.Value);
-            }
-            unitForm.Add(values);
-            string unitFormObj = JsonConvert.SerializeObject(unitForm);
-
-            UnitModel unitModel = new UnitModel();
-            unitModel.AssetId = unitObj.assetId;
-            unitModel.AssetName = unitObj.unitId;
-            unitModel.Values = unitFormObj;
-
-            await InsertUnitForm(unitModel);
-            var unitFormList =await  GetSavedUnitForms();
-            Console.WriteLine(unitFormList.ToString());
-            await Shell.Current.GoToAsync("workPlansPage");
-
         }
         void OnPickerSelectedIndexChanged(object sender, EventArgs e)
         {
@@ -320,7 +822,7 @@ namespace TekTrackingCore.Services
             if (selectedIndex != -1)
             {
                 string value = (string)picker.ItemsSource[selectedIndex];
-                Console.WriteLine(value);
+
 
                 if (formvalue.ContainsKey(pickerName))
                 {
@@ -389,11 +891,16 @@ namespace TekTrackingCore.Services
             }
         }
 
+        public async System.Threading.Tasks.Task<bool> showAlert(string msg)
+        {
+            bool response = await Shell.Current.DisplayAlert("Are you sure ?", "Do you really want to " + msg + "  this Inspection", "OK", "Cancel");
+            return response;
+        }
         public async Task<List<SessionModel>> GetWorkPlanDtos()
         {
             await SetUpDb();
-           var workPlanList = await  _dbConnection.Table<SessionModel>().ToListAsync();
-            return  workPlanList;
+            var workPlanList = await _dbConnection.Table<SessionModel>().ToListAsync();
+            return workPlanList;
         }
 
         public async Task<int> AddWorkPlanDto(SessionModel workPlanDto)
@@ -405,9 +912,11 @@ namespace TekTrackingCore.Services
             if (item == null)
             {
                 return await _dbConnection.InsertAsync(workPlanDto);
-            }else
+            }
+            else
             {
-                return 0;
+                return await _dbConnection.UpdateAsync(workPlanDto);
+                // return 0;
             }
         }
 
@@ -419,6 +928,44 @@ namespace TekTrackingCore.Services
         public Task<int> UpdateWorkPlanDto(SessionModel workPlanDto)
         {
             return _dbConnection.UpdateAsync(workPlanDto);
+        }
+
+        // Report Model
+
+        public async Task<List<ReportModel>> GetReports()
+        {
+            await SetUpDb();
+            var reportList = await _dbConnection.Table<ReportModel>().ToListAsync();
+            return reportList;
+        }
+
+        public async Task<int> AddReports(ReportModel rp)
+        {
+            await SetUpDb();
+            var existingReports = await GetReports();
+            var alreadyExist = existingReports.Find(plan => plan.Id == rp.Id);
+            var item = alreadyExist;
+
+            if (item == null)
+            {
+                return await _dbConnection.InsertAsync(rp);
+            }
+            else
+            {
+                return await _dbConnection.UpdateAsync(rp);
+                // return 0;
+            }
+
+        }
+
+        public Task<int> DeleteReport(ReportModel rp)
+        {
+            return _dbConnection.DeleteAsync(rp);
+        }
+
+        public Task<int> UpdateReport(ReportModel rp)
+        {
+            return _dbConnection.UpdateAsync(rp);
         }
 
         // active inspections 
@@ -451,7 +998,7 @@ namespace TekTrackingCore.Services
 
         public async Task<List<UnitModel>> GetSavedUnitForms()
         {
-            await SetUpDb();
+            // await SetUpDb();
             var units = await _dbConnection.Table<UnitModel>().ToListAsync();
             return units;
         }
@@ -459,7 +1006,7 @@ namespace TekTrackingCore.Services
         public async Task<int> DeleteSavedUnitForms(UnitModel unitModel)
         {
             await SetUpDb();
-            return await  _dbConnection.DeleteAsync(unitModel);
+            return await _dbConnection.DeleteAsync(unitModel);
         }
         public async Task<int> InsertUnitForm(UnitModel unitModel)
         {
@@ -476,9 +1023,109 @@ namespace TekTrackingCore.Services
                 await DeleteSavedUnitForms(item);
                 return await _dbConnection.InsertAsync(unitModel);
             }
-            
+
 
         }
 
+        // unitsession model
+        public async Task<List<UnitSessionModel>> GetUnitsSession()
+        {
+            await SetUpDb();
+            var units = await _dbConnection.Table<UnitSessionModel>().ToListAsync();
+            return units;
+        }
+
+        public async Task<int> DeleteSavedUnitsSession(UnitSessionModel unitModel)
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAsync(unitModel);
+        }
+        public async Task<int> InsertUnitsSession(UnitSessionModel unitModel)
+        {
+            await SetUpDb();
+            var existingUnitsSession = await GetUnitsSession();
+            var alreadyExist = existingUnitsSession.Where(uSession => uSession.UnitId == unitModel.UnitId);
+            var item = alreadyExist.FirstOrDefault();
+            if (item == null)
+            {
+                return await _dbConnection.InsertAsync(unitModel);
+            }
+            else
+            {
+                return await _dbConnection.UpdateAsync(unitModel);
+            }
+
+        }
+
+        public Task<int> UpdateUnitSession(UnitSessionModel usm)
+        {
+            return _dbConnection.UpdateAsync(usm);
+        }
+
+        // Reports to push 
+
+        public async Task<List<ReportsToPush>> GetReportsToPush()
+        {
+            await SetUpDb();
+            var reportList = await _dbConnection.Table<ReportsToPush>().ToListAsync();
+            return reportList;
+        }
+
+        public async Task<int> AddReportToPush(ReportsToPush rp)
+        {
+            await SetUpDb();
+            var existingReports = await GetReportsToPush();
+            var alreadyExist = existingReports.Find(reports => reports.Content == rp.Content);
+            var item = alreadyExist;
+            if (item == null)
+            {
+                return await _dbConnection.InsertAsync(rp);
+            }
+            else
+            {
+                return await _dbConnection.UpdateAsync(rp);
+            }
+        }
+
+        public Task<int> UpdateUnitSession(ReportsToPush rp)
+        {
+            return _dbConnection.UpdateAsync(rp);
+        }
+
+        public async Task<int> DeleteReportToPush(ReportsToPush rp)
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAsync(rp);
+        }
+
+        // Inprogress to push
+        public async Task<List<InprogressToPush>> GetInprogressToPush()
+        {
+            await SetUpDb();
+            var reportList = await _dbConnection.Table<InprogressToPush>().ToListAsync();
+            return reportList;
+        }
+
+        public async Task<int> AddInprogressToPush(InprogressToPush rp)
+        {
+            await SetUpDb();
+            var existingReports = await GetInprogressToPush();
+            var alreadyExist = existingReports.Find(reports => reports.Content == rp.Content);
+            var item = alreadyExist;
+            if (item == null)
+            {
+                return await _dbConnection.InsertAsync(rp);
+            }
+            else
+            {
+                return await _dbConnection.UpdateAsync(rp);
+            }
+        }
+
+        public async Task<int> DeleteInProgressToPush(InprogressToPush rp)
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAsync(rp);
+        }
     }
 }

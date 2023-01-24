@@ -1,4 +1,4 @@
-﻿
+
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel;
 using TekTrackingCore.ViewModels;
@@ -10,8 +10,6 @@ public partial class AppShell : Shell
    
      
 {
-    
-
 
 
 
@@ -22,9 +20,8 @@ public partial class AppShell : Shell
     {
         InitializeComponent();
         BindingContext = new AppShellViewModel();
-  
 
-
+       
 
 
 
@@ -44,7 +41,8 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(UpdatePassword), typeof(UpdatePassword));
         Routing.RegisterRoute(nameof(UserSignature), typeof(UserSignature));
         Routing.RegisterRoute(nameof(Setting), typeof(Setting));
-        Routing.RegisterRoute(nameof(MapPage), typeof(MapPage));
+        Routing.RegisterRoute(nameof(MapPage), typeof(MapPinsView));
+
 
 
     }

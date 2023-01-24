@@ -1,4 +1,4 @@
-﻿using TekTrackingCore.Framework;
+using TekTrackingCore.Framework;
 using TekTrackingCore.ViewModels;
 using TekTrackingCore.Views;
 using TekTrackingCore.Services;
@@ -33,14 +33,14 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
-        .ConfigureMauiHandlers(handlers =>
-         {
-             handlers.AddHandler(typeof(MapView), typeof(MapHandler));
-         });
 
+        //.ConfigureMauiHandlers(handlers =>
+        // {
+        //     handlers.AddHandler(typeof(MapView), typeof(MapHandler));
+        // })
         //Routing.RegisterRoute("dashboard", typeof(MainPage));
         //Routing.RegisterRoute("login", typeof(LoginPage));
-
+        .UseMauiMaps();
         builder.Services.AddSingleton<LoginViewModel>();
         builder.Services.AddSingleton<LoginPage>();
 
@@ -59,6 +59,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<UserProfileViewModel>();
         builder.Services.AddSingleton<UserProfilePage>();
         builder.Services.AddTransient<SettingViewModelcs>();
+        builder.Services.AddTransient<MapPinsView>();
+        builder.Services.AddTransient<MapViewModel>();
 
         builder.Services.AddTransient<Setting>();
 

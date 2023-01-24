@@ -5,10 +5,10 @@ namespace TekTrackingCore.Views;
 
 public partial class ProceedPage : ContentPage
 {
-    
+
     public ProceedPage(LoginViewModel vm)
-	{
-       
+    {
+
 
         InitializeComponent();
         NavigationPage.SetHasBackButton(this, false);

@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
@@ -8,52 +8,53 @@ using System.Text;
 using System.Threading.Tasks;
 using TekTrackingCore.Models;
 using TekTrackingCore.Services;
-
+using TekTrackingCore.Views;
 namespace TekTrackingCore.ViewModels
-   
 {
-    public partial class SettingViewModelcs:BaseViewModel
+    public partial class SettingViewModelcs : BaseViewModel
     {
-        public ObservableCollection<SettingModel>Settings { get; set; } = new ObservableCollection<SettingModel>();
+        bool res;
+        public ObservableCollection<SettingModel> Settings { get; set; } = new ObservableCollection<SettingModel>();
         private readonly IStudentService _studentService;
-        public SettingViewModelcs(IStudentService studentService) { 
-             _studentService=studentService;
+        public SettingViewModelcs(IStudentService studentService)
+        {
+            _studentService = studentService;
         }
         //SettingModel settingModel = new SettingModel();
-
         [RelayCommand]
         public async Task<List<SettingModel>> ReadSettingsDetails()
         {
             var list = await _studentService.ReadSettingsDetails();
-
             if (list?.Count() > 0)
             {
                 Settings.Clear();
                 foreach (var item in list)
                 {
                     Settings.Add(item);
-                    Preferences.Set("serverEndpoint",item.ServerAdress+":"+item.PortNumber);
+                    //Preferences.Set("serverEndpoint", item.ServerAdress + ":" + item.PortNumber);
                 }
-                
             }
-
             return list;
-          
         }
-
         [RelayCommand]
         public async void DeleteServer(SettingModel settingModel)
         {
-            var delResponse = await _studentService.DeleteServer(settingModel);
-
-            Preferences.Clear();
-
-            if (delResponse > 0)
+            bool response = await App.Current.MainPage.DisplayAlert("Are you sure ?", "Do you really want to delete this Server ?", "Delete", "Cancel");
+            if (response == true)
             {
-                ReadSettingsDetails();
+                var delResponse = await _studentService.DeleteServer(settingModel);
+                //await Shell.Current.GoToAsync(nameof(Setting));
+                var page = Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
+                // Load new page
+                await Shell.Current.GoToAsync(nameof(Setting), false);
+                Application.Current.MainPage.Navigation.RemovePage(page);
+                //Preferences.Clear();
+                if (delResponse > 0)
+                {
+                    ReadSettingsDetails();
+                }
             }
         }
-
         [RelayCommand]
         public async void SettingCheck(SettingModel settingModel)
         {
@@ -63,21 +64,24 @@ namespace TekTrackingCore.ViewModels
                 if (settingModel.UserId == x.UserId)
                 {
                     Console.WriteLine("checked");
-                   bool res = x.checkStatusTrue();
+                    res = x.checkStatusTrue();
                     Console.WriteLine(res);
+                    Preferences.Set("serverEndpoint", settingModel.ServerAdress + ":" + settingModel.PortNumber);
                 }
-              
-
                 else
                 {
                     //settingModel.isCheckedOrNot = false;
                     x.checkStatusFalse();
                 }
-              
             });
-
-            
         }
     }
-
 }
+
+
+
+
+
+
+
+

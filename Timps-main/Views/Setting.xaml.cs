@@ -8,16 +8,16 @@ namespace TekTrackingCore.Views;
 public partial class Setting : ContentPage
 {
     public SettingViewModelcs _viewModel;
-	public Setting(SettingViewModelcs vm)
-	{
-		InitializeComponent();
+    public Setting(SettingViewModelcs vm)
+    {
+        InitializeComponent();
         _viewModel = vm;
-     BindingContext = vm;
-     
+        BindingContext = vm;
+
 
     }
 
-   
+
 
     public void PoppOpen(object sender, EventArgs e)
     {

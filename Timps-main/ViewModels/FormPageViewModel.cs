@@ -20,10 +20,11 @@ namespace TekTrackingCore.ViewModels
     [QueryProperty("OptParam1", "OptParam1")]
     [QueryProperty("SelectedWorkPlan", "SelectedWorkPlan")]
     [QueryProperty("UnitObj", "UnitObj")]
+  
 
     public partial class FormPageViewModel : BaseViewModel
     {
-
+      
         [ObservableProperty]
 
         private string selectedWorkPlan;
@@ -36,6 +37,7 @@ namespace TekTrackingCore.ViewModels
         private string unitObj;
 
         public Action<string> setSelectedWPlanCallBack { get; set; }
+        public Action<string> setUnitCallBack { get; set; }
         public Action<string> setRenderCallBack { get; set; }
        
 
@@ -43,15 +45,17 @@ namespace TekTrackingCore.ViewModels
         partial void OnOptParam1Changed(string value)
         {
             setRenderCallBack(value);
+            OptParam1 = null;
         }
         partial void OnSelectedWorkPlanChanged(string value)
         {
-            if(Preferences.ContainsKey("SelectedWorkPlan"))
+            if (Preferences.ContainsKey("SelectedWorkPlan"))
             {
                 Preferences.Remove("SelectedWorkPlan");
             }
             Preferences.Set("SelectedWorkPlan", value);
-           
+            setSelectedWPlanCallBack(value);
+            //SelectedWorkPlan = null;
         }
 
         partial void OnUnitObjChanged(string value)
@@ -61,9 +65,9 @@ namespace TekTrackingCore.ViewModels
                 Preferences.Remove("SelectedUnit");
             }
             Preferences.Set("SelectedUnit", value);
-         }
-
-
+            setUnitCallBack(value);
+            //UnitObj = null;
+        }
     }
 
 }
