@@ -4,6 +4,7 @@
              xmlns:viewModels="clr-namespace:TekTrackingCore.ViewModels"
              xmlns:models="clr-namespace:TekTrackingCore.Models"
               x:Name="page"
+             Shell.BackgroundColor="MidnightBlue"
              x:DataType="viewModels:SettingViewModelcs"
              Title="Setting">
     <ScrollView>

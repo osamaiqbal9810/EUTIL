@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.StaticListItemPage"
                           xmlns:controls="clr-namespace:TekTrackingCore.Controls"
-
+                                            Shell.BackgroundColor="MidnightBlue"
              xmlns:z="clr-namespace:TekTrackingCore.Framework.Types"
              Title="StaticListItemView">
     <ScrollView>

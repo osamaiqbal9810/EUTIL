@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Maui.Graphics;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using SQLite;
 using System;
@@ -166,6 +167,10 @@ namespace TekTrackingCore.Sample.Models
         [JsonProperty("OfflineInspection")]
         public bool OfflineInspection { get { return _offlineInspection; } set { SetProperty(ref _offlineInspection, value); } }
         private bool _offlineInspection = false;
+
+        [JsonProperty("StatusColor")]
+        public Color StatusColor { get { return _statusColor; } set { SetProperty(ref _statusColor, value); } }
+        private Color _statusColor = Colors.Red;
         public WorkPlanDto()
         {
             IsVisible = false;

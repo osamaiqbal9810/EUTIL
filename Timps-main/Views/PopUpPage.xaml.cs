@@ -9,13 +9,13 @@ namespace TekTrackingCore.Views;
 public partial class PopUpPage : Popup
 {
 
-    private StudentService studentService;
+    private SettingServerServices settingServerServices;
 
     public PopUpPage()
     {
         InitializeComponent();
 
-        studentService = new StudentService();
+        settingServerServices = new SettingServerServices();
         //ReaduserDetails();
         //ReadSettingsDetails();
     }
@@ -36,7 +36,11 @@ public partial class PopUpPage : Popup
             settingModel.DisplayName = displayName.Text;
             settingModel.PortNumber = int.Parse(portNumber.Text);
             settingModel.ServerAdress = serverAddress.Text;
-            await studentService.AddServerSetting(settingModel);
+            if (settingModel != null)
+            {
+                await settingServerServices.AddServerSetting(settingModel);
+            }
+
             //await Shell.Current.GoToAsync(nameof(Setting));
             var page = Application.Current.MainPage.Navigation.NavigationStack.LastOrDefault();
             // Load new page

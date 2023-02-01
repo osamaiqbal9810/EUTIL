@@ -8,7 +8,7 @@ namespace TekTrackingCore.Views;
 
 public partial class UserProfilePage : ContentPage
 {
-    private StudentService studentService;
+    private UserProfileServices userProfileServices;
     public UserProfilePage(UserProfileViewModel vm)
     {
         InitializeComponent();
@@ -17,7 +17,7 @@ public partial class UserProfilePage : ContentPage
         //lableField.Text = ;
         this.BindingContext = vm;
 
-        studentService = new StudentService();
+        userProfileServices = new UserProfileServices();
 
         AssignImage();
 
@@ -32,7 +32,7 @@ public partial class UserProfilePage : ContentPage
 
     public async void AssignImage()
     {
-        var picData = await studentService.ReadUserDetail();
+        var picData = await userProfileServices.ReadUserDetail();
         if (picData.Count>0)
         {
             imageStatus.Source = picData[0].picture;
@@ -58,9 +58,9 @@ public partial class UserProfilePage : ContentPage
 
         var stream = await result.OpenReadAsync();
 
-        var readimagePath=await studentService.ReadUserDetail();
+        var readimagePath=await userProfileServices.ReadUserDetail();
 
-        await studentService.AddUserDetails(userModel);
+        await userProfileServices.AddUserDetails(userModel);
         imageStatus.Source = ImageSource.FromStream(() => stream);
 
     }

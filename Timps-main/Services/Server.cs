@@ -30,12 +30,12 @@ namespace TekTrackingCore.Services
         {
             bool hasKey = Preferences.Default.ContainsKey("serverEndpoint");
             string defaultUrl = "rmsportal.eastus.cloudapp.azure.com";
-            
+            //string defaultUrl = "electric-utility-inspection-system.onrender.com";
             serverUrl = hasKey ? Preferences.Get("serverEndpoint", ""): defaultUrl;
 
             if (serverUrl == defaultUrl)
             {
-                Scheme = "http";
+                Scheme = "https";
             }
             else
             {
@@ -46,7 +46,7 @@ namespace TekTrackingCore.Services
             LIST_URL = $"{ServerUrl}/api/list/pull/300";
             JourneyPlan_URL = $"{ServerUrl}/api/journeyPlan";
             JourneyPlanStart_URL = $"{ServerUrl}/api/journeyPlan/journeyPlanStart";
-            jPlanReportFinish = $"{ServerUrl}/api/journeyPlan/journeyPlanUpdate";
+            JourneyPlanFinish_URL = $"{ServerUrl}/api/journeyPlan/journeyPlanUpdate";
 
 
         }
@@ -73,7 +73,7 @@ namespace TekTrackingCore.Services
 
         //public static string JourneyPlanStart_URL = $"{Scheme}://{LocalhostUrl}:{Port}/api/journeyPlan/journeyPlanStart";
          public  string JourneyPlanStart_URL; /*= $"{ServerUrl}/api/journeyPlanStart";*/
-        public string jPlanReportFinish;
+        public string JourneyPlanFinish_URL;
         //public static string Login_RestUrl = $"{Scheme}://{LocalhostUrl}:{Port}/api/login";
         public  string Login_RestUrl; /*= $"{ServerUrl}/api/login";*/
 

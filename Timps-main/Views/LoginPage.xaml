@@ -6,6 +6,7 @@
              xmlns:xts="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
                 Shell.FlyoutBehavior="Disabled"
              x:Class="TekTrackingCore.Views.LoginPage"
+    Shell.BackgroundColor="MidnightBlue"
               BackgroundColor="Grey"
              >
     <ContentPage.Resources>

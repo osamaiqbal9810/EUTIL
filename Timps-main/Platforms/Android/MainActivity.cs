@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using TekTrackingCore.Handlers;
+
 using Microsoft.Maui.Platform;
 
 
@@ -15,7 +15,7 @@ public class MainActivity : MauiAppCompatActivity
     {
         base.OnCreate(savedInstanceState);
 
-        MapHandler.Bundle = savedInstanceState;
+        //MapHandler.Bundle = savedInstanceState;
 
     }
 }

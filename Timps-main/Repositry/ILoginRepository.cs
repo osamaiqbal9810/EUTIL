@@ -14,16 +14,7 @@ namespace TekTrackingCore.Repositry
         public bool IsAlreadyLoggedIn();
         public bool IsLoadingLogin(bool status);
         public void  Logout();
-
-
-
-
         public string BtnText();
-
         public Task Proceed();
-
-
     }
-
-
 }

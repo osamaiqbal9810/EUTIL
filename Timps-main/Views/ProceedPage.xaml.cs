@@ -8,16 +8,11 @@ public partial class ProceedPage : ContentPage
 
     public ProceedPage(LoginViewModel vm)
     {
-
-
         InitializeComponent();
         NavigationPage.SetHasBackButton(this, false);
         NavigationPage.SetHasNavigationBar(this, false);
 
-
-
         BindingContext = vm;
-
 
     }
 

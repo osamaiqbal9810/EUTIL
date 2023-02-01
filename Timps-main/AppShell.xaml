@@ -5,12 +5,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:TekTrackingCore.Views"
      xmlns:loc="clr-namespace:TekTrackingCore"
+    Shell.BackgroundColor="MidnightBlue"
  FlyoutBehavior="Flyout"
 Shell.FlyoutItemIsVisible="True"
 
-
-   
    >
+    <!--<Shell.TitleView>
+        <HorizontalStackLayout HorizontalOptions="End">
+           
+            <Image Source="offlineicon.png" WidthRequest="50" HeightRequest="50" IsVisible="{Binding IsOffline}"/>
+            <Label Text="{Binding IsOffline}" />
+   
+        </HorizontalStackLayout>
+        
+    </Shell.TitleView>-->
     <!--<ShellContent
        FlyoutItemIsVisible="False"
         Title="Login"
@@ -41,12 +49,16 @@ Shell.FlyoutItemIsVisible="True"
     </TabBar>
 
     <TabBar Route="Briefing">
-        <Tab Title="Briefing"
+        <!--<Tab Title="Briefing"
             Icon="breifing.png"
              Route="Briefing">
             <ShellContent ContentTemplate="{DataTemplate views:Briefing}" />
+        </Tab>-->
+        <Tab Title="Map"
+            Icon="hos.png"
+              Route="MapPinsView">
+            <ShellContent ContentTemplate="{DataTemplate views:MapPinsView}" />
         </Tab>
-
         <Tab Title="List"
             Icon="hos.png"
               Route="ExpandableView">
@@ -58,36 +70,29 @@ Shell.FlyoutItemIsVisible="True"
               Route="Hos">
             <ShellContent ContentTemplate="{DataTemplate views:Hos}" />
         </Tab>
-
-        <Tab Title="Map"
-            Icon="hos.png"
-              Route="MapPage">
-            <ShellContent ContentTemplate="{DataTemplate views:MapPinsView}" />
-        </Tab>
-
     </TabBar>
 
-    
-    
+
+
 
 
     <Shell.FlyoutHeader >
         <VerticalStackLayout>
-        <StackLayout Padding="20" >
-            <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
-        </StackLayout>
+            <StackLayout Padding="20" >
+                <Button FontSize="18" FontAttributes="Bold" Text="User Profile" Command="{Binding UserProfileCommand}" BackgroundColor="#043927" CornerRadius="0"/>
+            </StackLayout>
 
-        <StackLayout Padding="20" >
-            <Button FontSize="18" FontAttributes="Bold" Text="Go To Dashboard" Command="{Binding MainDashbaordCommand}" BackgroundColor="#043927" CornerRadius="0"/>
-        </StackLayout>
+            <StackLayout Padding="20" >
+                <Button FontSize="18" FontAttributes="Bold" Text="Go To Dashboard" Command="{Binding MainDashbaordCommand}" BackgroundColor="#043927" CornerRadius="0"/>
+            </StackLayout>
         </VerticalStackLayout>
     </Shell.FlyoutHeader>
 
     <Shell.FlyoutFooter >
         <StackLayout Padding="20" >
-            
+
             <Button Text="Sign Out" Command="{Binding SignOutCommand}" BackgroundColor="#191970" CornerRadius="0"/>
         </StackLayout>
     </Shell.FlyoutFooter>
-    
+
 </Shell>

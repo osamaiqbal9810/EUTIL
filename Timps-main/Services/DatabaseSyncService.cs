@@ -1,7 +1,9 @@
 ﻿
+using Newtonsoft.Json;
 using SQLite;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -10,6 +12,7 @@ using TekTrackingCore.Framework;
 using TekTrackingCore.Framework.Types;
 using TekTrackingCore.Model;
 using TekTrackingCore.Models;
+using TekTrackingCore.ViewModels;
 
 namespace TekTrackingCore.Services
 {
@@ -18,7 +21,8 @@ namespace TekTrackingCore.Services
         private SQLiteAsyncConnection _dbConnection;
         private CreateTableResult PullListItems;
         private CreateTableResult UsersList;
-
+        public AppShellViewModel appShellViewModel;
+        JSONWebService service;
         public async System.Threading.Tasks.Task SetUpDb()
         {
             if (_dbConnection == null)
@@ -45,92 +49,129 @@ namespace TekTrackingCore.Services
         public List<StaticListItemDTO1> staticListItemDTOs { get; set; }
         public System.Action SetSyncCallback { get; set; }
         public string LastTimestamp { get; set; }
-
+        public IDispatcherTimer timer { get; set; }
         private JsonSerializerOptions _serializerOptions;
+        //public async void Start()
+        //{
+        //    try
+        //    {
+        //        staticListItemDTOs = new List<StaticListItemDTO1>();
+
+        //        Poll();
+
+        //        timerTask = new TimerDelegate<string>(() =>
+        //        {
+
+        //            Application.Current.Dispatcher.DispatchAsync(() =>
+        //            {
+        //                Poll();
+        //            });
+
+        //            return results;
+
+        //        }, AppConstants.DBTIMESYNCINTERVAL);
+        //        timerTask.OnCompleted += TimerTask_OnCompleted;
+        //        timerTask.Start();
+        //    }catch(Exception ex)
+        //    {
+        //        Console.WriteLine("dbsyncservice.Start =>"+ ex.ToString());
+        //    }
+        //}
         public async void Start()
         {
-
-            staticListItemDTOs = new List<StaticListItemDTO1>();
-            Poll();
-
-            timerTask = new TimerDelegate<string>(() =>
+            try
             {
+                staticListItemDTOs = new List<StaticListItemDTO1>();
 
-                Application.Current.Dispatcher.DispatchAsync(() =>
+                Poll();
+                timer = Application.Current.Dispatcher.CreateTimer();
+                timer.Interval = TimeSpan.FromSeconds(30);
+                timer.Tick += async (s, e) =>
                 {
                     Poll();
-                });
-
-                return results;
-
-            }, AppConstants.DBTIMESYNCINTERVAL);
-            timerTask.OnCompleted += TimerTask_OnCompleted; ; ;
-            timerTask.Start();
-
-
+                  
+                };
+                timer.Start();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("dbsyncservice.Start =>" + ex.ToString());
+            }
         }
-
         public void Stop()
         {
-            timerTask.Stop();
-
+            if (timer != null)
+            {
+                
+                timer.Stop();
+            }
+              //  Application.Current.Quit();
+            
         }
-
+       
         public async void Poll()
         {
-            NetworkAccess accessType = Connectivity.Current.NetworkAccess;
-
-            if (accessType == NetworkAccess.Internet)
+            try
             {
+                NetworkAccess accessType = Connectivity.Current.NetworkAccess;
 
-                await SetUpDb();
-                Server s = new Server();
-
-                staticListItemDTOs.Clear();
-                System.Diagnostics.Debug.WriteLine("This is a log", s.LIST_URL);
-
-                JSONWebService service = ServiceResolver.ServiceProvider.GetRequiredService<JSONWebService>();
-                string url = string.Format(s.LIST_URL, 300, LastTimestamp);
-                results = await service.GetJSONAsync(url, 10000);
-
-
-                var responseDTO = JsonSerializer.Deserialize<MessageListResponseDTO>(results);
-                var serverPlansList = new List<StaticListItemDTO1>();
-                if (responseDTO != null)
+                if (accessType == NetworkAccess.Internet)
                 {
-                    serverPlansList.Clear();
-                    LastTimestamp = responseDTO.Ts;
-                    var localListItems = await GetMessageListResponseDTO();
-                    foreach (var itemDTO in responseDTO.Result)
+                    await SetUpDb();
+                    Server s = new Server();
+
+                    staticListItemDTOs.Clear();
+                    //JSONWebService service = ServiceResolver.ServiceProvider.GetRequiredService<JSONWebService>();
+                     service = new JSONWebService();
+                    string url = string.Format(s.LIST_URL, 300, LastTimestamp);
+                    results = await service.GetJSONAsync(url, 10000);
+                    var jsonSettings = new JsonSerializerSettings
                     {
-                        foreach (var item in itemDTO)
-                        {
-                            if (item.ListName == "WorkPlanTemplate")
-                            {
-                                serverPlansList.Add(item);
-                                
-                            }
-                            await InsertMessageListResponseDTO(item);
-                        }
-                    }
-                    // sync if any insepection is deleted on server then remove from list
-                    if (localListItems.Count() > 0)
+                        NullValueHandling = NullValueHandling.Ignore,
+                        MissingMemberHandling = MissingMemberHandling.Ignore,
+                    };
+
+                    var responseDTO = JsonConvert.DeserializeObject<MessageListResponseDTO>(results, jsonSettings);
+                    var serverPlansList = new List<StaticListItemDTO1>();
+                    if (responseDTO != null)
                     {
-                        var localWPlans = localListItems.Where(localPlans => localPlans.ListName == "WorkPlanTemplate").Take(100);
-
-                        foreach (var listItem in localWPlans)
+                        serverPlansList.Clear();
+                        LastTimestamp = responseDTO.Ts;
+                        var localListItems = await GetMessageListResponseDTO();
+                        foreach (var itemDTO in responseDTO.Result)
                         {
-                            Console.WriteLine(listItem.Code);
-                            var findOnServer = serverPlansList.Find(planList => planList.Code == listItem.Code);
-                            if (findOnServer == null)
+                            foreach (var item in itemDTO)
+                            
                             {
-                                await DeleteMessageListResponseDTO(listItem);
+                                if (item.ListName == "WorkPlanTemplate")
+                                {
+                                    serverPlansList.Add(item);
+
+                                }
+                                await InsertMessageListResponseDTO(item);
                             }
-
                         }
-                    }
+                        // sync if any insepection is deleted on server then remove from list
+                        if (localListItems.Count() > 0)
+                        {
+                            var localWPlans = localListItems.Where(localPlans => localPlans.ListName == "WorkPlanTemplate").Take(100);
 
+                            foreach (var listItem in localWPlans)
+                            {
+                                var findOnServer = serverPlansList.Find(planList => planList.Code == listItem.Code);
+                                if (findOnServer == null)
+                                {
+                                    await DeleteMessageListResponseDTO(listItem);
+                                }
+
+                            }
+                        }
+
+                    }
                 }
+            }catch(Exception ex)
+            {
+                Console.WriteLine("dbsyncservice poll() => "+ex.Message);
             }
         }
 
@@ -154,6 +195,12 @@ namespace TekTrackingCore.Services
             await SetUpDb();
             return await _dbConnection.DeleteAsync(responseDTO);
         }
+
+        public async Task<int> DeleteAllMessageListResponseDTO()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<StaticListItemDTO1>();
+        }
         public async Task<int> UpdateMessageListResponseDTO(StaticListItemDTO1 responseDTO)
         {
             await SetUpDb();
@@ -162,21 +209,16 @@ namespace TekTrackingCore.Services
         public async Task<int> InsertMessageListResponseDTO(StaticListItemDTO1 responseDTO)
         {
             await SetUpDb();
-            if(responseDTO.ListName == "WorkPlanTemplate")
-            {
-
-            }
+            
             var msgRespnse = await GetMessageListResponseDTO();
-            var alreadyExist = msgRespnse.Where(response => response.Code == responseDTO.Code);
-            var item = alreadyExist.FirstOrDefault();
-            if (item == null)
+            var alreadyExist = msgRespnse.Find(response => response.Code == responseDTO.Code);
+            if (alreadyExist == null)
             {
                 return await _dbConnection.InsertAsync(responseDTO);
             }
             else
             {
-                await _dbConnection.DeleteAsync(item);
-                return await _dbConnection.InsertAsync(responseDTO);
+                return await _dbConnection.UpdateAsync(responseDTO);
             }
 
         }

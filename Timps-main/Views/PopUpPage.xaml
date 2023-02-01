@@ -2,6 +2,7 @@
 <mct:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.PopUpPage"
+           Shell.BackgroundColor="MidnightBlue"
        xmlns:mct="clr-namespace:CommunityToolkit.Maui.Views;assembly=CommunityToolkit.Maui"
             >
     <VerticalStackLayout BackgroundColor="White" HeightRequest="270" WidthRequest="330" >

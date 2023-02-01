@@ -2,28 +2,35 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.MapPinsView"
-
-          xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
+             xmlns:custumPins="clr-namespace:TekTrackingCore"
+             xmlns:local="clr-namespace:TekTrackingCore.ViewModels"
+             xmlns:maps="clr-namespace:Microsoft.Maui.Controls.Maps;assembly=Microsoft.Maui.Controls.Maps"
              Title="MapPinsView">
 
-    <StackLayout>
-     
+    <Grid>
+
         <maps:Map IsShowingUser="True"  x:Name="map" 
                   ItemsSource="{Binding Positions}">
             <maps:Map.ItemTemplate >
                 <DataTemplate>
-                    <maps:Pin MarkerClicked="Pin_MarkerClicked"    
+
+                    <custumPins:CustomPin MarkerClicked="Pin_MarkerClicked" 
+                                          ImageSource="{Binding markerImg}"
+                                          UnitId="{Binding UnitId}"
                               Location="{Binding Location}"
                               Label="{Binding Description}"/>
+
                 </DataTemplate>
             </maps:Map.ItemTemplate>
         </maps:Map>
-
-
-        <StackLayout>
-            
-        </StackLayout>
-        
-    </StackLayout>
-
+        <!--<Image Source="offlineicon.png" 
+              BackgroundColor="MidnightBlue"
+               HeightRequest="50"
+               WidthRequest="50"
+               HorizontalOptions="Center"
+               VerticalOptions="End"
+               Margin="0,0,0,30"
+               IsVisible="{Binding IsNotConnected}"
+             />-->
+    </Grid>
 </ContentPage>

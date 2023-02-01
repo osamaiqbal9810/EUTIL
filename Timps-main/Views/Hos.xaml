@@ -2,8 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TekTrackingCore.Views.Hos"
+             Shell.BackgroundColor="MidnightBlue"
              Title="Hos">
-
+    <Shell.TitleView>
+        <HorizontalStackLayout HorizontalOptions="End" IsVisible="{Binding IsNotConnected}">
+            <Image Source="offlineicon.png" WidthRequest="50" HeightRequest="50"/>
+        </HorizontalStackLayout>
+    </Shell.TitleView>
     <ContentPage.Resources>
        
         <ResourceDictionary>

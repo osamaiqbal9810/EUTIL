@@ -17,7 +17,10 @@ namespace TekTrackingCore.Services
 
 
         public string Token { get; set; }
-
+        public JSONWebService()
+        {
+            Token = Preferences.Get(AppConstants.TOKEN_KEY, "");
+        }
         public JSONWebService(IHttpsClientHandlerService service)
         {
 #if DEBUG
@@ -43,17 +46,24 @@ namespace TekTrackingCore.Services
 
         public async Task<string> GetJSONAsync(String url, int timeout)
         {
-            Uri uri = new Uri(string.Format(url));
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", Token);
+            
+                Uri uri = new Uri(string.Format(url));
+
+                HttpClient client = new HttpClient();
+                
+
             try
             {
-                HttpResponseMessage response = await client.GetAsync(uri);
-                if (response.IsSuccessStatusCode)
+                if (Token != null && Token !="")
                 {
-                    string resultjson = await response.Content.ReadAsStringAsync();
+                    client.DefaultRequestHeaders.Add("Authorization", Token);
+                    HttpResponseMessage response = await client.GetAsync(uri);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string resultjson = await response.Content.ReadAsStringAsync();
 
-                    return resultjson;
+                        return resultjson;
+                    }
                 }
             }
             catch (Exception ex)
@@ -61,9 +71,9 @@ namespace TekTrackingCore.Services
                 Console.WriteLine(ex.ToString());
                 return "";
             }
-            return "";
+                return "";
 
-        }
-
+            }
+        
     }
 }

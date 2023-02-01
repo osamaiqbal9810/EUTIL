@@ -12,6 +12,7 @@ namespace TekTrackingCore.Sample.Models
     {
         [PrimaryKey]
         public string Id { get; set; }
+        public string UserID { get; set; }
         public string Title { get; set; }
         public string startInspBtnState { get; set; }
         public bool PlanInspectionDone { get; set; }

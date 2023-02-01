@@ -4,13 +4,9 @@
              x:Class="TekTrackingCore.Views.Briefing"
              xmlns:viewmodel="clr-namespace:TekTrackingCore.ViewModels"
              x:DataType="viewmodel:BriefingViewModel"
-            
+                  Shell.BackgroundColor="MidnightBlue"
              Title="Briefing">
-    <Shell.TitleView>
-        <HorizontalStackLayout HorizontalOptions="End" IsVisible="{Binding IsNotConnected}">
-            <Image Source="offlineicon.png" WidthRequest="50" HeightRequest="50"/>
-        </HorizontalStackLayout>
-    </Shell.TitleView>
+   
     <VerticalStackLayout>
 
         <Frame  BackgroundColor="LightSkyBlue" CornerRadius="0" Padding=" 20, 10">

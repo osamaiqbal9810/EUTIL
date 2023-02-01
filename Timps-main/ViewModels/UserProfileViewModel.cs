@@ -10,7 +10,7 @@ namespace TekTrackingCore.ViewModels
 {
     public partial class  UserProfileViewModel:BaseViewModel
     {
-        private StudentService studentService;
+        private UserProfileServices userProfileServices;
 
         [ObservableProperty]
         public ExtendedObservableCollection<Result> userProfile;

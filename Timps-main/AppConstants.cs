@@ -9,10 +9,6 @@ namespace TekTrackingCore
 {
     public static class AppConstants
     {
-
-
-
-
         // URL of REST service (Android does not use localhost)
         // Use http cleartext for local deployment. Change to https for production
 

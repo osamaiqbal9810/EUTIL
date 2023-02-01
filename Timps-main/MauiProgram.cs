@@ -1,4 +1,4 @@
-using TekTrackingCore.Framework;
+﻿using TekTrackingCore.Framework;
 using TekTrackingCore.ViewModels;
 using TekTrackingCore.Views;
 using TekTrackingCore.Services;
@@ -8,7 +8,6 @@ using Syncfusion.Maui.ListView.Hosting;
 using Syncfusion.Maui.Core.Hosting;
 using CommunityToolkit.Maui.Markup;
 using CommunityToolkit.Maui;
-using TekTrackingCore.Handlers;
 
 namespace TekTrackingCore;
 
@@ -34,13 +33,15 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             })
 
-        //.ConfigureMauiHandlers(handlers =>
-        // {
-        //     handlers.AddHandler(typeof(MapView), typeof(MapHandler));
-        // })
+        .UseMauiMaps().ConfigureMauiHandlers(handlers =>
+         {
+#if ANDROID
+			handlers.AddHandler<Microsoft.Maui.Controls.Maps.Map, TekTrackingCore.Platforms.Android.CustomMapHandler>();
+#endif
+         });
         //Routing.RegisterRoute("dashboard", typeof(MainPage));
         //Routing.RegisterRoute("login", typeof(LoginPage));
-        .UseMauiMaps();
+
         builder.Services.AddSingleton<LoginViewModel>();
         builder.Services.AddSingleton<LoginPage>();
 
@@ -69,19 +70,18 @@ public static class MauiProgram
         builder.Services.AddSingleton<JSONWebService>();
         builder.Services.AddSingleton<DatabaseSyncService>();
         builder.Services.AddSingleton<InspectionService>();
+        builder.Services.AddSingleton<BaseViewService>();
         //builder.Services.AddSingleton<AccordionViewModel>();
         builder.Services.AddSingleton<ExpandableView>();
-
-
-
+        builder.Services.AddSingleton<StaticListItemService>();
 
         builder.Services.AddSingleton<IHttpsClientHandlerService, HttpsClientHandlerService>();
 
         builder.Services.AddSingleton<DataService>();
         builder.Services.AddSingleton<CompanyTreeViewBuilder>();
         builder.Services.AddTransient<CompanyPage>();
-
-        builder.Services.AddSingleton<IStudentService, StudentService>();
+        builder.Services.AddSingleton<IUserProfileService, UserProfileServices>();
+        builder.Services.AddSingleton<ISettingServerServices, SettingServerServices>();
 
         MauiApp app = builder.Build();
         app.Services.UseResolver();
@@ -94,7 +94,6 @@ public static class MauiProgram
     public static void SetMainDashboardPage()
     {
         App.Current.MainPage = new AppShell();
-
 
     }
 }

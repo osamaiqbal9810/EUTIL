@@ -10,7 +10,7 @@ using TekTrackingCore.Services;
 
 namespace TekTrackingCore.ViewModels
 {
-    public partial class BaseViewModel : ObservableObject, INotifyPropertyChanged
+    public partial class BaseViewModel : ObservableObject
     {
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(IsNotBusy))]
@@ -24,10 +24,13 @@ namespace TekTrackingCore.ViewModels
         public bool IsNotBusy => !IsBusy;
         public InspectionService inspectionService;
         public bool connectivityFlag  = false;
+
+        public BaseViewService baseViewService;
         public BaseViewModel()
         {
+            baseViewService = new BaseViewService();
            inspectionService = new InspectionService();
-           Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
+          // Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
            Preferences.Set("Network_State", "Not-Connected");
            isNotConnected = Connectivity.NetworkAccess != NetworkAccess.Internet;
             
@@ -37,17 +40,20 @@ namespace TekTrackingCore.ViewModels
         void Connectivity_ConnectivityChanged(object sender, ConnectivityChangedEventArgs e)
         {
             var getState = Preferences.Get("Network_State", "");
-            if(e.NetworkAccess == NetworkAccess.Internet )
+            if (e.NetworkAccess == NetworkAccess.Internet)
             {
-                if(getState != "Connected")
+                if (getState != "Connected")
                 {
                     inspectionService.pushReportsToServer();
-                    isNotConnected = false;
+                  //  baseViewService.ConnectivityChanged(false);
+                    IsNotConnected = false;
                 }
-                Preferences.Set("Network_State", "Connected");  
-            }else
+                Preferences.Set("Network_State", "Connected");
+            }
+            else
             {
-                isNotConnected = true;
+                //baseViewService.ConnectivityChanged(true);
+                IsNotConnected = true;
                 Preferences.Set("Network_State", "Not-Connected");
             }
         }

@@ -17,6 +17,8 @@ using SQLite;
 using TekTrackingCore.Framework;
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Maui.Alerts;
+using TekTrackingCore.ViewModels;
+
 namespace TekTrackingCore.Services
 {
     public class LoginService : ILoginRepository
@@ -59,6 +61,8 @@ namespace TekTrackingCore.Services
 
         public async Task<UserInfo> Login(string username, string password, Action<bool> showLoading, Action<string, bool> emailStatus)
         {
+            DatabaseSyncService databaseSyncService = new DatabaseSyncService();
+            InspectionService inspectionService = new InspectionService();
             UserInfo userinfo;
             try
             {
@@ -82,12 +86,11 @@ namespace TekTrackingCore.Services
                     StringContent content = new StringContent(testuser, Encoding.UTF8, "application/json");
 
                     HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
-
+                    // status code 200
                     if (response.IsSuccessStatusCode)
                     {
                         showLoading(false);
                         IsLoadingLogin(false);
-
 
                         string serialized = await response.Content.ReadAsStringAsync();
                         var userinfolist = LoginInfo.FromJson(serialized);
@@ -100,11 +103,14 @@ namespace TekTrackingCore.Services
 
                         Preferences.Set(AppConstants.TOKEN_KEY, userinfo.Token);
                         Preferences.Set(AppConstants.USER_DETAILS, serialized);
-
+                        StaticListItemViewModel staticListItemViewModel = new StaticListItemViewModel(inspectionService);
                         App.CurrentUserDetails = userinfolist;
-                        await InsertUnitInfo(userinfo);
+                        await InsertUserInfo(userinfo);
+                        databaseSyncService.Start();
+                        staticListItemViewModel.checkWpList();
+
                         await Shell.Current.GoToAsync("ProceedPage");
-                       // return await Task.FromResult(userinfo);
+                        // return await Task.FromResult(userinfo);
                     }
                     else
                     {
@@ -118,10 +124,12 @@ namespace TekTrackingCore.Services
                     var toast = Toast.Make("No Internet Access! Please connect to internet to log in", ToastDuration.Long);
                     await toast.Show();
                 }
-                
+
             }
             catch (Exception ex)
             {
+                var toast = Toast.Make("System Error. Code: 0", ToastDuration.Long);
+                await toast.Show();
                 System.Diagnostics.Debug.WriteLine(ex, "login exception");
             }
             return null;
@@ -161,7 +169,7 @@ namespace TekTrackingCore.Services
 
         public async void Logout()
         {
-            
+
             if (Preferences.ContainsKey(typeof(LoginInfo).ToString()))
             {
                 Preferences.Remove(typeof(LoginInfo).ToString());
@@ -174,7 +182,7 @@ namespace TekTrackingCore.Services
             {
                 // because there will be only one loggedInUser everytime, if new user loggedin then already existing user
                 // will be replaced by new user
-                
+
                 foreach (var user in loggedInuser)
                 {
                     await DeleteUserInfo(user);
@@ -183,18 +191,15 @@ namespace TekTrackingCore.Services
 
             }
             await Shell.Current.GoToAsync($"//{nameof(LoginPage)}");
-          
-            
-
-            
         }
 
 
         async public Task Proceed()
         {
-            //await Shell.Current.GoToAsync("/dashboard");
-            // await Shell.Current.GoToAsync("ProceedPage");
-            await Shell.Current.GoToAsync($"//{nameof(Briefing)}");
+            //databaseSyncService.Start();
+
+          //  await App.Current.MainPage.Navigation.PushAsync(new MapPage());
+             await Shell.Current.GoToAsync($"//{nameof(MapPinsView)}", false);
         }
 
         // for logged in user
@@ -202,7 +207,7 @@ namespace TekTrackingCore.Services
 
         public async Task<List<UserInfo>> GetUserInfo()
         {
-             await SetUpDb();
+            await SetUpDb();
             var users = await _dbConnection.Table<UserInfo>().ToListAsync();
             return users;
         }
@@ -212,7 +217,7 @@ namespace TekTrackingCore.Services
             await SetUpDb();
             return await _dbConnection.DeleteAsync(userInfo);
         }
-        public async Task<int> InsertUnitInfo(UserInfo userInfo)
+        public async Task<int> InsertUserInfo(UserInfo userInfo)
         {
             await SetUpDb();
             var users = await GetUserInfo();

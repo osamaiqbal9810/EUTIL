@@ -1,4 +1,6 @@
 
+using CommunityToolkit.Maui.Views;
+
 namespace TekTrackingCore.Views;
 
 

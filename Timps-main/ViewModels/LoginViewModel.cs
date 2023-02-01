@@ -45,7 +45,7 @@ namespace TekTrackingCore.ViewModels
         }
         public async void  getLoggedInUser()
         {
-            var loggedInuser = await logInService.GetUserInfo();
+            List <UserInfo> loggedInuser = await logInService.GetUserInfo();
              if (loggedInuser.Count() > 0)
             {
                 // because there will be only one loggedInUser everytime, if new user loggedin then already existing user
@@ -74,64 +74,10 @@ namespace TekTrackingCore.ViewModels
         [ObservableProperty]
         public bool isLoading;
 
-        //[RelayCommand]
-        //async Task Login() 
-        //{
-
-        //   UserInfo info = await loginRepository.Login(email, password); 
-        //    if(info == null) 
-        //    {       
-        //    }
-        //    else 
-        //    { // Route to DashBoard.
-
-        //    }
-
-        //}
-
-        public bool IsLoggedIn
-        {
-            get
-            {
-                return loginRepository.IsAlreadyLoggedIn();
-            }
-        }
-
-        public bool IsLoggedOut
-        {
-            get
-            {
-                return !loginRepository.IsAlreadyLoggedIn();
-            }
-        }
-
-        public string BtnTextString
-        {
-            get
-            {
-                return loginRepository.BtnText();
-            }
-        }
-
         [RelayCommand]
         private async Task<Task> Login()
         {
-
-            //if (!IsLoggedIn)
-            //{
-
-            //    return loginRepository.Logout();
-
-            //}
-
-            //else
-            //{
-
-           
-
             return loginRepository.Login(email, password, showLoading, emailStatus);
-            //}
-
         }
 
      

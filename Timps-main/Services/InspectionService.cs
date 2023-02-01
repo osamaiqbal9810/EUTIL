@@ -68,7 +68,8 @@ namespace TekTrackingCore.Services
         private CreateTableResult ReportsToPushInfo;
         private CreateTableResult InprogressToPushInfo;
         public Dictionary<string, string> formvalue = new Dictionary<string, string>();
-        private StaticListItemViewModel staticListItemViewModel;
+        LoginService loginService = new LoginService(); 
+        public Action<bool, bool, bool> ActivityIndicators;
         public ExtendedObservableCollection<WorkPlanDto> workPlanList;
         private DatabaseSyncService service;
         // public Action<dynamic> setUnitGreenTick { get; set; }
@@ -80,6 +81,18 @@ namespace TekTrackingCore.Services
             //updateWpList();
 
         }
+
+        public async System.Threading.Tasks.Task<UserInfo> getLoggedInUser()
+        {
+            var loggedInUser = await loginService.GetUserInfo();
+
+            if (loggedInUser.Count > 0)
+            {
+                return loggedInUser[0];
+            }
+            return null;
+        }
+
         public void updateWpList()
         {
             foreach (var wpList in workPlanList)
@@ -272,7 +285,6 @@ namespace TekTrackingCore.Services
         public async void OnsubmitButtonClicked(string selectedWp, string selectedUnit)
         {
             bool completeFilledOrNot = false;
-            Console.WriteLine(selectFieldsArray);
             foreach (var key in selectFieldsArray)
             {
                 string keyItem = key;
@@ -348,7 +360,7 @@ namespace TekTrackingCore.Services
                         jPlan.Add("lineId", wpObj[0].lineId);
                         //jPlan.Add("status", "Finished");
                         jPlan.Add("user", wpObj[0].user);
-                        jPlan.Add("date", currentDateTime.ToString());
+                        jPlan.Add("date", currentDateTime);
                         jPlan.Add("tasks", tasks);
 
                         var httpclient = new HttpClient();
@@ -358,7 +370,7 @@ namespace TekTrackingCore.Services
                         {
 
                             Server s = new Server();
-                            string url = string.Format(s.jPlanReportFinish);
+                            string url = string.Format(s.JourneyPlanFinish_URL);
                             StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
                             if (accessType == NetworkAccess.Internet)
                             {
@@ -367,7 +379,7 @@ namespace TekTrackingCore.Services
                                 //{
                                 ReportsToPush rpt = new ReportsToPush();
                                 rpt.Content = formDataObj;
-                                //rpt.UnitId = unitObj.assetId;
+                                rpt.UnitId = unitObj.assetId;
                                 rpt.WPId = wpObj[0]._id;
                                 await AddReportToPush(rpt);
 
@@ -382,7 +394,7 @@ namespace TekTrackingCore.Services
                             {
                                 ReportsToPush rpt = new ReportsToPush();
                                 rpt.Content = formDataObj;
-                                //rpt.UnitId = unitObj.assetId;
+                                rpt.UnitId = unitObj.assetId;
                                 rpt.WPId = wpObj[0]._id;
                                 await AddReportToPush(rpt);
 
@@ -391,6 +403,8 @@ namespace TekTrackingCore.Services
                                 performPostSubmitOperations(unitObj, formDataObj, "OFFLINE");
 
                             }
+                            
+
                             var page = Application.Current.MainPage.Navigation.NavigationStack.Last();
                             await Shell.Current.GoToAsync("workPlansPage", false);
                             Application.Current.MainPage.Navigation.RemovePage(page);
@@ -412,6 +426,7 @@ namespace TekTrackingCore.Services
         }
         public async void performPostSubmitOperations(dynamic unitObj, string content, string status = "ONLINE")
         {
+            var loggedInUser = await getLoggedInUser();
             foreach (var workP in workPlanList)
             {
                 if (workP.msg != "Finished")
@@ -432,7 +447,9 @@ namespace TekTrackingCore.Services
                                     pUnit.OfflineInspection = false;
                                     pUnit.Status = "Completed";
 
+                                    usm.PR_Key = pUnit.AssetId.ToString() + "-" + workP.Id.ToString() + "-" + pUnit.InspectionType.ToString();
                                     usm.UnitId = pUnit.AssetId;
+                                   // usm.UserID = loggedInUser.UserId;
                                     usm.WpId = workP.Id;
                                     usm.AssetName = pUnit.UnitId;
                                     usm.InspectionType = pUnit.InspectionType;
@@ -448,8 +465,10 @@ namespace TekTrackingCore.Services
                                     pUnit.OfflineInspection = true;
                                     pUnit.Status = "Completed-Offline";
 
+                                    usm.PR_Key = pUnit.AssetId.ToString() + "-" + workP.Id.ToString() + "-" + pUnit.InspectionType.ToString();
                                     usm.UnitId = pUnit.AssetId;
                                     usm.WpId = workP.Id;
+                                    //usm.UserID = loggedInUser.UserId;
                                     usm.AssetName = pUnit.UnitId;
                                     usm.InspectionType = pUnit.InspectionType;
                                     usm.AssetStatus = "Completed-Offline";
@@ -466,7 +485,7 @@ namespace TekTrackingCore.Services
                             else if(workP.Inspection_Type.ToString() == unitObj.inspection_type.ToString())
                             {
                                 var unitSessions = await GetUnitsSession();
-                                if (unitSessions.Count() > 0)
+                                if (unitSessions.Count() > 0 && loggedInUser != null)
                                 {
                                     var findSession = unitSessions.Find(session => session.UnitId == pUnit.Id && session.InspectionType == pUnit.InspectionType);
                                     if (findSession != null)
@@ -501,7 +520,7 @@ namespace TekTrackingCore.Services
                             {
                                 allInspectionsCompletedFlag = false;
 
-                                handleInspectionBtnStatus(workP.Id, content);
+                                handleInspectionBtnStatus(workP.Id, workP.InspectionType, content);
                             }
                         }
                         else
@@ -510,7 +529,7 @@ namespace TekTrackingCore.Services
                             {
                                 allInspectionsCompletedFlagOffline = false;
 
-                                handleInspectionBtnStatus(workP.Id, content, "OFFLINE");
+                                handleInspectionBtnStatus(workP.Id, workP.InspectionType, content, "OFFLINE");
                             }
                         }
                         // delete unit form from local database if it is stored here after inspection submission
@@ -532,13 +551,14 @@ namespace TekTrackingCore.Services
                 }
             }
         }
-        public async void handleInspectionBtnStatus(string idToRemove, string content, string status = "ONLINE")
+        public async void handleInspectionBtnStatus(string idToRemove, string inspectionType, string content, string status = "ONLINE")
         {
             service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
             int index = 0;
+            var loggedInUser = await getLoggedInUser();
             foreach (var wp in workPlanList.ToList())
             {
-                if (wp.msg != "Finished" && wp.Id == idToRemove)
+                if (wp.Id == idToRemove && wp.InspectionType == inspectionType)
                 {
 
                     if (status == "ONLINE")
@@ -560,7 +580,7 @@ namespace TekTrackingCore.Services
                     {
                         if (getSessions.Count() > 0)
                         {
-                            var findSession = getSessions.Find(session => session.Id == wp.Id);
+                            var findSession = getSessions.Find(session => session.Id == wp.Id && session.UserID == loggedInUser.UserId);
                             if (findSession != null)
                             {
                                 await DeleteWorkPlanDto(findSession);
@@ -605,17 +625,32 @@ namespace TekTrackingCore.Services
                         // remove finished inspection from workplanList
 
                         workPlanList.RemoveAt(index);
+                        foreach (var workplan in workPlanList)
+                        {
+                            if (workplan.Id != wp.Id)
+                            {
+                                workplan.inspectionBtnStatus = true;
+                            }
+                        }
 
                     }
                     else
                     {
                         if (getSessions.Count() > 0)
                         {
-                            var findSession = getSessions.Find(session => session.Id == wp.Id);
+                            var findSession = getSessions.Find(session => session.Id == wp.Id && session.UserID == loggedInUser.UserId);
                             if (findSession != null)
                             {
                                 findSession.OfflineInspectionStatus = true;
+                                findSession.startInspBtnState = "Completed-Offline";
                                 await UpdateWorkPlanDto(findSession);
+                            }
+                        }
+                        foreach (var workplan in workPlanList)
+                        {
+                            if (workplan.Id != wp.Id)
+                            {
+                                workplan.inspectionBtnStatus = true;
                             }
                         }
                     }
@@ -642,10 +677,9 @@ namespace TekTrackingCore.Services
 
                     var wp = Preferences.Get("SelectedWorkPlan", "");
                     var wpObj = JsonConvert.DeserializeObject<dynamic>(wp);
-
+                    var loggedInUser = await getLoggedInUser();
                     var unitOb = Preferences.Get("SelectedUnit", "");
                     var unitObj = JsonConvert.DeserializeObject<dynamic>(unitOb);
-                    Console.WriteLine(formvalue.ToString());
                     foreach (var obj in formvalue)
                     {
                         values.Add(obj.Key, obj.Value);
@@ -683,7 +717,9 @@ namespace TekTrackingCore.Services
                                         pUnit.OfflineInspection = false;
 
                                         UnitSessionModel usm = new UnitSessionModel();
+                                        usm.PR_Key = pUnit.AssetId.ToString() + "-" + workP.Id.ToString() + "-" + pUnit.InspectionType.ToString();
                                         usm.UnitId = pUnit.AssetId;
+                                        //usm.UserID = loggedInUser.UserId;
                                         usm.WpId = workP.Id;
                                         usm.InspectionType = pUnit.InspectionType;
                                         usm.AssetName = pUnit.UnitId;
@@ -717,6 +753,7 @@ namespace TekTrackingCore.Services
                     var page = Application.Current.MainPage.Navigation.NavigationStack.Last();
 
                     await Shell.Current.GoToAsync("workPlansPage", false);
+                    ActivityIndicators(false, false, false);
                     Application.Current.MainPage.Navigation.RemovePage(page);
                 }
             }
@@ -743,75 +780,74 @@ namespace TekTrackingCore.Services
             string url1 = string.Format(s.JourneyPlanStart_URL);
 
             var inProgressToPush = await GetInprogressToPush();
-            if (inProgressToPush.Count() > 0)
+            foreach (var inpogressReport in inProgressToPush)
             {
-                foreach (var report in inProgressToPush)
+                var httpclient = new HttpClient();
+                StringContent content = new StringContent(inpogressReport.Content, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpclient.PostAsync(new Uri(url1), content);
+                if (response.IsSuccessStatusCode)
                 {
-                    var httpclient = new HttpClient();
-                    StringContent content = new StringContent(report.Content, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await httpclient.PostAsync(new Uri(url1), content);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        int deleted = await DeleteInProgressToPush(report);
-
-                    }
+                    int deleted = await DeleteInProgressToPush(inpogressReport);
 
                 }
+
             }
+
 
             SessionModel sm = new SessionModel();
             ReportModel rp = new ReportModel();
-            string url = string.Format(s.jPlanReportFinish);
+            string url = string.Format(s.JourneyPlanFinish_URL);
             var unitsSession = await GetUnitsSession();
 
             var reportsToPush = await GetReportsToPush();
-            if (reportsToPush.Count() > 0)
+
+            var sessionsList = await GetWorkPlanDtos();
+
+            foreach (var report in reportsToPush)
             {
-
-                var sessionsList = await GetWorkPlanDtos();
-
-                foreach (var report in reportsToPush)
+                var httpclient = new HttpClient();
+                var allUnitsCompletedFlag = true;
+                StringContent content = new StringContent(report.Content, Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
+                if (response.IsSuccessStatusCode)
                 {
-                    var httpclient = new HttpClient();
-                    var allUnitsCompletedFlag = true;
-                    StringContent content = new StringContent(report.Content, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
-                    if (response.IsSuccessStatusCode)
+                    var findUnitSession = unitsSession.FindAll(unitSession => unitSession.WpId == report.WPId);
+
+                    foreach (var session in findUnitSession)
                     {
-                        if (unitsSession.Count() > 0)
+                        if (session.AssetStatus != "Completed-Offline")
                         {
-
-                            var findUnitSession = unitsSession.FindAll(unitSession => unitSession.WpId == report.WPId);
-                            if (findUnitSession.Count() > 0)
-                            {
-                                foreach (var session in findUnitSession)
-                                {
-                                    if (session.AssetStatus != "Completed-Offline")
-                                    {
-                                        allUnitsCompletedFlag = false;
-                                    }
-                                }
-                                if (allUnitsCompletedFlag == true)
-                                {
-                                    var findSession = sessionsList.Find(session => session.Id == report.WPId);
-                                    if (findSession != null)
-                                    {
-                                        rp.Title = findSession.Title;
-                                        rp.startInspBtnState = "Finished";
-                                        rp.Id = findSession.Id;
-                                        rp.PlanInspectionDone = true;
-                                        rp.PlanStatus = "Completed";
-                                        await AddReports(rp);
-                                        await DeleteWorkPlanDto(findSession);
-                                    }
-                                }
-                            }
-                            int deleted = await DeleteReportToPush(report);
-
+                            allUnitsCompletedFlag = false;
+                        }
+                        if (session.UnitId == report.UnitId)
+                        {
+                            // if a single unit is submitted in offline mode, and then network is restored
+                            // in this scenerio single unit will be marked as submitted online
+                            session.AssetInspectionDone = true;
+                            session.OfflineInspectionDone = false;
+                            session.AssetStatus = "Completed";
+                            await InsertUnitsSession(session);
                         }
                     }
+                    if (allUnitsCompletedFlag == true)
+                    {
+                        var findSession = sessionsList.Find(session => session.Id == report.WPId);
+                        if (findSession != null)
+                        {
+                            rp.Title = findSession.Title;
+                            rp.startInspBtnState = "Finished";
+                            rp.Id = findSession.Id;
+                            rp.PlanInspectionDone = true;
+                            rp.PlanStatus = "Completed";
+                            await AddReports(rp);
+                            await DeleteWorkPlanDto(findSession);
+                        }
+
+                    }
+                    int deleted = await DeleteReportToPush(report);
                 }
             }
+
         }
         void OnPickerSelectedIndexChanged(object sender, EventArgs e)
         {
@@ -891,11 +927,7 @@ namespace TekTrackingCore.Services
             }
         }
 
-        public async System.Threading.Tasks.Task<bool> showAlert(string msg)
-        {
-            bool response = await Shell.Current.DisplayAlert("Are you sure ?", "Do you really want to " + msg + "  this Inspection", "OK", "Cancel");
-            return response;
-        }
+   
         public async Task<List<SessionModel>> GetWorkPlanDtos()
         {
             await SetUpDb();
@@ -906,8 +938,9 @@ namespace TekTrackingCore.Services
         public async Task<int> AddWorkPlanDto(SessionModel workPlanDto)
         {
             await SetUpDb();
+            var loggedInUser = await getLoggedInUser();
             var existingWorkPlans = await GetWorkPlanDtos();
-            var alreadyExist = existingWorkPlans.Where(plan => plan.Id == workPlanDto.Id);
+            var alreadyExist = existingWorkPlans.Where(plan => plan.Id == workPlanDto.Id && plan.UserID == loggedInUser.UserId );
             var item = alreadyExist.FirstOrDefault();
             if (item == null)
             {
@@ -930,6 +963,11 @@ namespace TekTrackingCore.Services
             return _dbConnection.UpdateAsync(workPlanDto);
         }
 
+        public async Task<int> DeleteAllWorkPlanDto()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<SessionModel>();
+        }
         // Report Model
 
         public async Task<List<ReportModel>> GetReports()
@@ -968,6 +1006,12 @@ namespace TekTrackingCore.Services
             return _dbConnection.UpdateAsync(rp);
         }
 
+        public async Task<int> DeleteAllReports()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<ReportModel>();
+        }
+
         // active inspections 
 
         public async Task<List<ActiveInspections>> GetActiveInspections()
@@ -993,6 +1037,11 @@ namespace TekTrackingCore.Services
             return await _dbConnection.InsertAsync(activeInspections);
 
         }
+        public async Task<int> DeleteAllActiveInspections()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<ActiveInspections>();
+        }
 
         //unit model
 
@@ -1012,19 +1061,23 @@ namespace TekTrackingCore.Services
         {
             await SetUpDb();
             var unitForms = await GetSavedUnitForms();
-            var alreadyExist = unitForms.Where(form => form.AssetId == unitModel.AssetId);
-            var item = alreadyExist.FirstOrDefault();
-            if (item == null)
+            var alreadyExist = unitForms.Find(form => form.AssetId == unitModel.AssetId && form.InspType == unitModel.InspType);
+           
+            if (alreadyExist == null)
             {
                 return await _dbConnection.InsertAsync(unitModel);
             }
             else
             {
-                await DeleteSavedUnitForms(item);
+                await DeleteSavedUnitForms(alreadyExist);
                 return await _dbConnection.InsertAsync(unitModel);
             }
+        }
 
-
+        public async Task<int> DeleteAllUnitForm()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<UnitModel>();
         }
 
         // unitsession model
@@ -1043,23 +1096,32 @@ namespace TekTrackingCore.Services
         public async Task<int> InsertUnitsSession(UnitSessionModel unitModel)
         {
             await SetUpDb();
+            var loggedInUser = await getLoggedInUser();
             var existingUnitsSession = await GetUnitsSession();
-            var alreadyExist = existingUnitsSession.Where(uSession => uSession.UnitId == unitModel.UnitId);
-            var item = alreadyExist.FirstOrDefault();
-            if (item == null)
+            var alreadyExist = existingUnitsSession.Find(uSession => uSession.UnitId == unitModel.UnitId && uSession.InspectionType == unitModel.InspectionType);
+        
+            if (alreadyExist == null)
             {
                 return await _dbConnection.InsertAsync(unitModel);
             }
             else
             {
-                return await _dbConnection.UpdateAsync(unitModel);
+                await _dbConnection.DeleteAsync(alreadyExist);
+                return await _dbConnection.InsertAsync(unitModel);
             }
 
         }
 
-        public Task<int> UpdateUnitSession(UnitSessionModel usm)
+        public async Task<int> UpdateUnitSession(UnitSessionModel usm)
         {
-            return _dbConnection.UpdateAsync(usm);
+            await SetUpDb();
+            return await  _dbConnection.UpdateAsync(usm);
+        }
+
+        public async Task<int> DeleteAllUnitSession()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<UnitSessionModel>();
         }
 
         // Reports to push 
@@ -1087,7 +1149,7 @@ namespace TekTrackingCore.Services
             }
         }
 
-        public Task<int> UpdateUnitSession(ReportsToPush rp)
+        public Task<int> UpdateReportToPush(ReportsToPush rp)
         {
             return _dbConnection.UpdateAsync(rp);
         }
@@ -1096,6 +1158,11 @@ namespace TekTrackingCore.Services
         {
             await SetUpDb();
             return await _dbConnection.DeleteAsync(rp);
+        }
+        public async Task<int> DeleteAllReportToPush()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<ReportsToPush>();
         }
 
         // Inprogress to push
@@ -1127,5 +1194,12 @@ namespace TekTrackingCore.Services
             await SetUpDb();
             return await _dbConnection.DeleteAsync(rp);
         }
+
+        public async Task<int> DeleteAllInProgressToPush()
+        {
+            await SetUpDb();
+            return await _dbConnection.DeleteAllAsync<InprogressToPush>();
+        }
+
     }
 }

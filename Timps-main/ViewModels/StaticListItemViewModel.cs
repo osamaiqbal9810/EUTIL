@@ -84,23 +84,54 @@ namespace TekTrackingCore.ViewModels
 
         private DatabaseSyncService service;
         private InspectionService inspectionService;
-
+        private LoginService loginService;
+        
+        public IDispatcherTimer timer { get; set; }
+        public string results;
         public StaticListItemViewModel(InspectionService pService)
         {
-            loadingStatus(true, false, false);
             expandableView = new ExpandableView(this);
             service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
-            StaticListItemsList = new ExtendedObservableCollection<StaticListItemDTO1>();
+            loginService = new LoginService();
+            staticListItemsList = new ExtendedObservableCollection<StaticListItemDTO1>();
+
             StaticListItemsList1 = new ExtendedObservableCollection<StaticListItemDTO1>();
             workPlanList = new ExtendedObservableCollection<WorkPlanDto>();
             serverPlansList = new ExtendedObservableCollection<WorkPlanDto>();
             inspectionService = pService;
-            //staticListItemsList.Add(new StaticListItemDTO1 { Code = "666", Description = "555", ListName = "444", OptParam1 = "3333", OptParam2 = "33", TenantId = "123" });
-            service.SetSyncCallback = onSyncCallback;
-            // inspectionService.setUnitGreenTick = enablingGreenTickAgainstUnit;
-
+            staticListItemsList.Clear();
+            //workPlanList.Clear();
+            inspectionService.ActivityIndicators = loadingStatus;
+            // service.SetSyncCallback = onSyncCallback;
+            checkWpList();
+            
         }
+        
+        public async void checkWpList()
+        {
+            // workPlanList.Clear();
+            staticListItemsList.Clear();
+            var pullList = await service.GetMessageListResponseDTO();
+            var filterdlist = (pullList.Where(p => p.ListName == "WorkPlanTemplate").Take(100));
+            //if (filterdlist.Count() > 0)
+            //{
+            onSyncCallback();
+            timer = Application.Current.Dispatcher.CreateTimer();
+            timer.Interval = TimeSpan.FromSeconds(30);
 
+            timer.Tick += async (s, e) =>
+            {
+                staticListItemsList.Clear();
+                onSyncCallback();
+            };
+            timer.Start();
+            //}
+            //else
+            //{
+            //    loadingStatus(true, false, false);
+            //}
+            // updateWorkPlanDtoStatus();
+        }
 
         public void loadingStatus(bool val1, bool val2, bool val3)
         {
@@ -148,12 +179,22 @@ namespace TekTrackingCore.ViewModels
                 }
                 unit = null;
                 //               ActivityIndicatorFlag = false;
-
+                // loadingStatus(false, false, false);
             }
             catch (Exception e)
             {
                 Console.WriteLine("TestCommand " + e);
             }
+        }
+        public async System.Threading.Tasks.Task<UserInfo> getLoggedInUser()
+        {
+            var loggedInUser = await loginService.GetUserInfo();
+
+            if (loggedInUser.Count > 0)
+            {
+                return loggedInUser[0];
+            }
+            return null;
         }
 
         [RelayCommand]
@@ -165,13 +206,13 @@ namespace TekTrackingCore.ViewModels
             sm.Title = obj.Title;
             sm.Id = obj.Id;
             sm.OfflineInspectionStatus = false;
-
-            if (obj != null)
+            var loggedInUser = await getLoggedInUser();
+            if (obj != null && loggedInUser != null)
             {
-
+                sm.UserID = loggedInUser.UserId;
                 // bool response = await Shell.Current.DisplayAlert("Are you sure ?", "Do you really want to "+ obj.msg + " this Inspection", "OK", "Cancel");
                 //showAlert(obj.msg);
-                dynamic response = await expandableView.showAlertDialog(obj.msg);
+                bool response = await expandableView.showAlertDialog(obj.msg);
                 string resp = response.ToString();
                 if (response == true)
                 {
@@ -230,7 +271,7 @@ namespace TekTrackingCore.ViewModels
 
                         }
                     }
-                    else if(obj.msg == "In Progress")
+                    else if (obj.msg == "In Progress")
                     {
                         foreach (var plan in workPlanList)
                         {
@@ -257,6 +298,7 @@ namespace TekTrackingCore.ViewModels
                         foreach (var unit in unitsStart)
                         {
                             UnitSessionModel usm = new UnitSessionModel();
+                            usm.PR_Key = unit.AssetId.ToString() + "-" + obj.Id.ToString() + "-" + unit.InspectionType.ToString();
                             usm.UnitId = unit.AssetId;
                             usm.InspectionType = unit.InspectionType;
                             usm.WpId = obj.Id;
@@ -269,7 +311,7 @@ namespace TekTrackingCore.ViewModels
 
                             await inspectionService.InsertUnitsSession(usm);
                         }
-                            
+
                         // prepare data for ActiveInspection
                         await inspectionService.AddActiveInspection(active);
                         foreach (var plan in workPlanList)
@@ -295,21 +337,24 @@ namespace TekTrackingCore.ViewModels
                         var unitSessionModelList = await inspectionService.GetUnitsSession();
                         foreach (var unit in unitsPause)
                         {
-                            unit.StartInspButtonStatus = false;
-                            unit.AssetInspectionDone = false;
-                            unit.OfflineInspection = false;
-
-                            // upddate unit in local database
-                            if (unitSessionModelList.Count > 0)
+                            var filter = unitSessionModelList.Find(list => list.UnitId == unit.AssetId && list.InspectionType == unit.InspectionType);
+                            if (filter != null)
                             {
-                                var filter = unitSessionModelList.Find(list => list.UnitId == unit.AssetId && list.InspectionType == unit.InspectionType);
-                                if (filter != null)
+                                unit.StartInspButtonStatus = false;
+                                unit.AssetInspectionDone = filter.AssetInspectionDone;
+                                unit.OfflineInspection = filter.OfflineInspectionDone;
+
+                                // upddate unit in local database
+                                if (unitSessionModelList.Count > 0)
                                 {
+
+
                                     filter.StartInspButtonStatus = false;
 
                                     await inspectionService.UpdateUnitSession(filter);
                                 }
                             }
+
                         }
 
                         foreach (var plan in workPlanList)
@@ -350,18 +395,22 @@ namespace TekTrackingCore.ViewModels
                                         filter.OfflineInspectionDone = false;
                                         filter.StartInspButtonStatus = false;
                                         filter.AssetInspectionDone = true;
-                                    }else if(filter.AssetStatus == "Completed-Offline")
+                                        filter.AssetInspectionSaved = false;
+                                    }
+                                    else if (filter.AssetStatus == "Completed-Offline")
                                     {
                                         filter.OfflineInspectionDone = true;
                                         filter.StartInspButtonStatus = false;
                                         filter.AssetInspectionDone = false;
+                                        filter.AssetInspectionSaved = false;
                                     }
                                     else
                                     {
-                                        if(reportsToPush.Count() > 0)
+                                        if (reportsToPush.Count() > 0)
                                         {
                                             var findReport = reportsToPush.Find(rp => rp.UnitId == obj.Id);
-                                            if (findReport != null) {
+                                            if (findReport != null)
+                                            {
                                                 filter.OfflineInspectionDone = true;
                                                 filter.StartInspButtonStatus = false;
                                                 filter.AssetInspectionDone = false;
@@ -379,7 +428,7 @@ namespace TekTrackingCore.ViewModels
                                             filter.StartInspButtonStatus = true;
                                             filter.AssetInspectionDone = false;
                                         }
-                                        
+
                                     }
 
                                     await inspectionService.UpdateUnitSession(filter);
@@ -390,7 +439,7 @@ namespace TekTrackingCore.ViewModels
                                 unit.StartInspButtonStatus = false;
                                 unit.AssetInspectionDone = true;
                             }
-                            else if(unit.Status == "Completed-Offline")
+                            else if (unit.Status == "Completed-Offline")
                             {
                                 unit.StartInspButtonStatus = false;
                                 unit.AssetInspectionDone = false;
@@ -495,7 +544,7 @@ namespace TekTrackingCore.ViewModels
                     jPlan.Add("lineId", obj.LineId);
                     jPlan.Add("status", "In Progress");
                     jPlan.Add("user", user);
-                    jPlan.Add("date", currentDateTime.ToString());
+                    jPlan.Add("date", currentDateTime);
                     jPlan.Add("tasks", tasks);
 
                     var httpclient = new HttpClient();
@@ -503,82 +552,47 @@ namespace TekTrackingCore.ViewModels
 
                     if (formDataObj != null)
                     {
+                        foreach (var wPlan in workPlanList)
+                        {
+                            if (wPlan.Id == obj.Id)
+                            {
+                                var getUnits = wPlan.AllUnits;
+                                foreach (var unit in getUnits)
+                                {
+                                    unit.Status = "In Progress";
+                                    UnitSessionModel usm = new UnitSessionModel();
+                                    // inserting data in local db
+                                    usm.PR_Key = unit.AssetId.ToString() + "-" + obj.Id.ToString() + "-" + unit.InspectionType.ToString();
+                                    usm.UnitId = unit.AssetId;
+                                    usm.WpId = obj.Id;
+                                    usm.InspectionType = unit.InspectionType;
+                                    usm.AssetName = unit.UnitId;
+                                    usm.AssetStatus = "In Progress";
+                                    usm.AssetInspectionDone = false;
+                                    usm.AssetInspectionSaved = false;
+                                    usm.StartInspButtonStatus = true;
+                                    usm.OfflineInspectionDone = false;
+                                    await inspectionService.UpdateUnitSession(usm);
 
-                        string url = string.Format(s.JourneyPlanStart_URL);
-                        StringContent content = new StringContent(formDataObj, Encoding.UTF8, "application/json");
+                                }
+                            }
+
+                        }
+
+                        InprogressToPush rpt = new InprogressToPush();
+                        rpt.Content = formDataObj;
+                        //rpt.UnitId = unit.AssetId;
+                        rpt.WPId = obj.Id;
+                        await inspectionService.AddInprogressToPush(rpt);
+
                         if (accessType == NetworkAccess.Internet)
                         {
-                            HttpResponseMessage response = await httpclient.PostAsync(new Uri(url), content);
-                            if (response.IsSuccessStatusCode)
-                            {
-
-                                foreach (var wPlan in workPlanList)
-                                {
-                                    if (wPlan.Id == obj.Id)
-                                    {
-                                        var getUnits = wPlan.AllUnits;
-                                        foreach (var unit in getUnits)
-                                        {
-                                            unit.Status = "In Progress";
-                                            UnitSessionModel usm = new UnitSessionModel();
-                                            // inserting data in local db
-                                            usm.UnitId = unit.AssetId;
-                                            usm.WpId = obj.Id;
-                                            usm.InspectionType = unit.InspectionType;
-                                            usm.AssetName = unit.UnitId;
-                                            usm.AssetStatus = "In Progress";
-                                            usm.AssetInspectionDone = false;
-                                            usm.AssetInspectionSaved = false;
-                                            usm.StartInspButtonStatus = true;
-                                            usm.OfflineInspectionDone = false;
-                                            await inspectionService.UpdateUnitSession(usm);
-
-                                        }
-                                    }
-
-                                }
-                                formDataObj = null;
-                                await Shell.Current.GoToAsync("workPlansPage");
-                            }
+                            inspectionService.pushReportsToServer();
                         }
-                        else
-                        {
-                            foreach (var wPlan in workPlanList)
-                            {
-                                if (wPlan.Id == obj.Id)
-                                {
-                                    var getUnits = wPlan.AllUnits;
-                                    foreach (var unit in getUnits)
-                                    {
-                                        unit.Status = "In Progress";
-                                        UnitSessionModel usm = new UnitSessionModel();
-                                        // inserting data in local db
-                                        usm.UnitId = unit.AssetId;
-                                        usm.WpId = obj.Id;
-                                        usm.InspectionType = unit.InspectionType;
-                                        usm.AssetName = unit.UnitId;
-                                        usm.AssetStatus = "In Progress";
-                                        usm.AssetInspectionDone = false;
-                                        usm.AssetInspectionSaved = false;
-                                        usm.StartInspButtonStatus = true;
-                                        usm.OfflineInspectionDone = false;
-                                        await inspectionService.UpdateUnitSession(usm);
-
-                                    }
-                                }
-
-                            }
+                        formDataObj = null;
+                        await Shell.Current.GoToAsync("workPlansPage");
 
 
-                            InprogressToPush rpt = new InprogressToPush();
-                            rpt.Content = formDataObj;
-                            //rpt.UnitId = unit.AssetId;
-                            rpt.WPId = obj.Id;
-                            await inspectionService.AddInprogressToPush(rpt);
-                            formDataObj = null;
-                            await Shell.Current.GoToAsync("workPlansPage");
-                            
-                        }
                     }
                 }
             }
@@ -593,7 +607,7 @@ namespace TekTrackingCore.ViewModels
             {
                 var pullList = await service.GetMessageListResponseDTO();
                 var filterdlist = pullList.Find(p => p.ListName == "ApplicationLookups" && p.Code == code);
-               // var requiredlist = (filterdlist.Where(p => p.Code == code).Take(100));
+                // var requiredlist = (filterdlist.Where(p => p.Code == code).Take(100));
                 Console.WriteLine(filterdlist.ToString(), "filteredlist");
 
 
@@ -634,140 +648,108 @@ namespace TekTrackingCore.ViewModels
         {
             // loadingStatus(true);
             //workPlanList.Clear();
-            var pullList = await service.GetMessageListResponseDTO();
-            var filterdlist = (pullList.Where(p => p.ListName == "WorkPlanTemplate").Take(100));
-
-
-
-            //StaticListItemsList.Execute(items => { items.Clear(); items.AddRange(filterdlist); });
-            serverPlansList.Clear();
-            if (filterdlist.Count() == 1)
+            try
             {
+                var pullList = await service.GetMessageListResponseDTO();
+                var filterdlist = (pullList.Where(p => p.ListName == "WorkPlanTemplate").Take(100));
+                var loggedInUser = await getLoggedInUser();
 
-                var staticlistitem = filterdlist.FirstOrDefault();
-                if (staticlistitem.Code != "-1")
-                {
-                    StaticListItemsList.Add(filterdlist.FirstOrDefault());
-                }
-            }
-            else
-            {
-                StaticListItemsList.Execute(items =>
 
+                //StaticListItemsList.Execute(items => { items.Clear(); items.AddRange(filterdlist); });
+                serverPlansList.Clear();
+                staticListItemsList.Clear();
+                if (workPlanList.Count > 0 && loggedInUser != null)
                 {
-                    //items.Clear(); 
-                    items.AddRange(filterdlist);
-                });
-                var itemsToAdd = new List<WorkPlanDto>();
-                int x = 0;
-                foreach (var listItems in StaticListItemsList)
-                {
-                    if (listItems.Code != "-1")
+                    foreach (var workPlan in workPlanList.ToList())
                     {
-                        
-                        var item = listItems.OptParam1;
-
-                        var jsonSettings = new JsonSerializerSettings
+                        int index = 0;
+                        if (workPlan.User.Id != loggedInUser.UserId)
                         {
-                            NullValueHandling = NullValueHandling.Ignore,
-                            MissingMemberHandling = MissingMemberHandling.Ignore,
-                        };
-
-                        WorkPlanDto result = JsonConvert.DeserializeObject<WorkPlanDto>(item, jsonSettings); // jsonSettings are explicitly supplied
-                        if (workPlanList.Count <= 0 && (result.WorkPlanStatusForMobile != "Finished" && result.WorkPlanStatusForMobile != "Missed"))
-                        {
-                            workPlanList.Add(result);
+                            workPlanList.RemoveAt(index);
                         }
-                        else
+                        index++;
+                    }
+                }
+                if (filterdlist.Count() == 1)
+                {
+
+                    var staticlistitem = filterdlist.FirstOrDefault();
+                    if (staticlistitem.Code != "-1")
+                    {
+                        StaticListItemsList.Add(filterdlist.FirstOrDefault());
+                    }
+                }
+                else
+                {
+                    StaticListItemsList.Execute(items =>
+                    {
+                        //items.Clear(); 
+                        items.AddRange(filterdlist);
+                    });
+
+                    foreach (var listItems in StaticListItemsList)
+                    {
+                        if (listItems.Code != "-1")
                         {
-                            var alreadyExist = workPlanList.Where(plan => plan.Id == result.Id).Take(100).FirstOrDefault();
-                            if (alreadyExist != null)
+
+                            var item = listItems.OptParam1;
+
+                            var jsonSettings = new JsonSerializerSettings
                             {
-                                foreach (var wp in workPlanList.ToList())
+                                NullValueHandling = NullValueHandling.Ignore,
+                                MissingMemberHandling = MissingMemberHandling.Ignore,
+                            };
+
+                            WorkPlanDto result = JsonConvert.DeserializeObject<WorkPlanDto>(item, jsonSettings); // jsonSettings are explicitly supplied
+
+                            if (loggedInUser != null && result.User.Id == loggedInUser.UserId)
+                            {
+                                if (workPlanList.Count <= 0 && (result.WorkPlanStatusForMobile != "Finished" && result.WorkPlanStatusForMobile != "Missed"))
                                 {
-                                    if ((result.WorkPlanStatusForMobile =="Finished" || result.WorkPlanStatusForMobile == "Missed") && (alreadyExist.WorkPlanStatusForMobile != "Finished" || alreadyExist.WorkPlanStatusForMobile != "Missed"))
+                                    workPlanList.Add(result);
+                                }
+                                else
+                                {
+                                    var alreadyExist = workPlanList.Where(plan => plan.Id == result.Id).Take(100).FirstOrDefault();
+                                    if (alreadyExist != null)
                                     {
-                                        workPlanList.RemoveAt(x);
+                                        for (int x = 0; x < workPlanList.Count; x++)
+                                        {
+                                            if ((result.WorkPlanStatusForMobile == "Finished" || result.WorkPlanStatusForMobile == "Missed") && (alreadyExist.WorkPlanStatusForMobile != "Finished" || alreadyExist.WorkPlanStatusForMobile != "Missed"))
+                                            {
+                                                workPlanList.RemoveAt(x);
+                                            }
+                                        }
+                                    }
+                                    if (alreadyExist == null && (result.WorkPlanStatusForMobile != "Finished" && result.WorkPlanStatusForMobile != "Missed"))
+                                    {
+                                        workPlanList.Add(result);
                                     }
                                 }
                             }
-                            if (alreadyExist == null && (result.WorkPlanStatusForMobile != "Finished" && result.WorkPlanStatusForMobile != "Missed"))
-                            {
-                                workPlanList.Add(result);
 
-                            }
+
                         }
-                        x++;
-                        updateWorkPlanDtoStatus();
+
                     }
+
+                    // sync if any insepection is deleted on server then remove from list
+                    inspectionService.setWorkPlanList(workPlanList);
+                    staticListItemsList.Clear();
                 }
-
-                // sync if any insepection is deleted on server then remove from list
-
-                //foreach (var listItems in staticListItemsList)
-                //{
-                //    if (listItems.Code != "-1")
-                //    {
-                //        var item = listItems.OptParam1;
-
-                //        var jsonSettings = new JsonSerializerSettings
-                //        {
-                //            NullValueHandling = NullValueHandling.Ignore,
-                //            MissingMemberHandling = MissingMemberHandling.Ignore,
-                //        };
-
-                //        WorkPlanDto result = JsonConvert.DeserializeObject<WorkPlanDto>(item, jsonSettings); // jsonSettings are explicitly supplied
-                //        if (result.WorkPlanStatusForMobile != "Finished" && result.WorkPlanStatusForMobile != "Missed")
-                //        {
-                //            serverPlansList.Add(result);
-                //        }
-                //    }
-                //}
-
-
-
-                inspectionService.setWorkPlanList(workPlanList);
-                staticListItemsList.Clear();
+                updateWorkPlanDtoStatus();
+                if (workPlanList.Count > 0)
+                {
+                    loadingStatus(false, false, false);
+                }
+                else if (workPlanList.Count <= 0)
+                {
+                    loadingStatus(false, true, false);
+                }
             }
-            //for (int i = 0; i < workPlanList.Count(); i++)
-            //{
-            //    var existOnServer = serverPlansList.Where(plan => plan.Id == workPlanList[i].Id);
-            //    if (existOnServer.Count() <= 0)
-            //    {
-            //        // remove work plan from active inspection table if exist
-            //        //var activeInspections = await inspectionService.GetActiveInspections();
-            //        //if(activeInspections.Count() > 0)
-            //        //{
-            //        //    var findActiveInspection = activeInspections.Find(ai => ai.Id == workPlanList[i].Id);
-            //        //    if(findActiveInspection != null)
-            //        //    {
-            //        //        await inspectionService.DeleteActiveInspection(findActiveInspection);
-            //        //    }
-            //        //}
-
-            //        // removework plan from session table if exist
-
-            //        var sessionList = await inspectionService.GetWorkPlanDtos();
-            //        if (sessionList.Count() > 0)
-            //        {
-            //            var findSession = sessionList.Find(ai => ai.Id == workPlanList[i].Id);
-            //            if (findSession != null)
-            //            {
-            //                await inspectionService.DeleteWorkPlanDto(findSession);
-            //            }
-            //        }
-            //        workPlanList.RemoveAt(i);
-            //    }
-            //}
-            if (workPlanList.Count > 0)
+            catch (Exception ex)
             {
-                loadingStatus(false, false, false);
-                showNoInspections = false;
-            }
-            else if (workPlanList.Count <= 0)
-            {
-                loadingStatus(false, true, false);
-                showNoInspections = true;
+                Console.WriteLine("onsyncCallback() " + ex.ToString());
             }
 
         }
@@ -778,29 +760,27 @@ namespace TekTrackingCore.ViewModels
             {
                 var sessions = await inspectionService.GetWorkPlanDtos();
                 var unitSessions = await inspectionService.GetUnitsSession();
+                var loggedInUser = await getLoggedInUser();
                 int count = sessions.Count;
                 int unitsCount = unitSessions.Count;
                 // Console.WriteLine(sessions.Count);
                 if (count > 0 && unitsCount > 0)
                 {
-                    //foreach(var session in sessions)
-                    //{
-
                     foreach (var wp in workPlanList)
                     {
                         string idToRemove;
-                        var session = sessions.Find(sessionList => sessionList.Id == wp.Id);
+
+                        var session = sessions.Find(sessionList => sessionList.Id == wp.Id && sessionList.UserID == loggedInUser.UserId);
+                        wp.msg = session.startInspBtnState;
                         if (session != null)
                         {
-                            wp.msg = session.startInspBtnState;
-
                             var allUnits = wp.AllUnits;
                             for (int i = 0; i < allUnits.Count; i++)
                             //foreach (var unit in allUnits)
                             {
                                 if (allUnits[i] != null)
                                 {
-                                    var findUnitSession = unitSessions.Find(unitItem => unitItem.UnitId == allUnits[i].Id && unitItem.InspectionType == allUnits[i].InspectionType);
+                                    var findUnitSession = unitSessions.Find(unitItem => unitItem.UnitId == allUnits[i].AssetId && unitItem.InspectionType == allUnits[i].InspectionType);
                                     if (findUnitSession != null)
                                     {
                                         allUnits[i].Status = findUnitSession.AssetStatus;
@@ -809,9 +789,21 @@ namespace TekTrackingCore.ViewModels
                                         allUnits[i].OfflineInspection = findUnitSession.OfflineInspectionDone;
                                         allUnits[i].StartInspButtonStatus = findUnitSession.StartInspButtonStatus;
                                     }
-
                                 }
                             }
+                            if (session.startInspBtnState == "pause")
+                            {
+                                foreach (var wplan in workPlanList)
+                                {
+                                    if (wplan.Id != session.Id)
+                                    {
+                                        wplan.inspectionBtnStatus = false;
+
+                                    }
+                                }
+
+                            }
+
                             if (session.PlanInspectionDone == true)
                             {
                                 wp.AssetInspectionDone = true;
@@ -819,77 +811,27 @@ namespace TekTrackingCore.ViewModels
                                 idToRemove = wp.Id.ToString();
 
                             }
-                            else if(session.OfflineInspectionStatus == true)
+                            else if (session.OfflineInspectionStatus == true)
                             {
                                 wp.AssetInspectionDone = false;
                                 wp.HideBtnOnInspectionComplete = false;
                                 wp.OfflineInspection = true;
                             }
 
-                            if (session.startInspBtnState == "pause")
-                            {
-                                foreach(var wplan in workPlanList)
-                                {
-                                    if (wplan.Id != session.Id)
-                                    {
-                                        wplan.inspectionBtnStatus = false;
-                                    }
-                                }   
-                            }
                         }
+                        
                     }
-                    //}
+                    
+
                 }
+
+
             }
             catch (Exception e)
             {
                 Console.WriteLine("UpdateWorkPlanDTO-StaticListItemViewModel " + e);
             }
 
-        }
-        //public async void handleSavedFprms()
-        //{
-        //    var getSavedUnitForms = await inspectionService.GetSavedUnitForms();
-        //    if (getSavedUnitForms.Count > 0)
-        //    {
-        //        foreach (var wp in workPlanList)
-        //        {
-        //            var allUnits = wp.AllUnits;
-        //            foreach (var unit in allUnits)
-        //            {
-        //                var foundForm = getSavedUnitForms.Find(list => list.AssetId == unit.AssetId && list.InspType == unit.InspectionType);
-        //                if (foundForm != null)
-        //                {
-        //                    unit.StartInspButtonStatus = true;
-        //                    unit.AssetInspectionSaved = true;
-        //                    unit.AssetInspectionDone = false;
-        //                }
-        //            }
-        //        }
-
-        //    }
-
-        //}
-       
-        public void changeAssetInspectionStatus(dynamic unitObj)
-        {
-            if (workPlanList.Count > 0 && unitObj != null)
-            {
-                foreach (var planList in workPlanList)
-                {
-                    var allUnits = planList.AllUnits;
-                    foreach (var unit in allUnits)
-                    {
-                        if (unit.Status == "Finished" || unit.Status == "Completed")
-                        {
-                            unit.StartInspButtonStatus = false;
-                            unit.AssetInspectionDone = true;
-                        }
-                    }
-                }
-
-
-            }
         }
     }
 }

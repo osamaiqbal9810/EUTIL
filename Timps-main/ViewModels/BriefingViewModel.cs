@@ -21,8 +21,7 @@ namespace TekTrackingCore.ViewModels
         private CancellationTokenSource _cancelTokenSource;
         private bool _isCheckingLocation;
         public InspectionService inspectionService = new InspectionService();
-      //  public int Reported { get; set; }
-        // public int Session { get; set; }
+      
         public string Times { get; set; }
 
         [ObservableProperty]
@@ -43,29 +42,27 @@ namespace TekTrackingCore.ViewModels
         [ObservableProperty]
         public string locationInfo;
 
-        [ObservableProperty]
-        public bool showOffline;
+        //[ObservableProperty]
+        //public bool showOffline;
 
 
         public void SetBriefingViewModel(int reported, int session, string times)
         {
-            //Reported = reported;
-            //Session = session;
             Times = times;
         }
-        public BriefingViewModel() { 
-           
-            DatabaseSyncService service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
-            service.Start();
-            SetSesssion();
-            SetActiveInspection();
-            CheckAndRequestLocationPermission();
+        public BriefingViewModel() {
+
+            // DatabaseSyncService service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
+            // service.Start();
+            //SetSesssion();
+            //SetActiveInspection();
+            //GetCurrentLocation();
+            //CheckAndRequestLocationPermission();
 
         }
        
         public async Task<PermissionStatus> CheckAndRequestLocationPermission()
         {
-          
             PermissionStatus status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
 
             if (status == PermissionStatus.Granted)
@@ -129,7 +126,6 @@ namespace TekTrackingCore.ViewModels
 
                 if (location != null)
                 {
-                    Console.WriteLine($"Latitude: {location.Latitude}, Longitude: {location.Longitude}, Altitude: {location.Altitude}");
                     Latitude = location.Latitude.ToString();
                     Longitude = location.Longitude.ToString();
                     var locationInfoObj = await GetGeocodeReverseData(location.Latitude, location.Longitude);

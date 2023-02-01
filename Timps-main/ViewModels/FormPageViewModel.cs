@@ -49,23 +49,25 @@ namespace TekTrackingCore.ViewModels
         }
         partial void OnSelectedWorkPlanChanged(string value)
         {
+            setSelectedWPlanCallBack(value);
             if (Preferences.ContainsKey("SelectedWorkPlan"))
             {
                 Preferences.Remove("SelectedWorkPlan");
             }
             Preferences.Set("SelectedWorkPlan", value);
-            setSelectedWPlanCallBack(value);
+           
             //SelectedWorkPlan = null;
         }
 
         partial void OnUnitObjChanged(string value)
         {
+            setUnitCallBack(value);
             if (Preferences.ContainsKey("SelectedUnit"))
             {
                 Preferences.Remove("SelectedUnit");
             }
             Preferences.Set("SelectedUnit", value);
-            setUnitCallBack(value);
+           
             //UnitObj = null;
         }
     }
