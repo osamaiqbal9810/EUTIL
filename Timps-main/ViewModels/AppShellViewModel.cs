@@ -43,10 +43,6 @@ namespace TekTrackingCore.ViewModels
             else {
                 IsOffline = false;
             }
-             if(e.NetworkAccess != NetworkAccess.Internet)
-{
-                Shell.Current.DisplayAlert("No Internet", "Please check your internet connection", "OK");
-            }
         }
 
         [RelayCommand]

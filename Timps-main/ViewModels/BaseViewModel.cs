@@ -30,7 +30,7 @@ namespace TekTrackingCore.ViewModels
         {
             baseViewService = new BaseViewService();
            inspectionService = new InspectionService();
-          // Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
+           Connectivity.ConnectivityChanged += Connectivity_ConnectivityChanged;
            Preferences.Set("Network_State", "Not-Connected");
            isNotConnected = Connectivity.NetworkAccess != NetworkAccess.Internet;
             

@@ -32,13 +32,19 @@ namespace TekTrackingCore.ViewModels
 
         DatabaseSyncService service;
         //public  List<Location> pins;
-
+        StaticListItemViewModel staticListItemViewModel;
+        InspectionService inspectionService;
 
         public MapViewModel()
         {
             positions = new ExtendedObservableCollection<Positions>();
             workPlanList = new ExtendedObservableCollection<WorkPlanDto>();
             service = ServiceResolver.ServiceProvider.GetRequiredService<DatabaseSyncService>();
+            service.Start();
+            inspectionService = new InspectionService();
+            staticListItemViewModel = new StaticListItemViewModel(inspectionService);
+            staticListItemViewModel.checkWpList();
+
         }
 
 

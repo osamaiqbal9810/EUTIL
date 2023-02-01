@@ -826,7 +826,7 @@ namespace TekTrackingCore.Services
                             session.AssetInspectionDone = true;
                             session.OfflineInspectionDone = false;
                             session.AssetStatus = "Completed";
-                            await InsertUnitsSession(session);
+                            await UpdateUnitSession(session);
                         }
                     }
                     if (allUnitsCompletedFlag == true)

@@ -130,7 +130,7 @@ namespace TekTrackingCore.ViewModels
             //{
             //    loadingStatus(true, false, false);
             //}
-            // updateWorkPlanDtoStatus();
+             updateWorkPlanDtoStatus();
         }
 
         public void loadingStatus(bool val1, bool val2, bool val3)
